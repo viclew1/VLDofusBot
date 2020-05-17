@@ -1,0 +1,2 @@
+executeHunt()
+runScript("Fight.kt")
