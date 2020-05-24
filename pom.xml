@@ -21,13 +21,28 @@
 
     <dependencies>
         <dependency>
-            <groupId>fr.lewon</groupId>
-            <artifactId>SpringBotRunner</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>2.3.0.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectreactor</groupId>
+            <artifactId>reactor-spring</artifactId>
+            <version>1.0.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>2.10.2</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
