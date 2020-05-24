@@ -12,6 +12,7 @@ import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveLeftTask
 import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveRightTask
 import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveTopTask
 import fr.lewon.dofus.bot.util.fight.FightBoard
+import fr.lewon.dofus.bot.util.fight.FightCell
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
@@ -285,8 +286,28 @@ abstract class DofusBotScript(
     }
 
     fun fight(preferredRange: Int, preMove: String, attacks: String) {
-        val fightBoard = getFightBoard()
-        var closestStart: fr.lewon.dofus.bot.util.fight.FightCell? = null
+        if (imgFound("fight/creature_mode.png", 0.9)) {
+            click("fight/creature_mode.png")
+        }
+        if (imgFound("fight/block_help.png", 0.9)) {
+            click("fight/block_help.png")
+        }
+        var fightBoard: FightBoard? = null
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < 10000 && fightBoard?.getDist(
+                fightBoard.enemyPos,
+                fightBoard.yourPos
+            ) == null
+        ) {
+            sleep(500)
+            try {
+                fightBoard = getFightBoard()
+            } catch (e: Exception) {
+            }
+        }
+        fightBoard ?: error("Couldn't analyze fight board")
+
+        var closestStart: FightCell? = null
         var minDist = fightBoard.getDist(fightBoard.yourPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
         for (cell in fightBoard.startCells) {
             val dist = fightBoard.getDist(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
@@ -321,6 +342,7 @@ abstract class DofusBotScript(
 
             val accessibleCells = fightBoard.accessibleCells
             val idealCells = fightBoard.cellsAtRange(preferredRange, fightBoard.enemyPos)
+                .filter { fightBoard.lineOfSight(it, fightBoard.enemyPos) }
                 .toMutableList()
             idealCells.retainAll(accessibleCells)
 
@@ -330,11 +352,14 @@ abstract class DofusBotScript(
             } else if (accessibleCells.isNotEmpty()) {
                 var closest = accessibleCells[0]
                 var minD = Int.MAX_VALUE
+                var los = false
                 for (cell in accessibleCells) {
                     val dist = fightBoard.getDist(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
-                    if (dist < minD) {
+                    val cellLos = fightBoard.lineOfSight(cell, fightBoard.enemyPos)
+                    if (dist < minD && (cellLos || !los)) {
                         minD = dist
                         closest = cell
+                        los = cellLos
                     }
                 }
                 clickPoint(closest.getCenter())
@@ -348,8 +373,9 @@ abstract class DofusBotScript(
             }
 
             sleep(500)
+
             RobotUtil.press(KeyEvent.VK_F1)
-            execTimeoutOpe({ sleep(5000) }, { imgFound("fight/finish_turn.png", 0.85) || imgFound("fight/close.png") })
+            execTimeoutOpe({ }, { imgFound("fight/player_turn.png", 0.9) || imgFound("fight/close.png") })
         }
         click("fight/close.png")
     }

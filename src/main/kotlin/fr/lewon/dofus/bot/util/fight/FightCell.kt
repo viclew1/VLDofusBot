@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.util.fight
 
 import java.awt.Rectangle
 
-class FightCell(val bounds: Rectangle) {
+class FightCell(val row: Int, val col: Int, val bounds: Rectangle, val fightCellType: FightCellType) {
 
     val neighbors = ArrayList<FightCell>()
 

@@ -1,3 +1,3 @@
-for (i in 0 until 5) {
+while (true) {
     runScript("Fetch + Reach + Execute + Fight.kt")
 }

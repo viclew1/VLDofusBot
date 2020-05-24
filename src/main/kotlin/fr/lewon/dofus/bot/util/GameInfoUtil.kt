@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.util.ImageUtil.bufferedImageToMat
 import fr.lewon.dofus.bot.util.ImageUtil.resizeImage
 import fr.lewon.dofus.bot.util.fight.FightBoard
 import fr.lewon.dofus.bot.util.fight.FightCell
+import fr.lewon.dofus.bot.util.fight.FightCellType
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
@@ -153,197 +154,169 @@ object GameInfoUtil {
     }
 
     fun refreshBoard(fightBoard: FightBoard, gameImage: BufferedImage) {
-        val enemyPlayerColor1 = Color(43, 40, 206).rgb
-        val enemyPlayerColor2 = Color(45, 43, 209).rgb
-        val enemyPlayerColor3 = Color(83, 79, 71).rgb
-        val enemyPlayerColor4 = Color(74, 70, 102).rgb
-        val enemyPlayerColor5 = Color(74, 71, 103).rgb
-        val enemyPlayerColor6 = Color(86, 82, 61).rgb
-        val moveColor1 = Color(90, 125, 62).rgb
-        val moveColor2 = Color(85, 121, 56).rgb
+        val enemyColors = listOf(
+            Color(43, 40, 206).rgb,
+            Color(45, 43, 209).rgb,
+            Color(83, 79, 71).rgb,
+            Color(74, 70, 102).rgb,
+            Color(74, 71, 103).rgb,
+            Color(86, 82, 61).rgb,
+            Color(30, 31, 217).rgb,
+            Color(32, 33, 219).rgb,
+            Color(30, 31, 217).rgb,
+            Color(32, 33, 219).rgb,
+            Color(82, 78, 72).rgb
+        )
+        val moveColors = listOf(
+            Color(90, 125, 62).rgb,
+            Color(85, 121, 56).rgb
+        )
 
         fightBoard.accessibleCells.clear()
 
-        val exploredByRow = mutableMapOf<Int, MutableList<Int>>()
-        for (row in 0 until gameImage.height) {
-            exploredByRow[row] = ArrayList()
-        }
-
-        val enemyPosPoints = ArrayList<Pair<Int, Int>>()
-
-        val accessibleCells = ArrayList<FightCell>()
-        for (row in 0 until gameImage.height) {
-            for (col in 0 until gameImage.width) {
-                if (exploredByRow[row]?.contains(col) == false) {
-                    val color = gameImage.getRGB(col, row)
-                    if (color == enemyPlayerColor1 || color == enemyPlayerColor2 || color == enemyPlayerColor3 || color == enemyPlayerColor4 || color == enemyPlayerColor5 || color == enemyPlayerColor6) {
-                        getCluster(gameImage, row, col, color, exploredByRow)
-                            .takeIf { it.size > 10 }
-                            ?.let { enemyPosPoints.addAll(it) }
-                    } else if (color == moveColor1 || color == moveColor2) {
-                        treatPixel(gameImage, row, col, 200, color, exploredByRow)
-                            ?.let { accessibleCells.add(it) }
-                    }
-                }
-            }
-        }
-
-        val enemyTop = enemyPosPoints.minBy { it.second } ?: Pair(0, 0)
-        val enemyBot = enemyPosPoints.maxBy { it.second } ?: Pair(0, 0)
-        val enemyLeft = enemyPosPoints.minBy { it.first } ?: Pair(0, 0)
-        val enemyRight = enemyPosPoints.maxBy { it.first } ?: Pair(0, 0)
-
-        val newEnemyFightCell = FightCell(
-            Rectangle(
-                enemyLeft.first,
-                enemyTop.second,
-                enemyRight.first - enemyLeft.first,
-                enemyBot.second - enemyTop.second
-            )
-        )
-
-        val newEnemyFightCellCenter = newEnemyFightCell.getCenter()
-        fightBoard.enemyPos = fightBoard.cells
-            .minBy { abs(it.bounds.centerX.toInt() - newEnemyFightCellCenter.first) + abs(it.bounds.centerY.toInt() - newEnemyFightCellCenter.second) }
-            ?: error("Couldn't find new enemy position")
-        for (cell in fightBoard.cells) {
-            val center = cell.getCenter()
-            for (access in accessibleCells) {
-                if (access.bounds.contains(center.first, center.second)) {
-                    fightBoard.accessibleCells.add(cell)
-                    break
-                }
-            }
-        }
-    }
-
-    fun getFightBoard(gameImage: BufferedImage): FightBoard {
-        val yourStart = Color(221, 34, 0).rgb
-        val enemyStart1 = Color(100, 104, 131).rgb
-        val enemyStart2 = Color(106, 110, 137).rgb
-        val stdColor1 = Color(150, 142, 103).rgb
-        val stdColor2 = Color(142, 134, 94).rgb
-
-        val yourPlayerColor1 = Color(245, 10, 0).rgb
-        val yourPlayerColor2 = Color(100, 79, 54).rgb
-        val enemyPlayerColor1 = Color(30, 31, 217).rgb
-        val enemyPlayerColor2 = Color(32, 33, 219).rgb
-
-        val startTiles = ArrayList<FightCell>()
-        val tiles = ArrayList<FightCell>()
-        val yourPosPoints = ArrayList<Pair<Int, Int>>()
-        val enemyPosPoints = ArrayList<Pair<Int, Int>>()
-
-        val exploredByRow = mutableMapOf<Int, MutableList<Int>>()
-        for (row in 0 until gameImage.height) {
-            exploredByRow[row] = ArrayList()
-        }
-        for (row in 0 until gameImage.height) {
-            for (col in 0 until gameImage.width) {
-                if (exploredByRow[row]?.contains(col) == false) {
-                    val color = gameImage.getRGB(col, row)
-                    if (color == enemyStart1 || color == enemyStart2 || color == stdColor1 || color == stdColor2) {
-                        treatPixel(gameImage, row, col, 200, color, exploredByRow)
-                            ?.let { tiles.add(it) }
-                    } else if (color == yourPlayerColor1 || color == yourPlayerColor2) {
-                        getCluster(gameImage, row, col, color, exploredByRow)
-                            .takeIf { it.size > 10 }
-                            ?.let { yourPosPoints.addAll(it) }
-                    } else if (color == enemyPlayerColor1 || color == enemyPlayerColor2) {
-                        getCluster(gameImage, row, col, color, exploredByRow)
-                            .takeIf { it.size > 10 }
-                            ?.let { enemyPosPoints.addAll(it) }
-                    } else if (color == yourStart) {
-                        treatPixel(gameImage, row, col, 200, color, exploredByRow)
-                            ?.let { tiles.add(it); startTiles.add(it) }
-                    }
-                }
-            }
-        }
-
-        val youTop = yourPosPoints.minBy { it.second } ?: Pair(0, 0)
-        val youBot = yourPosPoints.maxBy { it.second } ?: Pair(0, 0)
-        val youLeft = yourPosPoints.minBy { it.first } ?: Pair(0, 0)
-        val youRight = yourPosPoints.maxBy { it.first } ?: Pair(0, 0)
-
-        val enemyTop = enemyPosPoints.minBy { it.second } ?: Pair(0, 0)
-        val enemyBot = enemyPosPoints.maxBy { it.second } ?: Pair(0, 0)
-        val enemyLeft = enemyPosPoints.minBy { it.first } ?: Pair(0, 0)
-        val enemyRight = enemyPosPoints.maxBy { it.first } ?: Pair(0, 0)
-
-        val yourFightCell = FightCell(
-            Rectangle(youLeft.first, youTop.second, youRight.first - youLeft.first, youBot.second - youTop.second)
-        )
-
-        val enemyFightCell = FightCell(
-            Rectangle(
-                enemyLeft.first,
-                enemyTop.second,
-                enemyRight.first - enemyLeft.first,
-                enemyBot.second - enemyTop.second
-            )
-        )
-
-        tiles.add(yourFightCell)
-        tiles.add(enemyFightCell)
-
-        return FightBoard(tiles, startTiles, yourFightCell, enemyFightCell)
-    }
-
-    private fun treatPixel(
-        img: BufferedImage,
-        row: Int,
-        col: Int,
-        minClusterSize: Int,
-        color: Int,
-        exploredByRow: Map<Int, MutableList<Int>>
-    ): FightCell? {
-        val cluster = getCluster(img, row, col, color, exploredByRow)
-        if (cluster.size > minClusterSize) {
-            val top = cluster.minBy { it.second } ?: Pair(0, 0)
-            val bot = cluster.maxBy { it.second } ?: Pair(0, 0)
-            val left = cluster.minBy { it.first } ?: Pair(0, 0)
-            val right = cluster.maxBy { it.first } ?: Pair(0, 0)
-            return FightCell(
-                Rectangle(left.first, top.second, right.first - left.first, bot.second - top.second)
-            )
-        }
-        return null
-    }
-
-    private fun getCluster(
-        img: BufferedImage,
-        row: Int,
-        col: Int,
-        color: Int,
-        exploredByRow: Map<Int, MutableList<Int>>
-    ): List<Pair<Int, Int>> {
-        val colouredTiles = mutableListOf(Pair(col, row))
-        var frontier = listOf(Pair(col, row))
-        val explored = mutableListOf(Pair(col, row))
+        val explored = mutableListOf(fightBoard.yourPos)
+        var frontier = listOf(fightBoard.yourPos)
         while (frontier.isNotEmpty()) {
-            val newFrontier = ArrayList<Pair<Int, Int>>()
-            for (n in frontier) {
-                colouredTiles.add(n)
-                exploredByRow[n.second]?.add(n.first)
-                val neighbors = listOf(
-                    Pair(n.first + 1, n.second),
-                    Pair(n.first - 1, n.second),
-                    Pair(n.first, n.second + 1),
-                    Pair(n.first, n.second - 1)
-                )
-                for (neighbor in neighbors) {
-                    if (!explored.contains(neighbor)) {
-                        explored.add(neighbor)
-                        if (img.getRGB(neighbor.first, neighbor.second) == color) {
-                            newFrontier.add(neighbor)
+            val newFrontier = ArrayList<FightCell>()
+            for (cell in frontier) {
+                for (n in cell.neighbors) {
+                    if (!explored.contains(n) && n.fightCellType == FightCellType.ACCESSIBLE) {
+                        explored.add(n)
+                        val bounds = n.bounds
+                        val color = gameImage.getRGB(bounds.x + bounds.width / 2, bounds.y + bounds.height / 4)
+                        if (moveColors.contains(color)) {
+                            fightBoard.accessibleCells.add(n)
+                            newFrontier.add(n)
                         }
                     }
                 }
             }
             frontier = newFrontier
         }
-        return colouredTiles
+
+        fightBoard.enemyPos = findCharacterTile(gameImage, enemyColors, fightBoard)
+    }
+
+    private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell {
+        val explored = mutableListOf(fightBoard.enemyPos)
+        var frontier = listOf(fightBoard.enemyPos)
+        while (frontier.isNotEmpty()) {
+            val newFrontier = ArrayList<FightCell>()
+            for (cell in frontier) {
+                if (colorCount(gameImage, cell, colors) >= 100) {
+                    return cell
+                }
+                for (n in cell.neighbors) {
+                    if (!explored.contains(n) && n.fightCellType == FightCellType.ACCESSIBLE) {
+                        explored.add(n)
+                        newFrontier.add(n)
+                    }
+                }
+            }
+            frontier = newFrontier
+        }
+        error("Could not find new enemy position")
+    }
+
+    fun getFightBoard(gameImage: BufferedImage): FightBoard {
+        val playerColors = listOf(
+            Color(245, 10, 0).rgb,
+            Color(100, 79, 54).rgb
+        )
+        val enemyColors = listOf(
+            Color(43, 40, 206).rgb,
+            Color(45, 43, 209).rgb,
+            Color(83, 79, 71).rgb,
+            Color(74, 70, 102).rgb,
+            Color(74, 71, 103).rgb,
+            Color(86, 82, 61).rgb,
+            Color(30, 31, 217).rgb,
+            Color(32, 33, 219).rgb,
+            Color(30, 31, 217).rgb,
+            Color(32, 33, 219).rgb,
+            Color(82, 78, 72).rgb
+        )
+        val playerStartColors = listOf(
+            Color(221, 34, 0).rgb
+        )
+        val holeColors = listOf(
+            Color(0, 0, 0).rgb
+        )
+        val wallColors = listOf(
+            Color(61, 58, 40).rgb,
+            Color(79, 75, 52).rgb
+        )
+
+        val startTiles = ArrayList<FightCell>()
+        val tiles = ArrayList<FightCell>()
+
+        val tileWidth = (gameImage.width - 650).toDouble() / 14.5
+        val tileHeight = (gameImage.height - 200).toDouble() / 20.0
+        val initialX = 325 + tileWidth / 2.0
+        val initialY = 23 + tileHeight / 4.0
+
+        var playerTile: FightCell? = null
+        var enemyTile: FightCell? = null
+
+        for (xMultiplier in 0 until 28) {
+            val col = (initialX + (xMultiplier.toDouble() / 2.0) * tileWidth).toInt()
+            for (yMultiplier in 0 until 20) {
+                val currentTileRow = -xMultiplier / 2 + yMultiplier
+                val currentTileCol = xMultiplier / 2 + xMultiplier % 2 + yMultiplier
+                val row = (initialY + yMultiplier * tileHeight + (xMultiplier % 2) * tileHeight / 2.0).toInt()
+                val color = gameImage.getRGB(col, row)
+                val x = col.toDouble() - tileWidth / 2.0
+                val y = row.toDouble() - tileHeight / 4.0
+                val tileBounds = Rectangle(x.toInt(), y.toInt(), tileWidth.toInt(), tileHeight.toInt())
+                val tile = when {
+                    playerStartColors.contains(color) -> {
+                        val tile = FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.ACCESSIBLE)
+                        startTiles.add(tile)
+                        tile
+                    }
+                    holeColors.contains(color) -> {
+                        FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.HOLE)
+                    }
+                    wallColors.contains(color) -> {
+                        FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.WALL)
+                    }
+                    else -> {
+                        FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.ACCESSIBLE)
+                    }
+                }
+                tiles.add(tile)
+            }
+        }
+
+        for (tile in tiles) {
+            if (playerTile == null && colorCount(gameImage, tile, playerColors) >= 100) {
+                playerTile = tile
+            } else if (enemyTile == null && colorCount(gameImage, tile, enemyColors) >= 100) {
+                enemyTile = tile
+            }
+            if (playerTile != null && enemyTile != null) {
+                break
+            }
+        }
+
+        playerTile ?: error("Cannot find player character")
+        enemyTile ?: error("Cannot find enemy character")
+
+        return FightBoard(tiles, startTiles, playerTile, enemyTile)
+    }
+
+    private fun colorCount(img: BufferedImage, cell: FightCell, colors: List<Int>): Int {
+        val bounds = cell.bounds
+        var cpt = 0
+        for (x in bounds.x until bounds.x + bounds.width) {
+            for (y in bounds.y until bounds.y + bounds.height) {
+                val color = img.getRGB(x, y)
+                if (colors.contains(color)) {
+                    cpt++
+                }
+            }
+        }
+        return cpt
     }
 
     @Synchronized
@@ -368,7 +341,7 @@ object GameInfoUtil {
     @Synchronized
     fun getLocation(gameImage: BufferedImage): Pair<Int, Int>? {
         // Matching the game capture to the location template.
-        var locationImage = gameImage.getSubimage(
+        val locationImage = gameImage.getSubimage(
             0,
             70,
             200,
@@ -498,5 +471,49 @@ object GameInfoUtil {
         )
         return Core.minMaxLoc(outputImageHunt)
     }
+
+}
+
+fun main() {
+    val img = ImageIO.read(File("templates/test_fight.png"))
+    val start = System.currentTimeMillis()
+    val board = GameInfoUtil.getFightBoard(img)
+    println(System.currentTimeMillis() - start)
+    val playerPos = board.yourPos
+    val enemyPos = board.enemyPos
+    println("${playerPos.col} ; ${playerPos.row}")
+    println("${enemyPos.col} ; ${enemyPos.row}")
+    println(board.getDist(playerPos, enemyPos))
+
+    val pos29_7 = board.cellsByPosition[Pair(29, 7)] ?: error("")
+    println(board.lineOfSight(pos29_7, enemyPos))
+
+
+    val enemyColors = listOf(
+        Color(43, 40, 206).rgb,
+        Color(45, 43, 209).rgb,
+        Color(83, 79, 71).rgb,
+        Color(74, 70, 102).rgb,
+        Color(74, 71, 103).rgb,
+        Color(86, 82, 61).rgb,
+        Color(30, 31, 217).rgb,
+        Color(32, 33, 219).rgb,
+        Color(30, 31, 217).rgb,
+        Color(32, 33, 219).rgb,
+        Color(82, 78, 72).rgb
+    )
+    val img2 = ImageIO.read(File("scripts_templates/fight/test_enemy_loc.png"))
+    var cpt = 0
+    for (x in 0 until img2.width) {
+        for (y in 0 until img2.height) {
+            val color = img2.getRGB(x, y)
+            if (enemyColors.contains(color)) {
+                img2.setRGB(x, y, Color.RED.rgb)
+                cpt++
+            }
+        }
+    }
+    ImageIO.write(img2, "PNG", File("debug/testtest.png"))
+    println(cpt)
 
 }
