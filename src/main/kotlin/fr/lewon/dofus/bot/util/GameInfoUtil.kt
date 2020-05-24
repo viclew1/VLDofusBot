@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.util.ImageUtil.resizeImage
 import fr.lewon.dofus.bot.util.fight.FightBoard
 import fr.lewon.dofus.bot.util.fight.FightCell
 import fr.lewon.dofus.bot.util.fight.FightCellType
+import fr.lewon.dofus.bot.util.fight.FightColors
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
@@ -154,24 +155,6 @@ object GameInfoUtil {
     }
 
     fun refreshBoard(fightBoard: FightBoard, gameImage: BufferedImage) {
-        val enemyColors = listOf(
-            Color(43, 40, 206).rgb,
-            Color(45, 43, 209).rgb,
-            Color(83, 79, 71).rgb,
-            Color(74, 70, 102).rgb,
-            Color(74, 71, 103).rgb,
-            Color(86, 82, 61).rgb,
-            Color(30, 31, 217).rgb,
-            Color(32, 33, 219).rgb,
-            Color(30, 31, 217).rgb,
-            Color(32, 33, 219).rgb,
-            Color(82, 78, 72).rgb
-        )
-        val moveColors = listOf(
-            Color(90, 125, 62).rgb,
-            Color(85, 121, 56).rgb
-        )
-
         fightBoard.accessibleCells.clear()
 
         val explored = mutableListOf(fightBoard.yourPos)
@@ -184,7 +167,7 @@ object GameInfoUtil {
                         explored.add(n)
                         val bounds = n.bounds
                         val color = gameImage.getRGB(bounds.x + bounds.width / 2, bounds.y + bounds.height / 4)
-                        if (moveColors.contains(color)) {
+                        if (FightColors.moveColors.contains(color)) {
                             fightBoard.accessibleCells.add(n)
                             newFrontier.add(n)
                         }
@@ -194,7 +177,7 @@ object GameInfoUtil {
             frontier = newFrontier
         }
 
-        findCharacterTile(gameImage, enemyColors, fightBoard)?.let { fightBoard.enemyPos = it }
+        findCharacterTile(gameImage, FightColors.enemyColors, fightBoard)?.let { fightBoard.enemyPos = it }
     }
 
     private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell? {
@@ -203,7 +186,7 @@ object GameInfoUtil {
         while (frontier.isNotEmpty()) {
             val newFrontier = ArrayList<FightCell>()
             for (cell in frontier) {
-                if (colorCount(gameImage, cell, colors) >= 100) {
+                if (colorCount(gameImage, cell, colors) >= 110) {
                     return cell
                 }
                 for (n in cell.neighbors) {
@@ -219,34 +202,6 @@ object GameInfoUtil {
     }
 
     fun getFightBoard(gameImage: BufferedImage): FightBoard {
-        val playerColors = listOf(
-            Color(245, 10, 0).rgb,
-            Color(100, 79, 54).rgb
-        )
-        val enemyColors = listOf(
-            Color(43, 40, 206).rgb,
-            Color(45, 43, 209).rgb,
-            Color(83, 79, 71).rgb,
-            Color(74, 70, 102).rgb,
-            Color(74, 71, 103).rgb,
-            Color(86, 82, 61).rgb,
-            Color(30, 31, 217).rgb,
-            Color(32, 33, 219).rgb,
-            Color(30, 31, 217).rgb,
-            Color(32, 33, 219).rgb,
-            Color(82, 78, 72).rgb
-        )
-        val playerStartColors = listOf(
-            Color(221, 34, 0).rgb
-        )
-        val holeColors = listOf(
-            Color(0, 0, 0).rgb
-        )
-        val wallColors = listOf(
-            Color(61, 58, 40).rgb,
-            Color(79, 75, 52).rgb
-        )
-
         val startTiles = ArrayList<FightCell>()
         val tiles = ArrayList<FightCell>()
 
@@ -269,15 +224,15 @@ object GameInfoUtil {
                 val y = row.toDouble() - tileHeight / 4.0
                 val tileBounds = Rectangle(x.toInt(), y.toInt(), tileWidth.toInt(), tileHeight.toInt())
                 val tile = when {
-                    playerStartColors.contains(color) -> {
+                    FightColors.playerStartColors.contains(color) -> {
                         val tile = FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.ACCESSIBLE)
                         startTiles.add(tile)
                         tile
                     }
-                    holeColors.contains(color) -> {
+                    FightColors.holeColors.contains(color) -> {
                         FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.HOLE)
                     }
-                    wallColors.contains(color) -> {
+                    FightColors.wallColors.contains(color) -> {
                         FightCell(currentTileRow, currentTileCol, tileBounds, FightCellType.WALL)
                     }
                     else -> {
@@ -289,9 +244,9 @@ object GameInfoUtil {
         }
 
         for (tile in tiles) {
-            if (playerTile == null && colorCount(gameImage, tile, playerColors) >= 100) {
+            if (playerTile == null && colorCount(gameImage, tile, FightColors.playerColors) >= 110) {
                 playerTile = tile
-            } else if (enemyTile == null && colorCount(gameImage, tile, enemyColors) >= 100) {
+            } else if (enemyTile == null && colorCount(gameImage, tile, FightColors.enemyColors) >= 110) {
                 enemyTile = tile
             }
             if (playerTile != null && enemyTile != null) {
@@ -489,25 +444,12 @@ fun main() {
     println(board.lineOfSight(pos29_7, enemyPos))
 
 
-    val enemyColors = listOf(
-        Color(43, 40, 206).rgb,
-        Color(45, 43, 209).rgb,
-        Color(83, 79, 71).rgb,
-        Color(74, 70, 102).rgb,
-        Color(74, 71, 103).rgb,
-        Color(86, 82, 61).rgb,
-        Color(30, 31, 217).rgb,
-        Color(32, 33, 219).rgb,
-        Color(30, 31, 217).rgb,
-        Color(32, 33, 219).rgb,
-        Color(82, 78, 72).rgb
-    )
     val img2 = ImageIO.read(File("scripts_templates/fight/test_enemy_loc.png"))
     var cpt = 0
     for (x in 0 until img2.width) {
         for (y in 0 until img2.height) {
             val color = img2.getRGB(x, y)
-            if (enemyColors.contains(color)) {
+            if (FightColors.enemyColors.contains(color)) {
                 img2.setRGB(x, y, Color.RED.rgb)
                 cpt++
             }

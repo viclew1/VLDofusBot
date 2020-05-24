@@ -326,10 +326,9 @@ abstract class DofusBotScript(
 
         RobotUtil.press(KeyEvent.VK_F1)
 
-        execTimeoutOpe({}, { imgFound("fight/finish_turn.png", 0.9) })
-
+        sleep(2000)
+        execTimeoutOpe({}, { imgFound("fight/player_turn.png", 0.9) })
         while (!imgFound("fight/close.png")) {
-            sleep(2000)
             if (preMove.isNotEmpty()) {
                 for (c in preMove) {
                     RobotUtil.press(c)
@@ -346,36 +345,43 @@ abstract class DofusBotScript(
                 .toMutableList()
             idealCells.retainAll(accessibleCells)
 
-            if (idealCells.isNotEmpty()) {
-                clickPoint(idealCells[0].getCenter())
-                fightBoard.yourPos = idealCells[0]
-            } else if (accessibleCells.isNotEmpty()) {
-                var closest = accessibleCells[0]
-                var minD = Int.MAX_VALUE
-                var los = false
-                for (cell in accessibleCells) {
-                    val dist = fightBoard.getDist(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
-                    val cellLos = fightBoard.lineOfSight(cell, fightBoard.enemyPos)
-                    if (dist < minD && (cellLos || !los)) {
-                        minD = dist
-                        closest = cell
-                        los = cellLos
-                    }
+            val moveCell = when {
+                idealCells.isNotEmpty() -> {
+                    idealCells[0]
                 }
-                clickPoint(closest.getCenter())
-                fightBoard.yourPos = closest
+                accessibleCells.isNotEmpty() -> {
+                    var closest = accessibleCells[0]
+                    var minD = Int.MAX_VALUE
+                    var los = false
+                    for (cell in accessibleCells) {
+                        val dist = fightBoard.getDist(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
+                        val cellLos = fightBoard.lineOfSight(cell, fightBoard.enemyPos)
+                        if (dist < minD && (cellLos || !los)) {
+                            minD = dist
+                            closest = cell
+                            los = cellLos
+                        }
+                    }
+                    closest
+                }
+                else -> null
             }
 
-            sleep(2000)
+            moveCell?.let {
+                clickPoint(it.getCenter())
+                fightBoard.yourPos = it
+                sleep(2000)
+            }
+
             for (c in attacks) {
                 RobotUtil.press(c)
                 clickPoint(fightBoard.enemyPos.getCenter())
             }
 
-            sleep(500)
-
+            sleep(1000)
             RobotUtil.press(KeyEvent.VK_F1)
-            sleep(2000)
+
+            sleep(4500)
             execTimeoutOpe({ }, { imgFound("fight/player_turn.png", 0.9) || imgFound("fight/close.png") })
         }
         click("fight/close.png")
