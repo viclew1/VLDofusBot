@@ -194,10 +194,10 @@ object GameInfoUtil {
             frontier = newFrontier
         }
 
-        fightBoard.enemyPos = findCharacterTile(gameImage, enemyColors, fightBoard)
+        findCharacterTile(gameImage, enemyColors, fightBoard)?.let { fightBoard.enemyPos = it }
     }
 
-    private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell {
+    private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell? {
         val explored = mutableListOf(fightBoard.enemyPos)
         var frontier = listOf(fightBoard.enemyPos)
         while (frontier.isNotEmpty()) {
@@ -215,7 +215,7 @@ object GameInfoUtil {
             }
             frontier = newFrontier
         }
-        error("Could not find new enemy position")
+        return null
     }
 
     fun getFightBoard(gameImage: BufferedImage): FightBoard {
