@@ -375,6 +375,7 @@ abstract class DofusBotScript(
             sleep(500)
 
             RobotUtil.press(KeyEvent.VK_F1)
+            sleep(2000)
             execTimeoutOpe({ }, { imgFound("fight/player_turn.png", 0.9) || imgFound("fight/close.png") })
         }
         click("fight/close.png")
