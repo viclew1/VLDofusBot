@@ -22,13 +22,14 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.3.0.RELEASE</version>
+            <artifactId>spring-boot</artifactId>
+            <scope>compile</scope>
+            <version>2.2.4.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>org.projectreactor</groupId>
-            <artifactId>reactor-spring</artifactId>
-            <version>1.0.1.RELEASE</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>2.2.4.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
