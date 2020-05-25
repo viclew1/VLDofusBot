@@ -10,14 +10,15 @@ import javafx.concurrent.WorkerStateEvent
 class ExecuteHuntTask(
     controller: DofusTreasureBotGUIController,
     parentLogItem: LogItem?,
-    private val hintsIdByName: MutableMap<String, List<String>>
+    private val hintsIdByName: MutableMap<String, List<String>>,
+    private val altWorld: Boolean = false
 ) : DofusBotTask<Boolean>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Boolean {
         while (true) {
             if (GameInfoUtil.getButtonCenter(controller.captureGameImage(), DofusImages.FIGHT_BTN.path) != null)
                 return true
-            if (!ExecuteQuestTask(controller, logItem, hintsIdByName).runAndGet())
+            if (!ExecuteQuestTask(controller, logItem, hintsIdByName, altWorld).runAndGet())
                 return false
             Thread.sleep(1000)
         }

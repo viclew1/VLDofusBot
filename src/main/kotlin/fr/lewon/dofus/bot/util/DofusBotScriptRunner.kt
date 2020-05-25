@@ -188,12 +188,15 @@ abstract class DofusBotScript(
 
 
     protected fun reachDestination(x: Int, y: Int): Pair<Int, Int> {
+        if (imgFound("start_hunt_otomai.png", 0.7)) {
+            return zaapAndReach("special_zaap_coordinates", x, y)
+        }
         val frigostTransportersDest = loadCoordinatesDir("frigost_destinations")
         for (transporter in frigostTransportersDest) {
             val dist =
                 abs(transporter.second.first - x) + abs(transporter.second.second - y)
             if (dist < 4) {
-                zaapAndReach(-76, -66)
+                zaapAndReach("zaap_coordinates", -76, -66)
                 clickChain(listOf("frigost_transporter.png"), "frigost_transporter_frame.png")
                 execTimeoutOpe(
                     { click(transporter.first) },
@@ -203,7 +206,7 @@ abstract class DofusBotScript(
         }
         if (abs(-56 - x) + abs(-64 - y) < 10) {
             val transporter = frigostTransportersDest.first { it.second == Pair(-56, -74) }
-            zaapAndReach(-76, -66)
+            zaapAndReach("zaap_coordinates", -76, -66)
             clickChain(listOf("frigost_transporter.png"), "frigost_transporter_frame.png")
             execTimeoutOpe(
                 { click(transporter.first) },
@@ -215,7 +218,7 @@ abstract class DofusBotScript(
             val dist =
                 abs(transporter.second.first - x) + abs(transporter.second.second - y)
             if (dist < 6) {
-                zaapAndReach(-49, 14)
+                zaapAndReach("zaap_coordinates", -49, 14)
                 clickChain(listOf("otomai_transporter.png"), "otomai_transporter_frame.png")
                 execTimeoutOpe(
                     { click(transporter.first) },
@@ -223,16 +226,16 @@ abstract class DofusBotScript(
                 return ReachMapTask(controller, logItem, x, y).runAndGet()
             }
         }
-        return zaapAndReach(x, y)
+        return zaapAndReach("zaap_coordinates", x, y)
     }
 
-    private fun zaapAndReach(x: Int, y: Int, maxDist: Int = 20): Pair<Int, Int> {
-        zaapToward(x, y, maxDist)
+    private fun zaapAndReach(zaapDir: String, x: Int, y: Int, maxDist: Int = 20): Pair<Int, Int> {
+        zaapToward(zaapDir, x, y, maxDist)
         return ReachMapTask(controller, logItem, x, y).runAndGet()
     }
 
-    private fun zaapToward(x: Int, y: Int, maxDist: Int = 20) {
-        val zaapCoordinates = loadCoordinatesDir("zaap_coordinates")
+    private fun zaapToward(zaapDir: String, x: Int, y: Int, maxDist: Int = 20) {
+        val zaapCoordinates = loadCoordinatesDir(zaapDir)
         var selectedCoordinate: Pair<String, Pair<Int, Int>>? = null
         var closestDir = Int.MAX_VALUE
         for (coordinate in zaapCoordinates) {
@@ -460,7 +463,8 @@ abstract class DofusBotScript(
     }
 
     protected fun executeHunt() {
-        ExecuteHuntTask(controller, logItem, controller.hintsIdsByName).runAndGet()
+        val altWorld = imgFound("start_hunt_otomai.png", 0.7)
+        ExecuteHuntTask(controller, logItem, controller.hintsIdsByName, altWorld).runAndGet()
     }
 
     protected fun moveLeft(count: Int = 1): Pair<Int, Int> {

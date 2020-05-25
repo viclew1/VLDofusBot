@@ -13,7 +13,8 @@ class ExecuteQuestStepTask(
     controller: DofusTreasureBotGUIController,
     parentLogItem: LogItem?,
     private val alreadyFoundPos: List<Pair<Int, Int>>,
-    private val toFindIds: List<String>
+    private val toFindIds: List<String>,
+    private val altWorld: Boolean = false
 ) : DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Pair<Int, Int> {
@@ -27,7 +28,7 @@ class ExecuteQuestStepTask(
             y = location.second,
             direction = nextDir,
             toFindId = toFindIds,
-            world = controller.getWorld()
+            world = if (altWorld) "2" else "0"
         ) ?: throw Exception("Couldn't retrieve object distance")
         return if (DTBConfigManager.config.autopilot) {
             ReachMapTask(controller, logItem, hint.x, hint.y).runAndGet()

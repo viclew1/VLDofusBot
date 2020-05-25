@@ -12,7 +12,8 @@ import javafx.concurrent.WorkerStateEvent
 class ExecuteQuestTask(
     controller: DofusTreasureBotGUIController,
     parentLogItem: LogItem?,
-    private val hintsIdByName: MutableMap<String, List<String>>
+    private val hintsIdByName: MutableMap<String, List<String>>,
+    private val altWorld: Boolean = false
 ) : DofusBotTask<Boolean>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Boolean {
@@ -36,7 +37,8 @@ class ExecuteQuestTask(
             controller.log("Next objective : $toFind", logItem)
 
             val toFindIds = hintsIdByName[toFind] ?: throw Exception("No ID for this object")
-            val nextPos = ExecuteQuestStepTask(controller, logItem, questRegisteredPositions, toFindIds).runAndGet()
+            val nextPos =
+                ExecuteQuestStepTask(controller, logItem, questRegisteredPositions, toFindIds, altWorld).runAndGet()
             questRegisteredPositions.add(nextPos)
 
             ClickButtonTask(controller, logItem, DofusImages.CHECKPOINT_BTN.path).runAndGet()

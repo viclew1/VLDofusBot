@@ -28,8 +28,6 @@ class DofusTreasureBotGUIController : Initializable {
     @FXML
     private lateinit var gameScreenRegionSelector: ChoiceBox<String>
     @FXML
-    private lateinit var worldSelector: ChoiceBox<String>
-    @FXML
     private lateinit var huntLevelSelector: ChoiceBox<String>
     @FXML
     private lateinit var autopilotCheckbox: CheckBox
@@ -52,7 +50,6 @@ class DofusTreasureBotGUIController : Initializable {
 
     private lateinit var huntLevelTemplatePathByLevel: List<Pair<String, Int>>
     private lateinit var graphicsDevicesAndIds: List<Pair<GraphicsDevice, String>>
-    private lateinit var worldLabelsAndValues: List<Pair<String, String>>
 
     val hintsIdsByName: MutableMap<String, List<String>> =
         DTBRequestProcessor.getAllHints()
@@ -75,20 +72,6 @@ class DofusTreasureBotGUIController : Initializable {
                 }
             }
 
-        worldLabelsAndValues = listOf(
-            Pair("Main", "0"),
-            Pair("Alternative", "2")
-        )
-        worldLabelsAndValues.forEach {
-            this.worldSelector.items.add(it.first)
-        }
-        worldSelector.value = DTBConfigManager.config.world
-        worldSelector.selectionModel.selectedIndexProperty()
-            .addListener { _, _, newVal ->
-                DTBConfigManager.editConfig {
-                    it.world = worldLabelsAndValues[newVal.toInt()].first
-                }
-            }
 
         moveTimeoutInput.textProperty().addListener { _, _, newValue ->
             if (!newValue.matches("\\d*".toRegex())) {
@@ -338,13 +321,6 @@ class DofusTreasureBotGUIController : Initializable {
         return this.graphicsDevicesAndIds
             .first { it.second == DTBConfigManager.config.gameScreenRegion }
             .first
-    }
-
-    @Synchronized
-    fun getWorld(): String {
-        return this.worldLabelsAndValues
-            .first { it.first == DTBConfigManager.config.world }
-            .second
     }
 
     @Synchronized
