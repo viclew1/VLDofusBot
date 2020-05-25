@@ -378,12 +378,9 @@ abstract class DofusBotScript(
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) < 10
-                        || imgFound("fight/close.png")
             })
 
-            if (imgFound("fight/close.png")) {
-                break
-            }
+            sleep(2500)
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 60
