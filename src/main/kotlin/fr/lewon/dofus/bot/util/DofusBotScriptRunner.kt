@@ -62,17 +62,21 @@ abstract class DofusBotScript(
 
     protected fun execTimeoutOpe(
         startOperation: () -> Unit,
-        endCondition: () -> Boolean
+        endCondition: () -> Boolean,
+        timeOutMillis: Int = DTBConfigManager.config.moveTimeout,
+        failOnTimeout: Boolean = true
     ) {
         startOperation.invoke()
         val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < DTBConfigManager.config.moveTimeout * 1000) {
+        while (System.currentTimeMillis() - startTime < timeOutMillis * 1000) {
             if (endCondition.invoke()) {
                 return
             }
             Thread.sleep(50)
         }
-        throw Exception("Operation timeout")
+        if (failOnTimeout) {
+            throw Exception("Operation timeout")
+        }
     }
 
     protected fun sleep(millis: Long) {
@@ -377,10 +381,8 @@ abstract class DofusBotScript(
             RobotUtil.press(KeyEvent.VK_F1)
 
             execTimeoutOpe({ }, {
-                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) < 10
-            })
-
-            sleep(2500)
+                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.enemyTurnColors) > 60
+            }, 6, false)
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 60
