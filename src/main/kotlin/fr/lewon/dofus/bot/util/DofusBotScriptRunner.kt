@@ -126,8 +126,12 @@ abstract class DofusBotScript(
     }
 
     protected fun getSubImage(imgName: String): BufferedImage? {
+        return imgBounds(imgName)?.let { controller.captureGameImage().getSubimage(it.x, it.y, it.width, it.height) }
+    }
+
+    protected fun getSubImage(bounds: Rectangle): BufferedImage {
         val gameImage = controller.captureGameImage()
-        return imgBounds(imgName)?.let { gameImage.getSubimage(it.x, it.y, it.width, it.height) }
+        return gameImage.getSubimage(bounds.x, bounds.y, bounds.width, bounds.height)
     }
 
     protected fun clickPoint(point: Pair<Int, Int>) {

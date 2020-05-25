@@ -1,4 +1,6 @@
-var huntStartImg = getSubImage("start_hunt.png") ?: throw Exception("No hunt start found")
+val huntStartBounds = imgBounds("start_hunt.png") ?: throw Exception("No hunt start found")
+huntStartBounds.width = 300
+val huntStartImg = getSubImage(huntStartBounds)
 for (i in 5..8) {
     var treatedHuntStartImg = resize(huntStartImg, i)
     treatedHuntStartImg = keepDark(treatedHuntStartImg, true)
