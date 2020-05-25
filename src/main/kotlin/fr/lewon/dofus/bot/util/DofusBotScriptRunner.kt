@@ -193,6 +193,7 @@ abstract class DofusBotScript(
 
     protected fun reachDestination(x: Int, y: Int): Pair<Int, Int> {
         if (imgFound("start_hunt_otomai.png", 0.7)) {
+            log("This is an alt world hunt.")
             return zaapAndReach("special_zaap_coordinates", x, y)
         }
         val frigostTransportersDest = loadCoordinatesDir("frigost_destinations")
