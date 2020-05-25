@@ -199,6 +199,15 @@ abstract class DofusBotScript(
                 return ReachMapTask(controller, logItem, x, y).runAndGet()
             }
         }
+        if (abs(-56 - x) + abs(-64 - y) < 10) {
+            val transporter = frigostTransportersDest.first { it.second == Pair(-56, -74) }
+            zaapAndReach(-76, -66)
+            clickChain(listOf("frigost_transporter.png"), "frigost_transporter_frame.png")
+            execTimeoutOpe(
+                { click(transporter.first) },
+                { GameInfoUtil.getLocation(controller.captureGameImage()) == transporter.second })
+            return ReachMapTask(controller, logItem, x, y).runAndGet()
+        }
         val otomaiTransporters = loadCoordinatesDir("otomai_destinations")
         for (transporter in otomaiTransporters) {
             val dist =
