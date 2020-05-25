@@ -11,8 +11,10 @@ import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveBottomTask
 import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveLeftTask
 import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveRightTask
 import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveTopTask
+import fr.lewon.dofus.bot.util.fight.FightAI
 import fr.lewon.dofus.bot.util.fight.FightBoard
 import fr.lewon.dofus.bot.util.fight.FightCell
+import fr.lewon.dofus.bot.util.fight.FightColors
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
@@ -294,7 +296,7 @@ abstract class DofusBotScript(
         throw Exception("Destination not found")
     }
 
-    fun fight(preferredRange: Int, preMove: String, attacks: String) {
+    fun fight(preferredRange: Int, maxRange: Int, preMove: String, attacks: String) {
         if (imgFound("fight/creature_mode.png", 0.9)) {
             click("fight/creature_mode.png")
         }
@@ -316,6 +318,8 @@ abstract class DofusBotScript(
         }
         fightBoard ?: error("Couldn't analyze fight board")
 
+        val passTurnBounds = imgBounds("fight/ready.png") ?: error("Could not find ready button")
+
         var closestStart: FightCell? = null
         var minDist = fightBoard.getDist(fightBoard.yourPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
         for (cell in fightBoard.startCells) {
@@ -328,7 +332,7 @@ abstract class DofusBotScript(
         }
         println(minDist)
 
-        if (closestStart != null && imgFound("fight/ready.png")) {
+        if (closestStart != null) {
             clickPoint(closestStart.getCenter())
             fightBoard.yourPos = closestStart
         }
@@ -348,35 +352,7 @@ abstract class DofusBotScript(
             }
             refreshBoard(fightBoard)
 
-            val accessibleCells = fightBoard.accessibleCells
-            val idealCells = fightBoard.cellsAtRange(preferredRange, fightBoard.enemyPos)
-                .filter { fightBoard.lineOfSight(it, fightBoard.enemyPos) }
-                .toMutableList()
-            idealCells.retainAll(accessibleCells)
-
-            val moveCell = when {
-                idealCells.isNotEmpty() -> {
-                    idealCells[0]
-                }
-                accessibleCells.isNotEmpty() -> {
-                    var closest = accessibleCells[0]
-                    var minD = Int.MAX_VALUE
-                    var los = false
-                    for (cell in accessibleCells) {
-                        val dist = fightBoard.getDist(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
-                        val cellLos = fightBoard.lineOfSight(cell, fightBoard.enemyPos)
-                        if (dist < minD && (cellLos || !los)) {
-                            minD = dist
-                            closest = cell
-                            los = cellLos
-                        }
-                    }
-                    closest
-                }
-                else -> null
-            }
-
-            moveCell?.let {
+            FightAI.selectBestDest(fightBoard, preferredRange, maxRange)?.let {
                 clickPoint(it.getCenter())
                 fightBoard.yourPos = it
                 sleep(2000)
@@ -388,10 +364,23 @@ abstract class DofusBotScript(
             }
 
             sleep(1000)
+
+            val capture = { controller.captureGameImage() }
             RobotUtil.press(KeyEvent.VK_F1)
 
-            sleep(4500)
-            execTimeoutOpe({ }, { imgFound("fight/player_turn.png", 0.9) || imgFound("fight/close.png") })
+            execTimeoutOpe({ }, {
+                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) < 10
+                        || imgFound("fight/close.png")
+            })
+
+            if (imgFound("fight/close.png")) {
+                break
+            }
+
+            execTimeoutOpe({ }, {
+                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 60
+                        || imgFound("fight/close.png")
+            })
         }
         click("fight/close.png")
     }

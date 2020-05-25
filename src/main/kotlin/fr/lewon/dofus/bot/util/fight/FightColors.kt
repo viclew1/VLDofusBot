@@ -35,5 +35,11 @@ object FightColors {
         Color(90, 125, 62).rgb,
         Color(85, 121, 56).rgb
     )
+    val playerTurnColors = listOf(
+        Color(207, 240, 0).rgb
+    )
+    val enemyTurnColors = listOf(
+        Color(127, 143, 0).rgb
+    )
 
 }

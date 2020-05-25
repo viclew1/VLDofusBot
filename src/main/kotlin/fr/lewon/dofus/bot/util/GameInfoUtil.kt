@@ -186,7 +186,7 @@ object GameInfoUtil {
         while (frontier.isNotEmpty()) {
             val newFrontier = ArrayList<FightCell>()
             for (cell in frontier) {
-                if (colorCount(gameImage, cell, colors) >= 110) {
+                if (colorCount(gameImage, cell.bounds, colors) >= 110) {
                     return cell
                 }
                 for (n in cell.neighbors) {
@@ -244,9 +244,9 @@ object GameInfoUtil {
         }
 
         for (tile in tiles) {
-            if (playerTile == null && colorCount(gameImage, tile, FightColors.playerColors) >= 110) {
+            if (playerTile == null && colorCount(gameImage, tile.bounds, FightColors.playerColors) >= 110) {
                 playerTile = tile
-            } else if (enemyTile == null && colorCount(gameImage, tile, FightColors.enemyColors) >= 110) {
+            } else if (enemyTile == null && colorCount(gameImage, tile.bounds, FightColors.enemyColors) >= 110) {
                 enemyTile = tile
             }
             if (playerTile != null && enemyTile != null) {
@@ -260,8 +260,7 @@ object GameInfoUtil {
         return FightBoard(tiles, startTiles, playerTile, enemyTile)
     }
 
-    private fun colorCount(img: BufferedImage, cell: FightCell, colors: List<Int>): Int {
-        val bounds = cell.bounds
+    fun colorCount(img: BufferedImage, bounds: Rectangle, colors: List<Int>): Int {
         var cpt = 0
         for (x in bounds.x until bounds.x + bounds.width) {
             for (y in bounds.y until bounds.y + bounds.height) {

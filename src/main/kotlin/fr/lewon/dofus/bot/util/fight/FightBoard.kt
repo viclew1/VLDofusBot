@@ -68,18 +68,22 @@ class FightBoard(
             if (cellsByPosition[Pair(x, y)]?.fightCellType == FightCellType.WALL) {
                 clear = false
             } else {
-                if (error > 0) {
-                    x += x_inc
-                    error -= dy
-                } else if (error < 0) {
-                    y += y_inc
-                    error += dx
-                } else {
-                    x += x_inc
-                    error -= dy
-                    y += y_inc
-                    error += dx
-                    n--
+                when {
+                    error > 0 -> {
+                        x += x_inc
+                        error -= dy
+                    }
+                    error < 0 -> {
+                        y += y_inc
+                        error += dx
+                    }
+                    else -> {
+                        x += x_inc
+                        error -= dy
+                        y += y_inc
+                        error += dx
+                        n--
+                    }
                 }
                 n--
             }
@@ -146,5 +150,17 @@ class FightBoard(
     }
 
     private class Node(val parent: Node?, val cell: FightCell)
+
+    fun deepCopy(): FightBoard {
+        val cells = cellsByPosition.values.map { it.deepCopy() }
+        val startCellsCoordinates = startCells.map { Pair(it.col, it.row) }
+        val startCells = cells.filter { startCellsCoordinates.contains(Pair(it.col, it.row)) }
+        val yourPosCopy = cells.first { yourPos.col == it.col && yourPos.row == it.row }
+        val enemyPosCopy = cells.first { enemyPos.col == it.col && enemyPos.row == it.row }
+        val accessibleCellsCoordinates = startCells.map { Pair(it.col, it.row) }
+        val accessibleCellsCopy = cells.filter { accessibleCellsCoordinates.contains(Pair(it.col, it.row)) }
+        return FightBoard(cells, startCells, yourPosCopy, enemyPosCopy)
+            .also { it.accessibleCells.addAll(accessibleCellsCopy) }
+    }
 
 }
