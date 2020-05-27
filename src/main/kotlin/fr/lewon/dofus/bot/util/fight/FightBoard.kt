@@ -47,6 +47,24 @@ class FightBoard(
         dx *= 2
         dy *= 2
 
+        when {
+            error > 0 -> {
+                x += xInc
+                error -= dy
+            }
+            error < 0 -> {
+                y += yInc
+                error += dx
+            }
+            else -> {
+                x += xInc
+                error -= dy
+                y += yInc
+                error += dx
+                n--
+            }
+        }
+
         while (n > 0) {
             if (cellsByPosition[Pair(x, y)]?.fightCellType == FightCellType.WALL) {
                 return false
