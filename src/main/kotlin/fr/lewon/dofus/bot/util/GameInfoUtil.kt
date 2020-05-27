@@ -10,7 +10,6 @@ import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-import java.awt.Color
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
@@ -257,7 +256,7 @@ object GameInfoUtil {
         playerTile ?: error("Cannot find player character")
         enemyTile ?: error("Cannot find enemy character")
 
-        return FightBoard(tiles, startTiles, playerTile, enemyTile)
+        return FightBoard(tiles, startTiles, playerTile, enemyTile).also { it.init() }
     }
 
     fun colorCount(img: BufferedImage, bounds: Rectangle, colors: List<Int>): Int {
@@ -425,36 +424,5 @@ object GameInfoUtil {
         )
         return Core.minMaxLoc(outputImageHunt)
     }
-
-}
-
-fun main() {
-    val img = ImageIO.read(File("templates/test_fight.png"))
-    val start = System.currentTimeMillis()
-    val board = GameInfoUtil.getFightBoard(img)
-    println(System.currentTimeMillis() - start)
-    val playerPos = board.yourPos
-    val enemyPos = board.enemyPos
-    println("${playerPos.col} ; ${playerPos.row}")
-    println("${enemyPos.col} ; ${enemyPos.row}")
-    println(board.getDist(playerPos, enemyPos))
-
-    val pos29_7 = board.cellsByPosition[Pair(29, 7)] ?: error("")
-    println(board.lineOfSight(pos29_7, enemyPos))
-
-
-    val img2 = ImageIO.read(File("scripts_templates/fight/test_enemy_loc.png"))
-    var cpt = 0
-    for (x in 0 until img2.width) {
-        for (y in 0 until img2.height) {
-            val color = img2.getRGB(x, y)
-            if (FightColors.enemyColors.contains(color)) {
-                img2.setRGB(x, y, Color.RED.rgb)
-                cpt++
-            }
-        }
-    }
-    ImageIO.write(img2, "PNG", File("debug/testtest.png"))
-    println(cpt)
 
 }

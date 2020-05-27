@@ -1,37 +1,91 @@
 package fr.lewon.dofus.bot.util.fight
 
-import kotlin.math.abs
 
-object FightAI {
+class FightAI(
+    private val playerMovePoints: Int,
+    private val enemyMovePoints: Int,
+    private val fightBoard: FightBoard,
+    private val minDist: Int,
+    private val maxDist: Int,
+    private val initialDepth: Int
+) {
 
-    fun selectBestDest(fightBoard: FightBoard, objectiveDist: Int, maxDist: Int): FightCell? {
-        var bestDest: FightCell? = null
-        var bestScore: Int = -100000
-        for (moveCell in fightBoard.accessibleCells) {
-            evaluateBoard(fightBoard, moveCell, objectiveDist, maxDist)
-                .takeIf { it > bestScore }
-                ?.let {
-                    bestDest = moveCell
-                    bestScore = it
-                }
+    private var lastTurnMpUsed: Int = playerMovePoints
+
+    fun selectBestDest(): FightCell {
+        var chosenCell = fightBoard.yourPos
+        var best: Int? = null
+        for (cell in fightBoard.accessibleCells) {
+            val tmp: FightBoard = fightBoard.clone()
+            tmp.yourPos = cell
+            val value = minValue(tmp, Int.MIN_VALUE, Int.MAX_VALUE, initialDepth)
+            if (best == null || value > best) {
+                chosenCell = cell
+                best = value
+            }
         }
-        return bestDest
+        return chosenCell
     }
 
-    private fun evaluateBoard(fightBoard: FightBoard, yourPos: FightCell, objectiveDist: Int, maxDist: Int): Int {
-        val dist = fightBoard.getDist(yourPos, fightBoard.enemyPos) ?: error("Invalid board")
-        val los = fightBoard.lineOfSight(yourPos, fightBoard.enemyPos)
-        if (dist == objectiveDist) {
-            return if (los) 1000 else 50
+
+    private fun maxValue(fb: FightBoard, alpha: Int, beta: Int, depth: Int): Int {
+        var newAlpha = alpha
+        val score = evaluateBoard(fb)
+        if (depth <= 0) {
+            return score
         }
-        val dToObjective = abs(dist - objectiveDist)
-        if (dist < objectiveDist) {
-            return (if (los) 100 else 20) - dToObjective
+
+        val mpAvailable = minOf(lastTurnMpUsed, playerMovePoints)
+        val accessibleCells = fb.cellsAtRange(mpAvailable, fb.yourPos)
+
+        var v = Int.MIN_VALUE
+        for (cell in accessibleCells) {
+            val newFB = fb.clone()
+            if (newFB.enemyPos != cell) {
+                newFB.yourPos = cell
+                v = maxOf(v, score + minValue(newFB, newAlpha, beta, depth - 1))
+                if (v >= beta) return v
+                newAlpha = maxOf(newAlpha, v)
+            }
         }
-        if (dist <= maxDist) {
-            return (if (los) 200 else 40) - dToObjective
+        return v
+    }
+
+    private fun minValue(fb: FightBoard, alpha: Int, beta: Int, depth: Int): Int {
+        var newBeta = beta
+        val score = evaluateBoard(fb)
+        if (depth <= 0) {
+            return score
         }
-        return -dToObjective
+
+        val accessibleCells = fb.cellsAtRange(enemyMovePoints, fb.enemyPos)
+
+        var v = Int.MAX_VALUE
+        for (cell in accessibleCells) {
+            val newFB = fb.clone()
+            if (newFB.enemyPos != cell) {
+                newFB.enemyPos = cell
+                v = minOf(v, score + maxValue(newFB, alpha, newBeta, depth - 1))
+                if (v <= alpha) return v
+                newBeta = minOf(newBeta, v)
+            }
+        }
+        return v
+    }
+
+    private fun evaluateBoard(fb: FightBoard): Int {
+        val dist = fb.getDist(fb.yourPos, fb.enemyPos) ?: error("Invalid board")
+        val los = fb.lineOfSight(fb.yourPos, fb.enemyPos)
+        val score = when {
+            dist in minDist..maxDist -> {
+                Pair(1000, 40)
+            }
+            dist < minDist -> {
+                Pair(200, 60)
+            }
+            else -> Pair(0, 0)
+        }
+        return (if (los) score.first else score.second) - dist
     }
 
 }

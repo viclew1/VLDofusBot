@@ -10,8 +10,4 @@ class FightCell(val row: Int, val col: Int, val bounds: Rectangle, val fightCell
         return Pair(bounds.centerX.toInt(), bounds.centerY.toInt())
     }
 
-    fun deepCopy(): FightCell {
-        return FightCell(row, col, Rectangle(bounds.x, bounds.y, bounds.width, bounds.height), fightCellType)
-    }
-
 }

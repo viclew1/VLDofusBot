@@ -5,8 +5,10 @@ import java.awt.Color
 object FightColors {
 
     val playerColors = listOf(
+        Color(255, 0, 0).rgb,
         Color(245, 10, 0).rgb,
-        Color(100, 79, 54).rgb
+        Color(100, 79, 54).rgb,
+        Color(103, 75, 52).rgb
     )
     val enemyColors = listOf(
         Color(43, 40, 206).rgb,

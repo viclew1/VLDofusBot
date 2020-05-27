@@ -308,7 +308,7 @@ abstract class DofusBotScript(
         throw Exception("Destination not found")
     }
 
-    fun fight(preferredRange: Int, maxRange: Int, preMove: String, attacks: String) {
+    fun fight(preferredRange: Int, maxRange: Int, preMove: String, losAttacks: String, nonLosAttacks: String = "") {
         if (imgFound("fight/creature_mode.png", 0.9)) {
             click("fight/creature_mode.png")
         }
@@ -349,27 +349,41 @@ abstract class DofusBotScript(
             fightBoard.yourPos = closestStart
         }
 
+        var fightAI: FightAI? = null
         RobotUtil.press(KeyEvent.VK_F1)
 
         sleep(2000)
         execTimeoutOpe({}, { imgFound("fight/player_turn.png", 0.9) })
-        while (!imgFound("fight/close.png")) {
+        while (!imgFound("fight/close.png") && !imgFound("fight/ok.png", 0.9)) {
+
+            if (fightAI == null) {
+                refreshBoard(fightBoard)
+                val enemyMovePoints = getMovePoints(fightBoard, fightBoard.enemyPos)
+                log("Enemy move points : $enemyMovePoints")
+                val playerMovePoints = getMovePoints(fightBoard, fightBoard.yourPos)
+                log("Player move points: $playerMovePoints")
+                fightAI = FightAI(playerMovePoints, enemyMovePoints, fightBoard, preferredRange, maxRange, 1)
+            }
+
             if (preMove.isNotEmpty()) {
                 for (c in preMove) {
                     RobotUtil.press(c)
                     clickPoint(fightBoard.yourPos.getCenter())
-                    sleep(350)
+                    sleep(800)
                 }
                 sleep(1500)
             }
             refreshBoard(fightBoard)
 
-            FightAI.selectBestDest(fightBoard, preferredRange, maxRange)?.let {
-                clickPoint(it.getCenter())
-                fightBoard.yourPos = it
-                sleep(2000)
-            }
+            fightAI.selectBestDest().takeIf { it != fightBoard.yourPos }
+                ?.let {
+                    clickPoint(it.getCenter())
+                    fightBoard.yourPos = it
+                    sleep(2000)
+                }
 
+            val los = fightBoard.lineOfSight(fightBoard.yourPos, fightBoard.enemyPos)
+            val attacks = if (los) losAttacks else nonLosAttacks
             for (c in attacks) {
                 RobotUtil.press(c)
                 clickPoint(fightBoard.enemyPos.getCenter())
@@ -386,10 +400,31 @@ abstract class DofusBotScript(
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 60
-                        || imgFound("fight/close.png")
+                        || imgFound("fight/close.png") || imgFound("fight/ok.png")
             })
         }
+        if (imgFound("fight/ok.png", 0.9)) {
+            click("fight/ok.png")
+        }
+
         click("fight/close.png")
+    }
+
+    private fun getMovePoints(fightBoard: FightBoard, characterCell: FightCell): Int {
+        val characterScreenPos = characterCell.getCenter()
+        execTimeoutOpe(
+            { mouseMove(characterScreenPos.first, characterScreenPos.second) },
+            { imgFound("fight/mp.png") }
+        )
+        return getSubImage("fight/mp.png")
+            ?.let { it.getSubimage(27, 0, it.width - 27, it.height) }
+            ?.let { resize(it, 16) }
+            ?.let { keepWhite(it, true) }
+            ?.let { getLines(it, "0123456789") }
+            ?.takeIf { it.size == 1 }
+            ?.get(0)
+            ?.toInt()
+            ?: error("Couldn't fight enemy move points")
     }
 
     protected fun getFightBoard(): FightBoard {

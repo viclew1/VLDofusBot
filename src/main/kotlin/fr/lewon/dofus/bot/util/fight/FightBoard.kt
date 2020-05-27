@@ -6,16 +6,16 @@ import kotlin.collections.HashMap
 import kotlin.math.abs
 
 class FightBoard(
-    cells: List<FightCell>,
+    private val cells: List<FightCell>,
     val startCells: List<FightCell>,
     var yourPos: FightCell,
     var enemyPos: FightCell
 ) {
 
     val accessibleCells = ArrayList<FightCell>()
-    val cellsByPosition = HashMap<Pair<Int, Int>, FightCell>()
+    private val cellsByPosition = HashMap<Pair<Int, Int>, FightCell>()
 
-    init {
+    fun init() {
         for (cell in cells) {
             cellsByPosition[Pair(cell.col, cell.row)] = cell
         }
@@ -36,60 +36,46 @@ class FightBoard(
         val x1 = toCell.col
         val y1 = toCell.row
 
-        var clear = true
         var dx = abs(x1 - x0)
         var dy = abs(y1 - y0)
         var x = x0
         var y = y0
         var n = -1 + dx + dy
-        val x_inc = if (x1 > x0) 1 else -1
-        val y_inc = if (y1 > y0) 1 else -1
+        val xInc = if (x1 > x0) 1 else -1
+        val yInc = if (y1 > y0) 1 else -1
         var error = dx - dy
         dx *= 2
         dy *= 2
 
-        for (i in 0..0) {
-            if (error > 0) {
-                x += x_inc
-                error -= dy
-            } else if (error < 0) {
-                y += y_inc
-                error += dx
-            } else {
-                x += x_inc
-                error -= dy
-                y += y_inc
-                error += dx
-                n--
-            }
-        }
-
-        while (n > 0 && clear) {
+        while (n > 0) {
             if (cellsByPosition[Pair(x, y)]?.fightCellType == FightCellType.WALL) {
-                clear = false
-            } else {
-                when {
-                    error > 0 -> {
-                        x += x_inc
-                        error -= dy
-                    }
-                    error < 0 -> {
-                        y += y_inc
-                        error += dx
-                    }
-                    else -> {
-                        x += x_inc
-                        error -= dy
-                        y += y_inc
-                        error += dx
-                        n--
-                    }
-                }
-                n--
+                return false
             }
+            when {
+                error > 0 -> {
+                    x += xInc
+                    error -= dy
+                }
+                error < 0 -> {
+                    y += yInc
+                    error += dx
+                }
+                else -> {
+                    x += xInc
+                    error -= dy
+                    y += yInc
+                    error += dx
+                    n--
+                }
+            }
+            n--
         }
 
-        return clear
+        return true
+    }
+
+    fun cellAt(x: Int, y: Int): FightCell {
+        return cellsByPosition[Pair(x, y)] ?: error("Unknown move cell")
     }
 
     fun getDist(fromCell: FightCell, toCell: FightCell): Int? {
@@ -146,21 +132,13 @@ class FightBoard(
             }
             frontier = newFrontier
         }
-        return frontier
+        return explored
     }
 
     private class Node(val parent: Node?, val cell: FightCell)
 
-    fun deepCopy(): FightBoard {
-        val cells = cellsByPosition.values.map { it.deepCopy() }
-        val startCellsCoordinates = startCells.map { Pair(it.col, it.row) }
-        val startCells = cells.filter { startCellsCoordinates.contains(Pair(it.col, it.row)) }
-        val yourPosCopy = cells.first { yourPos.col == it.col && yourPos.row == it.row }
-        val enemyPosCopy = cells.first { enemyPos.col == it.col && enemyPos.row == it.row }
-        val accessibleCellsCoordinates = startCells.map { Pair(it.col, it.row) }
-        val accessibleCellsCopy = cells.filter { accessibleCellsCoordinates.contains(Pair(it.col, it.row)) }
-        return FightBoard(cells, startCells, yourPosCopy, enemyPosCopy)
-            .also { it.accessibleCells.addAll(accessibleCellsCopy) }
+    fun clone(): FightBoard {
+        return FightBoard(cells, startCells, yourPos, enemyPos)
     }
 
 }
