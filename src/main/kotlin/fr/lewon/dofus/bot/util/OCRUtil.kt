@@ -6,7 +6,6 @@ import net.sourceforge.tess4j.Tesseract
 import org.opencv.core.Mat
 import org.opencv.core.Size
 import org.opencv.highgui.HighGui
-import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 import java.awt.image.BufferedImage
 
@@ -48,21 +47,12 @@ object OCRUtil {
         }
     }
 
-    fun matchHuMoments(imgPath: String, templatePath: String) {
-        var im = Imgcodecs.imread(imgPath, Imgcodecs.IMREAD_GRAYSCALE)
-        Imgproc.threshold(im, im, 128.0, 255.0, Imgproc.THRESH_BINARY)
-        val moments = Imgproc.moments(im, false)
-        val huMoments = Mat()
-        Imgproc.HuMoments(moments, huMoments)
-//        var d = Imgproc.matchShapes(im1, im2, cv2.CONTOURS_MATCH_I1, 0.0)
-    }
-
     @Synchronized
     fun segmentImage(img: Mat): Mat {
         // init
         // init
-        val grayImage = Mat()
-        val detectedEdges = Mat()
+        val grayImage = Mat().also { MatFlusher.registerMat(it) }
+        val detectedEdges = Mat().also { MatFlusher.registerMat(it) }
 
         // convert to grayscale
         // convert to grayscale
@@ -78,7 +68,7 @@ object OCRUtil {
 
         // using Canny's output as a mask, display the result
         // using Canny's output as a mask, display the result
-        val dest = Mat()
+        val dest = Mat().also { MatFlusher.registerMat(it) }
         img.copyTo(dest, detectedEdges)
 
         return dest
@@ -86,17 +76,17 @@ object OCRUtil {
 
     @Synchronized
     fun keepDarkOnImage(imageMat: Mat, smoothen: Boolean = true): BufferedImage {
-        val srcGray = Mat()
+        val srcGray = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.cvtColor(imageMat, srcGray, Imgproc.COLOR_BGR2GRAY)
 
-        val dst = Mat()
+        val dst = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.threshold(srcGray, dst, 95.0, 255.0, 0)
 
         if (!smoothen) {
             return HighGui.toBufferedImage(dst) as BufferedImage
         }
 
-        val smoothDst = Mat()
+        val smoothDst = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.medianBlur(dst, smoothDst, 7)
 
         return HighGui.toBufferedImage(smoothDst) as BufferedImage
@@ -104,17 +94,17 @@ object OCRUtil {
 
     @Synchronized
     fun keepWhiteOnImage(imageMat: Mat, smoothen: Boolean = true): BufferedImage {
-        val srcGray = Mat()
+        val srcGray = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.cvtColor(imageMat, srcGray, Imgproc.COLOR_BGR2GRAY)
 
-        val dst = Mat()
+        val dst = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.threshold(srcGray, dst, 115.0, 255.0, 1)
 
         if (!smoothen) {
             return HighGui.toBufferedImage(dst) as BufferedImage
         }
 
-        val smoothDst = Mat()
+        val smoothDst = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.medianBlur(dst, smoothDst, 7)
 
         return HighGui.toBufferedImage(smoothDst) as BufferedImage

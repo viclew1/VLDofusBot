@@ -19,9 +19,14 @@ import kotlin.math.abs
 
 object GameInfoUtil {
 
+    private fun buildMat(imgPath: String): Mat {
+        return Imgcodecs.imread(imgPath).also { MatFlusher.registerMat(it) }
+    }
+
     @Synchronized
     fun getButtonBounds(gameImage: BufferedImage, imagePath: String, minMatchValue: Double = 0.6): Rectangle? {
-        val searchTemplate = Imgcodecs.imread(imagePath)
+        val searchTemplate = buildMat(imagePath)
+        MatFlusher.registerMat(searchTemplate)
         val matchResult = this.getMatchResult(gameImage, searchTemplate) ?: return null
         if (matchResult.maxVal < minMatchValue) return null
         ImageIO.write(
@@ -61,9 +66,9 @@ object GameInfoUtil {
     @Synchronized
     fun getNextDirection(gameImage: BufferedImage): Directions? {
         // Building templates for the sides of the frame, because its size may vary
-        val tempTopMat = Imgcodecs.imread(DofusImages.TREASURE_HUNT_FRAME_TOP_TEMPLATE.path)
-        val tempBotMat = Imgcodecs.imread(DofusImages.TREASURE_HUNT_FRAME_BOT_TEMPLATE.path)
-        val tempLeftMat = Imgcodecs.imread(DofusImages.TREASURE_HUNT_FRAME_LEFT_TEMPLATE.path)
+        val tempTopMat = buildMat(DofusImages.TREASURE_HUNT_FRAME_TOP_TEMPLATE.path)
+        val tempBotMat = buildMat(DofusImages.TREASURE_HUNT_FRAME_BOT_TEMPLATE.path)
+        val tempLeftMat = buildMat(DofusImages.TREASURE_HUNT_FRAME_LEFT_TEMPLATE.path)
 
         // Fetching the match on the game capture of the templates build before, fails if the match value is less than 0.25
         val topMatchResult = this.getMatchResult(gameImage, tempTopMat) ?: return null
@@ -104,19 +109,19 @@ object GameInfoUtil {
         val dirMatPairs: List<Pair<Directions, Mat>> = listOf(
             Pair(
                 Directions.LEFT,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(Imgcodecs.imread(DofusImages.LEFT_ARROW.path), false))
+                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.LEFT_ARROW.path), false))
             ),
             Pair(
                 Directions.RIGHT,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(Imgcodecs.imread(DofusImages.RIGHT_ARROW.path), false))
+                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.RIGHT_ARROW.path), false))
             ),
             Pair(
                 Directions.BOTTOM,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(Imgcodecs.imread(DofusImages.BOTTOM_ARROW.path), false))
+                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.BOTTOM_ARROW.path), false))
             ),
             Pair(
                 Directions.TOP,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(Imgcodecs.imread(DofusImages.TOP_ARROW.path), false))
+                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.TOP_ARROW.path), false))
             )
         )
 
@@ -156,8 +161,8 @@ object GameInfoUtil {
     fun refreshBoard(fightBoard: FightBoard, gameImage: BufferedImage) {
         fightBoard.accessibleCells.clear()
 
-        val explored = mutableListOf(fightBoard.yourPos)
-        var frontier = listOf(fightBoard.yourPos)
+        val explored = mutableListOf(fightBoard.playerPos)
+        var frontier = listOf(fightBoard.playerPos)
         while (frontier.isNotEmpty()) {
             val newFrontier = ArrayList<FightCell>()
             for (cell in frontier) {
@@ -275,7 +280,7 @@ object GameInfoUtil {
     @Synchronized
     fun patternFound(gameImage: BufferedImage, minMatchValue: Double = 0.21, vararg templatesPath: String): Boolean {
         val imgMat = OCRUtil.segmentImage(bufferedImageToMat(gameImage))
-        val templates = templatesPath.map { OCRUtil.segmentImage(Imgcodecs.imread(it)) }
+        val templates = templatesPath.map { OCRUtil.segmentImage(buildMat(it)) }
 
         //Match all the templates, if any of them has a value of more than 0.14, we consider the phorror found
         for (template in templates) {
@@ -382,10 +387,10 @@ object GameInfoUtil {
         rightFramePath: String
     ): Rectangle? {
         // Building templates for the sides of the frame, because its size may vary
-        val tempTopMat = Imgcodecs.imread(topFramePath)
-        val tempBotMat = Imgcodecs.imread(botFramePath)
-        val tempLeftMat = Imgcodecs.imread(leftFramePath)
-        val tempRightMat = Imgcodecs.imread(rightFramePath)
+        val tempTopMat = buildMat(topFramePath)
+        val tempBotMat = buildMat(botFramePath)
+        val tempLeftMat = buildMat(leftFramePath)
+        val tempRightMat = buildMat(rightFramePath)
 
         // Fetching the match on the game capture of the templates build before, fails if the match value is less than 0.25
         val topMatchResult = this.getMatchResult(gameImage, tempTopMat) ?: return null
@@ -415,7 +420,7 @@ object GameInfoUtil {
 
     @Synchronized
     private fun getMatchResult(imgMat: Mat, templateMat: Mat): Core.MinMaxLocResult? {
-        val outputImageHunt = Mat()
+        val outputImageHunt = Mat().also { MatFlusher.registerMat(it) }
         Imgproc.matchTemplate(
             imgMat,
             templateMat,

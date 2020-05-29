@@ -8,7 +8,7 @@ import kotlin.math.abs
 class FightBoard(
     private val cells: List<FightCell>,
     val startCells: List<FightCell>,
-    var yourPos: FightCell,
+    var playerPos: FightCell,
     var enemyPos: FightCell
 ) {
 
@@ -156,7 +156,7 @@ class FightBoard(
     private class Node(val parent: Node?, val cell: FightCell)
 
     fun clone(): FightBoard {
-        return FightBoard(cells, startCells, yourPos, enemyPos)
+        return FightBoard(cells, startCells, playerPos, enemyPos)
     }
 
 }

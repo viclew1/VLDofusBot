@@ -239,6 +239,7 @@ class DofusTreasureBotGUIController : Initializable {
                 closeLog(failMessage, logItem)
                 Platform.runLater { status.style = "-fx-background-color: red;"; }
             } finally {
+                MatFlusher.releaseAll()
                 log("----------")
                 enableButtons(true)
             }
