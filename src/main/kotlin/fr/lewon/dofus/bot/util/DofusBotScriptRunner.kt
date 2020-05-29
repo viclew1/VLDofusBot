@@ -434,7 +434,11 @@ abstract class DofusBotScript(
             ?.takeIf { it.size == 1 }
             ?.get(0)
             ?.toInt()
-            ?: error("Couldn't fight enemy move points")
+            ?: error("Couldn't find character move points")
+    }
+
+    protected fun clearCache() {
+        MatFlusher.releaseAll()
     }
 
     protected fun getFightBoard(): FightBoard {
