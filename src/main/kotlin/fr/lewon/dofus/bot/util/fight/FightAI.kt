@@ -10,16 +10,31 @@ class FightAI(
     private val initialDepth: Int
 ) {
 
+    private fun playPlayerMove(state: FightState, targetCell: FightCell) {
+        state.fb.playerPos = targetCell
+        val dist = state.fb.getDist(targetCell, state.fb.enemyPos) ?: error("Invalid board")
+        val los = state.fb.lineOfSight(targetCell, state.fb.enemyPos)
+        when {
+            dist in minDist..maxDist -> {
+                state.attacksDone += if (los) 1000 else 40
+            }
+            dist < minDist -> {
+                state.attacksDone += if (los) 200 else 60
+            }
+        }
+    }
+
+    private fun playEnemyMove(state: FightState, targetCell: FightCell) {
+        state.fb.enemyPos = targetCell
+    }
+
     fun selectBestDest(): FightCell {
         var chosenCell = fightBoard.playerPos
         var best = Int.MIN_VALUE
         for (cell in fightBoard.accessibleCells) {
-            val dToStart = fightBoard.getDist(cell, fightBoard.playerPos) ?: error("Couldn't retrieve dist")
-            val remaining = maxOf(0, playerMovePoints - dToStart)
-            val availableMp = playerMovePoints - remaining
-            val tmp: FightBoard = fightBoard.clone()
-            tmp.playerPos = cell
-            val value = minValue(tmp, emptyList(), initialDepth)
+            val state = FightState(0, fightBoard.clone())
+            playPlayerMove(state, cell)
+            val value = minValue(state, initialDepth)
             if (value > best) {
                 chosenCell = cell
                 best = value
@@ -29,81 +44,54 @@ class FightAI(
     }
 
 
-    private fun maxValue(
-        fb: FightBoard,
-        playerEnemyLocs: List<Pair<FightCell, FightCell>>,
-        depth: Int
-    ): Int {
-
-        val newPlayerEnemyLocs = ArrayList(playerEnemyLocs)
-        newPlayerEnemyLocs.add(Pair(fb.playerPos, fb.enemyPos))
+    private fun maxValue(state: FightState, depth: Int): Int {
         if (depth <= 0) {
-            return evaluateBoard(fb, newPlayerEnemyLocs)
+            return evaluateState(state)
         }
 
-        val accessibleCells = fb.cellsAtRange(playerMovePoints, fb.playerPos)
+        val accessibleCells = state.fb.cellsAtRange(playerMovePoints, state.fb.playerPos)
 
         var v = Int.MIN_VALUE
         for (cell in accessibleCells) {
-            if (fb.enemyPos != cell) {
-                val newFB = fb.clone()
-                newFB.playerPos = cell
-                v = maxOf(v, minValue(newFB, newPlayerEnemyLocs, depth - 1))
+            if (state.fb.enemyPos != cell) {
+                val newState = state.clone()
+                playPlayerMove(newState, cell)
+                v = maxOf(v, minValue(newState, depth - 1))
             }
         }
         return v
     }
 
-    private fun minValue(
-        fb: FightBoard,
-        playerEnemyLocs: List<Pair<FightCell, FightCell>>,
-        depth: Int
-    ): Int {
-
-        val newPlayerEnemyLocs = ArrayList(playerEnemyLocs)
-        newPlayerEnemyLocs.add(Pair(fb.playerPos, fb.enemyPos))
+    private fun minValue(state: FightState, depth: Int): Int {
         if (depth <= 0) {
-            return evaluateBoard(fb, newPlayerEnemyLocs)
+            return evaluateState(state)
         }
 
-        val accessibleCells = fb.cellsAtRange(enemyMovePoints, fb.enemyPos)
+        val accessibleCells = state.fb.cellsAtRange(enemyMovePoints, state.fb.enemyPos)
 
         var v = Int.MAX_VALUE
         for (cell in accessibleCells) {
-            if (fb.playerPos != cell) {
-                val newFB = fb.clone()
-                newFB.enemyPos = cell
-                v = minOf(v, maxValue(newFB, playerEnemyLocs, depth - 1))
+            if (state.fb.playerPos != cell) {
+                val newState = state.clone()
+                playEnemyMove(newState, cell)
+                v = minOf(v, maxValue(newState, depth - 1))
             }
         }
         return v
     }
 
-    private fun evaluateBoard(fb: FightBoard, playerEnemyLocs: List<Pair<FightCell, FightCell>>): Int {
-        var score = 0
-        val size = playerEnemyLocs.size
-        for (i in playerEnemyLocs.indices) {
-            val tmp = fb.clone()
-            tmp.playerPos = playerEnemyLocs[i].first
-            tmp.enemyPos = playerEnemyLocs[i].second
-            score += (size - i) * evaluateBoard(tmp)
-        }
+    private fun evaluateState(state: FightState): Int {
+        val dist = state.fb.getDist(state.fb.playerPos, state.fb.enemyPos) ?: error("Invalid board")
+        val los = state.fb.lineOfSight(state.fb.playerPos, state.fb.enemyPos)
+        var score = state.attacksDone - 5 * dist
+        if (los) score += 100
         return score
     }
 
-    private fun evaluateBoard(fb: FightBoard): Int {
-        val dist = fb.getDist(fb.playerPos, fb.enemyPos) ?: error("Invalid board")
-        val los = fb.lineOfSight(fb.playerPos, fb.enemyPos)
-        val score = when {
-            dist in minDist..maxDist -> {
-                Pair(1000 - dist, 40 - dist)
-            }
-            dist < minDist -> {
-                Pair(200 - dist, 60 - dist)
-            }
-            else -> Pair(-dist, -dist)
+    private class FightState(var attacksDone: Int, val fb: FightBoard) {
+        fun clone(): FightState {
+            return FightState(attacksDone, fb.clone())
         }
-        return if (los) score.first else score.second
     }
 
 }
