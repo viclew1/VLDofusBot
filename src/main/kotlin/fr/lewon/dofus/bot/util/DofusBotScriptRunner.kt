@@ -194,6 +194,9 @@ abstract class DofusBotScript(
             ?: throw Exception("No coordinates found in dir [$dirName]")
     }
 
+    protected fun getHuntPanel(): BufferedImage? {
+        return GameInfoUtil.getHuntPanel(controller.captureGameImage())
+    }
 
     protected fun reachDestination(x: Int, y: Int): Pair<Int, Int> {
         if (imgFound("start_hunt_otomai.png", 0.7)) {
@@ -240,6 +243,9 @@ abstract class DofusBotScript(
 
     private fun zaapAndReach(zaapDir: String, x: Int, y: Int, maxDist: Int = 20): Pair<Int, Int> {
         zaapToward(zaapDir, x, y, maxDist)
+        if (getLocation() == Pair(x, y)) {
+            return Pair(x, y)
+        }
         return ReachMapTask(controller, logItem, x, y).runAndGet()
     }
 
@@ -266,7 +272,7 @@ abstract class DofusBotScript(
         }
 
         if (!imgFound("zaap_template.png")) {
-            clickChain(listOf("home_template.png"), "zaap_template.png")
+            execTimeoutOpe({ pressShortcut('h') }, { imgFound("zaap_template.png") })
         }
         clickChain(listOf("zaap_template.png"), "zaap_frame_bot.png")
 
@@ -308,7 +314,16 @@ abstract class DofusBotScript(
         throw Exception("Destination not found")
     }
 
-    fun fight(
+    protected fun pressShortcut(c: Char) {
+        ClickPointTask(controller, logItem, 131, 85).runAndGet()
+        RobotUtil.press(c)
+    }
+
+    protected fun getTime(): Long {
+        return System.currentTimeMillis()
+    }
+
+    protected fun fight(
         minRange: Int,
         maxRange: Int,
         preMove: String,
@@ -375,6 +390,7 @@ abstract class DofusBotScript(
                 sleep(500)
             }
 
+            sleep(800)
             if (preMove.isNotEmpty()) {
                 for (c in preMove) {
                     RobotUtil.press(c)

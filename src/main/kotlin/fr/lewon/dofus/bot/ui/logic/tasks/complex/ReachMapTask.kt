@@ -3,8 +3,7 @@ package fr.lewon.dofus.bot.ui.logic.tasks.complex
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
 import fr.lewon.dofus.bot.ui.logic.DofusBotTask
-import fr.lewon.dofus.bot.ui.logic.tasks.ClickButtonTask
-import fr.lewon.dofus.bot.util.DofusImages
+import fr.lewon.dofus.bot.ui.logic.tasks.ClickPointTask
 import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.RobotUtil
 import javafx.concurrent.WorkerStateEvent
@@ -17,9 +16,11 @@ class ReachMapTask(
 ) : DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Pair<Int, Int> {
-        ClickButtonTask(controller, logItem, DofusImages.CHAT.path).runAndGet()
+        ClickPointTask(controller, logItem, 131, 85).runAndGet()
+        RobotUtil.press(' ')
+        Thread.sleep(600)
         RobotUtil.write("/travel $x $y")
-        Thread.sleep(500)
+        Thread.sleep(1000)
         RobotUtil.write("")
         val startTimeMillis = System.currentTimeMillis()
         while (System.currentTimeMillis() - startTimeMillis < 300 * 1000) {

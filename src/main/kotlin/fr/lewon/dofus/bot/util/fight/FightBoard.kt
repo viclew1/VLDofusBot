@@ -135,6 +135,24 @@ class FightBoard(
         return null
     }
 
+    fun moveCells(range: Int, fromCell: FightCell): List<FightCell> {
+        val explored = mutableListOf(fromCell)
+        var frontier = listOf(fromCell)
+        for (i in 0 until range) {
+            val newFrontier = ArrayList<FightCell>()
+            for (cell in frontier) {
+                for (neighbor in cell.neighbors) {
+                    if (!explored.contains(neighbor) && playerPos != neighbor && enemyPos != neighbor && neighbor.fightCellType == FightCellType.ACCESSIBLE) {
+                        explored.add(neighbor)
+                        newFrontier.add(neighbor)
+                    }
+                }
+            }
+            frontier = newFrontier
+        }
+        return explored
+    }
+
     fun cellsAtRange(range: Int, fromCell: FightCell): List<FightCell> {
         val explored = mutableListOf(fromCell)
         var frontier = listOf(fromCell)
@@ -142,7 +160,7 @@ class FightBoard(
             val newFrontier = ArrayList<FightCell>()
             for (cell in frontier) {
                 for (neighbor in cell.neighbors) {
-                    if (!explored.contains(neighbor) && neighbor.fightCellType == FightCellType.ACCESSIBLE) {
+                    if (!explored.contains(neighbor)) {
                         explored.add(neighbor)
                         newFrontier.add(neighbor)
                     }

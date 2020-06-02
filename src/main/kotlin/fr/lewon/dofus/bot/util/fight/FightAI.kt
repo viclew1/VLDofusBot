@@ -10,18 +10,16 @@ class FightAI(
     private val initialDepth: Int
 ) {
 
-    private fun playPlayerMove(state: FightState, targetCell: FightCell) {
+    private fun playPlayerMove(state: FightState, depth: Int, targetCell: FightCell) {
         state.fb.playerPos = targetCell
         val dist = state.fb.getDist(targetCell, state.fb.enemyPos) ?: error("Invalid board")
         val los = state.fb.lineOfSight(targetCell, state.fb.enemyPos)
-        when {
-            dist in minDist..maxDist -> {
-                state.attacksDone += if (los) 1000 else 40
-            }
-            dist < minDist -> {
-                state.attacksDone += if (los) 200 else 60
-            }
-        }
+        val multiplier = 1.0 + depth.toDouble() / 10.0
+        state.attacksDone += (multiplier * when {
+            dist in minDist..maxDist -> if (los) 1000.0 else 40.0
+            dist < minDist -> if (los) 200.0 else 60.0
+            else -> 0.0
+        }).toInt()
     }
 
     private fun playEnemyMove(state: FightState, targetCell: FightCell) {
@@ -33,7 +31,7 @@ class FightAI(
         var best = Int.MIN_VALUE
         for (cell in fightBoard.accessibleCells) {
             val state = FightState(0, fightBoard.clone())
-            playPlayerMove(state, cell)
+            playPlayerMove(state, initialDepth * 3, cell)
             val value = minValue(state, initialDepth)
             if (value > best) {
                 chosenCell = cell
@@ -49,15 +47,13 @@ class FightAI(
             return evaluateState(state)
         }
 
-        val accessibleCells = state.fb.cellsAtRange(playerMovePoints, state.fb.playerPos)
+        val accessibleCells = state.fb.moveCells(playerMovePoints, state.fb.playerPos)
 
         var v = Int.MIN_VALUE
         for (cell in accessibleCells) {
-            if (state.fb.enemyPos != cell) {
-                val newState = state.clone()
-                playPlayerMove(newState, cell)
-                v = maxOf(v, minValue(newState, depth - 1))
-            }
+            val newState = state.clone()
+            playPlayerMove(newState, depth * 3, cell)
+            v = maxOf(v, minValue(newState, depth - 1))
         }
         return v
     }
@@ -67,15 +63,13 @@ class FightAI(
             return evaluateState(state)
         }
 
-        val accessibleCells = state.fb.cellsAtRange(enemyMovePoints, state.fb.enemyPos)
+        val accessibleCells = state.fb.moveCells(enemyMovePoints, state.fb.enemyPos)
 
         var v = Int.MAX_VALUE
         for (cell in accessibleCells) {
-            if (state.fb.playerPos != cell) {
-                val newState = state.clone()
-                playEnemyMove(newState, cell)
-                v = minOf(v, maxValue(newState, depth - 1))
-            }
+            val newState = state.clone()
+            playEnemyMove(newState, cell)
+            v = minOf(v, maxValue(newState, depth - 1))
         }
         return v
     }
