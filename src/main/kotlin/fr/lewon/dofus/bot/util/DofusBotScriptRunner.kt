@@ -339,7 +339,7 @@ abstract class DofusBotScript(
         }
         var fightBoard: FightBoard? = null
         val start = System.currentTimeMillis()
-        while (System.currentTimeMillis() - start < 10000 && fightBoard?.getDist(
+        while (System.currentTimeMillis() - start < 15000 && fightBoard?.getDist(
                 fightBoard.enemyPos,
                 fightBoard.playerPos
             ) == null
@@ -450,7 +450,7 @@ abstract class DofusBotScript(
             ?.takeIf { it.size == 1 }
             ?.get(0)
             ?.toInt()
-            ?: error("Couldn't find character move points")
+            ?: 6
     }
 
     protected fun clearCache() {
