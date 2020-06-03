@@ -14,12 +14,14 @@ class FightAI(
         state.fb.playerPos = targetCell
         val dist = state.fb.getDist(targetCell, state.fb.enemyPos) ?: error("Invalid board")
         val los = state.fb.lineOfSight(targetCell, state.fb.enemyPos)
-        val multiplier = 1.0 + depth.toDouble() / 10.0
-        state.attacksDone += (multiplier * when {
-            dist in minDist..maxDist -> if (los) 1000.0 else 40.0
-            dist < minDist -> if (los) 200.0 else 60.0
-            else -> 0.0
-        }).toInt()
+        if (los) {
+            val multiplier = 1.0 + depth.toDouble() / 10.0
+            state.attacksDone += (multiplier * when {
+                dist in minDist..maxDist -> 1000.0
+                dist < minDist -> 200.0
+                else -> 0.0
+            }).toInt()
+        }
     }
 
     private fun playEnemyMove(state: FightState, targetCell: FightCell) {
@@ -75,7 +77,7 @@ class FightAI(
     }
 
     private fun evaluateState(state: FightState): Int {
-        val dist = state.fb.getDist(state.fb.playerPos, state.fb.enemyPos) ?: error("Invalid board")
+        val dist = state.fb.getPathLength(state.fb.playerPos, state.fb.enemyPos) ?: error("Invalid board")
         val los = state.fb.lineOfSight(state.fb.playerPos, state.fb.enemyPos)
         var score = state.attacksDone - 5 * dist
         if (los) score += 100

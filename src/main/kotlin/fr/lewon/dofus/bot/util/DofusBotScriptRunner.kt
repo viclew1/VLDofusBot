@@ -339,7 +339,7 @@ abstract class DofusBotScript(
         }
         var fightBoard: FightBoard? = null
         val start = System.currentTimeMillis()
-        while (System.currentTimeMillis() - start < 15000 && fightBoard?.getDist(
+        while (System.currentTimeMillis() - start < 15000 && fightBoard?.getPathLength(
                 fightBoard.enemyPos,
                 fightBoard.playerPos
             ) == null
@@ -355,9 +355,9 @@ abstract class DofusBotScript(
         val passTurnBounds = imgBounds("fight/ready.png") ?: error("Could not find ready button")
 
         var closestStart: FightCell? = null
-        var minDist = fightBoard.getDist(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
+        var minDist = fightBoard.getPathLength(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
         for (cell in fightBoard.startCells) {
-            val dist = fightBoard.getDist(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
+            val dist = fightBoard.getPathLength(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
             println(dist)
             if (dist < minDist) {
                 minDist = dist

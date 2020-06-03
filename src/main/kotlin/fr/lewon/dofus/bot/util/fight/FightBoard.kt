@@ -96,15 +96,19 @@ class FightBoard(
         return cellsByPosition[Pair(x, y)] ?: error("Unknown move cell")
     }
 
-    fun getDist(fromCell: FightCell, toCell: FightCell): Int? {
+    fun getPathLength(fromCell: FightCell, toCell: FightCell): Int? {
         return getPath(fromCell, toCell)?.size
     }
 
-    fun getPath(fromCell: FightCell, toCell: FightCell): List<FightCell>? {
+    fun getDist(fromCell: FightCell, toCell: FightCell): Int? {
+        return getPath(fromCell, toCell, true)?.size
+    }
+
+    fun getPath(fromCell: FightCell, toCell: FightCell, fly: Boolean = false): List<FightCell>? {
         if (fromCell == toCell) {
             return emptyList()
         }
-        var node = findPath(fromCell, toCell) ?: return null
+        var node = findPath(fromCell, toCell, fly) ?: return null
         val cells = LinkedList<FightCell>()
         while (node.parent != null) {
             cells.push(node.cell)
@@ -113,7 +117,7 @@ class FightBoard(
         return cells
     }
 
-    private fun findPath(fromCell: FightCell, toCell: FightCell): Node? {
+    private fun findPath(fromCell: FightCell, toCell: FightCell, fly: Boolean = false): Node? {
         val initialNode = Node(null, fromCell)
         val explored = mutableListOf(fromCell)
         var frontier = listOf(initialNode)
@@ -124,7 +128,7 @@ class FightBoard(
                     return node
                 }
                 for (neighbor in node.cell.neighbors) {
-                    if (!explored.contains(neighbor) && neighbor.fightCellType == FightCellType.ACCESSIBLE) {
+                    if (!explored.contains(neighbor) && (fly || neighbor.fightCellType == FightCellType.ACCESSIBLE)) {
                         explored.add(neighbor)
                         newFrontier.add(Node(node, neighbor))
                     }
