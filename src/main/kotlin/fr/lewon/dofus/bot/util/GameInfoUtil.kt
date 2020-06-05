@@ -214,9 +214,6 @@ object GameInfoUtil {
         val initialX = 325 + tileWidth / 2.0
         val initialY = 23 + tileHeight / 4.0
 
-        var playerTile: FightCell? = null
-        var enemyTile: FightCell? = null
-
         for (xMultiplier in 0 until 28) {
             val col = (initialX + (xMultiplier.toDouble() / 2.0) * tileWidth).toInt()
             for (yMultiplier in 0 until 20) {
@@ -247,19 +244,10 @@ object GameInfoUtil {
             }
         }
 
-        for (tile in tiles) {
-            if (playerTile == null && colorCount(gameImage, tile.bounds, FightColors.playerColors) >= 110) {
-                playerTile = tile
-            } else if (enemyTile == null && colorCount(gameImage, tile.bounds, FightColors.enemyColors) >= 110) {
-                enemyTile = tile
-            }
-            if (playerTile != null && enemyTile != null) {
-                break
-            }
-        }
-
-        playerTile ?: error("Cannot find player character")
-        enemyTile ?: error("Cannot find enemy character")
+        val playerTile = tiles.maxBy { colorCount(gameImage, it.bounds, FightColors.playerColors) }
+            ?: error("Cannot find player character")
+        val enemyTile = tiles.maxBy { colorCount(gameImage, it.bounds, FightColors.playerColors) }
+            ?: error("Cannot find enemy character")
 
         return FightBoard(tiles, startTiles, playerTile, enemyTile).also { it.init() }
     }

@@ -10,17 +10,12 @@ class FightAI(
     private val initialDepth: Int
 ) {
 
-    private fun playPlayerMove(state: FightState, depth: Int, targetCell: FightCell) {
+    private fun playPlayerMove(state: FightState, targetCell: FightCell) {
         state.fb.playerPos = targetCell
-        val dist = state.fb.getDist(targetCell, state.fb.enemyPos) ?: error("Invalid board")
-        val los = state.fb.lineOfSight(targetCell, state.fb.enemyPos)
-        if (los) {
-            val multiplier = 1.0 + depth.toDouble() / 10.0
-            state.attacksDone += (multiplier * when {
-                dist in minDist..maxDist -> 1000.0
-                dist < minDist -> 200.0
-                else -> 0.0
-            }).toInt()
+        val dist = state.fb.getDist(state.fb.playerPos, state.fb.enemyPos) ?: error("Invalid board")
+        val los = state.fb.lineOfSight(state.fb.playerPos, state.fb.enemyPos)
+        if (los && dist in minDist..maxDist) {
+            state.attacksDone += 1
         }
     }
 
@@ -33,7 +28,7 @@ class FightAI(
         var best = Int.MIN_VALUE
         for (cell in fightBoard.accessibleCells) {
             val state = FightState(0, fightBoard.clone())
-            playPlayerMove(state, initialDepth * 3, cell)
+            playPlayerMove(state, cell)
             val value = minValue(state, initialDepth)
             if (value > best) {
                 chosenCell = cell
@@ -54,7 +49,7 @@ class FightAI(
         var v = Int.MIN_VALUE
         for (cell in accessibleCells) {
             val newState = state.clone()
-            playPlayerMove(newState, depth * 3, cell)
+            playPlayerMove(newState, cell)
             v = maxOf(v, minValue(newState, depth - 1))
         }
         return v
@@ -78,10 +73,7 @@ class FightAI(
 
     private fun evaluateState(state: FightState): Int {
         val dist = state.fb.getPathLength(state.fb.playerPos, state.fb.enemyPos) ?: error("Invalid board")
-        val los = state.fb.lineOfSight(state.fb.playerPos, state.fb.enemyPos)
-        var score = state.attacksDone - 5 * dist
-        if (los) score += 100
-        return score
+        return state.attacksDone * 2000 - 5 * dist
     }
 
     private class FightState(var attacksDone: Int, val fb: FightBoard) {

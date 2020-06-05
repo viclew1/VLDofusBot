@@ -283,35 +283,41 @@ abstract class DofusBotScript(
             "zaap_frame_right.png"
         ) ?: throw Exception("No zaap content found")
 
-        var cpt = 0
-        while (cpt++ < 15) {
+
+        if (!isZaapPossible(selectedCoordinate)) {
             clickPoint(
                 zaapContentBounds.x + zaapContentBounds.width / 2,
                 zaapContentBounds.y + zaapContentBounds.height / 2
             )
-            mouseMove(
-                zaapContentBounds.x + zaapContentBounds.width / 2,
-                zaapContentBounds.y + zaapContentBounds.height / 2
-            )
             sleep(150)
-            getSubImage(selectedCoordinate.first)
-                ?.let { resize(it, 16) }
-                ?.let { keepWhite(it, true) }
-                ?.let { getLines(it, " ()-,0123456789") }
-                ?.takeIf { it.isNotEmpty() }
-                ?.let { it[0].replace(" ", "") }
-                ?.takeIf {
-                    Regex("${selectedCoordinate.second.first}.${selectedCoordinate.second.second}").find(it) != null
+            var cpt = 0
+            while (!isZaapPossible(selectedCoordinate)) {
+                if (cpt++ >= 15) {
+                    throw Exception("Destination not found")
                 }
-                ?.let {
-                    execTimeoutOpe(
-                        { clickChain(listOf(selectedCoordinate.first, "teleport_template.png")) },
-                        { GameInfoUtil.getLocation(controller.captureGameImage()) == selectedCoordinate.second })
-                    return
-                }
-            RobotUtil.scroll(1)
+                mouseMove(
+                    zaapContentBounds.x + zaapContentBounds.width / 2,
+                    zaapContentBounds.y + zaapContentBounds.height / 2
+                )
+                RobotUtil.scroll(1)
+                sleep(150)
+            }
         }
-        throw Exception("Destination not found")
+        execTimeoutOpe(
+            { clickChain(listOf(selectedCoordinate.first, "teleport_template.png")) },
+            { GameInfoUtil.getLocation(controller.captureGameImage()) == selectedCoordinate.second })
+    }
+
+    private fun isZaapPossible(selectedCoordinate: Pair<String, Pair<Int, Int>>): Boolean {
+        return getSubImage(selectedCoordinate.first)
+            ?.let { resize(it, 16) }
+            ?.let { keepWhite(it, true) }
+            ?.let { getLines(it, " ()-,0123456789") }
+            ?.takeIf { it.isNotEmpty() }
+            ?.let { it[0].replace(" ", "") }
+            ?.takeIf {
+                Regex("${selectedCoordinate.second.first}.${selectedCoordinate.second.second}").find(it) != null
+            } != null
     }
 
     protected fun pressShortcut(c: Char) {
@@ -339,7 +345,7 @@ abstract class DofusBotScript(
         }
         var fightBoard: FightBoard? = null
         val start = System.currentTimeMillis()
-        while (System.currentTimeMillis() - start < 15000 && fightBoard?.getPathLength(
+        while (System.currentTimeMillis() - start < DTBConfigManager.config.moveTimeout && fightBoard?.getPathLength(
                 fightBoard.enemyPos,
                 fightBoard.playerPos
             ) == null
@@ -371,24 +377,12 @@ abstract class DofusBotScript(
             fightBoard.playerPos = closestStart
         }
 
-        var fightAI: FightAI? = null
+        val fightAI = FightAI(6, 8, fightBoard, minRange, maxRange, aiDepth)
         RobotUtil.press(KeyEvent.VK_F1)
 
         sleep(2000)
         execTimeoutOpe({}, { imgFound("fight/player_turn.png", 0.9) })
         while (!imgFound("fight/close.png") && !imgFound("fight/ok.png", 0.9)) {
-
-            if (fightAI == null) {
-                refreshBoard(fightBoard)
-                val enemyMovePoints = getMovePoints(fightBoard, fightBoard.enemyPos)
-                log("Enemy move points : $enemyMovePoints")
-                val playerMovePoints = getMovePoints(fightBoard, fightBoard.playerPos)
-                log("Player move points: $playerMovePoints")
-                fightAI = FightAI(playerMovePoints, enemyMovePoints, fightBoard, minRange, maxRange, aiDepth)
-                val restPoint = DTBConfigManager.config.mouseRestPos
-                mouseMove(restPoint.first, restPoint.second)
-                sleep(500)
-            }
 
             sleep(800)
             if (preMove.isNotEmpty()) {
