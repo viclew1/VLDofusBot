@@ -63,12 +63,12 @@ abstract class DofusBotScript(
     protected fun execTimeoutOpe(
         startOperation: () -> Unit,
         endCondition: () -> Boolean,
-        timeOutMillis: Int = DTBConfigManager.config.moveTimeout,
+        timeOutSeconds: Int = DTBConfigManager.config.moveTimeout,
         failOnTimeout: Boolean = true
     ) {
         startOperation.invoke()
         val startTime = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTime < timeOutMillis * 1000) {
+        while (System.currentTimeMillis() - startTime < timeOutSeconds * 1000) {
             if (endCondition.invoke()) {
                 return
             }
@@ -345,10 +345,8 @@ abstract class DofusBotScript(
         }
         var fightBoard: FightBoard? = null
         val start = System.currentTimeMillis()
-        while (System.currentTimeMillis() - start < DTBConfigManager.config.moveTimeout && fightBoard?.getPathLength(
-                fightBoard.enemyPos,
-                fightBoard.playerPos
-            ) == null
+        while (System.currentTimeMillis() - start < DTBConfigManager.config.moveTimeout &&
+            fightBoard?.getPathLength(fightBoard.enemyPos, fightBoard.playerPos) == null
         ) {
             sleep(500)
             try {
@@ -364,7 +362,6 @@ abstract class DofusBotScript(
         var minDist = fightBoard.getPathLength(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
         for (cell in fightBoard.startCells) {
             val dist = fightBoard.getPathLength(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
-            println(dist)
             if (dist < minDist) {
                 minDist = dist
                 closestStart = cell
@@ -416,7 +413,7 @@ abstract class DofusBotScript(
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.enemyTurnColors) > 60
-            }, 6, false)
+            }, 10, false)
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 60

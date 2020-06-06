@@ -15,6 +15,8 @@ class FightAI(
         val dist = state.fb.getDist(state.fb.playerPos, state.fb.enemyPos) ?: error("Invalid board")
         val los = state.fb.lineOfSight(state.fb.playerPos, state.fb.enemyPos)
         if (los && dist in minDist..maxDist) {
+            state.attacksDone += 2
+        } else if (dist < minDist) {
             state.attacksDone += 1
         }
     }
@@ -35,6 +37,7 @@ class FightAI(
                 best = value
             }
         }
+        println("Best dest score : $best")
         return chosenCell
     }
 

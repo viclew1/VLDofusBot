@@ -179,6 +179,7 @@ class FightBoard(
 
     fun clone(): FightBoard {
         return FightBoard(cells, startCells, playerPos, enemyPos)
+            .also { it.cellsByPosition.putAll(cellsByPosition) }
     }
 
 }
