@@ -340,39 +340,30 @@ abstract class DofusBotScript(
         if (imgFound("fight/creature_mode.png", 0.9)) {
             click("fight/creature_mode.png")
         }
-        if (imgFound("fight/block_help.png", 0.9)) {
+        if (imgFound("fight/block_help.png", 0.95)) {
             click("fight/block_help.png")
         }
         var fightBoard: FightBoard? = null
         val start = System.currentTimeMillis()
-        while (System.currentTimeMillis() - start < DTBConfigManager.config.moveTimeout &&
-            fightBoard?.getPathLength(fightBoard.enemyPos, fightBoard.playerPos) == null
+        while (getTime() - start < DTBConfigManager.config.moveTimeout
+            && (fightBoard?.getPathLength(fightBoard.enemyPos, fightBoard.playerPos) == null
+                    || fightBoard.startCells.isEmpty())
         ) {
             sleep(500)
-            try {
-                fightBoard = getFightBoard()
-            } catch (e: Exception) {
-            }
+            fightBoard = getFightBoard()
         }
         fightBoard ?: error("Couldn't analyze fight board")
 
         val passTurnBounds = imgBounds("fight/ready.png") ?: error("Could not find ready button")
 
-        var closestStart: FightCell? = null
-        var minDist = fightBoard.getPathLength(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
-        for (cell in fightBoard.startCells) {
-            val dist = fightBoard.getPathLength(cell, fightBoard.enemyPos) ?: Int.MAX_VALUE
-            if (dist < minDist) {
-                minDist = dist
-                closestStart = cell
+        val dFromEnemyToPlayer = fightBoard.getPathLength(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
+        fightBoard.startCells.map { it to (fightBoard.getPathLength(it, fightBoard.enemyPos) ?: Int.MAX_VALUE) }
+            .minBy { it.second }
+            ?.takeIf { dFromEnemyToPlayer > it.second }
+            ?.let {
+                clickPoint(it.first.getCenter())
+                fightBoard.playerPos = it.first
             }
-        }
-        println(minDist)
-
-        if (closestStart != null) {
-            clickPoint(closestStart.getCenter())
-            fightBoard.playerPos = closestStart
-        }
 
         val fightAI = FightAI(6, 8, fightBoard, minRange, maxRange, aiDepth)
         RobotUtil.press(KeyEvent.VK_F1)
@@ -448,8 +439,12 @@ abstract class DofusBotScript(
         MatFlusher.releaseAll()
     }
 
-    protected fun getFightBoard(): FightBoard {
-        return GameInfoUtil.getFightBoard(controller.captureGameImage())
+    protected fun getFightBoard(): FightBoard? {
+        return try {
+            GameInfoUtil.getFightBoard(controller.captureGameImage())
+        } catch (e: Exception) {
+            null
+        }
     }
 
     protected fun refreshBoard(fightBoard: FightBoard) {

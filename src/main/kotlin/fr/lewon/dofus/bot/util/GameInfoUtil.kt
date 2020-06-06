@@ -246,7 +246,7 @@ object GameInfoUtil {
 
         val playerTile = tiles.maxBy { colorCount(gameImage, it.bounds, FightColors.playerColors) }
             ?: error("Cannot find player character")
-        val enemyTile = tiles.maxBy { colorCount(gameImage, it.bounds, FightColors.playerColors) }
+        val enemyTile = tiles.maxBy { colorCount(gameImage, it.bounds, FightColors.enemyColors) }
             ?: error("Cannot find enemy character")
 
         return FightBoard(tiles, startTiles, playerTile, enemyTile).also { it.init() }
