@@ -185,24 +185,9 @@ object GameInfoUtil {
     }
 
     private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell? {
-        val explored = mutableListOf(fightBoard.enemyPos)
-        var frontier = listOf(fightBoard.enemyPos)
-        while (frontier.isNotEmpty()) {
-            val newFrontier = ArrayList<FightCell>()
-            for (cell in frontier) {
-                if (colorCount(gameImage, cell.bounds, colors) >= 110) {
-                    return cell
-                }
-                for (n in cell.neighbors) {
-                    if (!explored.contains(n) && n.fightCellType == FightCellType.ACCESSIBLE) {
-                        explored.add(n)
-                        newFrontier.add(n)
-                    }
-                }
-            }
-            frontier = newFrontier
-        }
-        return null
+        return fightBoard.cells
+            .filter { it.fightCellType == FightCellType.ACCESSIBLE }
+            .maxBy { colorCount(gameImage, it.bounds, colors) }
     }
 
     fun getFightBoard(gameImage: BufferedImage): FightBoard {

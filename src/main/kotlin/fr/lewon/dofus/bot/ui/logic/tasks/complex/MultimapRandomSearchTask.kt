@@ -7,7 +7,6 @@ import fr.lewon.dofus.bot.ui.logic.tasks.ClickButtonTask
 import fr.lewon.dofus.bot.util.Directions
 import fr.lewon.dofus.bot.util.DofusImages
 import fr.lewon.dofus.bot.util.GameInfoUtil
-import javafx.concurrent.WorkerStateEvent
 
 class MultimapRandomSearchTask(
     controller: DofusTreasureBotGUIController,
@@ -20,10 +19,10 @@ class MultimapRandomSearchTask(
         val originalObjectsToFindSize = objectsToFind.size
         var pos: Pair<Int, Int>? = null
         while (objectsToFind.size == originalObjectsToFindSize) {
-            pos = direction.buildMoveTask(controller, logItem).runAndGet()
-            ClickButtonTask(controller, logItem, DofusImages.CHECKPOINT_BTN.path).runAndGet()
+            pos = direction.buildMoveTask(controller, logItem).run()
+            ClickButtonTask(controller, logItem, DofusImages.CHECKPOINT_BTN.path).run()
             Thread.sleep(800)
-            ClickButtonTask(controller, logItem, DofusImages.SEARCH_BTN.path).runAndGet()
+            ClickButtonTask(controller, logItem, DofusImages.SEARCH_BTN.path).run()
             Thread.sleep(800)
             objectsToFind = getObjectsToFind()
         }
@@ -40,11 +39,11 @@ class MultimapRandomSearchTask(
         return GameInfoUtil.getHuntObjectives(huntPanel)
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Pair<Int, Int>, logItem: LogItem) {
+    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
         controller.closeLog("OK : [${value.first},${value.second}]", logItem)
     }
 

@@ -4,7 +4,6 @@ import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
 import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.Directions
-import javafx.concurrent.WorkerStateEvent
 
 class MultimapMoveTask(
     controller: DofusTreasureBotGUIController,
@@ -17,16 +16,16 @@ class MultimapMoveTask(
         var currentPos: Pair<Int, Int>? = null
         for (i in 0 until dist) {
             controller.closeLog("Moves done : $i/$dist", logItem)
-            currentPos = direction.buildMoveTask(controller, logItem).runAndGet()
+            currentPos = direction.buildMoveTask(controller, logItem).run()
         }
         return currentPos ?: error("Invalid move")
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Pair<Int, Int>, logItem: LogItem) {
+    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
         controller.closeLog("OK : [${value.first},${value.second}]", logItem)
     }
 

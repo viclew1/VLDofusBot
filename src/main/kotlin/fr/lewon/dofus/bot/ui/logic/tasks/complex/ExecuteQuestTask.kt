@@ -7,7 +7,6 @@ import fr.lewon.dofus.bot.ui.logic.tasks.ClickButtonTask
 import fr.lewon.dofus.bot.util.DofusImages
 import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.LevenshteinDistanceUtil
-import javafx.concurrent.WorkerStateEvent
 
 class ExecuteQuestTask(
     controller: DofusTreasureBotGUIController,
@@ -38,21 +37,21 @@ class ExecuteQuestTask(
 
             val toFindIds = hintsIdByName[toFind] ?: throw Exception("No ID for this object")
             val nextPos =
-                ExecuteQuestStepTask(controller, logItem, questRegisteredPositions, toFindIds, altWorld).runAndGet()
+                ExecuteQuestStepTask(controller, logItem, questRegisteredPositions, toFindIds, altWorld).run()
             questRegisteredPositions.add(nextPos)
 
-            ClickButtonTask(controller, logItem, DofusImages.CHECKPOINT_BTN.path).runAndGet()
+            ClickButtonTask(controller, logItem, DofusImages.CHECKPOINT_BTN.path).run()
             Thread.sleep(800)
         }
-        ClickButtonTask(controller, logItem, DofusImages.SEARCH_BTN.path).runAndGet()
+        ClickButtonTask(controller, logItem, DofusImages.SEARCH_BTN.path).run()
         return true
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("Quest KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("Quest KO - ${exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Boolean, logItem: LogItem) {
+    override fun onSucceeded(value: Boolean, logItem: LogItem) {
         controller.closeLog("Quest OK", logItem)
     }
 

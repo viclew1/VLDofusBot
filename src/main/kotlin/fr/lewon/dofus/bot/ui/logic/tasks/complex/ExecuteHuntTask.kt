@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.ui.LogItem
 import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.DofusImages
 import fr.lewon.dofus.bot.util.GameInfoUtil
-import javafx.concurrent.WorkerStateEvent
 
 class ExecuteHuntTask(
     controller: DofusTreasureBotGUIController,
@@ -18,17 +17,17 @@ class ExecuteHuntTask(
         while (true) {
             if (GameInfoUtil.getButtonCenter(controller.captureGameImage(), DofusImages.FIGHT_BTN.path) != null)
                 return true
-            if (!ExecuteQuestTask(controller, logItem, hintsIdByName, altWorld).runAndGet())
+            if (!ExecuteQuestTask(controller, logItem, hintsIdByName, altWorld).run())
                 return false
             Thread.sleep(1000)
         }
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
+    override fun onFailed(exception: Exception, logItem: LogItem) {
         controller.closeLog("Treasure hunt failed", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Boolean, logItem: LogItem) {
+    override fun onSucceeded(value: Boolean, logItem: LogItem) {
         controller.closeLog("Treasure hunt succeeded !", logItem)
     }
 

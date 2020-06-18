@@ -2,15 +2,19 @@ package fr.lewon.dofus.bot.ui
 
 import fr.lewon.dofus.bot.json.DTBPoint
 import fr.lewon.dofus.bot.json.PositionsByDirection
+import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.impl.*
 import fr.lewon.dofus.bot.util.*
 import javafx.application.Platform
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.event.ActionEvent
-import javafx.event.Event
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.Insets
 import javafx.scene.control.*
-import javafx.scene.layout.AnchorPane
+import javafx.scene.control.cell.PropertyValueFactory
+import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
@@ -30,31 +34,62 @@ class DofusTreasureBotGUIController : Initializable {
     @FXML
     private lateinit var huntLevelSelector: ChoiceBox<String>
     @FXML
-    private lateinit var autopilotCheckbox: CheckBox
-    @FXML
     private lateinit var moveTimeoutInput: TextField
     @FXML
-    private lateinit var logsList: ListView<LogItem>
+    private lateinit var logsTextArea: TextArea
     @FXML
     private lateinit var status: Label
-
     @FXML
-    private lateinit var averageExecTimeLbl: Label
+    private lateinit var scriptSelector: ChoiceBox<String>
     @FXML
-    private lateinit var successRateLbl: Label
-
+    private lateinit var scriptDescriptionTextArea: TextArea
+    @FXML
+    private lateinit var parametersVBox: VBox
+    @FXML
+    private lateinit var scriptParameterDescriptionTextArea: TextArea
+    @FXML
+    private lateinit var scriptNameLbl: Label
+    @FXML
+    private lateinit var execTimeLbl: Label
     @FXML
     private lateinit var tabPane: TabPane
     @FXML
-    private lateinit var scriptsVbox: VBox
+    private lateinit var logTab: Tab
+    @FXML
+    private lateinit var configTabContent: VBox
+    @FXML
+    private lateinit var scriptTabContent: VBox
+    @FXML
+    private lateinit var logTabContent: VBox
+    @FXML
+    private lateinit var stopScriptBtn: Button
+    @FXML
+    private lateinit var startScriptBtn: Button
+    @FXML
+    private lateinit var statsTableView: TableView<Pair<String, String>>
+    @FXML
+    private lateinit var statTableColumn: TableColumn<Pair<String, String>, String>
+    @FXML
+    private lateinit var valueTableColumn: TableColumn<Pair<String, String>, String>
 
+    private var scriptRunningProperty: BooleanProperty = SimpleBooleanProperty(false)
     private lateinit var huntLevelTemplatePathByLevel: List<Pair<String, Int>>
     private lateinit var graphicsDevicesAndIds: List<Pair<GraphicsDevice, String>>
 
+    var runningBtnThread: Thread? = null
+    var shouldKillBtnThread = false
+
+    private val logs = LinkedList<LogItem>()
     val hintsIdsByName: MutableMap<String, List<String>> =
         DTBRequestProcessor.getAllHints()
-    private val huntsResults = ArrayList<Pair<Long, Boolean>>()
-
+    private val scriptsByName = listOf(
+        ChainHuntsScript,
+        ResumeHuntScript,
+        FetchAHuntScript,
+        ReachHuntStartScript,
+        FightScript
+    ).map { it.name to it }
+        .toMap()
 
     @FXML
     override fun initialize(location: URL, resources: ResourceBundle?) {
@@ -72,7 +107,7 @@ class DofusTreasureBotGUIController : Initializable {
                 }
             }
 
-
+        moveTimeoutInput.text = DTBConfigManager.config.moveTimeout.toString()
         moveTimeoutInput.textProperty().addListener { _, _, newValue ->
             if (!newValue.matches("\\d*".toRegex())) {
                 moveTimeoutInput.text = newValue.replace("[^\\d]".toRegex(), "")
@@ -99,57 +134,101 @@ class DofusTreasureBotGUIController : Initializable {
                     it.huntLevel = huntLevelSelector.items[newVal.toInt()].toInt()
                 }
             }
-
         hintsIdsByName["Phorreur xxxx"] = listOf("PHO")
-        autopilotCheckbox.isSelected = DTBConfigManager.config.autopilot
-    }
-
-    @FXML
-    fun onAutopilotCheckboxAction(actionEvent: ActionEvent) {
-        DTBConfigManager.editConfig { it.autopilot = autopilotCheckbox.isSelected }
-    }
-
-    @FXML
-    private fun refreshScripts(event: Event) {
-        scriptsVbox.children.clear()
-        val scripts = File("scripts").listFiles() ?: emptyArray()
-        for (script in scripts) {
-            val lbl = Label(script.name)
-            val btn = Button("X")
-            btn.setOnAction {
-                processBtnExecution(
-                    execution = { runScript(script, it) },
-                    startMessage = "Executing script ${script.name} ...",
-                    successMessage = "OK",
-                    failMessage = "KO"
-                )
+        scriptsByName.keys.forEach { scriptSelector.items.add(it) }
+        scriptSelector.selectionModel.selectedIndexProperty()
+            .addListener { _, _, newVal ->
+                val newScriptName = scriptSelector.items[newVal.toInt()]
+                val newScript = scriptsByName[newScriptName] ?: error("Script [$newScriptName] not found")
+                scriptParameterDescriptionTextArea.text = ""
+                editScriptParametersVbox(newScript)
+                editDescription(newScript)
             }
-            val pane = AnchorPane(
-                lbl, btn
-            )
-            AnchorPane.setLeftAnchor(lbl, 0.0)
-            AnchorPane.setRightAnchor(btn, 0.0)
-            val sep = Separator()
-            sep.padding = Insets(5.0, 0.0, 5.0, 0.0)
 
-            scriptsVbox.children.add(pane)
-            scriptsVbox.children.add(sep)
+        for (script in scriptsByName.values) {
+            val scriptParameters = script.getParameters()
+            DTBConfigManager.config.scriptParameters.putIfAbsent(script.name, ArrayList(scriptParameters))
+            val registeredParameters = DTBConfigManager.config.scriptParameters[script.name] ?: ArrayList()
+            for (param in scriptParameters) {
+                val registeredParam = registeredParameters.firstOrNull { param.key == it.key }
+                if (registeredParam == null) {
+                    registeredParameters.add(param)
+                } else {
+                    param.value = registeredParam.value
+                }
+            }
+        }
+
+        parametersVBox.disableProperty().bind(scriptRunningProperty)
+        configTabContent.disableProperty().bind(scriptRunningProperty)
+        startScriptBtn.disableProperty().bind(scriptRunningProperty)
+        stopScriptBtn.disableProperty().bind(scriptRunningProperty.not())
+
+        statsTableView.placeholder = Label("No stat yet for this script")
+        statTableColumn.cellValueFactory = PropertyValueFactory("first")
+        valueTableColumn.cellValueFactory = PropertyValueFactory("second")
+    }
+
+    private fun editDescription(newScript: DofusBotScript) {
+        scriptDescriptionTextArea.text = newScript.getDescription()
+    }
+
+    private fun editScriptParametersVbox(newScript: DofusBotScript) {
+        parametersVBox.children.clear()
+        val scriptParameters = ArrayList(newScript.getParameters())
+        scriptParameters.forEach {
+            val nameLbl = Label(it.key)
+            val valueTextField = TextField(it.value)
+            valueTextField.prefWidth = 100.0
+            valueTextField.textProperty().addListener { _, _, newVal ->
+                it.value = newVal
+                DTBConfigManager.editConfig { conf ->
+                    conf.scriptParameters[newScript.name]
+                        ?.firstOrNull { param -> param.key == it.key }
+                        ?.let { param -> param.value = newVal }
+                }
+                editDescription(newScript)
+            }
+            valueTextField.focusedProperty().addListener { _, _, newVal ->
+                if (newVal) {
+                    scriptParameterDescriptionTextArea.text = it.description
+                }
+            }
+            val borderPane = BorderPane()
+            borderPane.left = nameLbl
+            borderPane.right = valueTextField
+            VBox.setMargin(borderPane, Insets(5.0, 10.0, 5.0, 10.0))
+            parametersVBox.children.add(borderPane)
         }
     }
 
-    private fun runScript(script: File, logItem: LogItem) {
-        try {
-            DofusBotScriptRunner.runScript(this@DofusTreasureBotGUIController, logItem, script)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
+    @FXML
+    private fun runScript(actionEvent: ActionEvent?) {
+        val script = scriptsByName[scriptSelector.value] ?: error("Script [${scriptSelector.value}] not found")
+        processBtnExecution(
+            execution = {
+                Platform.runLater {
+                    scriptNameLbl.text = "[${script.name}]"
+                    scriptDescriptionTextArea.text = script.getDescription()
+                    tabPane.selectionModel.select(logTab)
+                }
+                script.execute(this, it)
+            },
+            startMessage = "Executing script ${scriptSelector.value} ...",
+            successMessage = "OK",
+            failMessageBuilder = { "KO - ${it.localizedMessage}" },
+            guiUpdater = {
+                statsTableView.items.clear()
+                script.getStats().forEach {
+                    statsTableView.items.add(it)
+                }
+            }
+        )
     }
 
-    private fun enableButtons(enabled: Boolean) {
-        tabPane.tabs.forEach {
-            it.content.disableProperty().value = !enabled
-        }
+    @FXML
+    private fun stopScript(actionEvent: ActionEvent?) {
+        shouldKillBtnThread = true
     }
 
     fun registerPos(parentLogItem: LogItem?): Point {
@@ -181,7 +260,7 @@ class DofusTreasureBotGUIController : Initializable {
             },
             startMessage = "Select [$direction] move position on current map ...",
             successMessage = "OK",
-            failMessage = "KO"
+            failMessageBuilder = { "KO - ${it.localizedMessage}" }
         )
     }
 
@@ -205,109 +284,106 @@ class DofusTreasureBotGUIController : Initializable {
         registerAccess(Directions.TOP)
     }
 
-    @FXML
-    fun selectMouseRestZone(actionEvent: ActionEvent?) {
-        processBtnExecution(
-            execution = {
-                val point = registerPos(it)
-                DTBConfigManager.editConfig { config ->
-                    config.mouseRestPos = DTBPoint(point.x, point.y)
-                }
-            },
-            startMessage = "Select rest mouse position ... ",
-            successMessage = "OK",
-            failMessage = "KO"
-        )
-    }
-
     @Synchronized
     fun processBtnExecution(
         execution: (LogItem) -> Unit,
         startMessage: String,
         successMessage: String,
-        failMessage: String
+        failMessageBuilder: (Exception) -> String,
+        guiUpdater: () -> Unit = {}
     ) {
-        Thread {
-            enableButtons(false)
-            Platform.runLater { status.style = "-fx-background-color: grey;"; }
-            val logItem = log(startMessage)
+        shouldKillBtnThread = false
+        scriptRunningProperty.value = true
+        val updateExecDurationTimer = Timer()
+        val start = System.currentTimeMillis()
+        updateExecDurationTimer.schedule(object : TimerTask() {
+            override fun run() {
+                val elapsed = System.currentTimeMillis() - start
+                val hours = elapsed / (3600 * 1000)
+                val minutes = (elapsed - hours * 3600 * 1000) / (60 * 1000)
+                val seconds =
+                    ((elapsed - hours * 3600 * 1000 - minutes * 60 * 1000) / 1000).toString().padStart(2, '0')
+                Platform.runLater {
+                    execTimeLbl.text = "Time : ${hours}H ${minutes}M ${seconds}S"
+                    Platform.runLater { guiUpdater.invoke() }
+                }
+            }
+        }, 1000, 1000)
+
+        clearLogs()
+        Platform.runLater { statsTableView.items.clear() }
+        val logItem = log(startMessage)
+        runningBtnThread = Thread {
+            Platform.runLater { status.style = "-fx-background-color: grey;" }
             try {
                 execution.invoke(logItem)
                 closeLog(successMessage, logItem)
-                Platform.runLater { status.style = "-fx-background-color: green;"; }
+                Platform.runLater { status.style = "-fx-background-color: green;" }
             } catch (e: Exception) {
-                closeLog(failMessage, logItem)
-                Platform.runLater { status.style = "-fx-background-color: red;"; }
+                closeLog(failMessageBuilder.invoke(e), logItem)
+                Platform.runLater { status.style = "-fx-background-color: red;" }
             } finally {
+                scriptRunningProperty.value = false
+                updateExecDurationTimer.cancel()
+                updateExecDurationTimer.purge()
                 MatFlusher.releaseAll()
-                log("----------")
-                enableButtons(true)
+            }
+        }
+        runningBtnThread?.start()
+
+        Thread {
+            Thread.sleep(500)
+            while (runningBtnThread?.isAlive == true) {
+                Thread.sleep(500)
+                if (shouldKillBtnThread) {
+                    runningBtnThread?.stop()
+                    closeLog("Execution interrupted", logItem)
+                    Platform.runLater { status.style = "-fx-background-color: red;" }
+                    updateExecDurationTimer.cancel()
+                    updateExecDurationTimer.purge()
+                    MatFlusher.releaseAll()
+                    shouldKillBtnThread = false
+                    break
+                }
             }
         }.start()
     }
 
     @Synchronized
-    fun clearLogs() {
+    private fun updateLogs() {
         Platform.runLater {
-            logsList.items.clear()
+            logsTextArea.text = logs.joinToString("\n") + "\n "
+            logsTextArea.scrollTop = Double.MAX_VALUE
         }
+    }
+
+    @Synchronized
+    fun clearLogs() {
+        logs.clear()
+        updateLogs()
     }
 
     @Synchronized
     fun closeLog(message: String, parent: LogItem) {
         parent.closeLog(message)
-        Platform.runLater {
-            logsList.refresh()
-            logsList.scrollTo(logsList.items.size)
-        }
+        updateLogs()
     }
 
     @Synchronized
     fun appendLog(logItem: LogItem, message: String) {
         logItem.message += message
-        Platform.runLater {
-            logsList.refresh()
-        }
+        updateLogs()
     }
 
     @Synchronized
     fun log(message: String, parent: LogItem? = null): LogItem {
         val newItem = LogItem(message)
-        if (parent != null) {
-            parent.addSubItem(newItem)
-            Platform.runLater {
-                logsList.refresh()
-                logsList.scrollTo(logsList.items.size)
-            }
+        parent?.addSubItem(newItem) ?: logs.add(newItem)
+        while (logs.size >= 5) {
+            logs.removeFirst()
         }
-        Platform.runLater {
-            while (logsList.items.size >= 10) {
-                logsList.items.removeAt(0)
-            }
-            if (parent == null) logsList.items.add(newItem)
-            logsList.refresh()
-            logsList.scrollTo(logsList.items.size)
-        }
+        updateLogs()
         return newItem
-    }
-
-    @Synchronized
-    fun updateStats(huntResult: Long, success: Boolean) {
-        huntsResults.add(Pair(huntResult, success))
-        Platform.runLater {
-            val execMillisAverage = huntsResults
-                .map { it.first }
-                .average()
-                .toLong()
-            val minutes = execMillisAverage / (60 * 1000)
-            val seconds = (execMillisAverage % (1000 * 60) / 1000).toString().padStart(2, '0')
-            averageExecTimeLbl.text = "${minutes}min, ${seconds}s"
-
-            val successCount = huntsResults
-                .filter { it.second }
-                .size
-            successRateLbl.text = "$successCount / ${huntsResults.size}"
-        }
     }
 
     @Synchronized

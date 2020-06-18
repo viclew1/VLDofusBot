@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.json
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.util.Directions
 import java.awt.GraphicsEnvironment
 
@@ -15,7 +16,8 @@ data class DTBConfig(
     @field:JsonProperty var bottomAccessPos: DTBPoint = DTBPoint(1290, 924),
     @field:JsonProperty var topAccessPos: DTBPoint = DTBPoint(1555, 25),
     @field:JsonProperty var mouseRestPos: DTBPoint = DTBPoint(1874, 38),
-    @field:JsonProperty var registeredMoveLocationsByMap: RegisteredMovesHolder = RegisteredMovesHolder()
+    @field:JsonProperty var registeredMoveLocationsByMap: RegisteredMovesHolder = RegisteredMovesHolder(),
+    @field:JsonProperty var scriptParameters: HashMap<String, ArrayList<DofusBotScriptParameter>> = HashMap()
 
 )
 

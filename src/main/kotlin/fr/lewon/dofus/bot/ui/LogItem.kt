@@ -1,11 +1,16 @@
 package fr.lewon.dofus.bot.ui
 
+import java.util.*
+
 class LogItem(var message: String) {
 
-    private val subLogs = ArrayList<LogItem>()
+    private val subLogs = LinkedList<LogItem>()
     private var closeMessage: String? = null
 
     fun addSubItem(logItem: LogItem) {
+        while (subLogs.size > 30) {
+            subLogs.removeFirst()
+        }
         subLogs.add(logItem)
     }
 

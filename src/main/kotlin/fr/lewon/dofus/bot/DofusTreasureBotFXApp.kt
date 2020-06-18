@@ -13,7 +13,7 @@ import kotlin.system.exitProcess
 class DofusTreasureBotFXApp : Application() {
 
     override fun start(primaryStage: Stage) {
-        val loader = FXMLLoader(javaClass.getResource("/scenes/main_scene.fxml"))
+        val loader = FXMLLoader(javaClass.getResource("/scenes/main_scene_v2.fxml"))
         val rootElement = loader.load() as VBox
         val scene = Scene(rootElement, rootElement.prefWidth, rootElement.prefHeight)
 

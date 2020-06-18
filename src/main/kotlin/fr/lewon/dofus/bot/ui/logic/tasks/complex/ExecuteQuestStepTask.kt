@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.ui.logic.tasks.RetrieveLocationTask
 import fr.lewon.dofus.bot.ui.logic.tasks.RetrieveNextDirTask
 import fr.lewon.dofus.bot.util.DTBRequestProcessor
-import javafx.concurrent.WorkerStateEvent
 
 class ExecuteQuestStepTask(
     controller: DofusTreasureBotGUIController,
@@ -17,11 +16,11 @@ class ExecuteQuestStepTask(
 ) : DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Pair<Int, Int> {
-        val nextDir = RetrieveNextDirTask(controller, logItem).runAndGet()
+        val nextDir = RetrieveNextDirTask(controller, logItem).run()
         if (toFindIds.contains("PHO")) {
-            return MultimapPhorrorSearchTask(controller, logItem, nextDir, alreadyFoundPos).runAndGet()
+            return MultimapPhorrorSearchTask(controller, logItem, nextDir, alreadyFoundPos).run()
         }
-        val location = RetrieveLocationTask(controller, logItem).runAndGet()
+        val location = RetrieveLocationTask(controller, logItem).run()
         val hint = DTBRequestProcessor.getHint(
             x = location.first,
             y = location.second,
@@ -31,16 +30,16 @@ class ExecuteQuestStepTask(
         )
         if (hint == null) {
             controller.log("Couldn't retrieve object distance, trying every map.", logItem)
-            return MultimapRandomSearchTask(controller, logItem, nextDir).runAndGet()
+            return MultimapRandomSearchTask(controller, logItem, nextDir).run()
         }
-        return MultimapMoveTask(controller, logItem, nextDir, hint.d).runAndGet()
+        return MultimapMoveTask(controller, logItem, nextDir, hint.d).run()
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Pair<Int, Int>, logItem: LogItem) {
+    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
         controller.closeLog("OK", logItem)
     }
 

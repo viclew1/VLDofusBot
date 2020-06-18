@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.DTBConfigManager
 import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.RobotUtil
-import javafx.concurrent.WorkerStateEvent
 
 class ClickButtonTask(
     controller: DofusTreasureBotGUIController,
@@ -30,11 +29,11 @@ class ClickButtonTask(
         return true
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Boolean, logItem: LogItem) {
+    override fun onSucceeded(value: Boolean, logItem: LogItem) {
         controller.closeLog("OK", logItem)
     }
 

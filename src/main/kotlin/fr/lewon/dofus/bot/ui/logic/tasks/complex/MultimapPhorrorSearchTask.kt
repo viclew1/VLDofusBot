@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.ui.LogItem
 import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.Directions
 import fr.lewon.dofus.bot.util.GameInfoUtil
-import javafx.concurrent.WorkerStateEvent
 
 class MultimapPhorrorSearchTask(
     controller: DofusTreasureBotGUIController,
@@ -20,7 +19,7 @@ class MultimapPhorrorSearchTask(
         for (tryCount in 1..4) {
             for (moveCount in 0 until mapsToPass) {
                 try {
-                    val newPos = currentDir.buildMoveTask(controller, logItem).runAndGet()
+                    val newPos = currentDir.buildMoveTask(controller, logItem).run()
                     if (!alreadyFoundPos.contains(newPos) && GameInfoUtil.phorrorOnMap(controller.captureGameImage())) {
                         return newPos
                     }
@@ -35,11 +34,11 @@ class MultimapPhorrorSearchTask(
         throw Exception("No phorror found")
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Pair<Int, Int>, logItem: LogItem) {
+    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
         controller.closeLog("Found : [${value.first},${value.second}]", logItem)
     }
 

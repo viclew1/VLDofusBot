@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.ui.logic.tasks.ClickPointTask
 import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.RobotUtil
-import javafx.concurrent.WorkerStateEvent
 
 class ReachMapTask(
     controller: DofusTreasureBotGUIController,
@@ -16,7 +15,7 @@ class ReachMapTask(
 ) : DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Pair<Int, Int> {
-        ClickPointTask(controller, logItem, 131, 85).runAndGet()
+        ClickPointTask(controller, logItem, 131, 85).run()
         RobotUtil.press(' ')
         Thread.sleep(600)
         RobotUtil.write("/travel $x $y")
@@ -33,11 +32,11 @@ class ReachMapTask(
         throw Exception("Move timeout")
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
-        controller.closeLog("KO - ${event.source.exception.localizedMessage}", logItem)
+    override fun onFailed(exception: Exception, logItem: LogItem) {
+        controller.closeLog("KO - $exception.localizedMessage}", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Pair<Int, Int>, logItem: LogItem) {
+    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
         controller.closeLog("OK : [${value.first},${value.second}]", logItem)
     }
 

@@ -6,7 +6,7 @@ import kotlin.collections.HashMap
 import kotlin.math.abs
 
 class FightBoard(
-    private val cells: List<FightCell>,
+    val cells: List<FightCell>,
     val startCells: List<FightCell>,
     var playerPos: FightCell,
     var enemyPos: FightCell

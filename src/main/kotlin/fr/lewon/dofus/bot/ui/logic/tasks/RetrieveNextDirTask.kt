@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.ui.LogItem
 import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.Directions
 import fr.lewon.dofus.bot.util.GameInfoUtil
-import javafx.concurrent.WorkerStateEvent
 
 class RetrieveNextDirTask(
     controller: DofusTreasureBotGUIController,
@@ -17,11 +16,11 @@ class RetrieveNextDirTask(
             ?: throw Exception()
     }
 
-    override fun onFailed(event: WorkerStateEvent, logItem: LogItem) {
+    override fun onFailed(exception: Exception, logItem: LogItem) {
         controller.closeLog("KO", logItem)
     }
 
-    override fun onSucceeded(event: WorkerStateEvent, value: Directions, logItem: LogItem) {
+    override fun onSucceeded(value: Directions, logItem: LogItem) {
         controller.closeLog("OK : $value", logItem)
     }
 

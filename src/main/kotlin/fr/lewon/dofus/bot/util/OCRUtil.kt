@@ -35,10 +35,7 @@ object OCRUtil {
 
     @Synchronized
     fun split(img: BufferedImage, ratio: Int, mode: Int): List<BufferedImage> {
-        val regions = initTesseract().getSegmentedRegions(
-            img,
-            mode
-        )
+        val regions = initTesseract().getSegmentedRegions(img, mode)
         return regions.map {
             ImageUtil.resizeImage(
                 img.getSubimage(it.x, it.y, it.width, it.height),
@@ -50,23 +47,18 @@ object OCRUtil {
     @Synchronized
     fun segmentImage(img: Mat): Mat {
         // init
-        // init
         val grayImage = Mat().also { MatFlusher.registerMat(it) }
         val detectedEdges = Mat().also { MatFlusher.registerMat(it) }
 
         // convert to grayscale
-        // convert to grayscale
         Imgproc.cvtColor(img, grayImage, Imgproc.COLOR_BGR2GRAY)
 
-        // reduce noise with a 3x3 kernel
         // reduce noise with a 3x3 kernel
         Imgproc.blur(grayImage, detectedEdges, Size(3.0, 3.0))
 
         // canny detector, with ratio of lower:upper threshold of 3:1
-        // canny detector, with ratio of lower:upper threshold of 3:1
         Imgproc.Canny(detectedEdges, detectedEdges, 1.0, 3.0)
 
-        // using Canny's output as a mask, display the result
         // using Canny's output as a mask, display the result
         val dest = Mat().also { MatFlusher.registerMat(it) }
         img.copyTo(dest, detectedEdges)
