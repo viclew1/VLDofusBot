@@ -1,9 +1,9 @@
-package fr.lewon.dofus.bot.ui.logic.tasks.moves
+package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 import fr.lewon.dofus.bot.json.DTBPoint
+import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.DTBConfigManager
 import fr.lewon.dofus.bot.util.Directions
 import fr.lewon.dofus.bot.util.GameInfoUtil

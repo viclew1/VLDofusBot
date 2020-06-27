@@ -92,16 +92,16 @@
                               </Label>
                               <BorderPane prefHeight="30.0" prefWidth="200.0" style="-fx-border-color: black;">
                                  <left>
-                                  <Button fx:id="selectLeftAccessZone" mnemonicParsing="false" prefWidth="60.0" text="Left" BorderPane.alignment="CENTER" />
+                                  <Button mnemonicParsing="false" onAction="#selectLeftAccessZone" prefWidth="60.0" text="Left" BorderPane.alignment="CENTER" />
                                  </left>
                                  <right>
-                                    <Button fx:id="selectRightAccessZone" mnemonicParsing="false" prefWidth="60.0" text="Right" BorderPane.alignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#selectRightAccessZone" prefWidth="60.0" text="Right" BorderPane.alignment="CENTER" />
                                  </right>
                                  <bottom>
-                                    <Button fx:id="selectBottomAccessZone" mnemonicParsing="false" prefWidth="60.0" text="Bottom" BorderPane.alignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#selectBottomAccessZone" prefWidth="60.0" text="Bottom" BorderPane.alignment="CENTER" />
                                  </bottom>
                                  <top>
-                                    <Button fx:id="selectTopAccessZone" mnemonicParsing="false" prefWidth="60.0" text="Top" BorderPane.alignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#selectTopAccessZone" prefWidth="60.0" text="Top" BorderPane.alignment="CENTER" />
                                  </top>
                                  <VBox.margin>
                                     <Insets bottom="5.0" left="10.0" right="10.0" />

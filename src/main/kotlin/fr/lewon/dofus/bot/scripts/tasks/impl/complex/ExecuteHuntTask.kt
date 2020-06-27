@@ -1,8 +1,8 @@
-package fr.lewon.dofus.bot.ui.logic.tasks.complex
+package fr.lewon.dofus.bot.scripts.tasks.impl.complex
 
+import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.ui.logic.DofusBotTask
 import fr.lewon.dofus.bot.util.DofusImages
 import fr.lewon.dofus.bot.util.GameInfoUtil
 
@@ -17,7 +17,13 @@ class ExecuteHuntTask(
         while (true) {
             if (GameInfoUtil.getButtonCenter(controller.captureGameImage(), DofusImages.FIGHT_BTN.path) != null)
                 return true
-            if (!ExecuteQuestTask(controller, logItem, hintsIdByName, altWorld).run())
+            if (!ExecuteQuestTask(
+                    controller,
+                    logItem,
+                    hintsIdByName,
+                    altWorld
+                ).run()
+            )
                 return false
             Thread.sleep(1000)
         }

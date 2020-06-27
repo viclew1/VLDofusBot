@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.ui.logic
+package fr.lewon.dofus.bot.scripts.tasks
 
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem

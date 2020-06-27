@@ -1,16 +1,16 @@
 package fr.lewon.dofus.bot.scripts
 
+import fr.lewon.dofus.bot.scripts.tasks.impl.ClickButtonTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.ClickPointTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.RetrieveNextDirTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.complex.ExecuteHuntTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.complex.ReachMapTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveBottomTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveLeftTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveRightTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTopTask
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.ui.logic.tasks.ClickButtonTask
-import fr.lewon.dofus.bot.ui.logic.tasks.ClickPointTask
-import fr.lewon.dofus.bot.ui.logic.tasks.RetrieveNextDirTask
-import fr.lewon.dofus.bot.ui.logic.tasks.complex.ExecuteHuntTask
-import fr.lewon.dofus.bot.ui.logic.tasks.complex.ReachMapTask
-import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveBottomTask
-import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveLeftTask
-import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveRightTask
-import fr.lewon.dofus.bot.ui.logic.tasks.moves.MoveTopTask
 import fr.lewon.dofus.bot.util.*
 import fr.lewon.dofus.bot.util.fight.FightBoard
 import fr.lewon.dofus.bot.util.fight.FightCell
@@ -150,7 +150,11 @@ abstract class DofusBotScript(val name: String) {
     }
 
     protected fun click(imgName: String) {
-        ClickButtonTask(controller, logItem, "scripts_templates/$imgName").run()
+        ClickButtonTask(
+            controller,
+            logItem,
+            "scripts_templates/$imgName"
+        ).run()
     }
 
     protected fun mouseMove(x: Int, y: Int) {
@@ -196,7 +200,12 @@ abstract class DofusBotScript(val name: String) {
                 execTimeoutOpe(
                     { click(transporter.first) },
                     { GameInfoUtil.getLocation(controller.captureGameImage()) == transporter.second })
-                return ReachMapTask(controller, logItem, x, y).run()
+                return ReachMapTask(
+                    controller,
+                    logItem,
+                    x,
+                    y
+                ).run()
             }
         }
         if (abs(-56 - x) + abs(-64 - y) < 10) {
@@ -206,7 +215,12 @@ abstract class DofusBotScript(val name: String) {
             execTimeoutOpe(
                 { click(transporter.first) },
                 { GameInfoUtil.getLocation(controller.captureGameImage()) == transporter.second })
-            return ReachMapTask(controller, logItem, x, y).run()
+            return ReachMapTask(
+                controller,
+                logItem,
+                x,
+                y
+            ).run()
         }
         val otomaiTransporters = loadCoordinatesDir("otomai_destinations")
         for (transporter in otomaiTransporters) {
@@ -218,7 +232,12 @@ abstract class DofusBotScript(val name: String) {
                 execTimeoutOpe(
                     { click(transporter.first) },
                     { GameInfoUtil.getLocation(controller.captureGameImage()) == transporter.second })
-                return ReachMapTask(controller, logItem, x, y).run()
+                return ReachMapTask(
+                    controller,
+                    logItem,
+                    x,
+                    y
+                ).run()
             }
         }
         return zaapAndReach("zaap_coordinates", x, y)
@@ -229,7 +248,8 @@ abstract class DofusBotScript(val name: String) {
         if (getLocation() == Pair(x, y)) {
             return Pair(x, y)
         }
-        return ReachMapTask(controller, logItem, x, y).run()
+        return ReachMapTask(controller, logItem, x, y)
+            .run()
     }
 
     private fun zaapToward(zaapDir: String, x: Int, y: Int, maxDist: Int = 20) {
@@ -427,7 +447,12 @@ abstract class DofusBotScript(val name: String) {
 
     protected fun executeHunt() {
         val altWorld = imgFound("start_hunt_otomai.png", 0.7)
-        ExecuteHuntTask(controller, logItem, controller.hintsIdsByName, altWorld).run()
+        ExecuteHuntTask(
+            controller,
+            logItem,
+            controller.hintsIdsByName,
+            altWorld
+        ).run()
     }
 
     protected fun moveLeft(count: Int = 1): Pair<Int, Int> {

@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.util
 
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.*
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.ui.logic.tasks.moves.*
 
 
 enum class Directions(

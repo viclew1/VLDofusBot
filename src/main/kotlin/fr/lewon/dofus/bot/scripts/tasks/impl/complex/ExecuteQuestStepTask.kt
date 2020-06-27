@@ -1,10 +1,10 @@
-package fr.lewon.dofus.bot.ui.logic.tasks.complex
+package fr.lewon.dofus.bot.scripts.tasks.impl.complex
 
+import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.RetrieveLocationTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.RetrieveNextDirTask
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.ui.logic.DofusBotTask
-import fr.lewon.dofus.bot.ui.logic.tasks.RetrieveLocationTask
-import fr.lewon.dofus.bot.ui.logic.tasks.RetrieveNextDirTask
 import fr.lewon.dofus.bot.util.DTBRequestProcessor
 
 class ExecuteQuestStepTask(
@@ -16,11 +16,20 @@ class ExecuteQuestStepTask(
 ) : DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Pair<Int, Int> {
-        val nextDir = RetrieveNextDirTask(controller, logItem).run()
+        val nextDir = RetrieveNextDirTask(controller, logItem)
+            .run()
         if (toFindIds.contains("PHO")) {
-            return MultimapPhorrorSearchTask(controller, logItem, nextDir, alreadyFoundPos).run()
+            return MultimapPhorrorSearchTask(
+                controller,
+                logItem,
+                nextDir,
+                alreadyFoundPos
+            ).run()
         }
-        val location = RetrieveLocationTask(controller, logItem).run()
+        val location = RetrieveLocationTask(
+            controller,
+            logItem
+        ).run()
         val hint = DTBRequestProcessor.getHint(
             x = location.first,
             y = location.second,
@@ -30,9 +39,18 @@ class ExecuteQuestStepTask(
         )
         if (hint == null) {
             controller.log("Couldn't retrieve object distance, trying every map.", logItem)
-            return MultimapRandomSearchTask(controller, logItem, nextDir).run()
+            return MultimapRandomSearchTask(
+                controller,
+                logItem,
+                nextDir
+            ).run()
         }
-        return MultimapMoveTask(controller, logItem, nextDir, hint.d).run()
+        return MultimapMoveTask(
+            controller,
+            logItem,
+            nextDir,
+            hint.d
+        ).run()
     }
 
     override fun onFailed(exception: Exception, logItem: LogItem) {

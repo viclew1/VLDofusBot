@@ -181,7 +181,8 @@ object GameInfoUtil {
             frontier = newFrontier
         }
 
-        findCharacterTile(gameImage, FightColors.enemyColors, fightBoard)?.let { fightBoard.enemyPos = it }
+        findCharacterTile(gameImage, FightColors.enemyColors, fightBoard)
+            ?.let { fightBoard.enemyPos = it }
     }
 
     private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell? {
