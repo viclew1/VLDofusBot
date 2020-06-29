@@ -2,19 +2,22 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 
 object ChainHuntsScript : DofusBotScript("Chain hunts") {
 
     val continueOnFailParameter = DofusBotScriptParameter(
         "Continue on fail",
-        "If value is [yes], cancels failed hunt and fetches another one. Else, script stops on hunt fail",
-        "yes"
+        "If true, cancels failed hunt and fetches another one. Else, script stops on hunt fail",
+        "true",
+        DofusBotScriptParameterType.BOOLEAN
     )
 
     val huntsAmountParameter = DofusBotScriptParameter(
         "Hunts amount",
         "Amount of hunt to process before stopping",
-        "5"
+        "5",
+        DofusBotScriptParameterType.INTEGER
     )
 
     private var huntsDone: Int = 0
@@ -41,7 +44,7 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
     }
 
     override fun doExecute(parameters: Map<String, DofusBotScriptParameter>) {
-        val continueOnFail = "yes".toLowerCase() == continueOnFailParameter.value.toLowerCase()
+        val continueOnFail = continueOnFailParameter.value.toBoolean()
         val huntsAmount = huntsAmountParameter.value.toInt()
 
         huntsDone = 0

@@ -274,9 +274,7 @@ abstract class DofusBotScript(val name: String) {
             return
         }
 
-        if (!imgFound("zaap_template.png")) {
-            execTimeoutOpe({ pressShortcut('h') }, { imgFound("zaap_template.png") })
-        }
+        reachHome()
         clickChain(listOf("zaap_template.png"), "zaap_frame_bot.png")
 
         val zaapContentBounds = getFrameBounds(
@@ -309,6 +307,19 @@ abstract class DofusBotScript(val name: String) {
         execTimeoutOpe(
             { clickChain(listOf(selectedCoordinate.first, "teleport_template.png")) },
             { GameInfoUtil.getLocation(controller.captureGameImage()) == selectedCoordinate.second })
+    }
+
+    private fun reachHome() {
+        while (true) {
+            try {
+                execTimeoutOpe({ pressShortcut('h') }, { imgFound("zaap_template.png", 0.90) })
+                return
+            } catch (e: Exception) {
+                if (!MovesHistory.cancelLastMove(controller, logItem)) {
+                    error("Couldn't reach home - ${e.localizedMessage}")
+                }
+            }
+        }
     }
 
     private fun isZaapPossible(selectedCoordinate: Pair<String, Pair<Int, Int>>): Boolean {
@@ -436,12 +447,16 @@ abstract class DofusBotScript(val name: String) {
     }
 
     protected fun selectHunt() {
-        clickChain(
-            listOf("hunt_chest.png"), "../${controller.getHuntLvlTemplatePath()}"
+        val huntLvlTemplatePath = "../${controller.getHuntLvlTemplatePath()}"
+        execTimeoutOpe(
+            {
+                clickPoint(1043, 487)
+                sleep(2500)
+            },
+            { imgFound(huntLvlTemplatePath, 0.9) }
         )
-        sleep(2500)
         clickChain(
-            listOf("../${controller.getHuntLvlTemplatePath()}"), "../templates/hunt_frame_top.png"
+            listOf(huntLvlTemplatePath), "../templates/hunt_frame_top.png"
         )
     }
 

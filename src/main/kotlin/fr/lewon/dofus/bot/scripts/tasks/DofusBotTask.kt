@@ -8,13 +8,13 @@ abstract class DofusBotTask<T>(
     private val parentLogItem: LogItem?
 ) {
 
-    abstract fun execute(logItem: LogItem): T
+    protected abstract fun execute(logItem: LogItem): T
 
-    abstract fun onFailed(exception: Exception, logItem: LogItem)
+    protected abstract fun onFailed(exception: Exception, logItem: LogItem)
 
-    abstract fun onSucceeded(value: T, logItem: LogItem)
+    protected abstract fun onSucceeded(value: T, logItem: LogItem)
 
-    abstract fun onStarted(parentLogItem: LogItem?): LogItem
+    protected abstract fun onStarted(parentLogItem: LogItem?): LogItem
 
     fun run(): T {
         val logItem = onStarted(parentLogItem)

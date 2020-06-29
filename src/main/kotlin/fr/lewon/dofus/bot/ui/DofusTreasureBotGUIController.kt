@@ -3,6 +3,8 @@ package fr.lewon.dofus.bot.ui
 import fr.lewon.dofus.bot.json.DTBPoint
 import fr.lewon.dofus.bot.json.PositionsByDirection
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.scripts.impl.*
 import fr.lewon.dofus.bot.util.*
 import javafx.application.Platform
@@ -13,15 +15,18 @@ import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.geometry.Insets
 import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.control.TextArea
+import javafx.scene.control.TextField
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
-import java.awt.GraphicsDevice
-import java.awt.GraphicsEnvironment
-import java.awt.MouseInfo
-import java.awt.Point
+import org.controlsfx.control.ToggleSwitch
+import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
+import java.net.URI
 import java.net.URL
 import java.util.*
 import kotlin.collections.ArrayList
@@ -178,27 +183,45 @@ class DofusTreasureBotGUIController : Initializable {
         val scriptParameters = ArrayList(newScript.getParameters())
         scriptParameters.forEach {
             val nameLbl = Label(it.key)
-            val valueTextField = TextField(it.value)
-            valueTextField.prefWidth = 100.0
-            valueTextField.textProperty().addListener { _, _, newVal ->
-                it.value = newVal
-                DTBConfigManager.editConfig { conf ->
-                    conf.scriptParameters[newScript.name]
-                        ?.firstOrNull { param -> param.key == it.key }
-                        ?.let { param -> param.value = newVal }
-                }
-                editDescription(newScript)
-            }
-            valueTextField.focusedProperty().addListener { _, _, newVal ->
+            val inputField = buildInputField(newScript, it)
+            inputField.prefWidth = 60.0
+            inputField.focusedProperty().addListener { _, _, newVal ->
                 if (newVal) {
                     scriptParameterDescriptionTextArea.text = it.description
                 }
             }
             val borderPane = BorderPane()
             borderPane.left = nameLbl
-            borderPane.right = valueTextField
+            borderPane.right = inputField
             VBox.setMargin(borderPane, Insets(5.0, 10.0, 5.0, 10.0))
             parametersVBox.children.add(borderPane)
+        }
+    }
+
+    private fun buildInputField(script: DofusBotScript, param: DofusBotScriptParameter): Control {
+        val onChange: (String) -> (Unit) = {
+            param.value = it
+            DTBConfigManager.editConfig { conf ->
+                conf.scriptParameters[script.name]
+                    ?.firstOrNull { p -> p.key == param.key }
+                    ?.let { p -> p.value = it }
+            }
+            editDescription(script)
+        }
+        return when (param.type) {
+            DofusBotScriptParameterType.INTEGER -> TextField(param.value).also {
+                it.textFormatter = TextFormatter<Int> { newVal ->
+                    newVal.takeIf { newVal.text.matches(Regex("[0-9]*")) }
+                }
+                it.textProperty().addListener { _, _, newVal -> onChange(newVal) }
+            }
+            DofusBotScriptParameterType.BOOLEAN -> ToggleSwitch().also {
+                it.isSelected = param.value.toBoolean()
+                it.selectedProperty().addListener { _, _, newVal -> onChange(newVal.toString()) }
+            }
+            else -> TextField(param.value).also {
+                it.textProperty().addListener { _, _, newVal -> onChange(newVal) }
+            }
         }
     }
 
@@ -210,7 +233,6 @@ class DofusTreasureBotGUIController : Initializable {
                 Platform.runLater {
                     scriptNameLbl.text = "[${script.name}]"
                     scriptDescriptionTextArea.text = script.getDescription()
-                    tabPane.selectionModel.select(logTab)
                 }
                 script.execute(this, it)
             },
@@ -311,7 +333,10 @@ class DofusTreasureBotGUIController : Initializable {
         }, 1000, 1000)
 
         clearLogs()
-        Platform.runLater { statsTableView.items.clear() }
+        Platform.runLater {
+            statsTableView.items.clear()
+            tabPane.selectionModel.select(logTab)
+        }
         val logItem = log(startMessage)
         runningBtnThread = Thread {
             Platform.runLater { status.style = "-fx-background-color: grey;" }
@@ -326,6 +351,7 @@ class DofusTreasureBotGUIController : Initializable {
                 scriptRunningProperty.value = false
                 updateExecDurationTimer.cancel()
                 updateExecDurationTimer.purge()
+                MovesHistory.clearHistory()
                 MatFlusher.releaseAll()
             }
         }
@@ -405,6 +431,24 @@ class DofusTreasureBotGUIController : Initializable {
         return this.huntLevelTemplatePathByLevel
             .first { it.second == DTBConfigManager.config.huntLevel }
             .first
+    }
+
+    fun openGithubPage(actionEvent: ActionEvent) {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Desktop.getDesktop().browse(URI("https://github.com/viclew1/DTB"))
+        }
+    }
+
+    fun locateCursor(actionEvent: ActionEvent) {
+        processBtnExecution(
+            execution = {
+                val point = registerPos(it)
+                log("Location : [${point.x},${point.y}]", it)
+            },
+            startMessage = "Locate mouse coordinates on screen ...",
+            successMessage = "OK",
+            failMessageBuilder = { "KO - ${it.localizedMessage}" }
+        )
     }
 
 }

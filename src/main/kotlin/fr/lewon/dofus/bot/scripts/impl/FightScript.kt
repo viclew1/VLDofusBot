@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.util.DTBConfigManager
 import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.RobotUtil
@@ -15,27 +16,32 @@ object FightScript : DofusBotScript("Fight chest") {
     private val preMoveBuffParameter = DofusBotScriptParameter(
         "Pre move buffs",
         "Hotkeys to the buff spells to use before playing the turn",
-        ""
+        "",
+        DofusBotScriptParameterType.STRING
     )
     private val losAttacksParameter = DofusBotScriptParameter(
         "LOS attacks",
         "Hotkeys to the attacks to use if you have a line of sight with the enemy",
-        ""
+        "",
+        DofusBotScriptParameterType.STRING
     )
     private val minRangeParameter = DofusBotScriptParameter(
         "Min range",
         "Min range of the attack you wish to use",
-        "0"
+        "0",
+        DofusBotScriptParameterType.INTEGER
     )
     private val maxRangeParameter = DofusBotScriptParameter(
         "Max range",
         "Max range of the attack you wish to use",
-        "10"
+        "10",
+        DofusBotScriptParameterType.INTEGER
     )
     private val nonLosAttacksParameter = DofusBotScriptParameter(
         "Non LOS attacks",
         "Hotkeys to the attacks to use if you don't have a line of sight with the enemy",
-        ""
+        "",
+        DofusBotScriptParameterType.STRING
     )
 
     private var turnsPassed: Int = 0

@@ -4,10 +4,7 @@ import fr.lewon.dofus.bot.json.DTBPoint
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.util.DTBConfigManager
-import fr.lewon.dofus.bot.util.Directions
-import fr.lewon.dofus.bot.util.GameInfoUtil
-import fr.lewon.dofus.bot.util.RobotUtil
+import fr.lewon.dofus.bot.util.*
 import java.awt.image.BufferedImage
 
 abstract class MoveTask(
@@ -31,13 +28,15 @@ abstract class MoveTask(
 
     override fun execute(logItem: LogItem): Pair<Int, Int> {
         val gameImage: BufferedImage = controller.captureGameImage()
-
         val location = GameInfoUtil.getLocation(gameImage) ?: throw Exception("Couldn't get location")
-        DTBConfigManager.config.registeredMoveLocationsByMap["${location.first}_${location.second}"]?.get(direction)
-            ?.let { processMove(location, it) }
-            ?.let { return it }
-        processMove(location, getMoveDest())
-            ?.let { return it }
+        val moveDest =
+            DTBConfigManager.config.registeredMoveLocationsByMap["${location.first}_${location.second}"]?.get(direction)
+                ?.let { processMove(location, it) }
+                ?: processMove(location, getMoveDest())
+        moveDest?.let {
+            MovesHistory.addMove(direction)
+            return it
+        }
         throw Exception("Failed to move toward [$direction] from [$location].")
     }
 

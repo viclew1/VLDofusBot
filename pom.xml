@@ -7,7 +7,7 @@
     <groupId>fr.lewon</groupId>
     <artifactId>DofusTreasureBot</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -96,6 +96,13 @@
             <artifactId>tess4j</artifactId>
             <version>4.1.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>8.40.14</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.openjfx</groupId>

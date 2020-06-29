@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.json.DTBConfig
 import java.io.File
-import java.io.FileWriter
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 
 
 object DTBConfigManager {
@@ -41,7 +43,7 @@ object DTBConfigManager {
     }
 
     private fun saveConfig() {
-        with(FileWriter(configFile, false)) {
+        with(OutputStreamWriter(FileOutputStream(configFile, false), StandardCharsets.UTF_8)) {
             write(ObjectMapper().writeValueAsString(config))
             close()
         }
