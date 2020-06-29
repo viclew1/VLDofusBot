@@ -20,13 +20,12 @@ import kotlin.math.abs
 object GameInfoUtil {
 
     private fun buildMat(imgPath: String): Mat {
-        return Imgcodecs.imread(imgPath).also { MatFlusher.registerMat(it) }
+        return Imgcodecs.imread(imgPath)
     }
 
     @Synchronized
     fun getButtonBounds(gameImage: BufferedImage, imagePath: String, minMatchValue: Double = 0.6): Rectangle? {
         val searchTemplate = buildMat(imagePath)
-        MatFlusher.registerMat(searchTemplate)
         val matchResult = this.getMatchResult(gameImage, searchTemplate) ?: return null
         if (matchResult.maxVal < minMatchValue) return null
         ImageIO.write(
@@ -394,7 +393,7 @@ object GameInfoUtil {
 
     @Synchronized
     private fun getMatchResult(imgMat: Mat, templateMat: Mat): Core.MinMaxLocResult? {
-        val outputImageHunt = Mat().also { MatFlusher.registerMat(it) }
+        val outputImageHunt = Mat()
         Imgproc.matchTemplate(
             imgMat,
             templateMat,

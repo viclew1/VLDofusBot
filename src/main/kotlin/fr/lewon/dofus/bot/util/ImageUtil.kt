@@ -21,12 +21,12 @@ object ImageUtil {
         return Imgcodecs.imdecode(
             MatOfByte(*byteArrayOutputStream.toByteArray()),
             Imgcodecs.CV_LOAD_IMAGE_UNCHANGED
-        ).also { MatFlusher.registerMat(it) }
+        )
     }
 
     @Synchronized
     fun matToBufferedImage(matrix: Mat): BufferedImage {
-        val mob = MatOfByte().also { MatFlusher.registerMat(it) }
+        val mob = MatOfByte()
         Imgcodecs.imencode(".png", matrix, mob)
         return ImageIO.read(ByteArrayInputStream(mob.toArray()))
     }

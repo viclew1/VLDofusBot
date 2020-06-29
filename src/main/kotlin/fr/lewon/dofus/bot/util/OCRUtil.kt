@@ -47,8 +47,8 @@ object OCRUtil {
     @Synchronized
     fun segmentImage(img: Mat): Mat {
         // init
-        val grayImage = Mat().also { MatFlusher.registerMat(it) }
-        val detectedEdges = Mat().also { MatFlusher.registerMat(it) }
+        val grayImage = Mat()
+        val detectedEdges = Mat()
 
         // convert to grayscale
         Imgproc.cvtColor(img, grayImage, Imgproc.COLOR_BGR2GRAY)
@@ -60,7 +60,7 @@ object OCRUtil {
         Imgproc.Canny(detectedEdges, detectedEdges, 1.0, 3.0)
 
         // using Canny's output as a mask, display the result
-        val dest = Mat().also { MatFlusher.registerMat(it) }
+        val dest = Mat()
         img.copyTo(dest, detectedEdges)
 
         return dest
@@ -68,17 +68,17 @@ object OCRUtil {
 
     @Synchronized
     fun keepDarkOnImage(imageMat: Mat, smoothen: Boolean = true): BufferedImage {
-        val srcGray = Mat().also { MatFlusher.registerMat(it) }
+        val srcGray = Mat()
         Imgproc.cvtColor(imageMat, srcGray, Imgproc.COLOR_BGR2GRAY)
 
-        val dst = Mat().also { MatFlusher.registerMat(it) }
+        val dst = Mat()
         Imgproc.threshold(srcGray, dst, 95.0, 255.0, 0)
 
         if (!smoothen) {
             return HighGui.toBufferedImage(dst) as BufferedImage
         }
 
-        val smoothDst = Mat().also { MatFlusher.registerMat(it) }
+        val smoothDst = Mat()
         Imgproc.medianBlur(dst, smoothDst, 7)
 
         return HighGui.toBufferedImage(smoothDst) as BufferedImage
@@ -86,17 +86,17 @@ object OCRUtil {
 
     @Synchronized
     fun keepWhiteOnImage(imageMat: Mat, smoothen: Boolean = true): BufferedImage {
-        val srcGray = Mat().also { MatFlusher.registerMat(it) }
+        val srcGray = Mat()
         Imgproc.cvtColor(imageMat, srcGray, Imgproc.COLOR_BGR2GRAY)
 
-        val dst = Mat().also { MatFlusher.registerMat(it) }
+        val dst = Mat()
         Imgproc.threshold(srcGray, dst, 115.0, 255.0, 1)
 
         if (!smoothen) {
             return HighGui.toBufferedImage(dst) as BufferedImage
         }
 
-        val smoothDst = Mat().also { MatFlusher.registerMat(it) }
+        val smoothDst = Mat()
         Imgproc.medianBlur(dst, smoothDst, 7)
 
         return HighGui.toBufferedImage(smoothDst) as BufferedImage
