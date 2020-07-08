@@ -3,8 +3,17 @@ package fr.lewon.dofus.bot.scripts.impl
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
+import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
+import fr.lewon.dofus.bot.ui.LogItem
 
 object ChainHuntsScript : DofusBotScript("Chain hunts") {
+
+    val cleanCachePeriodParameter = DofusBotScriptParameter(
+        "Clean cache every ...",
+        "The game cache will be cleaned every X hunts (succeeded or not). Enter any number <= 0 to never clean the cache",
+        "25",
+        DofusBotScriptParameterType.INTEGER
+    )
 
     val continueOnFailParameter = DofusBotScriptParameter(
         "Continue on fail",
@@ -28,7 +37,8 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
     override fun getParameters(): List<DofusBotScriptParameter> {
         return listOf(
             continueOnFailParameter,
-            huntsAmountParameter
+            huntsAmountParameter,
+            cleanCachePeriodParameter
         )
     }
 
@@ -43,23 +53,30 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
         return "Fetches a new hunt, reaches the hunt start, executes the hunt and fights the chest. And does it ${huntsAmountParameter.value} times."
     }
 
-    override fun doExecute(parameters: Map<String, DofusBotScriptParameter>) {
+    override fun doExecute(
+        controller: DofusTreasureBotGUIController,
+        logItem: LogItem?,
+        parameters: Map<String, DofusBotScriptParameter>
+    ) {
         val continueOnFail = continueOnFailParameter.value.toBoolean()
         val huntsAmount = huntsAmountParameter.value.toInt()
+        val cleanCachePeriod = cleanCachePeriodParameter.value.toInt()
 
         huntsDone = 0
         huntsSuccess = 0
         huntDurations = ArrayList()
         huntAverageDurationDisplay = "/"
 
+        var cpt = 0
         for (i in 0 until huntsAmount) {
             runScript(FetchAHuntScript)
             val start = getTime()
             try {
                 runScript(ReachHuntStartScript)
                 executeHunt()
-                huntsDone++
+                clickChain(listOf("fight/fight.png"), "fight/ready.png")
                 runScript(FightScript)
+                huntsDone++
                 huntsSuccess++
                 huntDurations.add(getTime() - start)
                 val average = huntDurations.average().toLong()
@@ -80,6 +97,10 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
                 }
             } finally {
                 clearCache()
+                if (++cpt == cleanCachePeriod) {
+                    cpt = 0
+                    runScript(CleanCacheScript)
+                }
             }
         }
     }

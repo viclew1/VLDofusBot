@@ -38,10 +38,14 @@ abstract class DofusBotScript(val name: String) {
             ?.map { it.key to it }
             ?.toMap()
             ?: emptyMap()
-        doExecute(parametersByName)
+        doExecute(controller, logItem, parametersByName)
     }
 
-    protected abstract fun doExecute(parameters: Map<String, DofusBotScriptParameter>)
+    protected abstract fun doExecute(
+        controller: DofusTreasureBotGUIController,
+        logItem: LogItem?,
+        parameters: Map<String, DofusBotScriptParameter>
+    )
 
     protected fun runScript(script: DofusBotScript) {
         script.execute(controller, logItem)
@@ -310,6 +314,9 @@ abstract class DofusBotScript(val name: String) {
     }
 
     private fun reachHome() {
+        if (imgFound("zaap_template.png", 0.90)) {
+            return
+        }
         while (true) {
             try {
                 execTimeoutOpe({ pressShortcut('h') }, { imgFound("zaap_template.png", 0.90) })
@@ -335,8 +342,12 @@ abstract class DofusBotScript(val name: String) {
     }
 
     protected fun pressShortcut(c: Char) {
-        ClickPointTask(controller, logItem, 131, 85).run()
+        focusDofusWindow()
         RobotUtil.press(c)
+    }
+
+    protected fun focusDofusWindow() {
+        ClickPointTask(controller, logItem, 131, 85).run()
     }
 
     protected fun getTime(): Long {

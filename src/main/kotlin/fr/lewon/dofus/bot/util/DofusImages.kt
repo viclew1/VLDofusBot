@@ -2,11 +2,6 @@ package fr.lewon.dofus.bot.util
 
 enum class DofusImages(imageName: String) {
 
-    CHAT("chat.png"),
-    LEFT_ARROW("arrowL.png"),
-    RIGHT_ARROW("arrowR.png"),
-    BOTTOM_ARROW("arrowB.png"),
-    TOP_ARROW("arrowT.png"),
     CHECKPOINT_BTN("checkpoint.png"),
     SEARCH_BTN("search.png"),
     FIGHT_BTN("fight.png"),

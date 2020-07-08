@@ -3,6 +3,8 @@ package fr.lewon.dofus.bot.scripts.impl
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
+import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
+import fr.lewon.dofus.bot.ui.LogItem
 import fr.lewon.dofus.bot.util.DTBConfigManager
 import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.RobotUtil
@@ -11,7 +13,7 @@ import fr.lewon.dofus.bot.util.fight.FightBoard
 import fr.lewon.dofus.bot.util.fight.FightColors
 import java.awt.event.KeyEvent
 
-object FightScript : DofusBotScript("Fight chest") {
+object FightScript : DofusBotScript("Fight") {
 
     private val preMoveBuffParameter = DofusBotScriptParameter(
         "Pre move buffs",
@@ -43,6 +45,12 @@ object FightScript : DofusBotScript("Fight chest") {
         "",
         DofusBotScriptParameterType.STRING
     )
+    private val contactAttacksParameter = DofusBotScriptParameter(
+        "Contact attacks",
+        "Hotkeys to the attacks to use if you are at the enemy contact",
+        "",
+        DofusBotScriptParameterType.STRING
+    )
 
     private var turnsPassed: Int = 0
 
@@ -52,7 +60,8 @@ object FightScript : DofusBotScript("Fight chest") {
             losAttacksParameter,
             minRangeParameter,
             maxRangeParameter,
-            nonLosAttacksParameter
+            nonLosAttacksParameter,
+            contactAttacksParameter
         )
     }
 
@@ -66,14 +75,20 @@ object FightScript : DofusBotScript("Fight chest") {
         return "Clicks on fight button and fights a chest. The AI starts its turn by casting buffs on itself (${preMoveBuffParameter.value}), then moves, then casts the LOS attacks on the enemy (${losAttacksParameter.value}) if there is a line of sight, else casts nonLOS attacks (${nonLosAttacksParameter.value})"
     }
 
-    override fun doExecute(parameters: Map<String, DofusBotScriptParameter>) {
+    override fun doExecute(
+        controller: DofusTreasureBotGUIController,
+        logItem: LogItem?,
+        parameters: Map<String, DofusBotScriptParameter>
+    ) {
         val preMoveBuffs = preMoveBuffParameter.value
         val losAttacks = losAttacksParameter.value
         val minRange = minRangeParameter.value.toInt()
         val maxRange = maxRangeParameter.value.toInt()
         val nonLosAttacks = nonLosAttacksParameter.value
+        val contactAttacks = contactAttacksParameter.value
 
-        clickChain(listOf("fight/fight.png"), "fight/ready.png")
+        execTimeoutOpe({ }, { imgFound("fight/ready.png") })
+
         if (imgFound("fight/creature_mode.png", 0.9)) {
             click("fight/creature_mode.png")
         }
@@ -120,18 +135,30 @@ object FightScript : DofusBotScript("Fight chest") {
             }
             refreshBoard(fightBoard)
 
-            fightAI.selectBestDest().takeIf { it != fightBoard.playerPos }
-                ?.let {
-                    clickPoint(it.getCenter())
-                    fightBoard.playerPos = it
-                    sleep(2000)
+            if (fightBoard.getDist(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE <= 1) {
+                for (c in contactAttacks) {
+                    RobotUtil.press(c)
+                    clickPoint(fightBoard.enemyPos.getCenter())
                 }
+            } else {
+                fightAI.selectBestDest().takeIf { it != fightBoard.playerPos }
+                    ?.let {
+                        clickPoint(it.getCenter())
+                        fightBoard.playerPos = it
+                        sleep(2000)
+                    }
 
-            val los = fightBoard.lineOfSight(fightBoard.playerPos, fightBoard.enemyPos)
-            val attacks = if (los) losAttacks else nonLosAttacks
-            for (c in attacks) {
-                RobotUtil.press(c)
-                clickPoint(fightBoard.enemyPos.getCenter())
+                val dist = fightBoard.getDist(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
+                val los = fightBoard.lineOfSight(fightBoard.playerPos, fightBoard.enemyPos)
+                val attacks = when {
+                    dist <= 1 -> contactAttacks
+                    los -> losAttacks
+                    else -> nonLosAttacks
+                }
+                for (c in attacks) {
+                    RobotUtil.press(c)
+                    clickPoint(fightBoard.enemyPos.getCenter())
+                }
             }
 
             sleep(1000)
@@ -140,12 +167,12 @@ object FightScript : DofusBotScript("Fight chest") {
             RobotUtil.press(KeyEvent.VK_F1)
 
             execTimeoutOpe({ }, {
-                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.enemyTurnColors) > 60
+                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.enemyTurnColors) > 120
             }, 10, false)
 
             execTimeoutOpe({ }, {
-                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 60
-                        || imgFound("fight/close.png") || imgFound("fight/ok.png")
+                GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 120
+                        || imgFound("fight/close.png", 0.9) || imgFound("fight/ok.png", 0.9)
             })
         }
         if (imgFound("fight/ok.png", 0.9)) {

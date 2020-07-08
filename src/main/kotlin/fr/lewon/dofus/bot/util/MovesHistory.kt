@@ -16,15 +16,11 @@ object MovesHistory {
     }
 
     fun cancelLastMove(controller: DofusTreasureBotGUIController, logItem: LogItem?): Boolean {
-        previousMoves.pollLast()
+        return previousMoves.pollLast()
             ?.getReverseDir()
             ?.buildMoveTask(controller, logItem)
             ?.run()
-            ?.let {
-                previousMoves.removeLast()
-                return true
-            }
-        return false
+            ?.let { previousMoves.removeLast() } != null
     }
 
     fun clearHistory() {

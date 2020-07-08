@@ -2,6 +2,8 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
+import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
+import fr.lewon.dofus.bot.ui.LogItem
 
 object FetchAHuntScript : DofusBotScript("Fetch a hunt") {
 
@@ -17,7 +19,11 @@ object FetchAHuntScript : DofusBotScript("Fetch a hunt") {
         return "Fetches another hunt if there isn't one ongoing. Won't do anything if there is one"
     }
 
-    override fun doExecute(parameters: Map<String, DofusBotScriptParameter>) {
+    override fun doExecute(
+        controller: DofusTreasureBotGUIController,
+        logItem: LogItem?,
+        parameters: Map<String, DofusBotScriptParameter>
+    ) {
         if (imgFound("../templates/hunt_frame_top.png")) {
             log("Already an hunt ongoing")
             return

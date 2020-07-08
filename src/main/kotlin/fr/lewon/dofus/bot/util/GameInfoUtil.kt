@@ -10,6 +10,7 @@ import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
+import java.awt.Color
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
@@ -105,40 +106,22 @@ object GameInfoUtil {
             File("debug/arrow.png")
         )
 
-        val dirMatPairs: List<Pair<Directions, Mat>> = listOf(
-            Pair(
-                Directions.LEFT,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.LEFT_ARROW.path), false))
-            ),
-            Pair(
-                Directions.RIGHT,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.RIGHT_ARROW.path), false))
-            ),
-            Pair(
-                Directions.BOTTOM,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.BOTTOM_ARROW.path), false))
-            ),
-            Pair(
-                Directions.TOP,
-                bufferedImageToMat(OCRUtil.keepDarkOnImage(buildMat(DofusImages.TOP_ARROW.path), false))
-            )
-        )
-
-        var highestMatch = -1.0
-        var dir: Directions? = null
-        for (dirMatPair in dirMatPairs) {
-            if (dirMatPair.second.cols() <= lastArrow.width && dirMatPair.second.rows() <= lastArrow.height) {
-                getMatchResult(lastArrow, dirMatPair.second)
-                    ?.maxVal
-                    ?.let {
-                        if (it > highestMatch) {
-                            highestMatch = it
-                            dir = dirMatPair.first
-                        }
-                    }
+        val blackColor = listOf(Color(0, 0, 0).rgb)
+        if (lastArrow.width > lastArrow.height) {
+            val leftHalf = Rectangle(0, 0, lastArrow.width / 2, lastArrow.height)
+            val rightHalf = Rectangle(lastArrow.width / 2, 0, lastArrow.width / 2, lastArrow.height)
+            if (colorCount(lastArrow, leftHalf, blackColor) > colorCount(lastArrow, rightHalf, blackColor)) {
+                return Directions.LEFT
             }
+            return Directions.RIGHT
+        } else {
+            val topHalf = Rectangle(0, 0, lastArrow.width, lastArrow.height / 2)
+            val bottomHalf = Rectangle(0, lastArrow.height / 2, lastArrow.width, lastArrow.height / 2)
+            if (colorCount(lastArrow, topHalf, blackColor) > colorCount(lastArrow, bottomHalf, blackColor)) {
+                return Directions.TOP
+            }
+            return Directions.BOTTOM
         }
-        return dir
     }
 
     /**
@@ -182,6 +165,8 @@ object GameInfoUtil {
 
         findCharacterTile(gameImage, FightColors.enemyColors, fightBoard)
             ?.let { fightBoard.enemyPos = it }
+//        findCharacterTile(gameImage, FightColors.playerColors, fightBoard)
+//            ?.let { fightBoard.playerPos = it }
     }
 
     private fun findCharacterTile(gameImage: BufferedImage, colors: List<Int>, fightBoard: FightBoard): FightCell? {

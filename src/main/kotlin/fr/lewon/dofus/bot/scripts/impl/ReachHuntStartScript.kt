@@ -2,6 +2,8 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
+import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
+import fr.lewon.dofus.bot.ui.LogItem
 
 object ReachHuntStartScript : DofusBotScript("Reach hunt start") {
 
@@ -17,7 +19,11 @@ object ReachHuntStartScript : DofusBotScript("Reach hunt start") {
         return "Reaches the hunt start using the autopilot mount (if you don't have one, it won't work for now)"
     }
 
-    override fun doExecute(parameters: Map<String, DofusBotScriptParameter>) {
+    override fun doExecute(
+        controller: DofusTreasureBotGUIController,
+        logItem: LogItem?,
+        parameters: Map<String, DofusBotScriptParameter>
+    ) {
         val huntStartBounds = imgBounds("start_hunt.png") ?: throw Exception("No hunt start found")
         huntStartBounds.width = 300
         val huntStartImg = getSubImage(huntStartBounds)

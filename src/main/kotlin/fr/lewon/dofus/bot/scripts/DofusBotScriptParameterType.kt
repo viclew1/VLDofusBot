@@ -4,6 +4,7 @@ enum class DofusBotScriptParameterType {
 
     STRING,
     BOOLEAN,
-    INTEGER
+    INTEGER,
+    CHOICE
 
 }

@@ -22,7 +22,6 @@ import javafx.scene.control.TextField
 import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
-import org.controlsfx.control.ToggleSwitch
 import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
@@ -63,10 +62,6 @@ class DofusTreasureBotGUIController : Initializable {
     @FXML
     private lateinit var configTabContent: VBox
     @FXML
-    private lateinit var scriptTabContent: VBox
-    @FXML
-    private lateinit var logTabContent: VBox
-    @FXML
     private lateinit var stopScriptBtn: Button
     @FXML
     private lateinit var startScriptBtn: Button
@@ -76,13 +71,15 @@ class DofusTreasureBotGUIController : Initializable {
     private lateinit var statTableColumn: TableColumn<Pair<String, String>, String>
     @FXML
     private lateinit var valueTableColumn: TableColumn<Pair<String, String>, String>
+    @FXML
+    private lateinit var profileSelector: ChoiceBox<String>
 
     private var scriptRunningProperty: BooleanProperty = SimpleBooleanProperty(false)
     private lateinit var huntLevelTemplatePathByLevel: List<Pair<String, Int>>
     private lateinit var graphicsDevicesAndIds: List<Pair<GraphicsDevice, String>>
 
-    var runningBtnThread: Thread? = null
-    var shouldKillBtnThread = false
+    private var runningBtnThread: Thread? = null
+    private var shouldKillBtnThread = false
 
     private val logs = LinkedList<LogItem>()
     val hintsIdsByName: MutableMap<String, List<String>> =
@@ -92,7 +89,9 @@ class DofusTreasureBotGUIController : Initializable {
         ResumeHuntScript,
         FetchAHuntScript,
         ReachHuntStartScript,
-        FightScript
+        FightScript,
+        CleanCacheScript,
+        FightDopplesScript
     ).map { it.name to it }
         .toMap()
 
@@ -172,6 +171,13 @@ class DofusTreasureBotGUIController : Initializable {
         statsTableView.placeholder = Label("No stat yet for this script")
         statTableColumn.cellValueFactory = PropertyValueFactory("first")
         valueTableColumn.cellValueFactory = PropertyValueFactory("second")
+
+        for (f in File("game_config").listFiles() ?: emptyArray()) {
+            if (f.isDirectory) {
+                profileSelector.items.add(f.name)
+            }
+        }
+        profileSelector.value = DTBConfigManager.config.profile
     }
 
     private fun editDescription(newScript: DofusBotScript) {
@@ -215,9 +221,18 @@ class DofusTreasureBotGUIController : Initializable {
                 }
                 it.textProperty().addListener { _, _, newVal -> onChange(newVal) }
             }
-            DofusBotScriptParameterType.BOOLEAN -> ToggleSwitch().also {
+            DofusBotScriptParameterType.BOOLEAN -> ToggleButton().also {
                 it.isSelected = param.value.toBoolean()
+                it.text = if (it.isSelected) "Yes" else "No"
+                it.selectedProperty().addListener { _, _, newVal -> it.text = if (newVal) "Yes" else "No" }
                 it.selectedProperty().addListener { _, _, newVal -> onChange(newVal.toString()) }
+            }
+            DofusBotScriptParameterType.CHOICE -> ChoiceBox<String>().also {
+                it.items.addAll(param.possibleValues)
+                it.value = param.value
+                it.selectionModel.selectedIndexProperty().addListener { _, _, newVal ->
+                    onChange(it.items[newVal.toInt()])
+                }
             }
             else -> TextField(param.value).also {
                 it.textProperty().addListener { _, _, newVal -> onChange(newVal) }
@@ -230,6 +245,7 @@ class DofusTreasureBotGUIController : Initializable {
         val script = scriptsByName[scriptSelector.value] ?: error("Script [${scriptSelector.value}] not found")
         processBtnExecution(
             execution = {
+                WindowsUtil.bringGameToFront(getGameScreen())
                 Platform.runLater {
                     scriptNameLbl.text = "[${script.name}]"
                     scriptDescriptionTextArea.text = script.getDescription()
@@ -446,6 +462,47 @@ class DofusTreasureBotGUIController : Initializable {
                 log("Location : [${point.x},${point.y}]", it)
             },
             startMessage = "Locate mouse coordinates on screen ...",
+            successMessage = "OK",
+            failMessageBuilder = { "KO - ${it.localizedMessage}" }
+        )
+    }
+
+    fun createProfile(actionEvent: ActionEvent) {
+        val profileName = "TEST"
+        processBtnExecution(
+            execution = {
+                ProfileManager.createProfile(this, it, profileName)
+                Platform.runLater {
+                    profileSelector.items.add(profileName)
+                    profileSelector.value = profileName
+                }
+                DTBConfigManager.editConfig { conf -> conf.profile = profileName }
+            },
+            startMessage = "Creating profile [$profileName] ...",
+            successMessage = "OK",
+            failMessageBuilder = { "KO - ${it.localizedMessage}" }
+        )
+    }
+
+    fun applyProfile(actionEvent: ActionEvent) {
+        processBtnExecution(
+            execution = {
+                ProfileManager.applyProfile(this, it, profileSelector.value)
+                DTBConfigManager.editConfig { conf -> conf.profile = profileSelector.value }
+            },
+            startMessage = "Applying profile [${profileSelector.value}] ...",
+            successMessage = "OK",
+            failMessageBuilder = { "KO - ${it.localizedMessage}" }
+        )
+    }
+
+    fun deleteProfile(actionEvent: ActionEvent) {
+        processBtnExecution(
+            execution = {
+                ProfileManager.deleteProfile(this, it, profileSelector.value)
+                Platform.runLater { profileSelector.items.remove(profileSelector.value) }
+            },
+            startMessage = "Deleting profile [${profileSelector.value}] ...",
             successMessage = "OK",
             failMessageBuilder = { "KO - ${it.localizedMessage}" }
         )
