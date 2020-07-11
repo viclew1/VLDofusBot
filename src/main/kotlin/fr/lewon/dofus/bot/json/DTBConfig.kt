@@ -1,14 +1,11 @@
 package fr.lewon.dofus.bot.json
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.util.Directions
 import java.awt.GraphicsEnvironment
 
 data class DTBConfig(
-    @field:JsonProperty var huntLevel: Int = 200,
     @field:JsonProperty var world: String = "Main",
-    @field:JsonProperty var autopilot: Boolean = true,
     @field:JsonProperty var gameScreenRegion: String = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.iDstring,
     @field:JsonProperty var moveTimeout: Int = 25,
     @field:JsonProperty var leftAccessPos: DTBPoint = DTBPoint(329, 129),
@@ -17,7 +14,6 @@ data class DTBConfig(
     @field:JsonProperty var topAccessPos: DTBPoint = DTBPoint(1555, 25),
     @field:JsonProperty var mouseRestPos: DTBPoint = DTBPoint(1874, 38),
     @field:JsonProperty var registeredMoveLocationsByMap: RegisteredMovesHolder = RegisteredMovesHolder(),
-    @field:JsonProperty var scriptParameters: HashMap<String, ArrayList<DofusBotScriptParameter>> = HashMap(),
     @field:JsonProperty var profile: String = "default_hunt"
 )
 

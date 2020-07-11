@@ -8,24 +8,24 @@ import fr.lewon.dofus.bot.ui.LogItem
 
 object ChainHuntsScript : DofusBotScript("Chain hunts") {
 
-    val cleanCachePeriodParameter = DofusBotScriptParameter(
+    private val cleanCachePeriodParameter = DofusBotScriptParameter(
         "Clean cache every ...",
         "The game cache will be cleaned every X hunts (succeeded or not). Enter any number <= 0 to never clean the cache",
         "25",
         DofusBotScriptParameterType.INTEGER
     )
 
-    val continueOnFailParameter = DofusBotScriptParameter(
+    private val continueOnFailParameter = DofusBotScriptParameter(
         "Continue on fail",
         "If true, cancels failed hunt and fetches another one. Else, script stops on hunt fail",
         "true",
         DofusBotScriptParameterType.BOOLEAN
     )
 
-    val huntsAmountParameter = DofusBotScriptParameter(
+    private val huntsAmountParameter = DofusBotScriptParameter(
         "Hunts amount",
         "Amount of hunt to process before stopping",
-        "5",
+        "50",
         DofusBotScriptParameterType.INTEGER
     )
 
@@ -99,7 +99,7 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
                 clearCache()
                 if (++cpt == cleanCachePeriod) {
                     cpt = 0
-                    runScript(CleanCacheScript)
+                    runScript(RestartGameScript)
                 }
             }
         }

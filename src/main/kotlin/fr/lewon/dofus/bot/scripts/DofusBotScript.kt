@@ -34,7 +34,7 @@ abstract class DofusBotScript(val name: String) {
     fun execute(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
         this.controller = controller
         this.logItem = logItem
-        val parametersByName = DTBConfigManager.config.scriptParameters[name]
+        val parametersByName = controller.getUser().scriptParameters[name]
             ?.map { it.key to it }
             ?.toMap()
             ?: emptyMap()
@@ -358,7 +358,7 @@ abstract class DofusBotScript(val name: String) {
         return controller.captureGameImage()
     }
 
-    private fun getMovePoints(fightBoard: FightBoard, characterCell: FightCell): Int {
+    private fun getMovePoints(characterCell: FightCell): Int {
         val characterScreenPos = characterCell.getCenter()
         execTimeoutOpe(
             { mouseMove(characterScreenPos.first, characterScreenPos.second) },

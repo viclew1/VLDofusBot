@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.ui
 
 import fr.lewon.dofus.bot.json.DTBPoint
 import fr.lewon.dofus.bot.json.PositionsByDirection
+import fr.lewon.dofus.bot.json.UserData
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
@@ -60,6 +61,8 @@ class DofusTreasureBotGUIController : Initializable {
     @FXML
     private lateinit var logTab: Tab
     @FXML
+    private lateinit var scriptsTab: Tab
+    @FXML
     private lateinit var configTabContent: VBox
     @FXML
     private lateinit var stopScriptBtn: Button
@@ -73,6 +76,21 @@ class DofusTreasureBotGUIController : Initializable {
     private lateinit var valueTableColumn: TableColumn<Pair<String, String>, String>
     @FXML
     private lateinit var profileSelector: ChoiceBox<String>
+    @FXML
+    private lateinit var accountSelector: ChoiceBox<String>
+    @FXML
+    private lateinit var userConfigVBox: VBox
+    @FXML
+    private lateinit var newUsernameTextField: TextField
+    @FXML
+    private lateinit var usernameTextField: TextField
+    @FXML
+    private lateinit var passwordTextfield: PasswordField
+    @FXML
+    private lateinit var deleteAccountButton: Button
+
+    private var currentScriptName: String? = null
+    private var currentUser: UserData? = null
 
     private var scriptRunningProperty: BooleanProperty = SimpleBooleanProperty(false)
     private lateinit var huntLevelTemplatePathByLevel: List<Pair<String, Int>>
@@ -90,7 +108,6 @@ class DofusTreasureBotGUIController : Initializable {
         FetchAHuntScript,
         ReachHuntStartScript,
         FightScript,
-        CleanCacheScript,
         FightDopplesScript
     ).map { it.name to it }
         .toMap()
@@ -130,38 +147,9 @@ class DofusTreasureBotGUIController : Initializable {
             ?.sortedByDescending { it.second }
             ?: emptyList()
         huntLevelTemplatePathByLevel.forEach { huntLevelSelector.items.add(it.second.toString()) }
-        huntLevelSelector.value = DTBConfigManager.config.huntLevel.toString()
 
-        huntLevelSelector.selectionModel.selectedIndexProperty()
-            .addListener { _, _, newVal ->
-                DTBConfigManager.editConfig {
-                    it.huntLevel = huntLevelSelector.items[newVal.toInt()].toInt()
-                }
-            }
         hintsIdsByName["Phorreur xxxx"] = listOf("PHO")
         scriptsByName.keys.forEach { scriptSelector.items.add(it) }
-        scriptSelector.selectionModel.selectedIndexProperty()
-            .addListener { _, _, newVal ->
-                val newScriptName = scriptSelector.items[newVal.toInt()]
-                val newScript = scriptsByName[newScriptName] ?: error("Script [$newScriptName] not found")
-                scriptParameterDescriptionTextArea.text = ""
-                editScriptParametersVbox(newScript)
-                editDescription(newScript)
-            }
-
-        for (script in scriptsByName.values) {
-            val scriptParameters = script.getParameters()
-            DTBConfigManager.config.scriptParameters.putIfAbsent(script.name, ArrayList(scriptParameters))
-            val registeredParameters = DTBConfigManager.config.scriptParameters[script.name] ?: ArrayList()
-            for (param in scriptParameters) {
-                val registeredParam = registeredParameters.firstOrNull { param.key == it.key }
-                if (registeredParam == null) {
-                    registeredParameters.add(param)
-                } else {
-                    param.value = registeredParam.value
-                }
-            }
-        }
 
         parametersVBox.disableProperty().bind(scriptRunningProperty)
         configTabContent.disableProperty().bind(scriptRunningProperty)
@@ -172,24 +160,102 @@ class DofusTreasureBotGUIController : Initializable {
         statTableColumn.cellValueFactory = PropertyValueFactory("first")
         valueTableColumn.cellValueFactory = PropertyValueFactory("second")
 
+        accountSelector.items.clear()
+        accountSelector.items.addAll(DTBUserManager.getUserNames())
+
+        passwordTextfield.textProperty().addListener { _, _, newVal ->
+            currentUser?.let {
+                it.password = Base64.getEncoder().encodeToString(newVal.toByteArray())
+                DTBUserManager.saveUserData()
+            }
+        }
+
+        huntLevelSelector.selectionModel.selectedIndexProperty()
+            .addListener { _, _, newVal ->
+                currentUser?.let {
+                    it.huntLevel = huntLevelSelector.items[newVal.toInt()].toInt()
+                    DTBUserManager.saveUserData()
+                }
+            }
+
+        scriptSelector.selectionModel.selectedIndexProperty()
+            .addListener { _, _, newVal ->
+                currentUser?.let {
+                    val newScriptName = scriptSelector.items[newVal.toInt()]
+                    currentScriptName = newScriptName
+                    val newScript = scriptsByName[newScriptName] ?: error("Script [$newScriptName] not found")
+                    scriptParameterDescriptionTextArea.text = ""
+                    editScriptParametersVbox(it, newScript)
+                    editDescription(newScript)
+                }
+            }
+
+        accountSelector.selectionModel.selectedIndexProperty().addListener { _, _, newVal ->
+            val userDataName = accountSelector.items[newVal.toInt()]
+            val newUser = DTBUserManager.getUser(userDataName)
+            currentUser = newUser
+            DTBUserManager.setCurrentUser(newUser)
+            loadUser(newUser)
+        }
+
         for (f in File("game_config").listFiles() ?: emptyArray()) {
             if (f.isDirectory) {
                 profileSelector.items.add(f.name)
             }
         }
         profileSelector.value = DTBConfigManager.config.profile
+        userConfigVBox.isDisable = true
+        scriptsTab.content.isDisable = true
+        deleteAccountButton.isDisable = true
+        DTBUserManager.getCurrentUser()?.let { loadUser(it) }
+    }
+
+    private fun loadUser(user: UserData) {
+        userConfigVBox.isDisable = false
+        scriptsTab.content.isDisable = false
+        deleteAccountButton.isDisable = false
+
+        currentUser = user
+        accountSelector.value = user.login
+        usernameTextField.text = user.login
+        passwordTextfield.text = String(Base64.getDecoder().decode(user.password))
+
+        huntLevelSelector.value = user.huntLevel.toString()
+
+        scriptsByName[currentScriptName]?.let {
+            Platform.runLater {
+                scriptParameterDescriptionTextArea.text = ""
+                editScriptParametersVbox(user, it)
+                editDescription(it)
+            }
+        }
+
+        for (script in scriptsByName.values) {
+            val scriptParameters = script.getParameters()
+            user.scriptParameters.putIfAbsent(script.name, ArrayList(scriptParameters))
+            val registeredParameters = user.scriptParameters[script.name] ?: ArrayList()
+            for (param in scriptParameters) {
+                param.value = param.defaultValue
+                val registeredParam = registeredParameters.firstOrNull { param.key == it.key }
+                if (registeredParam == null) {
+                    registeredParameters.add(param)
+                } else {
+                    param.value = registeredParam.value
+                }
+            }
+        }
     }
 
     private fun editDescription(newScript: DofusBotScript) {
         scriptDescriptionTextArea.text = newScript.getDescription()
     }
 
-    private fun editScriptParametersVbox(newScript: DofusBotScript) {
+    private fun editScriptParametersVbox(userData: UserData, newScript: DofusBotScript) {
         parametersVBox.children.clear()
         val scriptParameters = ArrayList(newScript.getParameters())
         scriptParameters.forEach {
             val nameLbl = Label(it.key)
-            val inputField = buildInputField(newScript, it)
+            val inputField = buildInputField(userData, newScript, it)
             inputField.prefWidth = 60.0
             inputField.focusedProperty().addListener { _, _, newVal ->
                 if (newVal) {
@@ -204,14 +270,13 @@ class DofusTreasureBotGUIController : Initializable {
         }
     }
 
-    private fun buildInputField(script: DofusBotScript, param: DofusBotScriptParameter): Control {
+    private fun buildInputField(userData: UserData, script: DofusBotScript, param: DofusBotScriptParameter): Control {
         val onChange: (String) -> (Unit) = {
             param.value = it
-            DTBConfigManager.editConfig { conf ->
-                conf.scriptParameters[script.name]
-                    ?.firstOrNull { p -> p.key == param.key }
-                    ?.let { p -> p.value = it }
-            }
+            userData.scriptParameters[script.name]
+                ?.firstOrNull { p -> p.key == param.key }
+                ?.let { p -> p.value = it }
+            DTBUserManager.saveUserData()
             editDescription(script)
         }
         return when (param.type) {
@@ -245,7 +310,11 @@ class DofusTreasureBotGUIController : Initializable {
         val script = scriptsByName[scriptSelector.value] ?: error("Script [${scriptSelector.value}] not found")
         processBtnExecution(
             execution = {
-                WindowsUtil.bringGameToFront(getGameScreen())
+                if (!WindowsUtil.isGameOpen()) {
+                    RestartGameScript.execute(this, it)
+                } else {
+                    WindowsUtil.bringGameToFront(getGameScreen())
+                }
                 Platform.runLater {
                     scriptNameLbl.text = "[${script.name}]"
                     scriptDescriptionTextArea.text = script.getDescription()
@@ -444,8 +513,9 @@ class DofusTreasureBotGUIController : Initializable {
 
     @Synchronized
     fun getHuntLvlTemplatePath(): String {
+        val user = currentUser ?: error("No user selected yet")
         return this.huntLevelTemplatePathByLevel
-            .first { it.second == DTBConfigManager.config.huntLevel }
+            .first { it.second == user.huntLevel }
             .first
     }
 
@@ -471,7 +541,7 @@ class DofusTreasureBotGUIController : Initializable {
         val profileName = "TEST"
         processBtnExecution(
             execution = {
-                ProfileManager.createProfile(this, it, profileName)
+                DofusProfileManager.createProfile(this, it, profileName)
                 Platform.runLater {
                     profileSelector.items.add(profileName)
                     profileSelector.value = profileName
@@ -487,7 +557,7 @@ class DofusTreasureBotGUIController : Initializable {
     fun applyProfile(actionEvent: ActionEvent) {
         processBtnExecution(
             execution = {
-                ProfileManager.applyProfile(this, it, profileSelector.value)
+                DofusProfileManager.applyProfile(this, it, profileSelector.value)
                 DTBConfigManager.editConfig { conf -> conf.profile = profileSelector.value }
             },
             startMessage = "Applying profile [${profileSelector.value}] ...",
@@ -499,13 +569,40 @@ class DofusTreasureBotGUIController : Initializable {
     fun deleteProfile(actionEvent: ActionEvent) {
         processBtnExecution(
             execution = {
-                ProfileManager.deleteProfile(this, it, profileSelector.value)
+                DofusProfileManager.deleteProfile(this, it, profileSelector.value)
                 Platform.runLater { profileSelector.items.remove(profileSelector.value) }
             },
             startMessage = "Deleting profile [${profileSelector.value}] ...",
             successMessage = "OK",
             failMessageBuilder = { "KO - ${it.localizedMessage}" }
         )
+    }
+
+    fun createAccount(actionEvent: ActionEvent) {
+        Platform.runLater {
+            val newUserName = newUsernameTextField.text
+            newUsernameTextField.text = ""
+            val newUser = DTBUserManager.addUser(newUserName)
+            accountSelector.items.add(newUserName)
+            loadUser(newUser)
+        }
+    }
+
+    fun deleteAccount(actionEvent: ActionEvent) {
+        Platform.runLater {
+            val toRemove = currentUser ?: error("No user selected")
+            DTBUserManager.removeUser(toRemove)
+            accountSelector.items.remove(toRemove.login)
+            if (DTBUserManager.getUserNames().isEmpty()) {
+                userConfigVBox.isDisable = true
+                scriptsTab.content.isDisable = true
+                deleteAccountButton.isDisable = true
+            }
+        }
+    }
+
+    fun getUser(): UserData {
+        return currentUser ?: error("No user selected")
     }
 
 }

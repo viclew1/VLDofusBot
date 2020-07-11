@@ -2,9 +2,13 @@ package fr.lewon.dofus.bot.util
 
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef.HWND
+import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
+import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
+import fr.lewon.dofus.bot.ui.LogItem
 import java.awt.GraphicsDevice
 import java.io.BufferedReader
+import java.io.File
 import java.io.InputStreamReader
 
 
@@ -50,18 +54,61 @@ object WindowsUtil {
         }
     }
 
+    fun openGame(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
+        val openingLog = controller.log("Opening game ...", logItem)
+        val execFilePath =
+            System.getProperty("user.home") + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Ankama/Dofus.lnk"
+        val execFile = File(execFilePath)
+        if (!execFile.exists() || !execFile.isFile) {
+            error("Dofus shortcut not found in directory [${execFile.parentFile.absolutePath}]")
+        }
+        controller.log("Dofus shortcut found, executing it ...", openingLog)
+        val processBuilder = ProcessBuilder("cmd", "/c", execFile.absolutePath)
+        processBuilder.start()
+        controller.closeLog("Game opened", openingLog)
+    }
+
+    private fun deleteFile(path: String): Boolean {
+        return deleteFile(File(path))
+    }
+
+    private fun deleteFile(file: File): Boolean {
+        if (!file.exists()) {
+            error("File [${file.absolutePath}] does not exist")
+        }
+        for (subFile in file.listFiles() ?: emptyArray()) {
+            if (subFile.isFile) {
+                subFile.delete()
+            } else {
+                deleteFile(subFile)
+            }
+        }
+        return file.delete()
+    }
+
+    /**
+     * Closes the game and cleans the game cache when it's done
+     */
+    fun closeGame(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
+        val closingLog = controller.log("Closing game ...", logItem)
+        User32.INSTANCE.SendMessage(getHandle(), WinUser.WM_CLOSE, null, null)
+
+        val cacheCleanLog = controller.log("Cleaning cache ...", closingLog)
+        val cacheDirectory = DofusProfileManager.getDofusConfDirectory()
+        deleteFile(cacheDirectory.absolutePath + "/maps")
+        deleteFile(cacheDirectory.absolutePath + "/Local Store")
+        deleteFile(cacheDirectory.absolutePath + "/LoadingScreen.dat")
+        controller.closeLog("OK", cacheCleanLog)
+
+        controller.closeLog("OK", closingLog)
+    }
+
     fun bringGameToFront(screen: GraphicsDevice) {
-        val pidList = taskPidList()
-        if (pidList.isEmpty()) {
-            error("No Dofus frame opened, please launch the game.")
-        }
-        if (pidList.size != 1) {
-            error("Multiple Dofus frames opened (${pidList.size}), please only let one opened")
-        }
-        val handle = findByPID(pidList[0].toLong())
+        val handle = getHandle()
         User32.INSTANCE.SetForegroundWindow(handle)
         // 1 Corresponds to the "Show normal" command
         User32.INSTANCE.ShowWindow(handle, 1)
+        Thread.sleep(500)
         val screenBounds = screen.defaultConfiguration.bounds
         User32.INSTANCE.MoveWindow(
             handle,
@@ -71,8 +118,21 @@ object WindowsUtil {
             screenBounds.height,
             false
         )
+        Thread.sleep(500)
         // 3 Corresponds to the "Maximize" command
         User32.INSTANCE.ShowWindow(handle, 3)
+        Thread.sleep(500)
+    }
+
+    private fun getHandle(): HWND {
+        val pidList = taskPidList()
+        if (pidList.isEmpty()) {
+            error("No Dofus frame opened, please launch the game.")
+        }
+        if (pidList.size != 1) {
+            error("Multiple Dofus frames opened (${pidList.size}), please only let one opened")
+        }
+        return findByPID(pidList[0].toLong())
     }
 
     private fun findByPID(pid: Long): HWND {

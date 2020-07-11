@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
@@ -16,6 +17,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -37,18 +39,6 @@
                                     <ChoiceBox fx:id="gameScreenRegionSelector" prefWidth="100.0" BorderPane.alignment="CENTER" />
                                  </right>
                                  <VBox.margin>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
-                                 </VBox.margin>
-                              </BorderPane>
-                              <Separator prefWidth="200.0" />
-                              <BorderPane prefHeight="20.0" prefWidth="200.0">
-                                 <left>
-                                    <Label text="Select hunt level" BorderPane.alignment="CENTER" />
-                                 </left>
-                                 <right>
-                                    <ChoiceBox fx:id="huntLevelSelector" prefWidth="100.0" BorderPane.alignment="CENTER" />
-                                 </right>
-                                 <VBox.margin>
                                     <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
                                  </VBox.margin>
                               </BorderPane>
@@ -57,34 +47,34 @@
                                  <left>
                                     <Label text="Locate cursor" BorderPane.alignment="CENTER" />
                                  </left>
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                                 </VBox.margin>
                                  <right>
                                     <Button mnemonicParsing="false" onAction="#locateCursor" prefWidth="100.0" text="Locate" BorderPane.alignment="CENTER" />
                                  </right>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                                 </VBox.margin>
                               </BorderPane>
                               <Separator prefWidth="200.0" />
                               <BorderPane prefHeight="20.0" prefWidth="200.0">
                                  <left>
                                     <Label text="Global timeout" BorderPane.alignment="CENTER" />
                                  </left>
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                                 </VBox.margin>
                                  <right>
                                     <TextField fx:id="moveTimeoutInput" prefWidth="100.0" BorderPane.alignment="CENTER" />
                                  </right>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                                 </VBox.margin>
                               </BorderPane>
                               <Separator prefWidth="200.0" />
                               <Label text="Select specific access position">
                                  <VBox.margin>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" top="10.0" />
+                                    <Insets left="10.0" right="10.0" top="5.0" />
                                  </VBox.margin>
                               </Label>
-                              <BorderPane prefHeight="30.0" prefWidth="200.0" style="-fx-border-color: black;">
+                              <BorderPane prefHeight="30.0" prefWidth="200.0">
                                  <left>
-                                  <Button mnemonicParsing="false" onAction="#selectLeftAccessZone" prefWidth="60.0" text="Left" BorderPane.alignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#selectLeftAccessZone" prefWidth="60.0" text="Left" BorderPane.alignment="CENTER" />
                                  </left>
                                  <right>
                                     <Button mnemonicParsing="false" onAction="#selectRightAccessZone" prefWidth="60.0" text="Right" BorderPane.alignment="CENTER" />
@@ -95,41 +85,111 @@
                                  <top>
                                     <Button mnemonicParsing="false" onAction="#selectTopAccessZone" prefWidth="60.0" text="Top" BorderPane.alignment="CENTER" />
                                  </top>
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" />
-                                 </VBox.margin>
                                  <padding>
                                     <Insets bottom="10.0" left="40.0" right="40.0" top="10.0" />
                                  </padding>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                                 </VBox.margin>
                               </BorderPane>
                               <Separator prefWidth="200.0" />
                               <BorderPane prefHeight="20.0" prefWidth="200.0">
                                  <left>
-                                    <Label text="Game config profile" BorderPane.alignment="CENTER" />
+                                    <Label text="Dofus config profile" BorderPane.alignment="CENTER" />
                                  </left>
                                  <right>
                                     <ChoiceBox fx:id="profileSelector" prefWidth="100.0" BorderPane.alignment="CENTER" />
                                  </right>
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
-                                 </VBox.margin>
                                  <bottom>
                                     <ButtonBar buttonMinWidth="50.0" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                                      <buttons>
+                                       <buttons>
                                           <Button mnemonicParsing="false" onAction="#createProfile" text="Create" />
                                           <Button mnemonicParsing="false" onAction="#applyProfile" text="Apply" />
                                           <Button mnemonicParsing="false" onAction="#deleteProfile" text="Delete" />
-                                      </buttons>
+                                       </buttons>
                                     </ButtonBar>
                                  </bottom>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                                 </VBox.margin>
                               </BorderPane>
+                              <Separator prefWidth="200.0" />
+                              <BorderPane prefHeight="20.0" prefWidth="200.0">
+                                 <left>
+                                    <Label text="DTB account" BorderPane.alignment="CENTER" />
+                                 </left>
+                                 <right>
+                                    <ChoiceBox fx:id="accountSelector" prefWidth="100.0" BorderPane.alignment="CENTER" />
+                                 </right>
+                                 <bottom>
+                                    <HBox BorderPane.alignment="CENTER">
+                                       <children>
+                                          <TextField fx:id="newUsernameTextField" prefWidth="100.0" />
+                                          <ButtonBar buttonMinWidth="50.0" HBox.hgrow="ALWAYS">
+                                             <buttons>
+                                                <Button mnemonicParsing="false" onAction="#createAccount" text="Create" />
+                                                <Button fx:id="deleteAccountButton" mnemonicParsing="false" onAction="#deleteAccount" text="Delete" />
+                                             </buttons>
+                                          </ButtonBar>
+                                       </children>
+                                       <BorderPane.margin>
+                                          <Insets bottom="5.0" right="5.0" top="5.0" />
+                                       </BorderPane.margin>
+                                    </HBox>
+                                 </bottom>
+                                 <padding>
+                                    <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+                                 </padding>
+                              </BorderPane>
+                              <VBox fx:id="userConfigVBox" style="-fx-border-color: black;">
+                                 <children>
+                                    <BorderPane prefHeight="20.0" prefWidth="200.0">
+                                       <left>
+                                          <Label text="Username" BorderPane.alignment="CENTER" />
+                                       </left>
+                                       <right>
+                                          <TextField fx:id="usernameTextField" editable="false" prefWidth="100.0" BorderPane.alignment="CENTER" />
+                                       </right>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </BorderPane>
+                                    <Separator prefWidth="200.0" />
+                                    <BorderPane prefHeight="20.0" prefWidth="200.0">
+                                       <left>
+                                          <Label text="Password" BorderPane.alignment="CENTER" />
+                                       </left>
+                                       <right>
+                                          <PasswordField fx:id="passwordTextfield" prefWidth="100.0" BorderPane.alignment="CENTER" />
+                                       </right>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </BorderPane>
+                                    <Separator prefWidth="200.0" />
+                                    <BorderPane prefHeight="20.0" prefWidth="200.0">
+                                       <left>
+                                          <Label text="Select hunt level" BorderPane.alignment="CENTER" />
+                                       </left>
+                                       <right>
+                                          <ChoiceBox fx:id="huntLevelSelector" prefWidth="100.0" BorderPane.alignment="CENTER" />
+                                       </right>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </BorderPane>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </VBox.margin>
+                              </VBox>
                            </children>
                         </VBox>
                      </content>
                   </ScrollPane>
               </content>
             </Tab>
-                <Tab text="Script">
+                <Tab fx:id="scriptsTab" text="Script">
                     <content>
                         <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
                             <content>

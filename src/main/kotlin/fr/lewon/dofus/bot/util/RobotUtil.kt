@@ -102,6 +102,9 @@ object RobotUtil {
         for (c in message.toCharArray()) {
             press(c)
         }
+    }
+
+    fun enter() {
         robot.keyPress(KeyEvent.VK_ENTER)
         robot.delay(20)
         robot.keyRelease(KeyEvent.VK_ENTER)

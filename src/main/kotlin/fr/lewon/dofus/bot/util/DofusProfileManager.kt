@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-object ProfileManager {
+object DofusProfileManager {
 
     private val PROFILE_FILES = listOf(
         "atouin.dat",
@@ -20,37 +20,47 @@ object ProfileManager {
         "uid.dat"
     )
 
-    fun applyProfile(controller: DofusTreasureBotGUIController, logItem: LogItem? = null, profileName: String) {
+    fun getDofusConfDirectory(): File {
         val confDirName = System.getProperty("user.home") + "/AppData/Roaming/Dofus/"
         val confDir = File(confDirName)
+        if (!confDir.exists() || !confDir.isDirectory) {
+            error("Path to Dofus configuration directory does not exist, it should be found at [$confDirName]")
+        }
+        return confDir
+    }
 
-        val profileCheckLog = controller.log("Checking profile [$profileName] ...", logItem)
+    private fun getProfileDirectory(profileName: String): File {
         val profileDir = File("game_config/$profileName")
         if (!profileDir.exists() || !profileDir.isDirectory) {
             error("Profile [$profileName] does not exist")
         }
-        val confFiles = profileDir.listFiles() ?: emptyArray()
+        return profileDir
+    }
+
+    fun applyProfile(controller: DofusTreasureBotGUIController, logItem: LogItem? = null, profileName: String) {
+        val profileCheckLog = controller.log("Checking profile [$profileName] ...", logItem)
+        val confFiles = getProfileDirectory(profileName).listFiles() ?: emptyArray()
         profileCheckLog.closeLog("OK")
 
         val dirCheckLog = controller.log("Checking config directory ...", logItem)
-        if (!confDir.exists() || !confDir.isDirectory) {
-            error("Path to Dofus configuration directory does not exist, it should be found at [$confDirName]")
-        }
+        val confDir = getDofusConfDirectory()
         dirCheckLog.closeLog("OK")
 
         val globalCopyLog = controller.log("Copying files to destination ...", logItem)
         confFiles.filter { PROFILE_FILES.contains(it.name) }
             .forEach {
                 val copyLog = controller.log("Copying ${it.name} ...", globalCopyLog)
-                Files.copy(it.toPath(), File(confDirName + it.name).toPath(), StandardCopyOption.REPLACE_EXISTING)
+                Files.copy(
+                    it.toPath(),
+                    File(confDir.absolutePath + "/" + it.name).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+                )
                 copyLog.closeLog("OK")
             }
         globalCopyLog.closeLog("OK")
     }
 
     fun createProfile(controller: DofusTreasureBotGUIController, logItem: LogItem? = null, profileName: String) {
-        val confDirName = System.getProperty("user.home") + "/AppData/Roaming/Dofus/"
-        val confDir = File(confDirName)
 
         val profileCheckLog = controller.log("Checking profile [$profileName] ...", logItem)
         val profileDir = File("game_config/$profileName")
@@ -60,9 +70,7 @@ object ProfileManager {
         profileCheckLog.closeLog("OK")
 
         val dirCheckLog = controller.log("Checking config directory ...", logItem)
-        if (!confDir.exists() || !confDir.isDirectory) {
-            error("Path to Dofus configuration directory does not exist, it should be found at [$confDirName]")
-        }
+        val confDir = getDofusConfDirectory()
         val confFiles = confDir.listFiles() ?: emptyArray()
         dirCheckLog.closeLog("OK")
 

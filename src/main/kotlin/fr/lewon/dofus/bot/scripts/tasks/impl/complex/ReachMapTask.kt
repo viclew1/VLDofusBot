@@ -19,8 +19,9 @@ class ReachMapTask(
         RobotUtil.press(' ')
         Thread.sleep(600)
         RobotUtil.write("/travel $x $y")
-        Thread.sleep(1000)
-        RobotUtil.write("")
+        RobotUtil.enter()
+        Thread.sleep(1500)
+        RobotUtil.enter()
         val startTimeMillis = System.currentTimeMillis()
         while (System.currentTimeMillis() - startTimeMillis < 300 * 1000) {
             Thread.sleep(2000)
