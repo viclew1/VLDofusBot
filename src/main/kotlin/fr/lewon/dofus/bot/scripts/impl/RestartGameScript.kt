@@ -30,6 +30,8 @@ object RestartGameScript : DofusBotScript("Restart game") {
     ) {
         if (WindowsUtil.isGameOpen()) {
             WindowsUtil.closeGame(controller, logItem)
+            execTimeoutOpe({ }, { !WindowsUtil.isGameOpen() })
+            sleep(2500)
         }
         WindowsUtil.openGame(controller, logItem)
 
@@ -65,7 +67,7 @@ object RestartGameScript : DofusBotScript("Restart game") {
         val loginOrReadyLog = controller.log("Waiting for the character selection or the final login ...", logItem)
         execTimeoutOpe({}, {
             imgFound("enter_game.png", 0.9) || GameInfoUtil.getLocation(controller.captureGameImage()) != null
-        })
+        }, 180)
         controller.closeLog("OK", loginOrReadyLog)
 
         if (imgFound("enter_game.png", 0.9)) {

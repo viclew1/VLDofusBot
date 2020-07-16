@@ -157,14 +157,23 @@ class FightBoard(
         return explored
     }
 
-    fun cellsAtRange(range: Int, fromCell: FightCell): List<FightCell> {
+    fun cellsAtRange(minRange: Int, maxRange: Int, fromCell: FightCell): List<FightCell> {
+        val cellsAtRange = ArrayList<FightCell>()
         val explored = mutableListOf(fromCell)
         var frontier = listOf(fromCell)
-        for (i in 0 until range) {
+
+        if (minRange == 0) {
+            cellsAtRange.add(fromCell)
+        }
+
+        for (i in 0 until maxRange) {
             val newFrontier = ArrayList<FightCell>()
             for (cell in frontier) {
                 for (neighbor in cell.neighbors) {
                     if (!explored.contains(neighbor)) {
+                        if (i >= minRange) {
+                            cellsAtRange.add(neighbor)
+                        }
                         explored.add(neighbor)
                         newFrontier.add(neighbor)
                     }
@@ -172,7 +181,7 @@ class FightBoard(
             }
             frontier = newFrontier
         }
-        return explored
+        return cellsAtRange
     }
 
     private class Node(val parent: Node?, val cell: FightCell)

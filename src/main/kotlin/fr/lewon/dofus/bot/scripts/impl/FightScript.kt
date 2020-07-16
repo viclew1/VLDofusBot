@@ -10,6 +10,7 @@ import fr.lewon.dofus.bot.util.GameInfoUtil
 import fr.lewon.dofus.bot.util.RobotUtil
 import fr.lewon.dofus.bot.util.fight.FightAI
 import fr.lewon.dofus.bot.util.fight.FightBoard
+import fr.lewon.dofus.bot.util.fight.FightCellType
 import fr.lewon.dofus.bot.util.fight.FightColors
 import java.awt.event.KeyEvent
 
@@ -51,6 +52,24 @@ object FightScript : DofusBotScript("Fight") {
         "",
         DofusBotScriptParameterType.STRING
     )
+    private val gapCloserParameter = DofusBotScriptParameter(
+        "Gap closer",
+        "Hotkey to the gap closer to user to approach the enemy. Must be a single key",
+        "",
+        DofusBotScriptParameterType.STRING
+    )
+    private val gapCloserMinRangeParameter = DofusBotScriptParameter(
+        "Gap closer min range",
+        "Min range of the gap closer",
+        "1",
+        DofusBotScriptParameterType.INTEGER
+    )
+    private val gapCloserMaxRangeParameter = DofusBotScriptParameter(
+        "Gap closer max range",
+        "Max range of the gap closer",
+        "5",
+        DofusBotScriptParameterType.INTEGER
+    )
 
     private var turnsPassed: Int = 0
 
@@ -61,7 +80,10 @@ object FightScript : DofusBotScript("Fight") {
             minRangeParameter,
             maxRangeParameter,
             nonLosAttacksParameter,
-            contactAttacksParameter
+            contactAttacksParameter,
+            gapCloserParameter,
+            gapCloserMinRangeParameter,
+            gapCloserMaxRangeParameter
         )
     }
 
@@ -72,7 +94,7 @@ object FightScript : DofusBotScript("Fight") {
     }
 
     override fun getDescription(): String {
-        return "Clicks on fight button and fights a chest. The AI starts its turn by casting buffs on itself (${preMoveBuffParameter.value}), then moves, then casts the LOS attacks on the enemy (${losAttacksParameter.value}) if there is a line of sight, else casts nonLOS attacks (${nonLosAttacksParameter.value})"
+        return "Clicks on fight button and fights a chest. The AI starts its turn by using its gap closer (${gapCloserParameter.value}) toward enemy. Then, it casts buffs on itself (${preMoveBuffParameter.value}), then moves, then casts the LOS attacks on the enemy (${losAttacksParameter.value}) if there is a line of sight, else casts nonLOS attacks (${nonLosAttacksParameter.value})"
     }
 
     override fun doExecute(
@@ -86,6 +108,9 @@ object FightScript : DofusBotScript("Fight") {
         val maxRange = maxRangeParameter.value.toInt()
         val nonLosAttacks = nonLosAttacksParameter.value
         val contactAttacks = contactAttacksParameter.value
+        val gapCloser = gapCloserParameter.value
+        val gapCloserMinRange = gapCloserMinRangeParameter.value.toInt()
+        val gapCloserMaxRange = gapCloserMaxRangeParameter.value.toInt()
 
         execTimeoutOpe({ }, { imgFound("fight/ready.png") })
 
@@ -125,6 +150,28 @@ object FightScript : DofusBotScript("Fight") {
         while (!imgFound("fight/close.png") && !imgFound("fight/ok.png", 0.9)) {
 
             sleep(800)
+
+            refreshBoard(fightBoard)
+            if (gapCloser.isNotEmpty()) {
+                fightBoard.cellsAtRange(gapCloserMinRange, gapCloserMaxRange, fightBoard.playerPos)
+                    .filter { it.fightCellType == FightCellType.ACCESSIBLE }
+                    .filter { it != fightBoard.enemyPos }
+                    .minBy { fightBoard.getDist(it, fightBoard.enemyPos) ?: Int.MAX_VALUE }
+                    ?.takeIf {
+                        fightBoard.getDist(it, fightBoard.enemyPos) ?: Int.MAX_VALUE <
+                                fightBoard.getDist(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
+                    }
+                    ?.let {
+                        for (c in gapCloser) {
+                            RobotUtil.press(c)
+                            clickPoint(it.getCenter())
+                            sleep(800)
+                        }
+                        fightBoard.playerPos = it
+                    }
+                sleep(1500)
+            }
+
             if (preMoveBuffs.isNotEmpty()) {
                 for (c in preMoveBuffs) {
                     RobotUtil.press(c)

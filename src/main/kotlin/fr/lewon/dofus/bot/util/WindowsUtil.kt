@@ -74,7 +74,7 @@ object WindowsUtil {
 
     private fun deleteFile(file: File): Boolean {
         if (!file.exists()) {
-            error("File [${file.absolutePath}] does not exist")
+            return false
         }
         for (subFile in file.listFiles() ?: emptyArray()) {
             if (subFile.isFile) {
