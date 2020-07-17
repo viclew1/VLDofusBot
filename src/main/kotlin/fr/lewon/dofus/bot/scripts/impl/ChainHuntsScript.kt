@@ -93,7 +93,9 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
                 val duration = getTime() - start
                 sleep(610000 - duration)
                 if (getHuntPanel() != null) {
-                    clickChain(listOf("cancel_hunt.png", "ok_cancel.png"))
+                    execTimeoutOpe(
+                        { clickChain(listOf("cancel_hunt.png", "ok_cancel.png")) },
+                        { !imgFound("../templates/hunt_frame_top.png") })
                 }
             } finally {
                 clearCache()
