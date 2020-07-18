@@ -13,8 +13,6 @@ import org.opencv.imgproc.Imgproc
 import java.awt.Color
 import java.awt.Rectangle
 import java.awt.image.BufferedImage
-import java.io.File
-import javax.imageio.ImageIO
 import kotlin.math.abs
 
 
@@ -29,16 +27,6 @@ object GameInfoUtil {
         val searchTemplate = buildMat(imagePath)
         val matchResult = this.getMatchResult(gameImage, searchTemplate) ?: return null
         if (matchResult.maxVal < minMatchValue) return null
-        ImageIO.write(
-            gameImage.getSubimage(
-                matchResult.maxLoc.x.toInt(),
-                matchResult.maxLoc.y.toInt(),
-                searchTemplate.cols(),
-                searchTemplate.rows()
-            ),
-            "png",
-            File("debug/button.png")
-        )
         return Rectangle(
             matchResult.maxLoc.x.toInt(),
             matchResult.maxLoc.y.toInt(),
@@ -92,19 +80,7 @@ object GameInfoUtil {
             bufferedImageToMat(gameImage.getSubimage(x, y, w, h)), false
         )
 
-        ImageIO.write(
-            subImage,
-            "png",
-            File("debug/arrows.png")
-        )
-
         val lastArrow = OCRUtil.splitByLine(subImage, 1).last()
-
-        ImageIO.write(
-            lastArrow,
-            "png",
-            File("debug/arrow.png")
-        )
 
         val blackColor = listOf(Color(0, 0, 0).rgb)
         if (lastArrow.width > lastArrow.height) {
@@ -268,12 +244,6 @@ object GameInfoUtil {
             var treatedImage = resizeImage(locationImage, ratio)
             treatedImage = OCRUtil.keepWhiteOnImage(bufferedImageToMat(treatedImage))
 
-            ImageIO.write(
-                treatedImage,
-                "png",
-                File("debug/loc.png")
-            )
-
             // Use Tesseract to get the lines present in the image, fails if there is more than one line
             val lines = OCRUtil.getAllLines(treatedImage)
             if (lines.isEmpty()) {
@@ -328,11 +298,6 @@ object GameInfoUtil {
             ?: return null
         val content = gameImage.getSubimage(bounds.x, bounds.y, bounds.width, bounds.height)
 
-        ImageIO.write(
-            content,
-            "png",
-            File("debug/frame_content.png")
-        )
         // Returns the content image with the templates removed
         return content
     }
