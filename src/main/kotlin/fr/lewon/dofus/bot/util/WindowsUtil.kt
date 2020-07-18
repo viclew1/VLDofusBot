@@ -105,10 +105,11 @@ object WindowsUtil {
 
     fun bringGameToFront(screen: GraphicsDevice) {
         val handle = getHandle()
+        if (!User32.INSTANCE.IsWindowVisible(handle)) {
+            error("Dofus window is reduced, please open it.")
+        }
         User32.INSTANCE.SetForegroundWindow(handle)
-        // 1 Corresponds to the "Show normal" command
-        User32.INSTANCE.ShowWindow(handle, 1)
-        Thread.sleep(500)
+        Thread.sleep(1000)
         val screenBounds = screen.defaultConfiguration.bounds
         User32.INSTANCE.MoveWindow(
             handle,
@@ -118,10 +119,10 @@ object WindowsUtil {
             screenBounds.height,
             false
         )
-        Thread.sleep(500)
+        Thread.sleep(1000)
         // 3 Corresponds to the "Maximize" command
         User32.INSTANCE.ShowWindow(handle, 3)
-        Thread.sleep(500)
+        Thread.sleep(1000)
     }
 
     private fun getHandle(): HWND {
