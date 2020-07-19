@@ -149,8 +149,9 @@ object FightScript : DofusBotScript("Fight") {
         execTimeoutOpe({}, { imgFound("fight/player_turn.png", 0.9) })
         while (!imgFound("fight/close.png") && !imgFound("fight/ok.png", 0.9)) {
 
-            sleep(800)
-
+            sleep(400)
+            focusDofusWindow()
+            sleep(400)
             refreshBoard(fightBoard)
             if (gapCloser.isNotEmpty()) {
                 fightBoard.cellsAtRange(gapCloserMinRange, gapCloserMaxRange, fightBoard.playerPos)
