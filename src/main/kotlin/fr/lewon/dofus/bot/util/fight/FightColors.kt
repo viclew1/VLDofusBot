@@ -52,5 +52,13 @@ object FightColors {
         Color(136, 149, 0).rgb,
         Color(135, 149, 0).rgb
     )
+    val lockHelpActiveColors = listOf(
+        Color(195, 234, 1).rgb,
+        Color(195, 233, 1).rgb,
+        Color(193, 232, 1).rgb,
+        Color(194, 233, 2).rgb,
+        Color(193, 232, 0).rgb,
+        Color(192, 232, 0).rgb
+    )
 
 }

@@ -12,6 +12,7 @@ import fr.lewon.dofus.bot.util.fight.FightAI
 import fr.lewon.dofus.bot.util.fight.FightBoard
 import fr.lewon.dofus.bot.util.fight.FightCellType
 import fr.lewon.dofus.bot.util.fight.FightColors
+import java.awt.Rectangle
 import java.awt.event.KeyEvent
 
 object FightScript : DofusBotScript("Fight") {
@@ -109,17 +110,22 @@ object FightScript : DofusBotScript("Fight") {
         val nonLosAttacks = nonLosAttacksParameter.value
         val contactAttacks = contactAttacksParameter.value
         val gapCloser = gapCloserParameter.value
-        val gapCloserMinRange = gapCloserMinRangeParameter.value.toInt()
-        val gapCloserMaxRange = gapCloserMaxRangeParameter.value.toInt()
+        val gapCloserMinRange = if (gapCloser.isNotEmpty()) gapCloserMinRangeParameter.value.toInt() else 0
+        val gapCloserMaxRange = if (gapCloser.isNotEmpty()) gapCloserMaxRangeParameter.value.toInt() else 0
 
         execTimeoutOpe({ }, { imgFound("fight/ready.png") })
 
         if (imgFound("fight/creature_mode.png", 0.9)) {
             click("fight/creature_mode.png")
         }
-        if (imgFound("fight/block_help.png", 0.95)) {
-            click("fight/block_help.png")
+        getSubImage("fight/block_help.png")?.let {
+            val blockHelpColorCount =
+                GameInfoUtil.colorCount(it, Rectangle(0, 0, it.width, it.height), FightColors.lockHelpActiveColors)
+            if (blockHelpColorCount < 15) {
+                click("fight/block_help.png")
+            }
         }
+
         var fightBoard: FightBoard? = null
         val start = System.currentTimeMillis()
         while (getTime() - start < DTBConfigManager.config.moveTimeout
@@ -152,26 +158,6 @@ object FightScript : DofusBotScript("Fight") {
             sleep(400)
             focusDofusWindow()
             sleep(400)
-            refreshBoard(fightBoard)
-            if (gapCloser.isNotEmpty()) {
-                fightBoard.cellsAtRange(gapCloserMinRange, gapCloserMaxRange, fightBoard.playerPos)
-                    .filter { it.fightCellType == FightCellType.ACCESSIBLE }
-                    .filter { it != fightBoard.enemyPos }
-                    .minBy { fightBoard.getDist(it, fightBoard.enemyPos) ?: Int.MAX_VALUE }
-                    ?.takeIf {
-                        fightBoard.getDist(it, fightBoard.enemyPos) ?: Int.MAX_VALUE <
-                                fightBoard.getDist(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
-                    }
-                    ?.let {
-                        for (c in gapCloser) {
-                            RobotUtil.press(c)
-                            clickPoint(it.getCenter())
-                            sleep(800)
-                        }
-                        fightBoard.playerPos = it
-                    }
-                sleep(1500)
-            }
 
             if (preMoveBuffs.isNotEmpty()) {
                 for (c in preMoveBuffs) {
@@ -195,6 +181,26 @@ object FightScript : DofusBotScript("Fight") {
                         fightBoard.playerPos = it
                         sleep(2000)
                     }
+
+                if (gapCloser.isNotEmpty()) {
+                    fightBoard.cellsAtRange(gapCloserMinRange, gapCloserMaxRange, fightBoard.playerPos)
+                        .filter { it.fightCellType == FightCellType.ACCESSIBLE }
+                        .filter { it != fightBoard.enemyPos }
+                        .minBy { fightBoard.getPathLength(it, fightBoard.enemyPos) ?: Int.MAX_VALUE }
+                        ?.takeIf {
+                            fightBoard.getPathLength(it, fightBoard.enemyPos) ?: Int.MAX_VALUE <
+                                    fightBoard.getPathLength(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
+                        }
+                        ?.let {
+                            for (c in gapCloser) {
+                                RobotUtil.press(c)
+                                clickPoint(it.getCenter())
+                                sleep(800)
+                            }
+                            fightBoard.playerPos = it
+                        }
+                    sleep(1500)
+                }
 
                 val dist = fightBoard.getDist(fightBoard.playerPos, fightBoard.enemyPos) ?: Int.MAX_VALUE
                 val los = fightBoard.lineOfSight(fightBoard.playerPos, fightBoard.enemyPos)
