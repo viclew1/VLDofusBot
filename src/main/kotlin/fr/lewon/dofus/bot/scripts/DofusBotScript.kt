@@ -341,6 +341,11 @@ abstract class DofusBotScript(val name: String) {
             } != null
     }
 
+    protected fun openMenu() {
+        focusDofusWindow()
+        RobotUtil.escape()
+    }
+
     protected fun pressShortcut(c: Char) {
         focusDofusWindow()
         RobotUtil.press(c)

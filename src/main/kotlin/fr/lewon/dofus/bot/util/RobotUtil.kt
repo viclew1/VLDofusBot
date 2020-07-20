@@ -119,4 +119,11 @@ object RobotUtil {
         robot.keyRelease(KeyEvent.VK_SHIFT)
     }
 
+    fun escape() {
+        robot.keyPress(KeyEvent.VK_ESCAPE)
+        robot.delay(20)
+        robot.keyRelease(KeyEvent.VK_ESCAPE)
+        robot.delay(20)
+    }
+
 }

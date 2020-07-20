@@ -2,7 +2,6 @@ package fr.lewon.dofus.bot.util
 
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef.HWND
-import com.sun.jna.platform.win32.WinUser
 import com.sun.jna.ptr.IntByReference
 import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
 import fr.lewon.dofus.bot.ui.LogItem
@@ -63,7 +62,8 @@ object WindowsUtil {
             error("Dofus shortcut not found in directory [${execFile.parentFile.absolutePath}]")
         }
         controller.log("Dofus shortcut found, executing it ...", openingLog)
-        val processBuilder = ProcessBuilder("cmd", "/c", execFile.absolutePath)
+        val processBuilder = ProcessBuilder("cmd", "/c", "start /b " + execFile.name)
+        processBuilder.directory(execFile.parentFile)
         processBuilder.start()
         controller.closeLog("Game opened", openingLog)
     }
@@ -86,21 +86,13 @@ object WindowsUtil {
         return file.delete()
     }
 
-    /**
-     * Closes the game and cleans the game cache when it's done
-     */
-    fun closeGame(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
-        val closingLog = controller.log("Closing game ...", logItem)
-        User32.INSTANCE.SendMessage(getHandle(), WinUser.WM_CLOSE, null, null)
-
-        val cacheCleanLog = controller.log("Cleaning cache ...", closingLog)
+    fun cleanCache(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
+        val cacheCleanLog = controller.log("Cleaning cache ...", logItem)
         val cacheDirectory = DofusProfileManager.getDofusConfDirectory()
         deleteFile(cacheDirectory.absolutePath + "/maps")
         deleteFile(cacheDirectory.absolutePath + "/Local Store")
         deleteFile(cacheDirectory.absolutePath + "/LoadingScreen.dat")
         controller.closeLog("OK", cacheCleanLog)
-
-        controller.closeLog("OK", closingLog)
     }
 
     fun bringGameToFront(screen: GraphicsDevice) {
