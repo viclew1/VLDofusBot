@@ -104,6 +104,7 @@ class DofusTreasureBotGUIController : Initializable {
         DTBRequestProcessor.getAllHints()
     private val scriptsByName = listOf(
         ChainHuntsScript,
+        SingleHuntScript,
         ResumeHuntScript,
         FetchAHuntScript,
         ReachHuntStartScript,

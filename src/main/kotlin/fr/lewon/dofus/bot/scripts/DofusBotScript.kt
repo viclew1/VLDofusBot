@@ -380,7 +380,7 @@ abstract class DofusBotScript(val name: String) {
             ?: 6
     }
 
-    protected fun clearCache() {
+    protected fun clearMatCache() {
         MatFlusher.releaseAll()
     }
 

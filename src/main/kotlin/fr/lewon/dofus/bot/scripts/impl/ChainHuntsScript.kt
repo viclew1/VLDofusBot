@@ -11,7 +11,7 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
     private val cleanCachePeriodParameter = DofusBotScriptParameter(
         "Clean cache every ...",
         "The game cache will be cleaned every X hunts (succeeded or not). Enter any number <= 0 to never clean the cache",
-        "25",
+        "12",
         DofusBotScriptParameterType.INTEGER
     )
 
@@ -24,13 +24,15 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
 
     private val huntsAmountParameter = DofusBotScriptParameter(
         "Hunts amount",
-        "Amount of hunt to process before stopping",
+        "Amount of hunt success before stopping",
         "50",
         DofusBotScriptParameterType.INTEGER
     )
 
-    private var huntsDone: Int = 0
+    private var huntsAmount: Int = 0
     private var huntsSuccess: Int = 0
+    private var huntsFails: Int = 0
+    private var huntsUntilCacheClean: Int = 0
     private var huntDurations: ArrayList<Long> = ArrayList()
     private var huntAverageDurationDisplay: String = "/"
 
@@ -44,13 +46,16 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
 
     override fun getStats(): List<Pair<String, String>> {
         return listOf(
-            Pair("Hunt successes", "$huntsSuccess/$huntsDone"),
-            Pair("Average hunt time", huntAverageDurationDisplay)
+            Pair("Remaining hunts", "${huntsAmount - huntsSuccess}"),
+            Pair("Hunt successes", "$huntsSuccess"),
+            Pair("Hunt fails", "$huntsFails"),
+            Pair("Average hunt time", huntAverageDurationDisplay),
+            Pair("Hunts until cache clean", "$huntsUntilCacheClean")
         )
     }
 
     override fun getDescription(): String {
-        return "Fetches a new hunt, reaches the hunt start, executes the hunt and fights the chest. And does it ${huntsAmountParameter.value} times."
+        return "Fetches a new hunt, reaches the hunt start, executes the hunt and fights the chest. And does it ${huntsAmountParameter.value} times. Cleans the game cache every ${cleanCachePeriodParameter.value} hunts."
     }
 
     override fun doExecute(
@@ -59,15 +64,15 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
         parameters: Map<String, DofusBotScriptParameter>
     ) {
         val continueOnFail = continueOnFailParameter.value.toBoolean()
-        val huntsAmount = huntsAmountParameter.value.toInt()
+        huntsAmount = huntsAmountParameter.value.toInt()
         val cleanCachePeriod = cleanCachePeriodParameter.value.toInt()
+        huntsUntilCacheClean = cleanCachePeriod
 
-        huntsDone = 0
+        huntsFails = 0
         huntsSuccess = 0
         huntDurations = ArrayList()
         huntAverageDurationDisplay = "/"
 
-        var cpt = 0
         for (i in 0 until huntsAmount) {
             runScript(FetchAHuntScript)
             val start = getTime()
@@ -76,7 +81,6 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
                 executeHunt()
                 clickChain(listOf("fight/fight.png"), "fight/ready.png")
                 runScript(FightScript)
-                huntsDone++
                 huntsSuccess++
                 huntDurations.add(getTime() - start)
                 val average = huntDurations.average().toLong()
@@ -86,7 +90,7 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
                 huntAverageDurationDisplay = "${minutes}M ${seconds}S"
 
             } catch (e: Exception) {
-                huntsDone++
+                huntsFails++
                 if (!continueOnFail) {
                     throw e
                 }
@@ -98,10 +102,11 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
                         { !imgFound("../templates/hunt_frame_top.png") })
                 }
             } finally {
-                clearCache()
-                if (++cpt == cleanCachePeriod) {
-                    cpt = 0
+                huntsUntilCacheClean--
+                clearMatCache()
+                if (huntsUntilCacheClean == 0) {
                     runScript(RestartGameScript)
+                    huntsUntilCacheClean = cleanCachePeriod
                 }
             }
         }
