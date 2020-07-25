@@ -47,7 +47,8 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
         return listOf(
             continueOnFailParameter,
             huntsAmountParameter,
-            cleanCachePeriodParameter
+            cleanCachePeriodParameter,
+            resumeParameter
         )
     }
 
