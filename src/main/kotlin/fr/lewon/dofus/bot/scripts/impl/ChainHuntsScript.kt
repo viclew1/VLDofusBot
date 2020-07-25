@@ -29,6 +29,13 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
         DofusBotScriptParameterType.INTEGER
     )
 
+    private val resumeParameter = DofusBotScriptParameter(
+        "Resume hunt",
+        "Set to true if there is an ongoing hunt step, to avoid reaching the hunt start first",
+        "false",
+        DofusBotScriptParameterType.BOOLEAN
+    )
+
     private var huntsAmount: Int = 0
     private var huntsSuccess: Int = 0
     private var huntsFails: Int = 0
@@ -66,12 +73,19 @@ object ChainHuntsScript : DofusBotScript("Chain hunts") {
         val continueOnFail = continueOnFailParameter.value.toBoolean()
         huntsAmount = huntsAmountParameter.value.toInt()
         val cleanCachePeriod = cleanCachePeriodParameter.value.toInt()
+        val resume = resumeParameter.value.toBoolean()
         huntsUntilCacheClean = cleanCachePeriod
 
         huntsFails = 0
         huntsSuccess = 0
         huntDurations = ArrayList()
         huntAverageDurationDisplay = "/"
+
+        if (resume) {
+            executeHunt()
+            clickChain(listOf("fight/fight.png"), "fight/ready.png")
+            runScript(FightScript)
+        }
 
         for (i in 0 until huntsAmount) {
             runScript(FetchAHuntScript)

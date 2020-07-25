@@ -105,7 +105,6 @@ class DofusTreasureBotGUIController : Initializable {
     private val scriptsByName = listOf(
         ChainHuntsScript,
         SingleHuntScript,
-        ResumeHuntScript,
         FetchAHuntScript,
         ReachHuntStartScript,
         FightScript,

@@ -166,7 +166,7 @@ class FightBoard(
             cellsAtRange.add(fromCell)
         }
 
-        for (i in 0 until maxRange) {
+        for (i in 1..maxRange) {
             val newFrontier = ArrayList<FightCell>()
             for (cell in frontier) {
                 for (neighbor in cell.neighbors) {

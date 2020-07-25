@@ -97,11 +97,11 @@ object WindowsUtil {
 
     fun bringGameToFront(screen: GraphicsDevice) {
         val handle = getHandle()
+        User32.INSTANCE.SetForegroundWindow(handle)
+        Thread.sleep(1000)
         if (!User32.INSTANCE.IsWindowVisible(handle)) {
             error("Dofus window is reduced, please open it.")
         }
-        User32.INSTANCE.SetForegroundWindow(handle)
-        Thread.sleep(1000)
         val screenBounds = screen.defaultConfiguration.bounds
         User32.INSTANCE.MoveWindow(
             handle,

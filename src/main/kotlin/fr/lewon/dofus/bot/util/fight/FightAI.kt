@@ -27,20 +27,23 @@ class FightAI(
 
     fun selectBestDest(): FightCell {
         var chosenCell = fightBoard.playerPos
-        var best = Int.MIN_VALUE
+        var best = evaluateMove(fightBoard.playerPos)
+        
         for (cell in fightBoard.accessibleCells) {
-            val state = FightState(0, fightBoard.clone())
-            playPlayerMove(state, cell)
-            val value = minValue(state, initialDepth)
-            if (value > best) {
+            evaluateMove(cell).takeIf { it > best }?.let {
                 chosenCell = cell
-                best = value
+                best = it
             }
         }
         println("Best dest score : $best")
         return chosenCell
     }
 
+    private fun evaluateMove(cell: FightCell): Int {
+        val state = FightState(0, fightBoard.clone())
+        playPlayerMove(state, cell)
+        return minValue(state, initialDepth)
+    }
 
     private fun maxValue(state: FightState, depth: Int): Int {
         if (depth <= 0) {
