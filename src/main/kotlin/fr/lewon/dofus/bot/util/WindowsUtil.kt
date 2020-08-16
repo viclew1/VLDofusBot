@@ -47,7 +47,7 @@ object WindowsUtil {
         }
         return try {
             val handle = findByPID(pidList[0].toLong())
-            handle.pointer != null
+            User32.INSTANCE.IsWindowEnabled(handle)
         } catch (e: Exception) {
             false
         }
