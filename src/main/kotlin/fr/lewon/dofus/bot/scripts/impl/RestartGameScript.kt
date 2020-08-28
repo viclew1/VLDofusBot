@@ -35,11 +35,9 @@ object RestartGameScript : DofusBotScript("Restart game") {
             WindowsUtil.cleanCache(controller, logItem)
             sleep(2500)
         }
-        WindowsUtil.openGame(controller, logItem)
 
         val reopenLog = controller.log("Waiting for the game to be opened ...", logItem)
-        execTimeoutOpe({ }, { WindowsUtil.isGameOpen() })
-        sleep(5000)
+        WindowsUtil.openGame(controller, logItem)
         WindowsUtil.bringGameToFront(controller.getGameScreen())
         controller.closeLog("OK", reopenLog)
 

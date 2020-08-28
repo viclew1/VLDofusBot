@@ -13,59 +13,64 @@ import java.io.InputStreamReader
 
 object WindowsUtil {
 
-    private val IS_WINDOWS = System.getProperty("os.name").toLowerCase().indexOf("win") >= 0
-    private const val PROCESS_NAME = "Dofus.exe"
+    private var gamePid: Long? = null
 
-    private fun taskPidList(): List<String> {
-        val lines = ArrayList<String>()
-        if (IS_WINDOWS) {
-            val tasklist: Process = Runtime.getRuntime().exec("tasklist")
-            val input = BufferedReader(InputStreamReader(tasklist.inputStream))
-            for (line in input.lines()) {
-                val lineSplit = line.replace(Regex(" +"), " ").split(" ")
-                if (lineSplit[0] == PROCESS_NAME) {
-                    lines.add(lineSplit[1])
-                }
+    private fun getHandle(): HWND? {
+        val windows = ArrayList<HWND>()
+        val pid = gamePid ?: return null
+        User32.INSTANCE.EnumWindows({ hwnd, _ ->
+            val pidRef = IntByReference()
+            User32.INSTANCE.GetWindowThreadProcessId(hwnd, pidRef)
+            if (pidRef.value.toLong() == pid) {
+                windows.add(hwnd)
             }
-            input.close()
-        } else {
-            val pidof: Process = Runtime.getRuntime().exec("ps aux | grep -i $PROCESS_NAME")
-            val input = BufferedReader(InputStreamReader(pidof.inputStream))
-            for (line in input.lines()) {
-                val lineSplit = line.replace(Regex(" +"), " ").split(" ")
-                lines.add(lineSplit[3])
-            }
-            input.close()
+            true
+        }, null)
+        if (windows.isEmpty()) {
+            return null
         }
-        return lines
+        return windows[0]
     }
 
     fun isGameOpen(): Boolean {
-        val pidList = taskPidList()
-        if (pidList.isEmpty()) {
-            return false
-        }
-        return try {
-            val handle = findByPID(pidList[0].toLong())
-            User32.INSTANCE.IsWindowEnabled(handle)
-        } catch (e: Exception) {
-            false
-        }
+        return getHandle() != null
     }
 
     fun openGame(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
         val openingLog = controller.log("Opening game ...", logItem)
-        val execFilePath =
-            System.getProperty("user.home") + "/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Ankama/Dofus.lnk"
-        val execFile = File(execFilePath)
-        if (!execFile.exists() || !execFile.isFile) {
-            error("Dofus shortcut not found in directory [${execFile.parentFile.absolutePath}]")
+        if (isGameOpen()) {
+            error("Game already opened")
         }
-        controller.log("Dofus shortcut found, executing it ...", openingLog)
-        val processBuilder = ProcessBuilder("cmd", "/c", "start /b " + execFile.name)
-        processBuilder.directory(execFile.parentFile)
-        processBuilder.start()
+        val locateGameProcessBuilder = ProcessBuilder("cmd", "/c", "where Dofus.exe")
+        val gameLocStr = readProcessResult(locateGameProcessBuilder.start())
+            ?: error("Unable to find Dofus.exe, is it in your path?")
+        val gameFile = File(gameLocStr)
+        if (!gameFile.exists() || !gameFile.isFile) {
+            error("Unable to find Dofus.exe, is it in your path?")
+        }
+        controller.log("Found the game at [$gameLocStr]", openingLog)
+        val processBuilder = ProcessBuilder(
+            "cmd",
+            "/c",
+            "wmic process call create \"${gameFile.absolutePath}\", \"${gameFile.parentFile.absolutePath}\" | findStr ProcessId"
+        )
+        val pidStr = readProcessResult(processBuilder.start(), "ProcessId = ([0-9]+);")
+            ?: error("Failed to launch game")
+        gamePid = pidStr.toLong()
+        println(gamePid ?: "/")
+        waitUntil({ getHandle() != null })
+        waitUntil({ User32.INSTANCE.IsWindowEnabled(getHandle()) && User32.INSTANCE.IsWindowVisible(getHandle()) })
         controller.closeLog("Game opened", openingLog)
+    }
+
+    private fun readProcessResult(process: Process, regex: String = ""): String? {
+        process.waitFor()
+        val result = BufferedReader(InputStreamReader(process.inputStream))
+            .readLines().joinToString(" ")
+        if (regex.isEmpty()) {
+            return result
+        }
+        return Regex(regex).find(result)?.destructured?.component1()
     }
 
     private fun deleteFile(path: String): Boolean {
@@ -95,10 +100,19 @@ object WindowsUtil {
         controller.closeLog("OK", cacheCleanLog)
     }
 
+    private fun waitUntil(condition: () -> Boolean, timeOutMillis: Long = 30000) {
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < timeOutMillis) {
+            if (condition.invoke()) {
+                return
+            }
+        }
+        error("Timeout exception")
+    }
+
     fun bringGameToFront(screen: GraphicsDevice) {
-        val handle = getHandle()
+        val handle = getHandle() ?: error("No handle found for game screen")
         User32.INSTANCE.SetForegroundWindow(handle)
-        Thread.sleep(1000)
         val screenBounds = screen.defaultConfiguration.bounds
         User32.INSTANCE.MoveWindow(
             handle,
@@ -108,37 +122,8 @@ object WindowsUtil {
             screenBounds.height,
             false
         )
-        Thread.sleep(1000)
         // 3 Corresponds to the "Maximize" command
         User32.INSTANCE.ShowWindow(handle, 3)
-        Thread.sleep(1000)
-    }
-
-    private fun getHandle(): HWND {
-        val pidList = taskPidList()
-        if (pidList.isEmpty()) {
-            error("No Dofus frame opened, please launch the game.")
-        }
-        if (pidList.size != 1) {
-            error("Multiple Dofus frames opened (${pidList.size}), please only let one opened")
-        }
-        return findByPID(pidList[0].toLong())
-    }
-
-    private fun findByPID(pid: Long): HWND {
-        val windows = ArrayList<HWND>()
-        User32.INSTANCE.EnumWindows({ hwnd, _ ->
-            val pidRef = IntByReference()
-            User32.INSTANCE.GetWindowThreadProcessId(hwnd, pidRef)
-            if (pidRef.value.toLong() == pid) {
-                windows.add(hwnd)
-            }
-            true
-        }, null)
-        if (windows.isEmpty()) {
-            error("Window for PID [$pid] not found")
-        }
-        return windows[0]
     }
 
 }
