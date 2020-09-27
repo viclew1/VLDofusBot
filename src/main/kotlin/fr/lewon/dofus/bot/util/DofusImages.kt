@@ -9,6 +9,7 @@ enum class DofusImages(imageName: String) {
     BR_PHORROR("phoBR_template.png"),
     TL_PHORROR("phoTL_template.png"),
     TR_PHORROR("phoTR_template.png"),
+    ARCHI_MONSTER("archimonster.png"),
     TREASURE_HUNT_FRAME_TOP_TEMPLATE("hunt_frame_top.png"),
     TREASURE_HUNT_FRAME_BOT_TEMPLATE("hunt_frame_bot.png"),
     TREASURE_HUNT_FRAME_LEFT_TEMPLATE("hunt_frame_left.png"),

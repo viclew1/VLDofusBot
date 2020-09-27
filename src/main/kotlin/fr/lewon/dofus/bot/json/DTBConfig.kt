@@ -14,8 +14,11 @@ data class DTBConfig(
     @field:JsonProperty var topAccessPos: DTBPoint = DTBPoint(1555, 25),
     @field:JsonProperty var mouseRestPos: DTBPoint = DTBPoint(1874, 38),
     @field:JsonProperty var registeredMoveLocationsByMap: RegisteredMovesHolder = RegisteredMovesHolder(),
+    @field:JsonProperty var registeredImpossibleDirectionsByMap: RegisteredDirectionsHolder = RegisteredDirectionsHolder(),
     @field:JsonProperty var profile: String = "default_hunt"
 )
+
+class RegisteredDirectionsHolder : HashMap<String, ArrayList<Directions>>()
 
 class RegisteredMovesHolder : HashMap<String, PositionsByDirection>()
 

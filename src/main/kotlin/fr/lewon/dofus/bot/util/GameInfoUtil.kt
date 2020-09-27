@@ -105,10 +105,11 @@ object GameInfoUtil {
      * @param gameImage
      */
     @Synchronized
-    fun phorrorOnMap(gameImage: BufferedImage, minMatchValue: Double = 0.21): Boolean {
+    fun phorrorOnMap(gameImage: BufferedImage, minMatchValue: Double = 0.21, segmentImages: Boolean = true): Boolean {
         return patternFound(
             gameImage,
             minMatchValue,
+            segmentImages,
             DofusImages.BL_PHORROR.path,
             DofusImages.BR_PHORROR.path,
             DofusImages.TL_PHORROR.path,
@@ -212,13 +213,21 @@ object GameInfoUtil {
     }
 
     @Synchronized
-    fun patternFound(gameImage: BufferedImage, minMatchValue: Double = 0.21, vararg templatesPath: String): Boolean {
+    fun patternFound(
+        gameImage: BufferedImage,
+        minMatchValue: Double = 0.21,
+        segmentImages: Boolean = true,
+        vararg templatesPath: String
+    ): Boolean {
         val imgMat = OCRUtil.segmentImage(bufferedImageToMat(gameImage))
-        val templates = templatesPath.map { OCRUtil.segmentImage(buildMat(it)) }
+        var templates = templatesPath.map { buildMat(it) }
+        if (segmentImages) {
+            templates = templates.map { OCRUtil.segmentImage(it) }
+        }
 
-        //Match all the templates, if any of them has a value of more than 0.14, we consider the phorror found
         for (template in templates) {
             val matchValue = getMatchResult(imgMat, template)?.maxVal ?: -1.0
+            println(matchValue)
             if (matchValue > minMatchValue) {
                 return true
             }

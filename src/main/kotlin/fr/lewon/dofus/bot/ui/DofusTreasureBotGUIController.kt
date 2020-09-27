@@ -108,6 +108,7 @@ class DofusTreasureBotGUIController : Initializable {
         FetchAHuntScript,
         ReachHuntStartScript,
         FightScript,
+        FindArchimonsterScript,
         FightDopplesScript,
         RestartGameScript
     ).map { it.name to it }
