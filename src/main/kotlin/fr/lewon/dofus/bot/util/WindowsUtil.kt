@@ -59,7 +59,7 @@ object WindowsUtil {
         gamePid = pidStr.toLong()
         println(gamePid ?: "/")
         waitUntil({ getHandle() != null })
-        waitUntil({ User32.INSTANCE.IsWindowEnabled(getHandle()) && User32.INSTANCE.IsWindowVisible(getHandle()) })
+        waitUntil({ User32.INSTANCE.IsWindowEnabled(getHandle()) })
         controller.closeLog("Game opened", openingLog)
     }
 

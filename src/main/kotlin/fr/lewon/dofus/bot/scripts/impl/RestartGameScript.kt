@@ -37,8 +37,7 @@ object RestartGameScript : DofusBotScript("Restart game") {
         }
 
         val reopenLog = controller.log("Waiting for the game to be opened ...", logItem)
-        WindowsUtil.openGame(controller, logItem)
-        WindowsUtil.bringGameToFront(controller.getGameScreen())
+        WindowsUtil.openGame(controller, reopenLog)
         controller.closeLog("OK", reopenLog)
 
         val loginLog = controller.log("Waiting for the login panel to be shown ...", logItem)

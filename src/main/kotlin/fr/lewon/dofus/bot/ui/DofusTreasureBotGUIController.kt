@@ -36,56 +36,82 @@ class DofusTreasureBotGUIController : Initializable {
 
     @FXML
     private lateinit var gameScreenRegionSelector: ChoiceBox<String>
+
     @FXML
     private lateinit var huntLevelSelector: ChoiceBox<String>
+
     @FXML
     private lateinit var moveTimeoutInput: TextField
+
     @FXML
     private lateinit var logsTextArea: TextArea
+
     @FXML
     private lateinit var status: Label
+
     @FXML
     private lateinit var scriptSelector: ChoiceBox<String>
+
     @FXML
     private lateinit var scriptDescriptionTextArea: TextArea
+
     @FXML
     private lateinit var parametersVBox: VBox
+
     @FXML
     private lateinit var scriptParameterDescriptionTextArea: TextArea
+
     @FXML
     private lateinit var scriptNameLbl: Label
+
     @FXML
     private lateinit var execTimeLbl: Label
+
     @FXML
     private lateinit var tabPane: TabPane
+
     @FXML
     private lateinit var logTab: Tab
+
     @FXML
     private lateinit var scriptsTab: Tab
+
     @FXML
     private lateinit var configTabContent: VBox
+
     @FXML
     private lateinit var stopScriptBtn: Button
+
     @FXML
     private lateinit var startScriptBtn: Button
+
     @FXML
     private lateinit var statsTableView: TableView<Pair<String, String>>
+
     @FXML
     private lateinit var statTableColumn: TableColumn<Pair<String, String>, String>
+
     @FXML
     private lateinit var valueTableColumn: TableColumn<Pair<String, String>, String>
+
     @FXML
     private lateinit var profileSelector: ChoiceBox<String>
+
     @FXML
     private lateinit var accountSelector: ChoiceBox<String>
+
     @FXML
     private lateinit var userConfigVBox: VBox
+
     @FXML
     private lateinit var newUsernameTextField: TextField
+
     @FXML
     private lateinit var usernameTextField: TextField
+
     @FXML
     private lateinit var passwordTextfield: PasswordField
+
     @FXML
     private lateinit var deleteAccountButton: Button
 
@@ -312,11 +338,6 @@ class DofusTreasureBotGUIController : Initializable {
         val script = scriptsByName[scriptSelector.value] ?: error("Script [${scriptSelector.value}] not found")
         processBtnExecution(
             execution = {
-                if (!WindowsUtil.isGameOpen()) {
-                    RestartGameScript.execute(this, it)
-                } else {
-                    WindowsUtil.bringGameToFront(getGameScreen())
-                }
                 Platform.runLater {
                     scriptNameLbl.text = "[${script.name}]"
                     scriptDescriptionTextArea.text = script.getDescription()

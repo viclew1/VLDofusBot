@@ -23,16 +23,30 @@ object GameInfoUtil {
     }
 
     @Synchronized
-    fun getButtonBounds(gameImage: BufferedImage, imagePath: String, minMatchValue: Double = 0.6): Rectangle? {
+    fun getButtonBounds(
+        gameImage: BufferedImage,
+        imagePath: String,
+        minMatchValue: Double = 0.6,
+        minSize: Double = 1.0,
+        maxSize: Double = 1.0,
+        stepScale: Double = 0.1
+    ): Rectangle? {
         val searchTemplate = buildMat(imagePath)
-        val matchResult = this.getMatchResult(gameImage, searchTemplate) ?: return null
-        if (matchResult.maxVal < minMatchValue) return null
-        return Rectangle(
-            matchResult.maxLoc.x.toInt(),
-            matchResult.maxLoc.y.toInt(),
-            searchTemplate.cols(),
-            searchTemplate.rows()
-        )
+        var scale = minSize
+        while (scale <= maxSize) {
+            this.getMatchResult(gameImage, searchTemplate)
+                ?.takeIf { it.maxVal >= minMatchValue }
+                ?.let {
+                    return Rectangle(
+                        it.maxLoc.x.toInt(),
+                        it.maxLoc.y.toInt(),
+                        searchTemplate.cols(),
+                        searchTemplate.rows()
+                    )
+                }
+            scale += stepScale
+        }
+        return null
     }
 
     @Synchronized
@@ -227,7 +241,6 @@ object GameInfoUtil {
 
         for (template in templates) {
             val matchValue = getMatchResult(imgMat, template)?.maxVal ?: -1.0
-            println(matchValue)
             if (matchValue > minMatchValue) {
                 return true
             }

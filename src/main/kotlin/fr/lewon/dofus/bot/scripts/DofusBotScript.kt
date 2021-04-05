@@ -116,8 +116,10 @@ abstract class DofusBotScript(val name: String) {
         )
     }
 
-    protected fun getSubImage(imgName: String): BufferedImage? {
-        return imgBounds(imgName)?.let { controller.captureGameImage().getSubimage(it.x, it.y, it.width, it.height) }
+    protected fun getSubImage(imgName: String, minSize: Double = 1.0, maxSize: Double = 1.0): BufferedImage? {
+        return imgBounds(imgName, minSize, maxSize)?.let {
+            controller.captureGameImage().getSubimage(it.x, it.y, it.width, it.height)
+        }
     }
 
     protected fun getSubImage(bounds: Rectangle): BufferedImage {
@@ -330,7 +332,7 @@ abstract class DofusBotScript(val name: String) {
     }
 
     private fun isZaapPossible(selectedCoordinate: Pair<String, Pair<Int, Int>>): Boolean {
-        return getSubImage(selectedCoordinate.first)
+        return getSubImage(selectedCoordinate.first, 1.0, 1.6)
             ?.let { resize(it, 16) }
             ?.let { keepWhite(it, true) }
             ?.let { getLines(it, " ()-,0123456789") }
@@ -447,12 +449,15 @@ abstract class DofusBotScript(val name: String) {
         return imgCenter(imgName, minMatchValue) != null
     }
 
-    protected fun imgBounds(imgName: String): Rectangle? {
+    protected fun imgBounds(imgName: String, minSize: Double = 1.0, maxSize: Double = 1.0): Rectangle? {
         return GameInfoUtil.getButtonBounds(
             controller.captureGameImage(),
-            "scripts_templates/$imgName"
+            "scripts_templates/$imgName",
+            minSize = minSize,
+            maxSize = maxSize
         )
     }
+
 
     protected fun imgCenter(imgName: String, minMatchValue: Double = 0.6): Pair<Int, Int>? {
         return GameInfoUtil.getButtonCenter(
