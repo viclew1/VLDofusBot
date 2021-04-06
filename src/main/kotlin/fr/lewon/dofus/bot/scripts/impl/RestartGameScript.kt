@@ -28,10 +28,10 @@ object RestartGameScript : DofusBotScript("Restart game") {
         logItem: LogItem?,
         parameters: Map<String, DofusBotScriptParameter>
     ) {
-        if (WindowsUtil.isGameOpen()) {
+        if (WindowsUtil.isGameOpen(controller)) {
             execTimeoutOpe({ openMenu() }, { imgFound("exit_dofus.png", 0.9) })
             execTimeoutOpe({ click("exit_dofus.png") }, { imgFound("yes.png", 0.9) })
-            execTimeoutOpe({ click("yes.png") }, { !WindowsUtil.isGameOpen() })
+            execTimeoutOpe({ click("yes.png") }, { !WindowsUtil.isGameOpen(controller) })
             WindowsUtil.cleanCache(controller, logItem)
             sleep(2500)
         }

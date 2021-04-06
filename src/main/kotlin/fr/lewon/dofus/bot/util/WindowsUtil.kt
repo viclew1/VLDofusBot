@@ -32,13 +32,13 @@ object WindowsUtil {
         return windows[0]
     }
 
-    fun isGameOpen(): Boolean {
-        return getHandle() != null
+    fun isGameOpen(controller: DofusTreasureBotGUIController): Boolean {
+        return GameInfoUtil.getLocation(controller.captureGameImage()) != null
     }
 
     fun openGame(controller: DofusTreasureBotGUIController, logItem: LogItem? = null) {
         val openingLog = controller.log("Opening game ...", logItem)
-        if (isGameOpen()) {
+        if (isGameOpen(controller)) {
             error("Game already opened")
         }
         val locateGameProcessBuilder = ProcessBuilder("cmd", "/c", "where Dofus.exe")
