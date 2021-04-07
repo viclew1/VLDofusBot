@@ -338,6 +338,11 @@ class DofusTreasureBotGUIController : Initializable {
         val script = scriptsByName[scriptSelector.value] ?: error("Script [${scriptSelector.value}] not found")
         processBtnExecution(
             execution = {
+                if (!WindowsUtil.isGameOpen()) {
+                    RestartGameScript.execute(this, it)
+                } else {
+                    WindowsUtil.bringGameToFront(getGameScreen())
+                }
                 Platform.runLater {
                     scriptNameLbl.text = "[${script.name}]"
                     scriptDescriptionTextArea.text = script.getDescription()

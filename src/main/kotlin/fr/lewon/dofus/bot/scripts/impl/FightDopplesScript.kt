@@ -86,29 +86,26 @@ object FightDopplesScript : DofusBotScript("Fight dopples") {
         reachDestination(-4, 0)
         execTimeoutOpe({ clickPoint(1109, 426) }, { imgFound("dopples/sram_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(459, 238) }, { imgFound("dopples/sram_temple_dopple_room.png") })
-        clickPoint(899, 421)
-        fightDopple { sramFought }
+        fightDopple(899, 421) { sramFought = it }
 
         // Huppermage temple
         ReachMapTask(controller, logItem, 39, -21).run()
         execTimeoutOpe({ clickPoint(1511, 707) }, { imgFound("dopples/huppermage_temple_dopple_room.png") })
-        clickPoint(902, 561)
-        fightDopple { huppermageFought }
+        fightDopple(902, 561) { huppermageFought = it }
 
         // Sacrier temple
         ReachMapTask(controller, logItem, -3, -4).run()
         execTimeoutOpe({ clickPoint(723, 310) }, { imgFound("dopples/sacrier_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(612, 131) }, { imgFound("dopples/sacrier_temple_main_room.png") })
         execTimeoutOpe({ clickPoint(1437, 203) }, { imgFound("dopples/sacrier_temple_dopple_room.png") })
-        clickPoint(1121, 429)
-        fightDopple { sacrierFought }
+        fightDopple(1121, 429) { sacrierFought = it }
 
         // Enutrof temple
         ReachMapTask(controller, logItem, -1, -4).run()
         execTimeoutOpe({ clickPoint(1156, 535) }, { imgFound("dopples/enutrof_temple_main_room.png") })
         execTimeoutOpe({ clickPoint(570, 421) }, { imgFound("dopples/enutrof_temple_dopple_room.png") })
         clickPoint(1123, 484)
-        fightDopple { enutrofFought }
+        fightDopple(1123, 484) { enutrofFought = it }
 
         // Ecaflip temple
         ReachMapTask(controller, logItem, 1, -5).run()
@@ -116,7 +113,7 @@ object FightDopplesScript : DofusBotScript("Fight dopples") {
         execTimeoutOpe({ clickPoint(1227, 404) }, { imgFound("dopples/ecaflip_temple_main_room.png") })
         execTimeoutOpe({ clickPoint(997, 293) }, { imgFound("dopples/ecaflip_temple_dopple_room.png") })
         clickPoint(1424, 397)
-        fightDopple { ecaflipFought }
+        fightDopple(1424, 397) { ecaflipFought = it }
 
         // Masqueraider temple
         ReachMapTask(controller, logItem, 1, -8).run()
@@ -125,8 +122,7 @@ object FightDopplesScript : DofusBotScript("Fight dopples") {
         execTimeoutOpe({ clickPoint(470, 138) }, { imgFound("dopples/masqueraider_temple_room_3.png") })
         execTimeoutOpe({ clickPoint(970, 396) }, { imgFound("dopples/masqueraider_temple_room_4.png") })
         execTimeoutOpe({ clickPoint(1297, 383) }, { imgFound("dopples/masqueraider_temple_dopple_room.png") })
-        clickPoint(1172, 445)
-        fightDopple { masqueraiderFought }
+        fightDopple(1172, 445) { masqueraiderFought = it }
 
         // Feca temple
         reachDestination(12, 5)
@@ -134,8 +130,7 @@ object FightDopplesScript : DofusBotScript("Fight dopples") {
         execTimeoutOpe({ clickPoint(1343, 199) }, { imgFound("dopples/feca_temple_room_2.png") })
         execTimeoutOpe({ clickPoint(438, 28) }, { imgFound("dopples/feca_temple_room_3.png") })
         execTimeoutOpe({ clickPoint(419, 919) }, { imgFound("dopples/feca_temple_dopple_room.png") })
-        clickPoint(930, 474)
-        fightDopple { fecaFought }
+        fightDopple(930, 474) { fecaFought = it }
 
         // Ouginak temple
         ReachMapTask(controller, logItem, 12, 3).run()
@@ -146,53 +141,46 @@ object FightDopplesScript : DofusBotScript("Fight dopples") {
         execTimeoutOpe({ clickPoint(1216, 586) }, { imgFound("dopples/ouginak_temple_main_room.png") })
         execTimeoutOpe({ clickPoint(1418, 407) }, { imgFound("dopples/ouginak_temple_room_2.png") })
         execTimeoutOpe({ clickPoint(585, 341) }, { imgFound("dopples/ouginak_temple_dopple_room.png") })
-        clickPoint(920, 360)
-        fightDopple { ouginakFought }
+        fightDopple(920, 360) { ouginakFought = it }
 
         // Foggernauts temple
         reachDestination(9, 1)
         ReachMapTask(controller, logItem, 26, 22).run()
         execTimeoutOpe({ clickPoint(1131, 444) }, { imgFound("dopples/foggernauts_temple.png", 0.9) })
-        execTimeoutOpe({ clickPoint(1011, 586) }, { imgFound("dopples/foggernauts_temple_temple_room_2.png") })
+        execTimeoutOpe({ clickPoint(1011, 586) }, { imgFound("dopples/foggernauts_temple_dopple_room_2.png") })
         execTimeoutOpe({ clickPoint(1239, 820) }, { imgFound("dopples/foggernauts_temple_dopple_room.png") })
-        clickPoint(724, 608)
-        fightDopple { foggernautsFought }
+        fightDopple(724, 608) { foggernautsFought = it }
 
         // Osamodas temple
         reachDestination(8, 2)
         execTimeoutOpe({ clickPoint(1154, 520) }, { imgFound("dopples/osamodas_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(682, 220) }, { imgFound("dopples/osamodas_temple_dopple_room.png") })
-        clickPoint(1019, 517)
-        fightDopple { osamodasFought }
+        fightDopple(1019, 517) { osamodasFought = it }
 
         // Eniripsa temple
         ReachMapTask(controller, logItem, 7, 1).run()
         execTimeoutOpe({ clickPoint(945, 563) }, { imgFound("dopples/eniripsa_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(1294, 485) }, { imgFound("dopples/eniripsa_temple_room_2.png") })
         execTimeoutOpe({ clickPoint(1187, 257) }, { imgFound("dopples/eniripsa_temple_dopple_room.png") })
-        clickPoint(1214, 439)
-        fightDopple { eniripsaFought }
+        fightDopple(1214, 439) { eniripsaFought = it }
 
         // Pandawa temple
         reachDestination(4, -2)
         execTimeoutOpe({ clickPoint(653, 438) }, { imgFound("dopples/pandawa_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(1330, 171) }, { imgFound("dopples/pandawa_temple_dopple_room.png") })
-        clickPoint(1046, 518)
-        fightDopple { pandawaFought }
+        fightDopple(1046, 518) { pandawaFought = it }
 
         // Eliotrope temple
         ReachMapTask(controller, logItem, 16, 33).run()
         moveRight()
         moveLeft()
-        clickPoint(892, 405)
-        fightDopple { eliotropeFought }
+        fightDopple(892, 405) { eliotropeFought = it }
 
         // Xelor temple
         reachDestination(3, 1)
         execTimeoutOpe({ clickPoint(1256, 486) }, { imgFound("dopples/xelor_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(1473, 154) }, { imgFound("dopples/xelor_temple_dopple_room.png") })
-        clickPoint(1120, 386)
-        fightDopple { xelorFought }
+        fightDopple(1120, 386) { xelorFought = it }
 
         // Rogue temple
         ReachMapTask(controller, logItem, 3, 3).run()
@@ -203,32 +191,30 @@ object FightDopplesScript : DofusBotScript("Fight dopples") {
         execTimeoutOpe({ clickPoint(496, 463) }, { imgFound("dopples/rogue_temple_room_2.png") })
         execTimeoutOpe({ clickPoint(682, 303) }, { imgFound("dopples/rogue_temple_room_3.png") })
         execTimeoutOpe({ clickPoint(584, 402) }, { imgFound("dopples/rogue_temple_dopple_room.png") })
-        clickPoint(1256, 388)
-        fightDopple { rogueFought }
-
-        // Cra temple
-        reachDestination(0, 3)
-        execTimeoutOpe({ clickPoint(1164, 559) }, { imgFound("dopples/cra_temple.png", 0.9) })
-        execTimeoutOpe({ clickPoint(1157, 212) }, { imgFound("dopples/cra_temple_dopple_room.png") })
-        clickPoint(1086, 572)
-        fightDopple { craFought }
+        fightDopple(1256, 388) { rogueFought = it }
 
         // Iop temple
         ReachMapTask(controller, logItem, 1, 3).run()
         execTimeoutOpe({ clickPoint(1010, 360) }, { imgFound("dopples/iop_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(1413, 593) }, { imgFound("dopples/iop_temple_dopple_room.png") })
-        clickPoint(1084, 575)
-        fightDopple { iopFought }
+        fightDopple(1084, 575) { iopFought = it }
+
+        // Cra temple
+        reachDestination(0, 3)
+        execTimeoutOpe({ clickPoint(1164, 559) }, { imgFound("dopples/cra_temple.png", 0.9) })
+        execTimeoutOpe({ clickPoint(1157, 212) }, { imgFound("dopples/cra_temple_dopple_room.png") })
+        fightDopple(1086, 572) { craFought = it }
 
         // Sadida temple
         reachDestination(-1, 9)
         execTimeoutOpe({ clickPoint(971, 418) }, { imgFound("dopples/sadida_temple.png", 0.9) })
         execTimeoutOpe({ clickPoint(748, 340) }, { imgFound("dopples/sadida_temple_dopple_room.png") })
-        clickPoint(893, 478)
-        fightDopple { sadidaFought }
+        fightDopple(893, 478) { sadidaFought = it }
     }
 
-    private fun fightDopple(statUpdater: (String) -> Unit) {
+    private fun fightDopple(doppleMasterX: Int, doppleMasterY: Int, statUpdater: (String) -> Unit) {
+        sleep(2000)
+        clickPoint(doppleMasterX, doppleMasterY)
         execTimeoutOpe({}, { imgFound("dopples/train_with_dopple.png", 0.8) })
         clickChain(listOf("dopples/train_with_dopple.png", "dopples/begin_fight_dopple.png"))
         statUpdater.invoke("...")

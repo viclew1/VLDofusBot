@@ -28,10 +28,10 @@ object RestartGameScript : DofusBotScript("Restart game") {
         logItem: LogItem?,
         parameters: Map<String, DofusBotScriptParameter>
     ) {
-        if (WindowsUtil.isGameOpen(controller)) {
+        if (WindowsUtil.isGameOpen()) {
             execTimeoutOpe({ openMenu() }, { imgFound("exit_dofus.png", 0.9) })
             execTimeoutOpe({ click("exit_dofus.png") }, { imgFound("yes.png", 0.9) })
-            execTimeoutOpe({ click("yes.png") }, { !WindowsUtil.isGameOpen(controller) })
+            execTimeoutOpe({ click("yes.png") }, { !WindowsUtil.isGameOpen() })
             WindowsUtil.cleanCache(controller, logItem)
             sleep(2500)
         }
@@ -39,6 +39,10 @@ object RestartGameScript : DofusBotScript("Restart game") {
         val reopenLog = controller.log("Waiting for the game to be opened ...", logItem)
         WindowsUtil.openGame(controller, reopenLog)
         controller.closeLog("OK", reopenLog)
+
+        val moveScreenLog = controller.log("Moving game to screen [${controller.getGameScreen().iDstring}]...", logItem)
+        WindowsUtil.bringGameToFront(controller.getGameScreen())
+        controller.closeLog("OK", moveScreenLog)
 
         val loginLog = controller.log("Waiting for the login panel to be shown ...", logItem)
         execTimeoutOpe({}, { imgFound("updater_warning.png", 0.9) || imgFound("login_panel.png", 0.9) })
