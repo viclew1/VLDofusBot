@@ -152,8 +152,8 @@ object FightScript : DofusBotScript("Fight") {
         RobotUtil.press(KeyEvent.VK_F1)
 
         sleep(2000)
-        execTimeoutOpe({}, { imgFound("fight/player_turn.png", 0.9) })
-        while (!imgFound("fight/close.png") && !imgFound("fight/ok.png", 0.9)) {
+        execTimeoutOpe({}, { imgFound("fight/player_turn.png", 0.8) })
+        while (!imgFound("fight/close.png", 0.8) && !imgFound("fight/ok.png", 0.8)) {
 
             sleep(400)
             focusDofusWindow()
@@ -226,10 +226,10 @@ object FightScript : DofusBotScript("Fight") {
 
             execTimeoutOpe({ }, {
                 GameInfoUtil.colorCount(capture.invoke(), passTurnBounds, FightColors.playerTurnColors) > 120
-                        || imgFound("fight/close.png", 0.9) || imgFound("fight/ok.png", 0.9)
+                        || imgFound("fight/close.png", 0.8) || imgFound("fight/ok.png", 0.8)
             })
         }
-        if (imgFound("fight/ok.png", 0.9)) {
+        if (imgFound("fight/ok.png", 0.8)) {
             clickChain(listOf("fight/ok.png"), "fight/close.png")
         }
 

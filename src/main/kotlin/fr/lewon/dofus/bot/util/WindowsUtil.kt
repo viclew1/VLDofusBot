@@ -57,7 +57,6 @@ object WindowsUtil {
         val pidStr = readProcessResult(processBuilder.start(), "ProcessId = ([0-9]+);")
             ?: error("Failed to launch game")
         gamePid = pidStr.toLong()
-        println(gamePid ?: "/")
         waitUntil({ getHandle() != null })
         waitUntil({ User32.INSTANCE.IsWindowEnabled(getHandle()) })
         controller.closeLog("Game opened", openingLog)

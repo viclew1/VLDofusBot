@@ -13,7 +13,11 @@ enum class DofusImages(imageName: String) {
     TREASURE_HUNT_FRAME_TOP_TEMPLATE("hunt_frame_top.png"),
     TREASURE_HUNT_FRAME_BOT_TEMPLATE("hunt_frame_bot.png"),
     TREASURE_HUNT_FRAME_LEFT_TEMPLATE("hunt_frame_left.png"),
-    TREASURE_HUNT_FRAME_RIGHT_TEMPLATE("hunt_frame_right.png");
+    TREASURE_HUNT_FRAME_RIGHT_TEMPLATE("hunt_frame_right.png"),
+    RUNEFORGE_FRAME_TOP_TEMPLATE("runeforge_frame_top.png"),
+    RUNEFORGE_FRAME_BOT_TEMPLATE("runeforge_frame_bot.png"),
+    RUNEFORGE_FRAME_LEFT_TEMPLATE("runeforge_frame_left.png"),
+    RUNEFORGE_FRAME_RIGHT_TEMPLATE("runeforge_frame_right.png");
 
     val path: String = "templates/$imageName"
 

@@ -45,9 +45,9 @@ object RobotUtil {
     fun click(x: Int, y: Int) {
         robot.mouseMove(x, y)
         Thread.sleep(50)
-        robot.mousePress(InputEvent.BUTTON1_MASK)
+        robot.mousePress(InputEvent.BUTTON1_DOWN_MASK)
         Thread.sleep(50)
-        robot.mouseRelease(InputEvent.BUTTON1_MASK)
+        robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK)
         Thread.sleep(50)
     }
 

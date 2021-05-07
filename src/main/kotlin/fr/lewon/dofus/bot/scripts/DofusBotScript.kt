@@ -135,6 +135,14 @@ abstract class DofusBotScript(val name: String) {
         ClickPointTask(controller, logItem, x, y).run()
     }
 
+    protected fun doubleClickPoint(point: Pair<Int, Int>) {
+        doubleClickPoint(point.first, point.second)
+    }
+
+    protected fun doubleClickPoint(x: Int, y: Int) {
+        ClickPointTask(controller, logItem, x, y, 2).run()
+    }
+
     protected fun clickChain(
         imgNames: List<String>,
         expectedFinalImageName: String? = null
@@ -155,10 +163,10 @@ abstract class DofusBotScript(val name: String) {
         } ?: click(imgNames.last())
     }
 
-    protected fun click(imgName: String) {
+    protected fun click(imgName: String, li: LogItem? = logItem) {
         ClickButtonTask(
             controller,
-            logItem,
+            li,
             "scripts_templates/$imgName"
         ).run()
     }
@@ -432,8 +440,8 @@ abstract class DofusBotScript(val name: String) {
         )
     }
 
-    protected fun log(message: String) {
-        controller.log(message, logItem)
+    protected fun log(message: String, li: LogItem? = logItem) {
+        controller.log(message, li)
     }
 
     protected fun getNextDir(): String {

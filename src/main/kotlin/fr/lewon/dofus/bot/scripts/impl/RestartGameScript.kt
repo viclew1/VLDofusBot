@@ -29,30 +29,27 @@ object RestartGameScript : DofusBotScript("Restart game") {
         parameters: Map<String, DofusBotScriptParameter>
     ) {
         if (WindowsUtil.isGameOpen()) {
-            execTimeoutOpe({ openMenu() }, { imgFound("exit_dofus.png", 0.9) })
-            execTimeoutOpe({ click("exit_dofus.png") }, { imgFound("yes.png", 0.9) })
+            execTimeoutOpe({ openMenu() }, { imgFound("exit_dofus.png", 0.8) })
+            execTimeoutOpe({ click("exit_dofus.png") }, { imgFound("yes.png", 0.8) })
             execTimeoutOpe({ click("yes.png") }, { !WindowsUtil.isGameOpen() })
             WindowsUtil.cleanCache(controller, logItem)
             sleep(2500)
         }
 
-        val reopenLog = controller.log("Waiting for the game to be opened ...", logItem)
-        WindowsUtil.openGame(controller, reopenLog)
-        controller.closeLog("OK", reopenLog)
-
+        WindowsUtil.openGame(controller, logItem)
         val moveScreenLog = controller.log("Moving game to screen [${controller.getGameScreen().iDstring}]...", logItem)
         WindowsUtil.bringGameToFront(controller.getGameScreen())
         controller.closeLog("OK", moveScreenLog)
 
         val loginLog = controller.log("Waiting for the login panel to be shown ...", logItem)
-        execTimeoutOpe({}, { imgFound("updater_warning.png", 0.9) || imgFound("login_panel.png", 0.9) })
-        if (imgFound("ok_cancel.png", 0.9)) {
-            click("ok_cancel.png")
+        execTimeoutOpe({}, { imgFound("updater_warning.png", 0.8) || imgFound("login_panel.png", 0.9) })
+        if (imgFound("ok_cancel.png", 0.8)) {
+            click("ok_cancel.png", loginLog)
         }
-        execTimeoutOpe({}, { imgFound("login_panel.png", 0.9) })
+        execTimeoutOpe({}, { imgFound("login_panel.png", 0.8) })
         controller.closeLog("OK", loginLog)
 
-        if (imgFound("login_panel.png", 0.9)) {
+        if (imgFound("login_panel.png", 0.8)) {
             val user = controller.getUser()
             val enterLoginsLog = controller.log("Login with username [${user.login}]", logItem)
             clickPoint(830, 350)
@@ -69,11 +66,11 @@ object RestartGameScript : DofusBotScript("Restart game") {
 
         val loginOrReadyLog = controller.log("Waiting for the character selection or the final login ...", logItem)
         execTimeoutOpe({}, {
-            imgFound("enter_game.png", 0.9) || GameInfoUtil.getLocation(controller.captureGameImage()) != null
+            imgFound("enter_game.png", 0.8) || GameInfoUtil.getLocation(controller.captureGameImage()) != null
         }, 180)
         controller.closeLog("OK", loginOrReadyLog)
 
-        if (imgFound("enter_game.png", 0.9)) {
+        if (imgFound("enter_game.png", 0.8)) {
             RobotUtil.enter()
             val readyLog = controller.log("Waiting for the character to be logged in ...", logItem)
             execTimeoutOpe({ }, { GameInfoUtil.getLocation(controller.captureGameImage()) != null }, 180)

@@ -10,16 +10,19 @@ class ClickPointTask(
     controller: DofusTreasureBotGUIController,
     parentLogItem: LogItem?,
     private var x: Int,
-    private var y: Int
+    private var y: Int,
+    private var clickCount: Int = 1
 ) : DofusBotTask<Boolean>(controller, parentLogItem) {
 
     override fun execute(logItem: LogItem): Boolean {
         val screenBounds = controller.getGameScreen().defaultConfiguration.bounds
         val restPos = DTBConfigManager.config.mouseRestPos
-        RobotUtil.click(
-            screenBounds.x + x,
-            screenBounds.y + y
-        )
+        for (i in 0 until clickCount) {
+            RobotUtil.click(
+                screenBounds.x + x,
+                screenBounds.y + y
+            )
+        }
         RobotUtil.move(
             screenBounds.x + restPos.first,
             screenBounds.y + restPos.second

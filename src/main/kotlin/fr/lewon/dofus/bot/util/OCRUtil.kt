@@ -25,7 +25,7 @@ object OCRUtil {
     @Synchronized
     fun getAllLines(img: BufferedImage, charWhitelist: String? = null): List<String> {
         val imgText = initTesseract(charWhitelist).doOCR(img)
-        return imgText.split("\n").filter { !it.isBlank() }
+        return imgText.split("\n").filter { it.isNotBlank() }
     }
 
     @Synchronized
@@ -67,12 +67,12 @@ object OCRUtil {
     }
 
     @Synchronized
-    fun keepDarkOnImage(imageMat: Mat, smoothen: Boolean = true): BufferedImage {
+    fun keepDarkOnImage(imageMat: Mat, smoothen: Boolean = true, thresh: Double = 95.0): BufferedImage {
         val srcGray = Mat()
         Imgproc.cvtColor(imageMat, srcGray, Imgproc.COLOR_BGR2GRAY)
 
         val dst = Mat()
-        Imgproc.threshold(srcGray, dst, 95.0, 255.0, 0)
+        Imgproc.threshold(srcGray, dst, thresh, 255.0, 0)
 
         if (!smoothen) {
             return HighGui.toBufferedImage(dst) as BufferedImage
@@ -85,12 +85,12 @@ object OCRUtil {
     }
 
     @Synchronized
-    fun keepWhiteOnImage(imageMat: Mat, smoothen: Boolean = true): BufferedImage {
+    fun keepWhiteOnImage(imageMat: Mat, smoothen: Boolean = true, thresh: Double = 115.0): BufferedImage {
         val srcGray = Mat()
         Imgproc.cvtColor(imageMat, srcGray, Imgproc.COLOR_BGR2GRAY)
 
         val dst = Mat()
-        Imgproc.threshold(srcGray, dst, 115.0, 255.0, 1)
+        Imgproc.threshold(srcGray, dst, thresh, 255.0, 1)
 
         if (!smoothen) {
             return HighGui.toBufferedImage(dst) as BufferedImage
