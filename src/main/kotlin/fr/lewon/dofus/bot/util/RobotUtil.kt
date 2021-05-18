@@ -44,11 +44,11 @@ object RobotUtil {
 
     fun click(x: Int, y: Int) {
         robot.mouseMove(x, y)
-        Thread.sleep(50)
+        Thread.sleep(90)
         robot.mousePress(InputEvent.BUTTON1_DOWN_MASK)
-        Thread.sleep(50)
+        Thread.sleep(40)
         robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK)
-        Thread.sleep(50)
+        Thread.sleep(90)
     }
 
     fun move(x: Int, y: Int) {
@@ -89,10 +89,16 @@ object RobotUtil {
                 robot.delay(20)
             }
             else -> {
-                val keyCode: Int = KeyEvent.getExtendedKeyCodeForChar(c.toInt())
+                val keyCode = KeyEvent.getExtendedKeyCodeForChar(c.toInt())
+                if (c.isUpperCase()) {
+                    robot.keyPress(KeyEvent.VK_SHIFT)
+                }
                 robot.keyPress(keyCode)
                 robot.delay(20)
                 robot.keyRelease(keyCode)
+                if (c.isUpperCase()) {
+                    robot.keyRelease(KeyEvent.VK_SHIFT)
+                }
                 robot.delay(20)
             }
         }
