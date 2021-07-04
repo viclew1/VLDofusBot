@@ -1,7 +1,5 @@
 package fr.lewon.dofus.bot.scripts.runeforge
 
-import fr.lewon.dofus.bot.util.LevenshteinDistanceUtil
-
 enum class DofusCharacteristic(
     val caracName: String,
     val runeName: String,
@@ -61,12 +59,4 @@ enum class DofusCharacteristic(
     AP("pa", "gapa", 100f),
     MP("pm", "gapm", 90f);
 
-    companion object {
-        fun closestFromName(name: String): DofusCharacteristic {
-            val closestName = LevenshteinDistanceUtil.getClosestString(
-                name.toLowerCase(),
-                values().map { it.caracName.toLowerCase() })
-            return values().first { it.caracName.equals(closestName, ignoreCase = true) }
-        }
-    }
 }

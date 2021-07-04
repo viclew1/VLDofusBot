@@ -1,0 +1,1 @@
+java -jar %~dp0\lib\DofusProtocolUpdater-1.0-SNAPSHOT.jar

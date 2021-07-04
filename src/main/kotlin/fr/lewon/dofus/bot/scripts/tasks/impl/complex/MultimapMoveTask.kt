@@ -1,36 +1,28 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.complex
 
+import fr.lewon.dofus.bot.game.info.GameInfo
+import fr.lewon.dofus.bot.game.move.Direction
+import fr.lewon.dofus.bot.gui.LogItem
+import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
-import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.util.Directions
+import fr.lewon.dofus.bot.util.ui.DTBLogger
 
-class MultimapMoveTask(
-    controller: DofusTreasureBotGUIController,
-    parentLogItem: LogItem?,
-    private val direction: Directions,
-    private val dist: Int
-) : DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
+class MultimapMoveTask(private val direction: Direction, private val dist: Int) : DofusBotTask<DofusMap>() {
 
-    override fun execute(logItem: LogItem): Pair<Int, Int> {
-        var currentPos: Pair<Int, Int>? = null
+    override fun execute(logItem: LogItem): DofusMap {
         for (i in 0 until dist) {
-            controller.closeLog("Moves done : $i/$dist", logItem)
-            currentPos = direction.buildMoveTask(controller, logItem).run()
+            DTBLogger.closeLog("Moves done : $i/$dist", logItem)
+            direction.buildMoveTask().run(logItem)
         }
-        return currentPos ?: error("Invalid move")
+        return GameInfo.currentMap
     }
 
-    override fun onFailed(exception: Exception, logItem: LogItem) {
-        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
+    override fun onSucceeded(value: DofusMap): String {
+        return "OK : [${value.posX},${value.posY}]"
     }
 
-    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
-        controller.closeLog("OK : [${value.first},${value.second}]", logItem)
-    }
-
-    override fun onStarted(parentLogItem: LogItem?): LogItem {
-        return controller.log("Moving [$dist] cells in the [$direction] direction ...", parentLogItem)
+    override fun onStarted(): String {
+        return "Moving [$dist] cells in the [$direction] direction ..."
     }
 
 }

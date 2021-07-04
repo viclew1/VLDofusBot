@@ -3,8 +3,8 @@ package fr.lewon.dofus.bot.util
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import fr.lewon.dofus.bot.json.Hint
-import fr.lewon.dofus.bot.json.MoveHints
+import fr.lewon.dofus.bot.game.move.Direction
+import fr.lewon.dofus.bot.model.hint.MoveHints
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -17,12 +17,13 @@ object DTBRequestProcessor {
     private val objectMapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     private val cookieStore = LinkedMultiValueMap<String, String>()
 
-    fun getAllHints(): MutableMap<String, List<String>> {
+    fun getAllHintIdsByName(): HashMap<String, Int> {
         cookieStore.clear()
         cookieStore["_ga"] = "GA1.2.98910942.1586533380"
         cookieStore["_gid"] = "GA1.2.1173554551.1586533380"
         cookieStore["language"] = "fr"
-        val content = readAllPage("/hunt")
+        cookieStore["closedAd"] = "1621797460"
+        val content = getForBody("/hunt") ?: ""
 
         val allElementsJson = Regex("var text = (\\{.*?});")
             .find(content)
@@ -36,28 +37,16 @@ object DTBRequestProcessor {
             ?.component1()
             ?: throw Exception("Unable to find hints")
 
-        val allHintsNameIds = objectMapper.readValue<Array<String>>(allHintsNameIdsJson)
+        val allHintsNameIds = objectMapper.readValue<Array<Int>>(allHintsNameIdsJson)
 
-        return objectMapper.readValue<Map<String, String>>(allElementsJson)
+        return objectMapper.readValue<Map<Int, String>>(allElementsJson)
             .filter { allHintsNameIds.contains(it.key) }
-            .map { it.key to reduceStr(it.value) }
-            .groupBy { it.second }
-            .mapValuesTo(HashMap()) { it.value.map { pair -> pair.first } }
+            .entries.associate { (key, value) -> value to key }
+            .toMap(HashMap())
     }
 
-    private fun reduceStr(str: String, length: Int = 31): String {
-        if (str.length <= length) return str
-        return str.substring(0, length)
-    }
-
-    fun getHint(x: Int, y: Int, direction: Directions, toFindId: List<String>, world: String): Hint? {
+    fun getHints(x: Int, y: Int, direction: Direction, world: Int): MoveHints? {
         return getForBody<MoveHints>("/huntTool/getData.php?x=$x&y=$y&direction=${direction.name.toLowerCase()}&world=$world&language=fr")
-            ?.hints
-            ?.firstOrNull { toFindId.contains(it.n) }
-    }
-
-    private fun readAllPage(uri: String): String {
-        return getForBody(uri) ?: ""
     }
 
     @Synchronized

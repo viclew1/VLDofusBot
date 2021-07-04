@@ -1,17 +1,12 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
-import fr.lewon.dofus.bot.json.DTBPoint
-import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
-import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.util.DTBConfigManager
-import fr.lewon.dofus.bot.util.Directions
+import fr.lewon.dofus.bot.game.move.Direction
+import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.geometry.PointRelative
 
-class MoveRightTask(
-    controller: DofusTreasureBotGUIController,
-    parentLogItem: LogItem?
-) : MoveTask(Directions.RIGHT, controller, parentLogItem) {
+class MoveRightTask : MoveTask(Direction.RIGHT) {
 
-    override fun getMoveDest(): DTBPoint {
+    override fun getMoveDest(): PointRelative {
         return DTBConfigManager.config.rightAccessPos
     }
 

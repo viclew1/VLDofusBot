@@ -1,66 +1,42 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
-import fr.lewon.dofus.bot.json.DTBPoint
+import fr.lewon.dofus.bot.game.info.GameInfo
+import fr.lewon.dofus.bot.game.move.Direction
+import fr.lewon.dofus.bot.game.move.MoveHistory
+import fr.lewon.dofus.bot.gui.LogItem
+import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
-import fr.lewon.dofus.bot.ui.LogItem
-import fr.lewon.dofus.bot.util.*
-import java.awt.image.BufferedImage
+import fr.lewon.dofus.bot.sniffer.model.messages.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.store.EventStore
+import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.geometry.PointRelative
+import fr.lewon.dofus.bot.util.io.MouseUtil
 
-abstract class MoveTask(
-    private val direction: Directions,
-    controller: DofusTreasureBotGUIController,
-    parentLogItem: LogItem?
-) :
-    DofusBotTask<Pair<Int, Int>>(controller, parentLogItem) {
+abstract class MoveTask(private val direction: Direction) : DofusBotTask<DofusMap>() {
 
-    override fun onFailed(exception: Exception, logItem: LogItem) {
-        controller.closeLog("KO - ${exception.localizedMessage}", logItem)
+    override fun onSucceeded(value: DofusMap): String {
+        return "OK - [${value.posX},${value.posY}]"
     }
 
-    override fun onSucceeded(value: Pair<Int, Int>, logItem: LogItem) {
-        controller.closeLog("OK - [${value.first},${value.second}]", logItem)
+    override fun onStarted(): String {
+        return "Moving toward [$direction] ..."
     }
 
-    override fun onStarted(parentLogItem: LogItem?): LogItem {
-        return controller.log("Moving toward [$direction] ...", parentLogItem)
-    }
-
-    override fun execute(logItem: LogItem): Pair<Int, Int> {
-        val gameImage: BufferedImage = controller.captureGameImage()
-        val location = GameInfoUtil.getLocation(gameImage) ?: throw Exception("Couldn't get location")
+    override fun execute(logItem: LogItem): DofusMap {
+        val fromMap = GameInfo.currentMap
         val moveDest =
-            DTBConfigManager.config.registeredMoveLocationsByMap["${location.first}_${location.second}"]?.get(direction)
-                ?.let { processMove(location, it) }
-                ?: processMove(location, getMoveDest())
-        moveDest?.let {
-            MovesHistory.addMove(direction)
-            return it
-        }
-        throw Exception("Failed to move toward [$direction] from [$location].")
+            DTBConfigManager.config.moveAccessStore.getAccessPoint(fromMap.id, direction)
+                ?.let { processMove(it) }
+                ?: processMove(getMoveDest())
+        MoveHistory.addMove(direction, fromMap, moveDest.dofusMap)
+        return moveDest.dofusMap
     }
 
-    private fun processMove(oldLocation: Pair<Int, Int>, moveDest: DTBPoint): Pair<Int, Int>? {
-        val screenBounds = controller.getGameScreen().defaultConfiguration.bounds
-        RobotUtil.click(
-            screenBounds.x + moveDest.first,
-            screenBounds.y + moveDest.second
-        )
-        RobotUtil.move(
-            screenBounds.x + DTBConfigManager.config.mouseRestPos.first,
-            screenBounds.y + DTBConfigManager.config.mouseRestPos.second
-        )
-
-        val startTimeMillis = System.currentTimeMillis()
-        while (System.currentTimeMillis() - startTimeMillis < DTBConfigManager.config.moveTimeout * 1000) {
-            val newLocation = GameInfoUtil.getLocation(controller.captureGameImage())
-            if (newLocation != null && oldLocation != newLocation) {
-                return newLocation
-            }
-        }
-        return null
+    private fun processMove(moveDest: PointRelative): MapComplementaryInformationsDataMessage {
+        MouseUtil.leftClick(moveDest, false, 0)
+        return EventStore.waitForEvent(MapComplementaryInformationsDataMessage::class.java)
     }
 
-    protected abstract fun getMoveDest(): DTBPoint
+    protected abstract fun getMoveDest(): PointRelative
 
 }
