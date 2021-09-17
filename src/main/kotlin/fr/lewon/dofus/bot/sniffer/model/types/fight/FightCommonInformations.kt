@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.sniffer.model.types.fight
 
 import fr.lewon.dofus.bot.sniffer.model.INetworkType
 import fr.lewon.dofus.bot.sniffer.model.TypeManager
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class FightCommonInformations : INetworkType {
 
@@ -15,16 +15,16 @@ class FightCommonInformations : INetworkType {
     override fun deserialize(stream: ByteArrayReader) {
         fightId = stream.readVarShort()
         fightType = stream.readByte().toInt()
-        for (i in 0 until stream.readShort()) {
-            val fightTeam = TypeManager.getInstance<FightTeamInformations>(stream.readShort())
+        for (i in 0 until stream.readUnsignedShort()) {
+            val fightTeam = TypeManager.getInstance<FightTeamInformations>(stream.readUnsignedShort())
             fightTeam.deserialize(stream)
             fightTeams.add(fightTeam)
         }
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             fightTeamsPositions.add(stream.readVarShort())
         }
-        for (i in 0 until stream.readShort()) {
-            val fightOptions = TypeManager.getInstance<FightOptionsInformations>(stream.readShort())
+        for (i in 0 until stream.readUnsignedShort()) {
+            val fightOptions = TypeManager.getInstance<FightOptionsInformations>(stream.readUnsignedShort())
             fightOptions.deserialize(stream)
             fightTeamOptions.add(fightOptions)
         }

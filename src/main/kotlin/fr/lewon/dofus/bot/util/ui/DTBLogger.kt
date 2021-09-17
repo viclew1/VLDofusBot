@@ -22,6 +22,7 @@ object DTBLogger {
 
     @Synchronized
     fun closeLog(message: String, parent: LogItem) {
+        ConsoleLogger.debug(message)
         parent.closeLog(message)
         updateLogs()
     }
@@ -39,6 +40,7 @@ object DTBLogger {
         while (logs.size >= 5) {
             logs.removeAt(0)
         }
+        ConsoleLogger.debug(message)
         updateLogs()
         return newItem
     }

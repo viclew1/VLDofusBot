@@ -37,6 +37,7 @@ object MouseUtil {
     fun leftClick(position: PointAbsolute, shift: Boolean = false, millis: Int = 1000) {
         val robot = Robot()
         robot.mouseMove(position.x, position.y)
+        WaitUtil.sleep(40)
         if (shift) robot.keyPress(KeyEvent.VK_SHIFT)
         robot.mousePress(KeyEvent.BUTTON1_DOWN_MASK)
         robot.mouseRelease(KeyEvent.BUTTON1_DOWN_MASK)

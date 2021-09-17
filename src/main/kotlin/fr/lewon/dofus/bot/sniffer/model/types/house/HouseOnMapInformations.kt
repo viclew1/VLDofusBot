@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.sniffer.model.types.house
 
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class HouseOnMapInformations : HouseInformations() {
 
@@ -9,11 +9,11 @@ class HouseOnMapInformations : HouseInformations() {
 
     override fun deserialize(stream: ByteArrayReader) {
         super.deserialize(stream)
-        val doorsOnMapCount = stream.readShort()
+        val doorsOnMapCount = stream.readUnsignedShort()
         for (i in 0 until doorsOnMapCount) {
             doorsOnMap.add(stream.readInt())
         }
-        val houseInstancesCount = stream.readShort()
+        val houseInstancesCount = stream.readUnsignedShort()
         for (i in 0 until houseInstancesCount) {
             val houseInstance = HouseInstanceInformations()
             houseInstance.deserialize(stream)

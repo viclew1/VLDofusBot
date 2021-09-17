@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.sniffer.model.types.actor.entity
 
 import fr.lewon.dofus.bot.sniffer.model.INetworkType
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class EntityLook : INetworkType {
 
@@ -13,16 +13,16 @@ class EntityLook : INetworkType {
 
     override fun deserialize(stream: ByteArrayReader) {
         bonesId = stream.readVarShort()
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             skins.add(stream.readVarShort())
         }
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             indexedColors.add(stream.readInt())
         }
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             scales.add(stream.readVarShort())
         }
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             val subEntity = SubEntity()
             subEntity.deserialize(stream)
             subEntities.add(subEntity)

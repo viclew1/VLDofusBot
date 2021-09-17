@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.humanoid
 
 import fr.lewon.dofus.bot.sniffer.model.types.actor.ActorAlignmentInformations
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class GameRolePlayCharacterInformations : GameRolePlayHumanoidInformations() {
 

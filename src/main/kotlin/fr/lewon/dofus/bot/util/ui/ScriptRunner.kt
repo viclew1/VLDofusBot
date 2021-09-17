@@ -42,17 +42,18 @@ object ScriptRunner {
     }
 
     private fun onScriptKo(e: Exception) {
-        currentLogItem.closeLog("Execution KO - ${e.localizedMessage}")
+        DTBLogger.closeLog("Execution KO - ${e.localizedMessage}", currentLogItem)
+        e.printStackTrace()
         onScriptEnd(Color.RED)
     }
 
     private fun onScriptCanceled() {
-        currentLogItem.closeLog("Execution canceled")
+        DTBLogger.closeLog("Execution canceled", currentLogItem)
         onScriptEnd(Color.ORANGE)
     }
 
     private fun onScriptOk() {
-        currentLogItem.closeLog("Execution OK")
+        DTBLogger.closeLog("Execution OK", currentLogItem)
         onScriptEnd(Color.GREEN)
     }
 

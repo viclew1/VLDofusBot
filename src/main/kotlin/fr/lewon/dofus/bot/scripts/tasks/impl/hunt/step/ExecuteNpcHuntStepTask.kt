@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToHint
+import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 
 class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToHint) : DofusBotTask<DofusMap>() {
 
@@ -12,7 +13,10 @@ class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
         val moveTask = huntStep.direction.buildMoveTask()
         for (i in 0 until 10) {
             moveTask.run(logItem)
-            if (GameInfo.phorrorOnMap) return GameInfo.currentMap
+            if (TreasureHuntUtil.getTreasureHunt().huntFlags.firstOrNull { it.map == GameInfo.currentMap } == null && GameInfo.phorrorOnMap) {
+                TreasureHuntUtil.tickFlag(TreasureHuntUtil.getTreasureHunt().huntFlags.size)
+                return GameInfo.currentMap
+            }
         }
         error("Couldn't find a phorror")
     }

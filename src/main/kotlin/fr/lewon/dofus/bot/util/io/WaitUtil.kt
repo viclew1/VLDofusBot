@@ -31,7 +31,6 @@ object WaitUtil {
             if (condition.invoke()) {
                 return true
             }
-            sleep(100)
         }
         return false
     }

@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.effect
 
-import fr.lewon.dofus.bot.sniffer.util.BooleanByteWrapper
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.BooleanByteWrapper
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class ObjectEffectMount : ObjectEffect() {
 
@@ -35,12 +35,12 @@ class ObjectEffectMount : ObjectEffect() {
         level = stream.readByte().toInt()
         reproductionCount = stream.readVarInt()
         reproductionCountMax = stream.readVarInt()
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             val effect = ObjectEffectInteger()
             effect.deserialize(stream)
             effects.add(effect)
         }
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             capacities.add(stream.readVarInt())
         }
     }

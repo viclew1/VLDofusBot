@@ -1,26 +1,29 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
+import fr.lewon.dofus.bot.game.info.GameInfo
 import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
+import fr.lewon.dofus.bot.util.io.WaitUtil
 
 class ExecuteHuntTask : DofusBotTask<Boolean>() {
 
     override fun execute(logItem: LogItem): Boolean {
         if (!TreasureHuntUtil.isHuntPresent()) {
-            error("No hunt ongoing")
+            return false
         }
         while (!huntFinished()) {
-            val hunt = TreasureHuntUtil.getTreasureHunt()
-            TreasureHuntUtil.executeStep(hunt.huntSteps.last(), logItem)
-            TreasureHuntUtil.tickFlag(hunt.huntFlags.size)
+            TreasureHuntUtil.executeStep(TreasureHuntUtil.getTreasureHunt().huntSteps.last(), logItem)
         }
-        TreasureHuntUtil.clickSearch()
+        if (GameInfo.treasureHunt != null) {
+            WaitUtil.sleep(300)
+            TreasureHuntUtil.clickSearch()
+        }
         return true
     }
 
     private fun huntFinished(): Boolean {
-        val hunt = TreasureHuntUtil.getTreasureHunt()
+        val hunt = GameInfo.treasureHunt ?: return true
         return hunt.huntFlags.size == hunt.huntSteps.size
     }
 

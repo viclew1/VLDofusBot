@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.sniffer.model
 
-import fr.lewon.dofus.bot.util.filemanagers.DTBSwfScriptManager
+import fr.lewon.dofus.bot.util.filemanagers.DTBDofusTypeManager
 import org.reflections.Reflections
 
 
@@ -15,7 +15,7 @@ object TypeManager {
     }
 
     fun <T : INetworkType> getInstance(id: Int): T {
-        val scriptName = DTBSwfScriptManager.getScriptName(id)
+        val scriptName = DTBDofusTypeManager.getName(id) ?: error("Couldn't find name for id [$id]")
         val refClass = typeByName[scriptName] ?: error("No script found for name [$scriptName]")
         return refClass.getConstructor().newInstance() as T
     }

@@ -64,47 +64,37 @@ object WindowsUtil {
     fun updateGameBounds() {
         val rect = WinDef.RECT()
         User32.INSTANCE.GetWindowRect(getHandle(), rect)
-        val screenBounds = rect.toRectangle()
+        val windowBounds = rect.toRectangle()
         val windowBarHeight = 23
         val maxHeight = 1080 - 23
+
         val dx = 8
         val dyBottom = 8
         val dyTop = 8 + windowBarHeight
-        screenBounds.x += dx
-        screenBounds.width -= 2 * dx
-        screenBounds.y += dyTop
-        screenBounds.height -= dyTop + dyBottom
-        val completeBounds = Rectangle(
-            screenBounds.x,
-            screenBounds.y,
-            screenBounds.width,
-            screenBounds.height
-        )
+
+        var x = windowBounds.x + dx
+        var width = windowBounds.width - 2 * dx
+        var y = windowBounds.y + dyTop
+        var height = windowBounds.height - (dyTop + dyBottom)
+
+        val completeBounds = Rectangle(x, y, width, height)
+        
         val targetRatio = 5f / 4f
-        val ratio = screenBounds.width.toFloat() / screenBounds.height.toFloat()
+        val ratio = width.toFloat() / height.toFloat()
         val keepWidth = ratio < targetRatio
         if (keepWidth) {
-            val height = (screenBounds.width / targetRatio).toInt()
-            screenBounds.y += (screenBounds.height - height) / 2
-            screenBounds.height = height
+            val newHeight = (width / targetRatio).toInt()
+            y += (height - newHeight) / 2
+            height = newHeight
         } else {
-            val width = (screenBounds.height * targetRatio).toInt()
-            screenBounds.x += (screenBounds.width - width) / 2
-            screenBounds.width = width
+            val newWidth = (height * targetRatio).toInt()
+            x += (width - newWidth) / 2
+            width = newWidth
         }
 
-        val fightBoundsRatio = 0.885
-        val fightBounds = Rectangle(
-            screenBounds.x,
-            screenBounds.y,
-            screenBounds.width,
-            (screenBounds.height * fightBoundsRatio).toInt()
-        )
-
         GameInfo.completeBounds = completeBounds
-        GameInfo.sizeRatio = screenBounds.height.toFloat() / maxHeight
-        GameInfo.bounds = screenBounds
-        GameInfo.fightBounds = fightBounds
+        GameInfo.sizeRatio = height.toFloat() / maxHeight
+        GameInfo.bounds = Rectangle(x, y, width, height)
     }
 
     fun findServerIp(): String {

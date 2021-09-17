@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.sniffer.model.types.element
 
 import fr.lewon.dofus.bot.sniffer.model.INetworkType
 import fr.lewon.dofus.bot.sniffer.model.TypeManager
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 open class InteractiveElement : INetworkType {
 
@@ -15,13 +15,13 @@ open class InteractiveElement : INetworkType {
     override fun deserialize(stream: ByteArrayReader) {
         elementId = stream.readInt()
         elementTypeId = stream.readInt()
-        for (i in 0 until stream.readShort()) {
-            val elementSkill = TypeManager.getInstance<InteractiveElementSkill>(stream.readShort())
+        for (i in 0 until stream.readUnsignedShort()) {
+            val elementSkill = TypeManager.getInstance<InteractiveElementSkill>(stream.readUnsignedShort())
             elementSkill.deserialize(stream)
             enabledSkills.add(elementSkill)
         }
-        for (i in 0 until stream.readShort()) {
-            val elementSkill = TypeManager.getInstance<InteractiveElementSkill>(stream.readShort())
+        for (i in 0 until stream.readUnsignedShort()) {
+            val elementSkill = TypeManager.getInstance<InteractiveElementSkill>(stream.readUnsignedShort())
             elementSkill.deserialize(stream)
             disabledSkills.add(elementSkill)
         }

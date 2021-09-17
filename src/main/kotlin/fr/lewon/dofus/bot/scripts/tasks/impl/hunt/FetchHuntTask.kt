@@ -1,10 +1,11 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
+import fr.lewon.dofus.bot.game.info.GameInfo
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
 import fr.lewon.dofus.bot.gui.LogItem
-import fr.lewon.dofus.bot.model.maps.DofusCoordinate
+import fr.lewon.dofus.bot.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.CustomMoveTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.CustomMoveTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ZaapTowardTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
@@ -28,11 +29,12 @@ class FetchHuntTask : DofusBotTask<Boolean>() {
     }
 
     override fun execute(logItem: LogItem): Boolean {
+        GameInfo.treasureHunt = null
         if (TreasureHuntUtil.isHuntPresent()) {
             return true
         }
         ZaapTowardTask(Zaap.CANIA_CHAMPS_CANIA).run(logItem)
-        TravelTask(DofusCoordinate(-24, -36)).run(logItem)
+        TravelTask(DofusCoordinates(-24, -36)).run(logItem)
         CustomMoveTask(HUNT_MALL_ENTER_POINT_1).run(logItem)
         CustomMoveTask(HUNT_MALL_ENTER_POINT_2).run(logItem)
         WaitUtil.sleep(2000)
@@ -40,9 +42,9 @@ class FetchHuntTask : DofusBotTask<Boolean>() {
         ScreenUtil.waitForColor(HUNT_SEEK_OPTION_POINT, HUNT_SEEK_OPTION_MIN_COLOR, HUNT_SEEK_OPTION_MAX_COLOR)
         MouseUtil.leftClick(HUNT_SEEK_OPTION_POINT, false, 0)
         WaitUtil.waitUntil({ TreasureHuntUtil.isHuntPresent() })
+        TreasureHuntUtil.updatePoints()
         CustomMoveTask(HUNT_MALL_EXIT_POINT_1).run(logItem)
         CustomMoveTask(HUNT_MALL_EXIT_POINT_2).run(logItem)
-        RefreshHuntTask().run(logItem)
         return true
     }
 

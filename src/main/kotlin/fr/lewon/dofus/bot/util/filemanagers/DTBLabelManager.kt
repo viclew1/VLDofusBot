@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 import java.io.File
 
 object DTBLabelManager {
@@ -104,7 +104,7 @@ object DTBLabelManager {
         val unDiacriticalIndex = HashMap<Int, Int>()
         var keyCount = 0
         var textCount = 0
-        d2iStream.position = d2iStream.readInt()
+        d2iStream.setPosition(d2iStream.readInt())
         var indexesLength = d2iStream.readInt()
         var i = 0
         while (i < indexesLength) {
@@ -125,12 +125,13 @@ object DTBLabelManager {
 
         indexesLength = d2iStream.readInt()
         while (indexesLength > 0) {
-            val position = d2iStream.position
-            val textKey = d2iStream.readUTF()
+            val strLen = d2iStream.readUnsignedShort()
+            val textKey = d2iStream.readString(strLen)
             val pointer = d2iStream.readInt()
+            val sz = 2 + strLen + 4
             textCount++
             textIndexes[textKey] = pointer
-            indexesLength -= (d2iStream.position - position)
+            indexesLength -= sz
         }
     }
 
@@ -147,18 +148,18 @@ object DTBLabelManager {
 
     fun getLabel(key: Int): String {
         val pointer = indexes[key] ?: error("Couldn't find resource with id : $key")
-        d2iStream.position = pointer
+        d2iStream.setPosition(pointer)
         return d2iStream.readUTF()
     }
 
     fun getLabel(textKey: String): String {
         val pointer = textIndexes[textKey] ?: error("Couldn't find resource with id : $textKey")
-        d2iStream.position = pointer
+        d2iStream.setPosition(pointer)
         return d2iStream.readUTF()
     }
 
     fun getHintLabel(hintLabelId: Int): String {
-        val key = hintNameIdById[hintLabelId] ?: error("Unknown hint label id : $hintLabelId")
+        val key = hintNameIdById[hintLabelId] ?: return "???"
         return getLabel(key)
     }
 

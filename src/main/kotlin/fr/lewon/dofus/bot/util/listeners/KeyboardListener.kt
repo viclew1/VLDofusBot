@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.util.listeners
 
-import fr.lewon.dofus.bot.util.ui.Debugger
 import fr.lewon.dofus.bot.util.ui.ScriptRunner
 import org.jnativehook.GlobalScreen
 import org.jnativehook.dispatcher.SwingDispatchService
@@ -29,7 +28,6 @@ object KeyboardListener : Thread(), NativeKeyListener {
         keysPressed[e.keyCode] = true
         if (keysPressed[NativeKeyEvent.VC_C] == true && keysPressed[NativeKeyEvent.VC_CONTROL] == true) {
             ScriptRunner.stopScript()
-            Debugger.debug("Script stopped")
         }
     }
 

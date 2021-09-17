@@ -294,7 +294,8 @@ class CharacterFormAiTab(
         return RangeSpellCombination(
             losAttacksKeysTextField.text,
             losAttacksMinRangeTextField.text.toInt(),
-            losAttacksMaxRangeTextField.text.toInt()
+            losAttacksMaxRangeTextField.text.toInt(),
+            0
         )
     }
 
@@ -302,7 +303,8 @@ class CharacterFormAiTab(
         return RangeSpellCombination(
             nonLosAttacksKeysTextField.text,
             nonLosAttacksMinRangeTextField.text.toInt(),
-            nonLosAttacksMaxRangeTextField.text.toInt()
+            nonLosAttacksMaxRangeTextField.text.toInt(),
+            0
         )
     }
 
@@ -318,7 +320,8 @@ class CharacterFormAiTab(
         return RangeSpellCombination(
             gapCloserKeysTextField.text,
             gapCloserMinRangeTextField.text.toInt(),
-            gapCloserMaxRangeTextField.text.toInt()
+            gapCloserMaxRangeTextField.text.toInt(),
+            0
         )
     }
 

@@ -1,18 +1,13 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.model.maps.DofusCoordinate
+import fr.lewon.dofus.bot.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 
-interface ITransporter {
+interface ITransporter : ITravelElement {
 
-    fun getTargetCoordinates(): DofusCoordinate
-
+    fun getTransporterCoordinates(): DofusCoordinates
     fun getClosestZaap(): Zaap
-
-    fun getTransporterCoordinates(): DofusCoordinate
-
     fun getNpcPointRelative(): PointRelative
-
     fun getOptionPointRelative(): PointRelative
 
 }

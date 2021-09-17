@@ -1,74 +1,40 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.game.move.Direction
 import fr.lewon.dofus.bot.model.hint.Hint
-import fr.lewon.dofus.bot.model.hint.HintsByMapWithDirection
 import fr.lewon.dofus.bot.model.hint.MoveHints
 import fr.lewon.dofus.bot.model.hint.PhorrorHint
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.model.maps.DofusMapWithDirection
 import fr.lewon.dofus.bot.util.DTBRequestProcessor
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStreamWriter
-import java.nio.charset.StandardCharsets
+import fr.lewon.dofus.bot.util.math.LevenshteinDistanceUtil
 
 object DTBHintManager {
 
-    private val hints: HintsByMapWithDirection
-    private val hintsIdsByName: HashMap<String, Int>
-
-    private val hintsFile: File = File("config/hints")
-    private val hintsIdsByNameFile: File = File("config/hintsIdsByName")
+    private val hints = HashMap<DofusMapWithDirection, ArrayList<Hint>>()
+    private val hintsIdsByName = DTBRequestProcessor.getAllHintIdsByName()
 
     init {
-        if (hintsFile.exists() && hintsIdsByNameFile.exists()) {
-            hints = ObjectMapper().readValue(hintsFile)
-            hintsIdsByName = ObjectMapper().readValue(hintsIdsByNameFile)
-        } else {
-            hints = HintsByMapWithDirection()
-            hintsIdsByName = DTBRequestProcessor.getAllHintIdsByName()
-            hintsIdsByName[PhorrorHint.name] = PhorrorHint.id
-            saveHints()
-            saveHintsIdsByName()
-        }
+        hintsIdsByName[PhorrorHint.name] = PhorrorHint.id
     }
 
-
-    fun editHints(function: (HintsByMapWithDirection) -> Unit) {
-        function.invoke(hints)
-        saveHints()
-    }
-
-    private fun saveHints() {
-        save(hintsFile, hints)
-    }
-
-    private fun saveHintsIdsByName() {
-        save(hintsIdsByNameFile, hintsIdsByName)
-    }
-
-    private fun save(file: File, content: Any) {
-        with(OutputStreamWriter(FileOutputStream(file, false), StandardCharsets.UTF_8)) {
-            write(ObjectMapper().writeValueAsString(content))
-            close()
-        }
-    }
 
     fun getHint(map: DofusMap, direction: Direction, hintLabel: String): Hint? {
-        val hintId = hintsIdsByName[hintLabel] ?: error("Couldn't find id for hint [$hintLabel]")
+        var hintId = hintsIdsByName[hintLabel]
+        if (hintId == null) {
+            val closestLabel = LevenshteinDistanceUtil.getClosestString(hintLabel, hintsIdsByName.keys.toList())
+            hintId = hintsIdsByName[closestLabel]
+        }
+        hintId ?: error("Couldn't find id for hint [$hintLabel]")
         return getHint(map, direction, hintId)
     }
+
 
     fun getHint(map: DofusMap, direction: Direction, hintId: Int): Hint? {
         val mapWithDirection = DofusMapWithDirection(map, direction)
         var hints = getHints(mapWithDirection)
         if (hints == null) {
             synchronize(map)
-            saveHints()
-            saveHintsIdsByName()
             hints = getHints(mapWithDirection)
         }
         return hints?.firstOrNull { hintId == it.n }
@@ -80,7 +46,7 @@ object DTBHintManager {
 
     private fun synchronize(map: DofusMap) {
         for (dir in Direction.values()) {
-            val hintsByDirection = DTBRequestProcessor.getHints(map.posX, map.posY, dir, map.worldMap) ?: continue
+            val hintsByDirection = DTBRequestProcessor.getHints(map.posX, map.posY, dir, map.worldMap)
             synchronize(map, dir, hintsByDirection)
         }
     }

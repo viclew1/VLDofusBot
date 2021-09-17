@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
 import fr.lewon.dofus.bot.model.maps.DofusMap
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 import java.io.File
 
 object DTBDofusMapManager {

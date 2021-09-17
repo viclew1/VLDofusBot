@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc
 
 import fr.lewon.dofus.bot.sniffer.model.INetworkType
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class GameRolePlayNpcQuestFlag : INetworkType {
 
@@ -9,10 +9,10 @@ class GameRolePlayNpcQuestFlag : INetworkType {
     var questsToStartId = ArrayList<Int>()
 
     override fun deserialize(stream: ByteArrayReader) {
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             questsToValidId.add(stream.readVarShort())
         }
-        for (i in 0 until stream.readShort()) {
+        for (i in 0 until stream.readUnsignedShort()) {
             questsToStartId.add(stream.readVarShort())
         }
     }

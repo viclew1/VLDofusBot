@@ -13,20 +13,11 @@ object KeyboardUtil {
      * @param keyEvent - Integer representing the key to press.
      * @param time - Time to wait after the key press.
      */
-    fun sendKey(keyEvent: Int, time: Int) {
+    fun sendKey(keyEvent: Int, time: Int = 100) {
         val robot = Robot()
         robot.keyPress(keyEvent)
         robot.keyRelease(keyEvent)
         WaitUtil.sleep(time)
-    }
-
-    /**
-     * Simulates a key press on the keyboard and wait for 100 ms after the key press.
-     * This is the same as `sendKey(keyEvent, 100)`.
-     * @param keyEvent - Integer representing the key to press.
-     */
-    fun sendKey(keyEvent: Int) {
-        sendKey(keyEvent, 100)
     }
 
     /**
@@ -36,25 +27,15 @@ object KeyboardUtil {
      * @param text - Text to write.
      * @param time - Time to wait after pasting.
      */
-    fun writeKeyboard(text: String, time: Int) {
+    fun writeKeyboard(text: String, time: Int = 500) {
         val robot = Robot()
         setClipboard(text)
+        WaitUtil.sleep(100)
         robot.keyPress(KeyEvent.VK_CONTROL)
         robot.keyPress(KeyEvent.VK_V)
         robot.keyRelease(KeyEvent.VK_V)
         robot.keyRelease(KeyEvent.VK_CONTROL)
         WaitUtil.sleep(time)
-    }
-
-    /**
-     * Simulates key press on the keyboard and wait for 500 ms after pasting.<br></br><br></br>
-     * This is the same as `sendKey(keyEvent, 500)`.
-     * This method actually copy the string in the clipboard and paste it where the cursor is.
-     * It is faster than pressing all the letters one by one.
-     * @param text - Text to write.
-     */
-    fun writeKeyboard(text: String) {
-        writeKeyboard(text, 500)
     }
 
     /**

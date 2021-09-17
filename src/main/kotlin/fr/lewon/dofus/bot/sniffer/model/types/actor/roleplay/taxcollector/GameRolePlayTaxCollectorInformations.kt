@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.taxcollector
 
 import fr.lewon.dofus.bot.sniffer.model.TypeManager
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.GameRolePlayActorInformations
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 class GameRolePlayTaxCollectorInformations : GameRolePlayActorInformations() {
 
@@ -12,7 +12,7 @@ class GameRolePlayTaxCollectorInformations : GameRolePlayActorInformations() {
 
     override fun deserialize(stream: ByteArrayReader) {
         super.deserialize(stream)
-        identification = TypeManager.getInstance(stream.readShort())
+        identification = TypeManager.getInstance(stream.readUnsignedShort())
         identification.deserialize(stream)
         guildLevel = stream.readByte().toUByte().toInt()
         taxCollectorAttack = stream.readInt()

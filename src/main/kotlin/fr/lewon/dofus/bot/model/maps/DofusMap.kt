@@ -9,8 +9,8 @@ data class DofusMap(
     var posX: Int = -1,
     var posY: Int = -1
 ) {
-    fun getCoordinate(): DofusCoordinate {
-        return DofusCoordinate(posX, posY)
+    fun getCoordinates(): DofusCoordinates {
+        return DofusCoordinates(posX, posY)
     }
 
     fun isAltWorld(): Boolean {

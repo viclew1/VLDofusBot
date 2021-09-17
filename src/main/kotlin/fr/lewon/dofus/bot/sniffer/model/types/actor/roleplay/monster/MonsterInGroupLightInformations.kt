@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster
 
 import fr.lewon.dofus.bot.sniffer.model.INetworkType
-import fr.lewon.dofus.bot.sniffer.util.ByteArrayReader
+import fr.lewon.dofus.bot.util.io.stream.ByteArrayReader
 
 open class MonsterInGroupLightInformations : INetworkType {
 
@@ -12,6 +12,6 @@ open class MonsterInGroupLightInformations : INetworkType {
     override fun deserialize(stream: ByteArrayReader) {
         genericId = stream.readInt()
         grade = stream.readByte().toInt()
-        level = stream.readShort()
+        level = stream.readUnsignedShort()
     }
 }

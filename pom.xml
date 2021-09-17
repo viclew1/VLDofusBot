@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.lewon</groupId>
-    <artifactId>DofusTreasureBot</artifactId>
+    <artifactId>VLDofusBot</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
     <version>1.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <kotlin.version>1.3.61</kotlin.version>
+        <kotlin.version>1.4.10</kotlin.version>
         <java.version>1.8</java.version>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -20,18 +20,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot</artifactId>
-            <scope>compile</scope>
-            <version>2.2.4.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.2.4.RELEASE</version>
-        </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
@@ -101,6 +89,18 @@
             <artifactId>jnativehook</artifactId>
             <version>2.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.9</version>
+        </dependency>
+
 
     </dependencies>
 

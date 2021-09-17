@@ -6,10 +6,10 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.RefreshHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.ui.Debugger
+import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.ui.DTBLogger
 
 object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
@@ -59,30 +59,37 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
     override fun execute(logItem: LogItem?) {
         clearStats()
         var successCount = 0
+
+        if (TreasureHuntUtil.isFightStep()) {
+            TreasureHuntUtil.fight(logItem)
+        }
+
         for (i in 0 until huntCountParameter.value.toInt()) {
             if (!TreasureHuntUtil.isHuntPresent()) {
-                Debugger.debug("Fetching new hunt")
                 FetchHuntTask().run(logItem)
-            } else {
-                Debugger.debug("Refreshing current hunt")
-                RefreshHuntTask().run(logItem)
             }
+
             val startTimeStamp = System.currentTimeMillis()
-            ReachMapTask(TreasureHuntUtil.getTreasureHunt().startMap).run(logItem)
-            if (executeHunt(logItem)) {
-                successCount++
+
+            var success = true
+            while (TreasureHuntUtil.isHuntPresent()) {
+                TreasureHuntUtil.refreshHuntIfNeeded(logItem)
+                ReachMapTask(TreasureHuntUtil.getLastHintMap()).run(logItem)
+                success = ExecuteHuntTask().run(logItem)
+                WaitUtil.sleep(300)
             }
+
             val duration = System.currentTimeMillis() - startTimeStamp
             updateStats(duration, successCount, i + 1)
-        }
-    }
 
-    private fun executeHunt(logItem: LogItem?): Boolean {
-        return try {
-            ExecuteHuntTask().run(logItem)
-            true
-        } catch (e: Exception) {
-            false
+            if (success) {
+                DTBLogger.log("Hunt succeeded")
+                successCount++
+            } else {
+                DTBLogger.log("Hunt failed")
+                WaitUtil.sleep(600 * 1000 - duration)
+                TreasureHuntUtil.giveUpHunt()
+            }
         }
     }
 

@@ -4,10 +4,15 @@ import fr.lewon.dofus.bot.game.info.GameInfo
 import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
+import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
+import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import net.sourceforge.tess4j.Tesseract
-import java.awt.*
+import java.awt.Color
+import java.awt.GraphicsEnvironment
+import java.awt.Rectangle
+import java.awt.Robot
 import java.awt.image.BufferedImage
-import java.util.*
+
 
 object ScreenUtil {
 
@@ -17,8 +22,16 @@ object ScreenUtil {
      * @return Color of the pixel.
      */
     fun getPixelColor(point: PointAbsolute): Color {
-        val robot = Robot()
-        return robot.getPixelColor(point.x, point.y)
+        return Robot().getPixelColor(point.x, point.y)
+    }
+
+    /**
+     * Returns the color of the pixel at a given location.
+     * @param point - Location of the pixel on the screen in simple coordinates.
+     * @return Color of the pixel.
+     */
+    fun getPixelColor(point: PointAbsolute, fullScreenshot: BufferedImage): Color {
+        return Color(fullScreenshot.getRGB(point.x, point.y))
     }
 
     /**
@@ -26,69 +39,8 @@ object ScreenUtil {
      * @param point - Location of the pixel on the screen in draughtboard coordinates.
      * @return Color of the pixel.
      */
-    fun getPixelColor(point: PointRelative): Color {
-        return getPixelColor(ConverterUtil.toPointAbsolute(point))
-    }
-
-    /**
-     * Performs a pixel research for a given area.
-     * @param topLeftHandCorner - Top left hand corner of the research area in relative coordinates.
-     * @param bottomRightHandCorner - Bottom left hand corner of the research area in relative coordinates.
-     * @param min - Minimum color.
-     * @param max - Maximum color.
-     * @return Location of the first pixel matching the color criteria in relative coordinates. `null` if no pixel match the research criteria.
-     */
-    fun searchPixel(
-        topLeftHandCorner: PointRelative,
-        bottomRightHandCorner: PointRelative,
-        min: Color,
-        max: Color
-    ): PointRelative? {
-        val point1 = ConverterUtil.toPointAbsolute(topLeftHandCorner)
-        val point2 = ConverterUtil.toPointAbsolute(bottomRightHandCorner)
-        var color: Color
-        var point: PointAbsolute
-        for (y in point1.y..point2.y) {
-            for (x in point1.x..point2.x) {
-                point = PointAbsolute(x, y)
-                color = getPixelColor(point)
-                if (isBetween(color, min, max)) {
-                    return ConverterUtil.toPointRelative(point)
-                }
-            }
-        }
-        return null
-    }
-
-    /**
-     * Performs a pixel research for a given area.
-     * @param topLeftHandCorner - Top left hand corner of the research area in relative coordinates.
-     * @param bottomRightHandCorner - Bottom left hand corner of the research area in relative coordinates.
-     * @param min - Minimum color.
-     * @param max - Maximum color.
-     * @return List of pixels matching the color criteria in relative coordinates. `null` if no pixel match the research criteria.
-     */
-    fun searchPixels(
-        topLeftHandCorner: PointRelative,
-        bottomRightHandCorner: PointRelative,
-        min: Color,
-        max: Color
-    ): ArrayList<PointRelative> {
-        val point1 = ConverterUtil.toPointAbsolute(topLeftHandCorner)
-        val point2 = ConverterUtil.toPointAbsolute(bottomRightHandCorner)
-        val points = ArrayList<PointRelative>()
-        var color: Color
-        var point: PointAbsolute
-        for (y in point1.y..point2.y) {
-            for (x in point1.x..point2.x) {
-                point = PointAbsolute(x, y)
-                color = getPixelColor(point)
-                if (isBetween(color, min, max)) {
-                    points.add(ConverterUtil.toPointRelative(point))
-                }
-            }
-        }
-        return points
+    fun getPixelColor(point: PointRelative, fullScreenshot: BufferedImage = takeFullScreenshot()): Color {
+        return getPixelColor(ConverterUtil.toPointAbsolute(point), fullScreenshot)
     }
 
     /**
@@ -96,18 +48,21 @@ object ScreenUtil {
      * @param rectangle - Screenshot area in simple coordinates.
      * @return Screenshot of the rectangle area.
      */
-    fun takeScreenshot(rectangle: Rectangle): BufferedImage {
+    fun takeScreenshot(rectangle: Rectangle = GameInfo.completeBounds): BufferedImage {
         val robot = Robot()
         return robot.createScreenCapture(rectangle)
     }
 
     /**
-     * Performs a screenshot for the game frame area.
-     * @param rectangle - Screenshot area in simple coordinates.
-     * @return Screenshot of the game frame area.
+     * Performs a screenshot of the whole screen
+     * @return Screenshot as BufferedImage
      */
-    fun takeScreenshot(): BufferedImage {
-        return takeScreenshot(GameInfo.completeBounds)
+    fun takeFullScreenshot(): BufferedImage {
+        var screenRect = Rectangle(0, 0, 0, 0)
+        for (gd in GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices) {
+            screenRect = screenRect.union(gd.defaultConfiguration.bounds)
+        }
+        return Robot().createScreenCapture(screenRect)
     }
 
     /**
@@ -252,32 +207,6 @@ object ScreenUtil {
     }
 
     /**
-     * Waits for a pixel to change color.
-     * @param point - Location of the pixel in simple coordinates.
-     * @param timeOut - Time in ms before timeout.
-     * @return New color of the pixel, `null` if timeout.
-     */
-    fun waitForChangingPixel(point: PointAbsolute, timeOut: Int): Color {
-        var newColor: Color
-        val color: Color = getPixelColor(point)
-        do {
-            newColor = getPixelColor(point)
-            WaitUtil.sleep(100)
-        } while (color == newColor)
-        return newColor
-    }
-
-    /**
-     * Waits for a pixel to change color.
-     * @param point - Location of the pixel in relative coordinates.
-     * @param timeOut - Time in ms before timeout.
-     * @return New color of the pixel, `null` if timeout.
-     */
-    fun waitForChangingPixel(point: PointRelative, timeOut: Int): Color {
-        return waitForChangingPixel(ConverterUtil.toPointAbsolute(point), timeOut)
-    }
-
-    /**
      * Waits for a pixel to be in a given interval of color.
      * @param point - Location of the pixel in simple coordinates.
      * @param min - Minimum color.
@@ -307,4 +236,80 @@ object ScreenUtil {
         return waitForColor(ConverterUtil.toPointAbsolute(point), min, max, timeOut)
     }
 
+    /**
+     * Counts the amount of pixels corresponding to any of the given colors in the given rectangle
+     * @param bounds - Rectangle in which colors will be searched.
+     * @param colors - List of colors RGB
+     * @return Amount of pixels with given color
+     */
+    fun colorCount(
+        bounds: RectangleRelative,
+        colors: List<Int>,
+        fullScreenshot: BufferedImage = takeFullScreenshot()
+    ): Int {
+        return colorCount(ConverterUtil.toRectangleAbsolute(bounds), colors, fullScreenshot)
+    }
+
+    /**
+     * Counts the amount of pixels corresponding to any of the given colors in the given rectangle
+     * @param bounds - Rectangle in which colors will be searched.
+     * @param colors - List of colors RGB
+     * @return Amount of pixels with given color
+     */
+    fun colorCount(
+        bounds: RectangleAbsolute,
+        colors: List<Int>,
+        fullScreenshot: BufferedImage = takeFullScreenshot()
+    ): Int {
+        return colorCount(bounds, fullScreenshot) { colors.contains(it.rgb) }
+    }
+
+    /**
+     * Counts the amount of pixels corresponding to any of the given colors in the given rectangle
+     * @param bounds - Rectangle in which colors will be searched.
+     * @param min - Minimum color.
+     * @param max - Maximum color.
+     * @return Amount of pixels with given color
+     */
+    fun colorCount(
+        bounds: RectangleRelative,
+        min: Color,
+        max: Color,
+        fullScreenshot: BufferedImage = takeFullScreenshot()
+    ): Int {
+        return colorCount(ConverterUtil.toRectangleAbsolute(bounds), min, max, fullScreenshot)
+    }
+
+    /**
+     * Counts the amount of pixels corresponding to any of the given colors in the given rectangle
+     * @param bounds - Rectangle in which colors will be searched.
+     * @param min - Minimum color.
+     * @param max - Maximum color.
+     * @return Amount of pixels with given color
+     */
+    fun colorCount(
+        bounds: RectangleAbsolute,
+        min: Color,
+        max: Color,
+        fullScreenshot: BufferedImage = takeFullScreenshot()
+    ): Int {
+        return colorCount(bounds, fullScreenshot) { isBetween(it, min, max) }
+    }
+
+    private fun colorCount(
+        bounds: RectangleAbsolute,
+        fullScreenshot: BufferedImage = takeFullScreenshot(),
+        acceptColorCondition: (Color) -> Boolean
+    ): Int {
+        var cpt = 0
+        for (x in bounds.x until bounds.x + bounds.width) {
+            for (y in bounds.y until bounds.y + bounds.height) {
+                val color = getPixelColor(PointAbsolute(x, y), fullScreenshot)
+                if (acceptColorCondition.invoke(color)) {
+                    cpt++
+                }
+            }
+        }
+        return cpt
+    }
 }
