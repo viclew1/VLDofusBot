@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.game.fight.FighterCharacteristic
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicDetailed
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
-import fr.lewon.dofus.bot.util.filemanagers.DTBCharacteristicManager
+import fr.lewon.dofus.bot.util.d2o.CharacteristicManager
 
 object CharacteristicUtil {
 
@@ -21,7 +21,7 @@ object CharacteristicUtil {
         characsById: Map<Int, CharacterCharacteristic>
     ): Int? {
         val keyword = fighterCharacteristic.keyword
-        val characId = DTBCharacteristicManager.getCharacteristicId(keyword)
+        val characId = CharacteristicManager.getCharacteristicId(keyword)
         val charac = characsById[characId] ?: return null
         return getCharacteristicValue(charac)
     }

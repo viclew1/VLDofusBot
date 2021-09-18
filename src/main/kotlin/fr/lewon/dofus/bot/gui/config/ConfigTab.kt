@@ -4,8 +4,8 @@ import fr.lewon.dofus.bot.gui.MainFrame
 import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.ui.ConsoleLogger
-import fr.lewon.dofus.bot.util.ui.LogLevel
+import fr.lewon.dofus.bot.util.logs.LogLevel
+import fr.lewon.dofus.bot.util.logs.VldbLogger
 import net.miginfocom.swing.MigLayout
 import javax.swing.*
 
@@ -76,7 +76,7 @@ object ConfigTab : JPanel(MigLayout()) {
 
     private fun updateLogLevel(logLevel: LogLevel) {
         DTBConfigManager.editConfig { it.logLevel = logLevel.name }
-        ConsoleLogger.minLogLevel = logLevel
+        VldbLogger.minLogLevel = logLevel
     }
 
     private fun addLine(leftComponent: JComponent, rightComponent: JComponent, separator: Boolean = true) {

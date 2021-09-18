@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.scripts.impl
 
-import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
@@ -9,7 +8,8 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.ui.DTBLogger
+import fr.lewon.dofus.bot.util.logs.LogItem
+import fr.lewon.dofus.bot.util.logs.VldbLogger
 
 object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
@@ -83,10 +83,10 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
             updateStats(duration, successCount, i + 1)
 
             if (success) {
-                DTBLogger.log("Hunt succeeded")
+                VldbLogger.log("Hunt succeeded")
                 successCount++
             } else {
-                DTBLogger.log("Hunt failed")
+                VldbLogger.log("Hunt failed")
                 WaitUtil.sleep(600 * 1000 - duration)
                 TreasureHuntUtil.giveUpHunt()
             }

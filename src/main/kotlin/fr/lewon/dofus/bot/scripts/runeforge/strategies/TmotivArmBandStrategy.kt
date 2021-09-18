@@ -25,7 +25,7 @@ class TmotivArmBandStrategy : RuneForgeStrategy() {
             DofusCharacteristic.EARTH_DAMAGE,
             DofusCharacteristic.AIR_DAMAGE
         ).map { runeForgeLines[it] ?: error("No ${it.caracName} line found") }
-            .minBy { it.current } ?: error("Couldn't find line to upgrade")
+            .minByOrNull { it.current } ?: error("Couldn't find line to upgrade")
         if (lowestDamage.current < 5) {
             return Pair(0, lowestDamage.charac)
         }

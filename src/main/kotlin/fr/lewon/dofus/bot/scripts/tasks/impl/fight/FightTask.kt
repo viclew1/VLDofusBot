@@ -1,8 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
+import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.fight.*
-import fr.lewon.dofus.bot.game.info.GameInfo
-import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.gui.characters.form.ai.BuffSpellCombination
 import fr.lewon.dofus.bot.gui.characters.form.ai.RangeSpellCombination
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -25,6 +24,7 @@ import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.logs.LogItem
 import java.awt.event.KeyEvent
 
 class FightTask : DofusBotTask<Boolean>() {
@@ -80,7 +80,7 @@ class FightTask : DofusBotTask<Boolean>() {
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
         fightBoard.startCells
-            .minBy { fightBoard.getPathLength(it, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE }
+            .minByOrNull { fightBoard.getPathLength(it, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE }
             ?.takeIf { it != playerFighter.fightCell }
             ?.let { MouseUtil.leftClick(it.getCenter()) }
 

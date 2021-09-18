@@ -1,7 +1,5 @@
 package fr.lewon.dofus.bot.model.characters
 
-import fr.lewon.dofus.bot.game.classes.DofusClass
-
 data class DofusCharacter(
     var login: String = "",
     var password: String = "",

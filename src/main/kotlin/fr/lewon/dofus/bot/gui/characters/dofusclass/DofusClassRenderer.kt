@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.gui.characters.dofusclass
 
-import fr.lewon.dofus.bot.game.classes.DofusClass
 import fr.lewon.dofus.bot.gui.util.ImageUtil
+import fr.lewon.dofus.bot.model.characters.DofusClass
 import java.awt.Component
 import javax.swing.ImageIcon
 import javax.swing.JLabel

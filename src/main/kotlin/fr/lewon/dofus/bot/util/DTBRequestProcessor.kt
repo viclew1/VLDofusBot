@@ -3,8 +3,8 @@ package fr.lewon.dofus.bot.util
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import fr.lewon.dofus.bot.game.move.Direction
 import fr.lewon.dofus.bot.model.hint.MoveHints
+import fr.lewon.dofus.bot.model.move.Direction
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -35,7 +35,7 @@ object DTBRequestProcessor {
 
     fun getHints(x: Int, y: Int, direction: Direction, world: Int): MoveHints {
         val w = if (world == 1) 0 else 2
-        return getForObject("/huntTool/getData.php?x=$x&y=$y&direction=${direction.name.toLowerCase()}&world=$w&language=fr")
+        return getForObject("/huntTool/getData.php?x=$x&y=$y&direction=${direction.name.lowercase()}&world=$w&language=fr")
     }
 
     @Synchronized

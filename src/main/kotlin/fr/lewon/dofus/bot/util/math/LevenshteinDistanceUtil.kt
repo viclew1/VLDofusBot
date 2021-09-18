@@ -5,7 +5,7 @@ object LevenshteinDistanceUtil {
     fun getClosestString(ref: String, choices: Collection<String>): String {
         return choices
             .map { it to computeDistance(ref, it) }
-            .minBy { it.second }
+            .minByOrNull { it.second }
             ?.first ?: "?"
     }
 
@@ -24,7 +24,7 @@ object LevenshteinDistanceUtil {
                     distance[i - 1][j] + 1,
                     distance[i][j - 1] + 1,
                     distance[i - 1][j - 1] + if (lhs[i - 1] == rhs[j - 1]) 0 else 1
-                ).min() ?: -1
+                ).minOrNull() ?: -1
             }
         }
         return distance[lhs.length][rhs.length]

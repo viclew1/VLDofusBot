@@ -1,14 +1,14 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
-import fr.lewon.dofus.bot.game.info.GameInfo
-import fr.lewon.dofus.bot.game.move.Direction
+import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.MoveHistory
-import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.model.maps.DofusMap
+import fr.lewon.dofus.bot.model.move.Direction
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
+import fr.lewon.dofus.bot.util.logs.LogItem
 
 abstract class MoveTask(private val direction: Direction) : DofusBotTask<DofusMap>() {
 
@@ -22,12 +22,11 @@ abstract class MoveTask(private val direction: Direction) : DofusBotTask<DofusMa
 
     override fun execute(logItem: LogItem): DofusMap {
         val fromMap = GameInfo.currentMap
-        val moveDest =
-            DTBConfigManager.config.moveAccessStore.getAccessPoint(fromMap.id, direction)
-                ?.let { MoveUtil.processMove(it) }
-                ?: MoveUtil.processMove(getMoveDest())
-        MoveHistory.addMove(direction, fromMap, moveDest.dofusMap)
-        return moveDest.dofusMap
+        val moveDest = DTBConfigManager.config.moveAccessStore.getAccessPoint(fromMap.id, direction)
+            ?.let { MoveUtil.processMove(it) }
+            ?: MoveUtil.processMove(getMoveDest())
+        MoveHistory.addMove(direction, fromMap, moveDest.map)
+        return moveDest.map
     }
 
     protected abstract fun getMoveDest(): PointRelative

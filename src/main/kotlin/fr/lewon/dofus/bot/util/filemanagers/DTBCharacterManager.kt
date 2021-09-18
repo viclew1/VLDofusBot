@@ -3,10 +3,10 @@ package fr.lewon.dofus.bot.util.filemanagers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import fr.lewon.dofus.bot.game.classes.DofusClass
 import fr.lewon.dofus.bot.gui.MainPanel
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.model.characters.MapInformation
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter

@@ -1,11 +1,10 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
-import fr.lewon.dofus.bot.game.move.Direction
 import fr.lewon.dofus.bot.model.hint.Hint
 import fr.lewon.dofus.bot.model.hint.MoveHints
-import fr.lewon.dofus.bot.model.hint.PhorrorHint
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.model.maps.DofusMapWithDirection
+import fr.lewon.dofus.bot.model.move.Direction
 import fr.lewon.dofus.bot.util.DTBRequestProcessor
 import fr.lewon.dofus.bot.util.math.LevenshteinDistanceUtil
 
@@ -13,11 +12,6 @@ object DTBHintManager {
 
     private val hints = HashMap<DofusMapWithDirection, ArrayList<Hint>>()
     private val hintsIdsByName = DTBRequestProcessor.getAllHintIdsByName()
-
-    init {
-        hintsIdsByName[PhorrorHint.name] = PhorrorHint.id
-    }
-
 
     fun getHint(map: DofusMap, direction: Direction, hintLabel: String): Hint? {
         var hintId = hintsIdsByName[hintLabel]

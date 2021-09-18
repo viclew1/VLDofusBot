@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.gui.characters.form
 
-import fr.lewon.dofus.bot.game.classes.DofusClass
 import fr.lewon.dofus.bot.gui.custom.CustomFrame
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
 import javax.swing.*
 

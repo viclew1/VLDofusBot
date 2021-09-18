@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
-import fr.lewon.dofus.bot.game.info.GameInfo
-import fr.lewon.dofus.bot.gui.LogItem
+import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.DofusColors
@@ -12,6 +11,7 @@ import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.logs.LogItem
 import java.awt.event.KeyEvent
 
 class TravelTask(private val dofusCoordinates: DofusCoordinates) : DofusBotTask<DofusMap>() {

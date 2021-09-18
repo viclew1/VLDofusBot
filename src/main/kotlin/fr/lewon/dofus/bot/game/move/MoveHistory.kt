@@ -1,25 +1,24 @@
 package fr.lewon.dofus.bot.game.move
 
 import fr.lewon.dofus.bot.model.maps.DofusMap
-import java.util.*
-import kotlin.collections.ArrayList
+import fr.lewon.dofus.bot.model.move.Direction
+import fr.lewon.dofus.bot.model.move.Move
+import java.util.concurrent.LinkedBlockingDeque
 
 object MoveHistory {
 
-    private val lastMoves = Collections.synchronizedList(ArrayList<Move>())
+    private val lastMoves = LinkedBlockingDeque<Move>(10)
 
     fun getLastMove(): Move? {
-        if (lastMoves.isEmpty()) {
-            return null
-        }
-        return lastMoves.removeAt(lastMoves.size - 1)
+        return lastMoves.pollLast()
     }
 
     @Synchronized
     fun addMove(direction: Direction, fromMap: DofusMap, toMap: DofusMap) {
-        lastMoves.add(Move(direction, fromMap, toMap))
-        while (lastMoves.size > 10) {
-            lastMoves.removeAt(0)
+        val move = Move(direction, fromMap, toMap)
+        if (!lastMoves.offer(move)) {
+            lastMoves.poll()
+            lastMoves.offer(move)
         }
     }
 }

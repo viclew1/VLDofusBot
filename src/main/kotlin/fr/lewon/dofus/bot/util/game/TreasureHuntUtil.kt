@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.game.info.GameInfo
-import fr.lewon.dofus.bot.gui.LogItem
+import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
@@ -15,7 +14,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStep
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFight
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToHint
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
@@ -24,6 +22,8 @@ import fr.lewon.dofus.bot.util.imagetreatment.OpenCvUtil
 import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
+import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.logs.LogItem
 
 object TreasureHuntUtil {
 
@@ -120,7 +120,7 @@ object TreasureHuntUtil {
     }
 
     private fun waitForTreasureHuntUpdate(): TreasureHuntMessage {
-        return EventStore.waitForEvents(TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
+        return WaitUtil.waitForEvents(TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
     }
 
     private fun getSearchStepBounds(): RectangleAbsolute? {

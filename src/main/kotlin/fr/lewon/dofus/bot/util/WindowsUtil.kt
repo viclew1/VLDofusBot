@@ -4,7 +4,7 @@ import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.ptr.IntByReference
-import fr.lewon.dofus.bot.game.info.GameInfo
+import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import java.awt.Rectangle
 import java.io.BufferedReader
@@ -78,7 +78,7 @@ object WindowsUtil {
         var height = windowBounds.height - (dyTop + dyBottom)
 
         val completeBounds = Rectangle(x, y, width, height)
-        
+
         val targetRatio = 5f / 4f
         val ratio = width.toFloat() / height.toFloat()
         val keepWidth = ratio < targetRatio
@@ -95,29 +95,6 @@ object WindowsUtil {
         GameInfo.completeBounds = completeBounds
         GameInfo.sizeRatio = height.toFloat() / maxHeight
         GameInfo.bounds = Rectangle(x, y, width, height)
-    }
-
-    fun findServerIp(): String {
-        val findServerIpProcessBuilder = ProcessBuilder(
-            "cmd.exe", "/c", "netstat", "-a", "-p", "TCP", "-n",
-            "|", "findstr", ":5555",
-            "|", "findstr", "/V", ":5555[0-9]",
-            "|", "findstr", "ESTABLISHED"
-        )
-        val lines: List<String> = exec(findServerIpProcessBuilder)
-        if (lines.isEmpty()) error("Couldn't find the server ip: The netstat command returned an empty result. Did you launch a Dofus session ?")
-        if (lines.size > 1) error("Couldn't find the server ip: The netstat command returned ${lines.size} results. Please only let one Dofus session opened ?")
-        val words = lines[0].split(" ".toRegex()).toTypedArray()
-        var ipAndPort: String? = null
-        for (word in words) {
-            if (word.isNotEmpty() && word.contains(":5555") && !word.contains("127.0.0.1")) {
-                ipAndPort = word
-            }
-        }
-        if (ipAndPort == null) error("Couldn't find the server ip: ip is null. Did you launch a Dofus session ?")
-        val address = ipAndPort.split(":".toRegex()).toTypedArray()
-        if (address.size != 2) error("Couldn't find the server ip: server address is " + address.size + " long. Did you launch a Dofus session ?")
-        return address[0]
     }
 
     fun openGame() {

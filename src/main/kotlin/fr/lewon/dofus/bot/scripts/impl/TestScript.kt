@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.scripts.impl
 
-import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTopTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
+import fr.lewon.dofus.bot.util.logs.LogItem
 
 object TestScript : DofusBotScript("Test") {
 

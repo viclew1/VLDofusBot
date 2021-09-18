@@ -1,9 +1,10 @@
 package fr.lewon.dofus.bot.util.ui
 
-import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.gui.MainFrame
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.util.WindowsUtil
+import fr.lewon.dofus.bot.util.logs.LogItem
+import fr.lewon.dofus.bot.util.logs.VldbLogger
 import java.awt.Color
 
 object ScriptRunner {
@@ -20,7 +21,7 @@ object ScriptRunner {
         WindowsUtil.bringGameToFront()
         WindowsUtil.updateGameBounds()
         runnerThread = Thread {
-            currentLogItem = DTBLogger.log("Executing Dofus script : [${dofusScript.name}]")
+            currentLogItem = VldbLogger.log("Executing Dofus script : [${dofusScript.name}]")
             try {
                 dofusScript.execute(currentLogItem)
                 onScriptOk()
@@ -42,18 +43,18 @@ object ScriptRunner {
     }
 
     private fun onScriptKo(e: Exception) {
-        DTBLogger.closeLog("Execution KO - ${e.localizedMessage}", currentLogItem)
+        VldbLogger.closeLog("Execution KO - ${e.localizedMessage}", currentLogItem)
         e.printStackTrace()
         onScriptEnd(Color.RED)
     }
 
     private fun onScriptCanceled() {
-        DTBLogger.closeLog("Execution canceled", currentLogItem)
+        VldbLogger.closeLog("Execution canceled", currentLogItem)
         onScriptEnd(Color.ORANGE)
     }
 
     private fun onScriptOk() {
-        DTBLogger.closeLog("Execution OK", currentLogItem)
+        VldbLogger.closeLog("Execution OK", currentLogItem)
         onScriptEnd(Color.GREEN)
     }
 

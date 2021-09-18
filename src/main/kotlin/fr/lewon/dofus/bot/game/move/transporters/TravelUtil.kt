@@ -18,7 +18,7 @@ object TravelUtil {
     }
 
     fun <T : ITravelElement> getClosestTravelElement(travelElements: List<T>, coordinates: DofusCoordinates): T? {
-        return travelElements.minBy { it.getCoordinates().distanceTo(coordinates) }
+        return travelElements.minByOrNull { it.getCoordinates().distanceTo(coordinates) }
     }
 
 }

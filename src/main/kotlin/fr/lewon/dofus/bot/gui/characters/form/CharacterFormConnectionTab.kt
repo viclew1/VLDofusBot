@@ -1,9 +1,9 @@
 package fr.lewon.dofus.bot.gui.characters.form
 
-import fr.lewon.dofus.bot.game.classes.DofusClass
 import fr.lewon.dofus.bot.gui.characters.dofusclass.DofusClassComboBox
 import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.model.characters.DofusClass
 import java.awt.Color
 import java.awt.Font
 import javax.swing.JPanel

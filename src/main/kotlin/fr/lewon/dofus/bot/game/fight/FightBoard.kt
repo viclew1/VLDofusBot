@@ -141,7 +141,7 @@ class FightBoard {
         val playerFighter = getPlayerFighter() ?: return
         val enemyFighters = getEnemyFighters()
         closestEnemyPosition = enemyFighters.map { it.fightCell }
-            .minBy { getPathLength(playerFighter.fightCell, it) ?: Int.MAX_VALUE }
+            .minByOrNull { getPathLength(playerFighter.fightCell, it) ?: Int.MAX_VALUE }
             ?: getCell(0)
     }
 

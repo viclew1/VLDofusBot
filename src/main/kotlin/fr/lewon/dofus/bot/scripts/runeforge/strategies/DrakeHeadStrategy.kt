@@ -23,7 +23,7 @@ class DrakeHeadStrategy : RuneForgeStrategy() {
             DofusCharacteristic.NEUTRAL_PER_RES,
             DofusCharacteristic.WATER_PER_RES
         ).map { runeForgeLines[it] ?: error("No ${it.caracName} line found") }
-            .minBy { it.current } ?: error("Couldn't find line to upgrade")
+            .minByOrNull { it.current } ?: error("Couldn't find line to upgrade")
         if (lowestRes.current < 11) {
             return Pair(0, lowestRes.charac)
         }

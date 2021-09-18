@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks
 
-import fr.lewon.dofus.bot.gui.LogItem
-import fr.lewon.dofus.bot.util.ui.DTBLogger
+import fr.lewon.dofus.bot.util.logs.LogItem
+import fr.lewon.dofus.bot.util.logs.VldbLogger
 
 abstract class DofusBotTask<T> {
 
@@ -18,13 +18,13 @@ abstract class DofusBotTask<T> {
     protected abstract fun onStarted(): String
 
     fun run(parentLogItem: LogItem?): T {
-        val logItem = DTBLogger.log(onStarted(), parentLogItem)
+        val logItem = VldbLogger.log(onStarted(), parentLogItem)
         try {
             val result = execute(logItem)
-            DTBLogger.closeLog(onSucceeded(result), logItem)
+            VldbLogger.closeLog(onSucceeded(result), logItem)
             return result
         } catch (e: Exception) {
-            DTBLogger.closeLog(onFailed(e), logItem)
+            VldbLogger.closeLog(onFailed(e), logItem)
             throw e
         }
     }

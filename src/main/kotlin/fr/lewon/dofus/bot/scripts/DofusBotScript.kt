@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.scripts
 
-import fr.lewon.dofus.bot.gui.LogItem
+import fr.lewon.dofus.bot.util.logs.LogItem
 
 abstract class DofusBotScript(val name: String) {
 

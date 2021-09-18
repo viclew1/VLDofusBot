@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.imagetreatment
 
-import fr.lewon.dofus.bot.game.info.GameInfo
+import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
 import fr.lewon.dofus.bot.util.io.ScreenUtil

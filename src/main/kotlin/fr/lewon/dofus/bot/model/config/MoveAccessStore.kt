@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.model.config
 
-import fr.lewon.dofus.bot.game.move.Direction
+import fr.lewon.dofus.bot.model.move.Direction
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 
 class MoveAccessStore : HashMap<Double, HashMap<Direction, PointRelative>>() {

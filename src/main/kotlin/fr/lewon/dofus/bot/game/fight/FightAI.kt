@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.gui.characters.form.ai.RangeSpellCombination
-import fr.lewon.dofus.bot.util.ui.ConsoleLogger
 
 
 class FightAI(
@@ -26,7 +25,6 @@ class FightAI(
                 best = it
             }
         }
-        ConsoleLogger.debug("Best dest score : $best")
         return chosenCell
     }
 

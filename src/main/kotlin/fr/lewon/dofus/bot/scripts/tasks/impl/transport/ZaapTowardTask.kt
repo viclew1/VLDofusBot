@@ -1,13 +1,11 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
-import fr.lewon.dofus.bot.gui.LogItem
 import fr.lewon.dofus.bot.model.characters.MapInformation
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.filemanagers.DTBCharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
@@ -19,6 +17,7 @@ import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.logs.LogItem
 
 class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
 
@@ -58,10 +57,10 @@ class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
         KeyboardUtil.writeKeyboard(getUniqueIdentifier(zaapDestination, currentChar.zaapDestinations), 500)
         MouseUtil.leftClick(firstItemLocation, false, 500)
         MouseUtil.leftClick(teleportLocation, false, 0)
-        return EventStore.waitForEvents(
+        return WaitUtil.waitForEvents(
             MapComplementaryInformationsDataMessage::class.java,
             BasicNoOperationMessage::class.java
-        ).dofusMap
+        ).map
     }
 
     private fun getUniqueIdentifier(dest: MapInformation, destinations: ArrayList<MapInformation>): String {

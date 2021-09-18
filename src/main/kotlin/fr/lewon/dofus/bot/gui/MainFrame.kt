@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.gui
 
 import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLightLaf
-import fr.lewon.dofus.bot.DofusTreasureBotFXApp
+import fr.lewon.dofus.bot.VLDofusBot
 import fr.lewon.dofus.bot.gui.custom.CustomFrame
 import fr.lewon.dofus.bot.gui.util.AppColors
 import java.awt.Color
@@ -36,7 +36,7 @@ object MainFrame :
         defaultCloseOperation = EXIT_ON_CLOSE
         iconImage =
             Toolkit.getDefaultToolkit()
-                .getImage(DofusTreasureBotFXApp::class.java.getResource("/icon/taskbar_logo.png"))
+                .getImage(VLDofusBot::class.java.getResource("/icon/taskbar_logo.png"))
         addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent?) {
                 exitProcess(0)
