@@ -13,7 +13,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.fight.SequenceEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.game.CharacteristicUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
@@ -88,7 +88,7 @@ class FightTask : DofusBotTask<Boolean>() {
         KeyboardUtil.sendKey(KeyEvent.VK_F1, 0)
         waitForMessage(GameFightTurnStartPlayingMessage::class.java)
         while (!isFightEnded()) {
-            MouseUtil.leftClick(DTBConfigManager.config.mouseRestPos, false, 400)
+            MouseUtil.leftClick(ConfigManager.config.mouseRestPos, false, 400)
 
             var playerPos = playerFighter.fightCell
             val enemyFighter = fightBoard.getFighter(fightBoard.closestEnemyPosition) ?: error("No enemy left")
@@ -220,7 +220,7 @@ class FightTask : DofusBotTask<Boolean>() {
 
     private fun waitForMessage(
         eventClass: Class<out INetworkMessage>,
-        timeOutMillis: Int = DTBConfigManager.config.globalTimeout * 1000
+        timeOutMillis: Int = ConfigManager.config.globalTimeout * 1000
     ): Boolean {
         EventStore.clear(eventClass)
         return WaitUtil.waitUntil({ isFightEnded() || EventStore.getLastEvent(eventClass) != null }, timeOutMillis)

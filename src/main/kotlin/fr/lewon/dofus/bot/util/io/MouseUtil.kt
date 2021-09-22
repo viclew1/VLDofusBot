@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.io
 
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import java.awt.Robot
@@ -43,7 +43,7 @@ object MouseUtil {
         robot.mouseRelease(KeyEvent.BUTTON1_DOWN_MASK)
         if (shift) robot.keyRelease(KeyEvent.VK_SHIFT)
         WaitUtil.sleep(millis)
-        place(DTBConfigManager.config.mouseRestPos)
+        place(ConfigManager.config.mouseRestPos)
     }
 
     /**
@@ -84,7 +84,7 @@ object MouseUtil {
             robot.mouseWheel(1)
             place(position, timeBetweenScrolls)
         }
-        place(DTBConfigManager.config.mouseRestPos)
+        place(ConfigManager.config.mouseRestPos)
     }
 
     fun scrollDown(position: PointRelative, scrollAmount: Int = 1, timeBetweenScrolls: Int = 300) {

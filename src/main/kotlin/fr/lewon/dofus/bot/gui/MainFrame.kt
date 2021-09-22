@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLightLaf
 import fr.lewon.dofus.bot.VLDofusBot
 import fr.lewon.dofus.bot.gui.custom.CustomFrame
+import fr.lewon.dofus.bot.gui.init.InitPanel
 import fr.lewon.dofus.bot.gui.util.AppColors
 import java.awt.Color
 import java.awt.Toolkit
@@ -14,21 +15,18 @@ import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import kotlin.system.exitProcess
 
-object MainFrame :
-    CustomFrame(
-        "VL Dofus Bot",
-        300,
-        700,
-        AppColors.DEFAULT_UI_COLOR,
-        60,
-        MainFrame::class.java.getResource("/icon/logo.png")
-    ) {
-
+object MainFrame : CustomFrame(
+    "VL Dofus Bot", 300, 700, AppColors.DEFAULT_UI_COLOR, 60,
+    MainFrame::class.java.getResource("/icon/logo.png")
+) {
     private const val progressBarHeight = 10
     private val progressBar = JProgressBar()
 
     init {
         buildFooter()
+        InitPanel.setBounds(0, headerHeight, size.width, size.height - headerHeight - progressBarHeight)
+        contentPane.add(InitPanel)
+        InitPanel.isVisible = false
         MainPanel.setBounds(0, headerHeight, size.width, size.height - headerHeight - progressBarHeight)
         contentPane.add(MainPanel)
         isUndecorated = true
@@ -61,6 +59,16 @@ object MainFrame :
         progressBar.isIndeterminate = false
         progressBar.isBorderPainted = true
         progressBar.background = resultColor
+    }
+
+    fun startInit() {
+        InitPanel.isVisible = true
+        MainPanel.isVisible = false
+    }
+
+    fun stopInit() {
+        InitPanel.isVisible = false
+        MainPanel.isVisible = true
     }
 
     fun updateAlwaysOnTop(alwaysOnTop: Boolean) {

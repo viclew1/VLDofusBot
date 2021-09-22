@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.gui.config
 
 import fr.lewon.dofus.bot.gui.MainFrame
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.logs.LogLevel
@@ -25,15 +25,15 @@ object ConfigTab : JPanel(MigLayout()) {
     private val accessSelectorPane = AccessSelectorPane()
 
     init {
-        updateDarkMode(DTBConfigManager.config.darkMode)
+        updateDarkMode(ConfigManager.config.darkMode)
         addLine(darkModeLabel, darkModeCheckBox)
         darkModeCheckBox.addItemListener { updateDarkMode(darkModeCheckBox.isSelected) }
 
-        updateAlwaysOnTop(DTBConfigManager.config.alwaysOnTop)
+        updateAlwaysOnTop(ConfigManager.config.alwaysOnTop)
         addLine(alwaysOnTopLabel, alwaysOnTopCheckBox)
         alwaysOnTopCheckBox.addItemListener { updateAlwaysOnTop(alwaysOnTopCheckBox.isSelected) }
 
-        val logLevel = LogLevel.valueOf(DTBConfigManager.config.logLevel)
+        val logLevel = LogLevel.valueOf(ConfigManager.config.logLevel)
         updateLogLevel(logLevel)
         logLevelComboBox.selectedItem = logLevel
         addLine(logLevelLabel, logLevelComboBox)
@@ -59,7 +59,7 @@ object ConfigTab : JPanel(MigLayout()) {
     }
 
     private fun updateDarkMode(darkMode: Boolean) {
-        DTBConfigManager.editConfig { it.darkMode = darkMode }
+        ConfigManager.editConfig { it.darkMode = darkMode }
         darkModeCheckBox.isSelected = darkMode
         if (darkMode) {
             MainFrame.darkMode()
@@ -69,13 +69,13 @@ object ConfigTab : JPanel(MigLayout()) {
     }
 
     private fun updateAlwaysOnTop(alwaysOnTop: Boolean) {
-        DTBConfigManager.editConfig { it.alwaysOnTop = alwaysOnTop }
+        ConfigManager.editConfig { it.alwaysOnTop = alwaysOnTop }
         alwaysOnTopCheckBox.isSelected = alwaysOnTop
         MainFrame.updateAlwaysOnTop(alwaysOnTop)
     }
 
     private fun updateLogLevel(logLevel: LogLevel) {
-        DTBConfigManager.editConfig { it.logLevel = logLevel.name }
+        ConfigManager.editConfig { it.logLevel = logLevel.name }
         VldbLogger.minLogLevel = logLevel
     }
 

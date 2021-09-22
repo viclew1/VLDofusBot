@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
-import fr.lewon.dofus.bot.util.filemanagers.DTBCharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.ui.ScriptRunner
 import net.miginfocom.swing.MigLayout
 import java.awt.Insets
@@ -59,7 +59,7 @@ object ScriptTab : JPanel(MigLayout()) {
     private fun buildParametersPane(): JPanel {
         val dofusScript = scriptComboBox.selectedItem as DofusBotScript
         val parametersPane = JPanel(MigLayout("fillx"))
-        val character = DTBCharacterManager.getCurrentCharacter()
+        val character = CharacterManager.getCurrentCharacter()
         val parameters = dofusScript.getParameters()
         parametersSeparator.isVisible = parameters.isNotEmpty()
         parametersLabel.isVisible = parameters.isNotEmpty()
@@ -82,7 +82,7 @@ object ScriptTab : JPanel(MigLayout()) {
         script: DofusBotScript,
         param: DofusBotScriptParameter
     ): JComponent {
-        param.value = DTBCharacterManager.getParamValue(character, script, param) ?: param.defaultValue
+        param.value = CharacterManager.getParamValue(character, script, param) ?: param.defaultValue
         return when (param.type) {
             DofusBotScriptParameterType.INTEGER -> buildIntegerField(character, script, param)
             DofusBotScriptParameterType.BOOLEAN -> buildCheckbox(character, script, param)
@@ -140,7 +140,7 @@ object ScriptTab : JPanel(MigLayout()) {
         value: String
     ) {
         param.value = value
-        DTBCharacterManager.updateParamValue(character, script, param)
+        CharacterManager.updateParamValue(character, script, param)
         updateDescription()
     }
 

@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.io
 
 import fr.lewon.dofus.bot.game.GameInfo
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
@@ -140,8 +140,8 @@ object ScreenUtil {
      */
     fun isBetween(color: Color, min: Color, max: Color): Boolean {
         return color.red in min.red..max.red &&
-                color.green in min.green..max.green &&
-                color.blue in min.blue..max.blue
+            color.green in min.green..max.green &&
+            color.blue in min.blue..max.blue
     }
 
     /**
@@ -216,7 +216,7 @@ object ScreenUtil {
      */
     fun waitForColor(
         point: PointAbsolute, min: Color, max: Color,
-        timeOut: Int = DTBConfigManager.config.globalTimeout * 1000
+        timeOut: Int = ConfigManager.config.globalTimeout * 1000
     ): Boolean {
         return WaitUtil.waitUntil({ isBetween(getPixelColor(point), min, max) }, timeOut)
     }
@@ -231,7 +231,7 @@ object ScreenUtil {
      */
     fun waitForColor(
         point: PointRelative, min: Color, max: Color,
-        timeOut: Int = DTBConfigManager.config.globalTimeout * 1000
+        timeOut: Int = ConfigManager.config.globalTimeout * 1000
     ): Boolean {
         return waitForColor(ConverterUtil.toPointAbsolute(point), min, max, timeOut)
     }

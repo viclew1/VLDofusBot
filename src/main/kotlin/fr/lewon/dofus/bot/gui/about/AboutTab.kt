@@ -12,7 +12,7 @@ object AboutTab : JPanel(MigLayout()) {
     private const val githubLink = "https://github.com/viclew1/DTB"
     private const val message =
         "<html>Thank you for using VL Dofus Bot, feel free to visit the project github page for issues, suggestions or just to give it a star ! <br>" +
-                "Link to the project :"
+            "Link to the project :"
 
     private val githubButton = JButton(githubLink)
 

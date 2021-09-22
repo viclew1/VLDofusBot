@@ -1,13 +1,13 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
-import fr.lewon.dofus.bot.model.characters.MapInformation
 import fr.lewon.dofus.bot.model.maps.DofusMap
+import fr.lewon.dofus.bot.model.maps.MapInformation
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.util.filemanagers.DTBCharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
@@ -40,7 +40,7 @@ class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
     override fun execute(logItem: LogItem): DofusMap {
         ReachHavenBagTask().run(logItem)
         WaitUtil.sleep(1500)
-        MouseUtil.leftClick(DTBConfigManager.config.havenBagZaapPos, false, 0)
+        MouseUtil.leftClick(ConfigManager.config.havenBagZaapPos, false, 0)
         var topBounds: RectangleAbsolute? = null
         WaitUtil.waitUntil({
             OpenCvUtil.getPatternBounds(MatManager.TOP_ZAAP_MAT.buildMat(), 0.8).also { topBounds = it } != null
@@ -48,7 +48,7 @@ class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
         val topRightLocation = topBounds?.let { PointAbsolute(it.x + it.width, it.y) }
             ?: error("Couldn't find zaap window")
         updateLocations(ConverterUtil.toPointRelative(topRightLocation))
-        val currentChar = DTBCharacterManager.getCurrentCharacter() ?: error("No character selected")
+        val currentChar = CharacterManager.getCurrentCharacter() ?: error("No character selected")
         val zaapDestination = currentChar.zaapDestinations
             .firstOrNull { it.getMap().getCoordinates() == zaap.getCoordinates() }
             ?: error("Could not find zaap destination [${zaap.name}]. Did you explore it with this character ?")

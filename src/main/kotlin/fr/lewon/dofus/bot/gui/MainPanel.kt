@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.gui.about.AboutTab
 import fr.lewon.dofus.bot.gui.characters.CharactersTab
 import fr.lewon.dofus.bot.gui.config.ConfigTab
 import fr.lewon.dofus.bot.gui.scripts.ScriptTab
-import fr.lewon.dofus.bot.util.filemanagers.DTBCharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import javax.swing.JTabbedPane
 
 object MainPanel : JTabbedPane() {
@@ -18,7 +18,7 @@ object MainPanel : JTabbedPane() {
     }
 
     fun refreshScriptsTab() {
-        val enabled = DTBCharacterManager.getCurrentCharacter() != null
+        val enabled = CharacterManager.getCurrentCharacter() != null
         setEnabledAt(indexOfTab("Scripts"), enabled)
         if (enabled) {
             ScriptTab.updateScript()

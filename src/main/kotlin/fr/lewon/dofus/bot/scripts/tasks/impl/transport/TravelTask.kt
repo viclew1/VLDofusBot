@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.DofusColors
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -20,7 +20,7 @@ class TravelTask(private val dofusCoordinates: DofusCoordinates) : DofusBotTask<
         if (GameInfo.currentMap.getCoordinates() == dofusCoordinates) {
             return GameInfo.currentMap
         }
-        MouseUtil.leftClick(DTBConfigManager.config.mouseRestPos)
+        MouseUtil.leftClick(ConfigManager.config.mouseRestPos)
         KeyboardUtil.sendKey(KeyEvent.VK_SPACE, 500)
         KeyboardUtil.writeKeyboard("/travel ${dofusCoordinates.x} ${dofusCoordinates.y}")
         KeyboardUtil.sendKey(KeyEvent.VK_ENTER)

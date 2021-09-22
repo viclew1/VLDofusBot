@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.util.io
 
 import fr.lewon.dofus.bot.sniffer.model.INetworkType
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 
 object WaitUtil {
 
@@ -26,7 +26,7 @@ object WaitUtil {
      * Wait until the given condition returns true, returns true if the condition is verified before given timeOut
      */
     fun waitUntil(
-        condition: () -> Boolean, timeOutMillis: Int = DTBConfigManager.config.globalTimeout * 1000
+        condition: () -> Boolean, timeOutMillis: Int = ConfigManager.config.globalTimeout * 1000
     ): Boolean {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < timeOutMillis) {
@@ -45,7 +45,7 @@ object WaitUtil {
      */
     fun <T : INetworkType> waitForEventWithoutError(
         eventClass: Class<T>,
-        timeout: Int = DTBConfigManager.config.globalTimeout * 1000,
+        timeout: Int = ConfigManager.config.globalTimeout * 1000,
         clearQueue: Boolean = true
     ): T? {
         return try {
@@ -58,7 +58,7 @@ object WaitUtil {
     fun <T : INetworkType> waitForEvents(
         mainEventClass: Class<T>,
         vararg additionalEventClasses: Class<out INetworkType>,
-        timeout: Int = DTBConfigManager.config.globalTimeout * 1000,
+        timeout: Int = ConfigManager.config.globalTimeout * 1000,
         clearQueue: Boolean = true
     ): T {
         if (clearQueue) {
@@ -77,7 +77,7 @@ object WaitUtil {
      */
     fun <T : INetworkType> waitForEvent(
         eventClass: Class<T>,
-        timeout: Int = DTBConfigManager.config.globalTimeout * 1000,
+        timeout: Int = ConfigManager.config.globalTimeout * 1000,
         clearQueue: Boolean = true
     ): T {
         var socketEvent: INetworkType? = null

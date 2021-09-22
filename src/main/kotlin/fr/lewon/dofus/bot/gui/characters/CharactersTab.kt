@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.gui.MainFrame
 import fr.lewon.dofus.bot.gui.characters.card.CharacterCard
 import fr.lewon.dofus.bot.gui.characters.card.CharacterCardList
 import fr.lewon.dofus.bot.gui.characters.form.CharacterFormFrame
-import fr.lewon.dofus.bot.util.filemanagers.DTBCharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import net.miginfocom.swing.MigLayout
 import java.awt.Color
 import java.awt.Font
@@ -35,7 +35,7 @@ object CharactersTab : JPanel(MigLayout()) {
             override fun mouseEntered(e: MouseEvent) {
                 addCharacterButton.foreground = Color.BLUE
             }
- 
+
             override fun mouseExited(e: MouseEvent) {
                 addCharacterButton.foreground = null
             }
@@ -64,7 +64,7 @@ object CharactersTab : JPanel(MigLayout()) {
                 MainFrame.isEnabled = true
                 MainFrame.toFront()
                 if (form.resultOk) {
-                    val createdCharacter = DTBCharacterManager.addCharacter(
+                    val createdCharacter = CharacterManager.addCharacter(
                         form.connectionTab.getLogin(),
                         form.connectionTab.getPassword(),
                         form.connectionTab.getPseudo(),
@@ -91,14 +91,14 @@ object CharactersTab : JPanel(MigLayout()) {
                 MainFrame.isEnabled = true
                 MainFrame.toFront()
                 if (form.resultOk) {
-                    DTBCharacterManager.updateCharacter(
+                    CharacterManager.updateCharacter(
                         characterCard.character,
                         form.connectionTab.getLogin(),
                         form.connectionTab.getPassword(),
                         form.connectionTab.getPseudo(),
                         form.connectionTab.getDofusClass()
                     )
-                    characterCard.update(characterCard.character == DTBCharacterManager.getCurrentCharacter())
+                    characterCard.update(characterCard.character == CharacterManager.getCurrentCharacter())
                 }
             }
         })

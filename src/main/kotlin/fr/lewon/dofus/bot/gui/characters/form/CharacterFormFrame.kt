@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
-import fr.lewon.dofus.bot.util.filemanagers.DTBConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import javax.swing.*
 
 class CharacterFormFrame(title: String, character: DofusCharacter = DofusCharacter()) : CustomFrame(
@@ -27,7 +27,7 @@ class CharacterFormFrame(title: String, character: DofusCharacter = DofusCharact
     private val backgroundLabel = JLabel()
 
     init {
-        isAlwaysOnTop = DTBConfigManager.config.alwaysOnTop
+        isAlwaysOnTop = ConfigManager.config.alwaysOnTop
         defaultCloseOperation = EXIT_ON_CLOSE
         backgroundLabel.verticalAlignment = SwingConstants.TOP
         val tabs = JTabbedPane()
