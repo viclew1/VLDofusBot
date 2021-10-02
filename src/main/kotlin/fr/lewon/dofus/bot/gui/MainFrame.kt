@@ -4,8 +4,9 @@ import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLightLaf
 import fr.lewon.dofus.bot.VLDofusBot
 import fr.lewon.dofus.bot.gui.custom.CustomFrame
-import fr.lewon.dofus.bot.gui.init.InitPanel
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import java.awt.Color
 import java.awt.Toolkit
 import java.awt.event.WindowAdapter
@@ -24,17 +25,11 @@ object MainFrame : CustomFrame(
 
     init {
         buildFooter()
-        InitPanel.setBounds(0, headerHeight, size.width, size.height - headerHeight - progressBarHeight)
-        contentPane.add(InitPanel)
-        InitPanel.isVisible = false
         MainPanel.setBounds(0, headerHeight, size.width, size.height - headerHeight - progressBarHeight)
         contentPane.add(MainPanel)
-        isUndecorated = true
         isAlwaysOnTop = true
         defaultCloseOperation = EXIT_ON_CLOSE
-        iconImage =
-            Toolkit.getDefaultToolkit()
-                .getImage(VLDofusBot::class.java.getResource("/icon/taskbar_logo.png"))
+        iconImage = Toolkit.getDefaultToolkit().getImage(VLDofusBot::class.java.getResource("/icon/taskbar_logo.png"))
         addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent?) {
                 exitProcess(0)
@@ -61,16 +56,6 @@ object MainFrame : CustomFrame(
         progressBar.background = resultColor
     }
 
-    fun startInit() {
-        InitPanel.isVisible = true
-        MainPanel.isVisible = false
-    }
-
-    fun stopInit() {
-        InitPanel.isVisible = false
-        MainPanel.isVisible = true
-    }
-
     fun updateAlwaysOnTop(alwaysOnTop: Boolean) {
         SwingUtilities.invokeLater {
             isAlwaysOnTop = alwaysOnTop
@@ -95,4 +80,13 @@ object MainFrame : CustomFrame(
         }
     }
 
+}
+
+fun main() {
+    CharacterManager.initManager()
+    ConfigManager.initManager()
+    MainFrame.isResizable = false
+    MainFrame.isUndecorated = true
+    MainFrame.setLocationRelativeTo(null)
+    MainFrame.isVisible = true
 }

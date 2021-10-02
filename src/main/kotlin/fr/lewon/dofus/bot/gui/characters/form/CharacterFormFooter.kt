@@ -38,16 +38,13 @@ class CharacterFormFooter(private val characterFormFrame: CharacterFormFrame, w:
     }
 
     fun updateOkButtonEnable() {
-        if (characterFormFrame.connectionTab.getLogin().isEmpty()) {
+        if (characterFormFrame.connectionPanel.getLogin().isEmpty()) {
             okButton.isEnabled = false
         }
-        if (characterFormFrame.connectionTab.getPassword().isEmpty()) {
+        if (characterFormFrame.connectionPanel.getPassword().isEmpty()) {
             okButton.isEnabled = false
         }
-        if (characterFormFrame.connectionTab.getPseudo().isEmpty()) {
-            okButton.isEnabled = false
-        }
-        if (characterFormFrame.aiTab.getLosAttacks().keys.isEmpty()) {
+        if (characterFormFrame.connectionPanel.getPseudo().isEmpty()) {
             okButton.isEnabled = false
         }
         okButton.isEnabled = true

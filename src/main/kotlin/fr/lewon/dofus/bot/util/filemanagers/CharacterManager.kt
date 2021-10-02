@@ -7,6 +7,7 @@ import fr.lewon.dofus.bot.gui.MainPanel
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
+import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.maps.MapInformation
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
@@ -19,11 +20,12 @@ import java.nio.charset.StandardCharsets
 
 object CharacterManager : VldbManager {
 
-    private val characterStore: CharacterStore
-    private val dataStoreFile: File = File("${VldbFilesUtil.getVldbConfigDirectory()}/user_data")
+    private lateinit var characterStore: CharacterStore
+    private lateinit var dataStoreFile: File
     private val mapper = ObjectMapper()
 
-    init {
+    override fun initManager() {
+        dataStoreFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/user_data")
         val module = SimpleModule()
         mapper.registerModule(module)
         if (dataStoreFile.exists()) {
@@ -62,11 +64,14 @@ object CharacterManager : VldbManager {
         return characterStore.characters.toList()
     }
 
-    fun addCharacter(login: String, password: String, pseudo: String, dofusClass: DofusClass): DofusCharacter {
+    fun addCharacter(
+        login: String, password: String, pseudo: String,
+        dofusClass: DofusClass, spells: List<SpellCombination>
+    ): DofusCharacter {
         getCharacter(login, pseudo)?.let {
             error("Character already registered : [$login, $pseudo]")
         }
-        val character = DofusCharacter(login, password, pseudo, dofusClass)
+        val character = DofusCharacter(login, password, pseudo, dofusClass, spells = ArrayList(spells))
         characterStore.characters.add(character)
         if (getCurrentCharacter() == null) {
             setCurrentCharacter(character)
@@ -87,19 +92,25 @@ object CharacterManager : VldbManager {
 
     fun updateCharacter(
         character: DofusCharacter,
-        login: String,
-        password: String,
-        pseudo: String,
-        dofusClass: DofusClass
+        login: String = character.login,
+        password: String = character.password,
+        pseudo: String = character.pseudo,
+        dofusClass: DofusClass = character.dofusClass,
+        spells: List<SpellCombination> = character.spells
     ) {
         val existingCharacter = getCharacter(login, pseudo)
         if (existingCharacter != null && existingCharacter != character) {
             error("Character already registered : [$login, $pseudo]")
         }
+        if (getCurrentCharacter() == character) {
+            characterStore.currentCharacterLogin = login
+            characterStore.currentCharacterPseudo = pseudo
+        }
         character.login = login
         character.password = password
         character.pseudo = pseudo
         character.dofusClass = dofusClass
+        character.spells = ArrayList(spells)
         saveUserData()
     }
 

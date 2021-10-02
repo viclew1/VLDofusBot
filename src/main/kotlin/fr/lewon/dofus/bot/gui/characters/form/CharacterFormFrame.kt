@@ -1,58 +1,31 @@
 package fr.lewon.dofus.bot.gui.characters.form
 
-import fr.lewon.dofus.bot.gui.custom.CustomFrame
+import fr.lewon.dofus.bot.gui.custom.CustomDialog
 import fr.lewon.dofus.bot.gui.util.AppColors
-import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
-import javax.swing.*
+import javax.swing.JFrame
 
-class CharacterFormFrame(title: String, character: DofusCharacter = DofusCharacter()) : CustomFrame(
-    title,
-    250,
-    400,
-    AppColors.DEFAULT_UI_COLOR,
-    30,
-    reduceButton = false
+class CharacterFormFrame(title: String, owner: JFrame, character: DofusCharacter = DofusCharacter()) : CustomDialog(
+    title, 800, 400, AppColors.DEFAULT_UI_COLOR, 30, owner
 ) {
 
-    private val footerHeight = 80
-    val connectionTab =
-        CharacterFormConnectionTab(this, size.width, size.height - headerHeight - 30 - footerHeight, character)
-    val aiTab =
-        CharacterFormAiTab(this, size.width, size.height - headerHeight - 30 - footerHeight, character)
-    private val footer = CharacterFormFooter(this, size.width, footerHeight)
+    val connectionPanel =
+        CharacterFormConnectionPanel(size.width / 3, size.height - headerHeight - 30, character)
+    val aiPanel =
+        CharacterFormAiPanel(size.width * 2 / 3, size.height - headerHeight - 30, character)
+    private val footer = CharacterFormFooter(this, size.width / 3, 80)
     var resultOk = false
-    private val backgroundLabel = JLabel()
 
     init {
         isAlwaysOnTop = ConfigManager.config.alwaysOnTop
-        defaultCloseOperation = EXIT_ON_CLOSE
-        backgroundLabel.verticalAlignment = SwingConstants.TOP
-        val tabs = JTabbedPane()
-        tabs.setBounds(0, headerHeight, size.width, size.height - headerHeight - footerHeight)
-        tabs.addTab("Connection", connectionTab)
-        tabs.addTab("Fight AI", aiTab)
-        footer.setBounds(0, size.height - footerHeight, size.width, footerHeight)
-        contentPane.add(tabs)
+        isModal = true
+        connectionPanel.setBounds(0, headerHeight, size.width / 3, size.height - headerHeight)
+        aiPanel.setBounds(size.width / 3, headerHeight, size.width * 2 / 3, size.height - headerHeight)
+        footer.setBounds(0, size.height - 80, size.width / 3, 80)
         contentPane.add(footer)
-        contentPane.add(backgroundLabel)
-    }
-
-    fun updateBackground(dofusClass: DofusClass) {
-        SwingUtilities.invokeLater {
-            val tabHeight = 32
-            val bgImg = ImageUtil.getScaledImageKeepHeight(dofusClass.bannerUrl, height - headerHeight - tabHeight)
-            val blurredImg = ImageUtil.blurImage(bgImg, 0.9f)
-            backgroundLabel.icon = ImageIcon(blurredImg)
-            backgroundLabel.setBounds(
-                width / 2 - bgImg.width / 2,
-                headerHeight + tabHeight,
-                bgImg.width,
-                height - headerHeight
-            )
-        }
+        contentPane.add(connectionPanel)
+        contentPane.add(aiPanel)
     }
 
 }

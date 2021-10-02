@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.io.d2p.cell.CellData
+import fr.lewon.dofus.bot.util.manager.d2p.maps.cell.CellData
 
 class FightCell(
     val row: Int,

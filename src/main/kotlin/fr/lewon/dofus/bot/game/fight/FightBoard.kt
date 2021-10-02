@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.io.d2p.cell.CellData
+import fr.lewon.dofus.bot.util.manager.d2p.maps.cell.CellData
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -79,6 +79,12 @@ class FightBoard {
         }
     }
 
+    fun isOnSameLine(fromCellId: Int, toCellId: Int): Boolean {
+        val from = getCell(fromCellId)
+        val to = getCell(toCellId)
+        return from.row == to.row || from.col == to.col
+    }
+
     fun getCell(cellId: Int): FightCell {
         return cellsByCellId[cellId] ?: error("No cell with id")
     }
@@ -134,6 +140,10 @@ class FightBoard {
 
     fun updateFighterCharacteristics(fighterId: Double, characteristics: List<CharacterCharacteristic>) {
         val fighter = fightersById[fighterId] ?: return
+        updateFighterCharacteristics(fighter, characteristics)
+    }
+
+    fun updateFighterCharacteristics(fighter: Fighter, characteristics: List<CharacterCharacteristic>) {
         characteristics.forEach { fighter.statsById[it.characteristicId] = it }
     }
 
@@ -175,6 +185,10 @@ class FightBoard {
 
     fun getFighter(cellId: Int): Fighter? {
         return fightersById.values.firstOrNull { it.fightCell.cellId == cellId }
+    }
+
+    fun getFighterById(fighterId: Double): Fighter {
+        return fightersById[fighterId] ?: error("No fighter with id : $fighterId")
     }
 
     fun lineOfSight(fromCell: FightCell, toCell: FightCell): Boolean {

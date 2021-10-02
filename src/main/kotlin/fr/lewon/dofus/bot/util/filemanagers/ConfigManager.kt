@@ -13,10 +13,11 @@ import java.nio.charset.StandardCharsets
 
 object ConfigManager : VldbManager {
 
-    val config: VldbConfig
-    private val configFile: File = File("${VldbFilesUtil.getVldbConfigDirectory()}/config")
+    lateinit var config: VldbConfig
+    private lateinit var configFile: File
 
-    init {
+    override fun initManager() {
+        configFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/config")
         if (configFile.exists()) {
             config = ObjectMapper().readValue(configFile)
         } else {

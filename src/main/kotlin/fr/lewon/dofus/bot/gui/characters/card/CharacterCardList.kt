@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.gui.characters.card
 
-import fr.lewon.dofus.bot.gui.characters.card.listener.CharacterCardListListener
 import fr.lewon.dofus.bot.gui.characters.card.listener.CharacterCardListener
 import fr.lewon.dofus.bot.gui.characters.card.listener.DragManager
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
@@ -19,9 +18,6 @@ class CharacterCardList : JPanel(MigLayout("insets 0")) {
     private val cards = ArrayList<CharacterCard>()
 
     init {
-        val listener = CharacterCardListListener(this)
-        addMouseListener(listener)
-        addMouseMotionListener(listener)
         SwingUtilities.invokeLater {
             fixedCellHeight = width / 4
             fixedCellWidth = width

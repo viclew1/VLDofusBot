@@ -1,25 +1,35 @@
 package fr.lewon.dofus.bot.game.fight
 
-import fr.lewon.dofus.bot.gui.characters.form.ai.RangeSpellCombination
+import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 
 
 class FightAI(
     private val playerMovePoints: Int,
     private val enemyMovePoints: Int,
     private val fightBoard: FightBoard,
-    private val losSpellCombination: RangeSpellCombination,
-    private val nonLosSpellCombination: RangeSpellCombination,
-    private val contactSpellCombination: RangeSpellCombination,
+    private val losSpellCombination: SpellCombination,
+    private val nonLosSpellCombination: SpellCombination,
+    private val contactSpellCombination: SpellCombination,
     private val initialDepth: Int
 ) {
 
-    fun selectBestDest(cells: List<FightCell>): FightCell {
-        val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
-        val playerPosition = playerFighter.fightCell
+    fun selectBestTpDest(minRange: Int, maxRange: Int): FightCell {
+        val playerPosition = fightBoard.getPlayerFighter()?.fightCell ?: error("Player not found")
+        val cellsAtRange = fightBoard.cellsAtRange(minRange, maxRange, playerPosition)
+            .filter { it.isAccessible() && !fightBoard.isFighterHere(it) }
+        return selectBestCell(playerPosition, cellsAtRange)
+    }
+
+    fun selectBestMoveDest(): FightCell {
+        val playerPosition = fightBoard.getPlayerFighter()?.fightCell ?: error("Player not found")
+        return selectBestCell(playerPosition, fightBoard.getMoveCells(playerMovePoints, playerPosition))
+    }
+
+    private fun selectBestCell(playerPosition: FightCell, accessibleCells: List<FightCell>): FightCell {
         var chosenCell = playerPosition
         var best = evaluateMove(playerPosition, playerPosition)
 
-        for (cell in cells) {
+        for (cell in accessibleCells) {
             evaluateMove(playerPosition, cell).takeIf { it > best }?.let {
                 chosenCell = cell
                 best = it
@@ -40,11 +50,11 @@ class FightAI(
         val dist = state.fb.getDist(newPlayerPosition, state.fb.closestEnemyPosition) ?: error("Invalid board")
         val los = state.fb.lineOfSight(newPlayerPosition, state.fb.closestEnemyPosition)
         if (losSpellCombination.keys.isNotEmpty() && los && dist in losSpellCombination.minRange..losSpellCombination.maxRange) {
-            state.attacksDone += losSpellCombination.aiValue
+            state.attacksDone += losSpellCombination.aiWeight
         } else if (nonLosSpellCombination.keys.isNotEmpty() && dist in nonLosSpellCombination.minRange..nonLosSpellCombination.maxRange) {
-            state.attacksDone += nonLosSpellCombination.aiValue
+            state.attacksDone += nonLosSpellCombination.aiWeight
         } else if (contactSpellCombination.keys.isNotEmpty() && dist <= 1) {
-            state.attacksDone += contactSpellCombination.aiValue
+            state.attacksDone += contactSpellCombination.aiWeight
         }
     }
 

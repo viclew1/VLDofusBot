@@ -11,8 +11,13 @@ import fr.lewon.dofus.bot.util.math.LevenshteinDistanceUtil
 
 object HintManager : VldbManager {
 
-    private val hints = HashMap<DofusMapWithDirection, ArrayList<Hint>>()
-    private val hintsIdsByName = RequestProcessor.getAllHintIdsByName()
+    private lateinit var hints: HashMap<DofusMapWithDirection, ArrayList<Hint>>
+    private lateinit var hintsIdsByName: Map<String, Int>
+
+    override fun initManager() {
+        hints = HashMap()
+        hintsIdsByName = RequestProcessor.getAllHintIdsByName()
+    }
 
     fun getHint(map: DofusMap, direction: Direction, hintLabel: String): Hint? {
         var hintId = hintsIdsByName[hintLabel]

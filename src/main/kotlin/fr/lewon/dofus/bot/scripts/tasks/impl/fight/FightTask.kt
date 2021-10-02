@@ -2,9 +2,9 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.fight.*
-import fr.lewon.dofus.bot.gui.characters.form.ai.BuffSpellCombination
-import fr.lewon.dofus.bot.gui.characters.form.ai.RangeSpellCombination
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.model.characters.spells.SpellType
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightTurnEndMessage
@@ -13,6 +13,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.fight.SequenceEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.store.EventStore
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.game.CharacteristicUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
@@ -67,11 +68,12 @@ class FightTask : DofusBotTask<Boolean>() {
     }
 
     override fun execute(logItem: LogItem): Boolean {
-        val preMoveBuffCombination = BuffSpellCombination("121", 5, 4)
-        val losSpellCombo = RangeSpellCombination("33", 2, 11, 3)
-        val nonLosSpellCombo = RangeSpellCombination("", 0, 0, 0)
-        val contactSpellCombo = RangeSpellCombination("44", 1, 1, 2)
-        val gapCloserCombination = RangeSpellCombination("", 0, 0, 0)
+        val character = CharacterManager.getCurrentCharacter() ?: error("No current character defined")
+        val preMoveBuffCombination = SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, 4, 1, 5, -2)
+        val losSpellCombo = SpellCombination(SpellType.ATTACK, "33", 2, 11, true, false, 0, 2, 2, 3)
+        val nonLosSpellCombo = SpellCombination(SpellType.ATTACK, "", -1, -1, false, false, 0, 0, 0, 0)
+        val contactSpellCombo = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, 0, 2, 2, 2)
+        val gapCloserCombination = SpellCombination(SpellType.GAP_CLOSER, "", -1, -1, false, false, 0, 0, 0, 0)
         var preMoveBuffCd = 0
 
         val fightBoard = GameInfo.fightBoard
@@ -98,7 +100,7 @@ class FightTask : DofusBotTask<Boolean>() {
 
             if (--preMoveBuffCd <= 0 && closestEnemyDist > 1) {
                 castSpells(preMoveBuffCombination.keys, playerPos)
-                preMoveBuffCd = preMoveBuffCombination.cd
+                preMoveBuffCd = preMoveBuffCombination.cooldown
             }
 
             val mp = getFighterMp(playerFighter)
@@ -109,9 +111,9 @@ class FightTask : DofusBotTask<Boolean>() {
             if (fightBoard.getDist(playerPos, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE <= 1) {
                 castSpells(contactSpellCombo.keys, fightBoard.closestEnemyPosition)
             } else {
-                moveToBestCell(playerPos, mp, fightBoard, fightAI)
+                moveToBestCell(playerPos, fightAI)
                 playerPos = playerFighter.fightCell
-                useGapClosers(playerPos, fightBoard, fightAI, gapCloserCombination)
+                useGapClosers(playerPos, fightAI, gapCloserCombination)
                 useAttacks(playerPos, fightBoard, losSpellCombo, nonLosSpellCombo, contactSpellCombo)
             }
 
@@ -155,9 +157,9 @@ class FightTask : DofusBotTask<Boolean>() {
     private fun useAttacks(
         playerPosition: FightCell,
         fightBoard: FightBoard,
-        losSpellCombination: RangeSpellCombination,
-        nonLosSpellCombination: RangeSpellCombination,
-        contactSpellCombination: RangeSpellCombination
+        losSpellCombination: SpellCombination,
+        nonLosSpellCombination: SpellCombination,
+        contactSpellCombination: SpellCombination
     ) {
         val dist = fightBoard.getDist(playerPosition, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE
         val los = fightBoard.lineOfSight(playerPosition, fightBoard.closestEnemyPosition)
@@ -170,31 +172,22 @@ class FightTask : DofusBotTask<Boolean>() {
         castSpells(attacks, fightBoard.closestEnemyPosition)
     }
 
-    private fun useGapClosers(
-        playerPosition: FightCell,
-        fightBoard: FightBoard,
-        fightAI: FightAI,
-        gapCloserSpell: RangeSpellCombination
-    ) {
+    private fun useGapClosers(playerPosition: FightCell, fightAI: FightAI, gapCloserSpell: SpellCombination) {
         if (gapCloserSpell.keys.isNotEmpty()) {
             val minRange = gapCloserSpell.minRange
             val maxRange = gapCloserSpell.maxRange
-            val cellsAtRange = fightBoard.cellsAtRange(minRange, maxRange, playerPosition)
-                .filter { it.isAccessible() && fightBoard.isFighterHere(it) }
-                .filter { it != fightBoard.closestEnemyPosition }
-            val bestCell = fightAI.selectBestDest(cellsAtRange)
+            val bestCell = fightAI.selectBestTpDest(minRange, maxRange)
             if (bestCell != playerPosition) {
                 castSpells(gapCloserSpell.keys, bestCell)
             }
         }
     }
 
-    private fun moveToBestCell(playerPosition: FightCell, mp: Int, fightBoard: FightBoard, fightAI: FightAI) {
-        fightAI.selectBestDest(fightBoard.getMoveCells(mp, playerPosition)).takeIf { it != playerPosition }
-            ?.let {
-                MouseUtil.leftClick(it.getCenter(), false, 0)
-                return waitForSequenceCompleteEnd()
-            }
+    private fun moveToBestCell(playerPosition: FightCell, fightAI: FightAI) {
+        fightAI.selectBestMoveDest().takeIf { it != playerPosition }?.let {
+            MouseUtil.leftClick(it.getCenter(), false, 0)
+            return waitForSequenceCompleteEnd()
+        }
     }
 
     private fun castSpells(keys: String, target: FightCell) {

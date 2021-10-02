@@ -5,9 +5,7 @@ import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.WindowsUtil
-import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.listeners.KeyboardListener
+import fr.lewon.dofus.bot.util.VLDofusBotCoreUtil
 import fr.lewon.dofus.bot.util.logs.VldbLogger
 import fr.lewon.dofus.bot.util.manager.VldbManager
 import net.miginfocom.swing.MigLayout
@@ -19,39 +17,45 @@ import javax.swing.*
 
 object InitPanel : JPanel(MigLayout("ins 10")) {
 
-    private val decompiledLabel = JLabel("Dofus decompiled ...").also { it.foreground = Color.LIGHT_GRAY }
-    private val decompiledProgressBar = JProgressBar().also { it.isVisible = false }
+    private var errorOnInit = true
 
-    private val snifferHandlersLabel = JLabel("Sniffer handlers ...").also { it.foreground = Color.LIGHT_GRAY }
-    private val snifferHandlersProgressBar = JProgressBar().also { it.isVisible = false }
+    private val initTasks = listOf(
+        buildInitTask("Dofus decompiled") { DofusMessageReceiverUtil.prepareNetworkManagers() },
+        buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
+        buildInitTask("Sniffer Message Receiver") { DofusMessageReceiver.restartThread() },
+        buildInitTask("VLDofusBotCore Managers") { VLDofusBotCoreUtil.initAll() },
+        buildInitTask("Config Managers") { initConfigManagers() },
+        buildInitTask("OpenCV") { OpenCV.loadLocally() },
+    )
 
-    private val dofusManagersLabel = JLabel("Dofus Managers ...").also { it.foreground = Color.LIGHT_GRAY }
-    private val dofusManagersProgressBar = JProgressBar().also { it.isVisible = false }
-
-    private val openCvLabel = JLabel("OpenCV ...").also { it.foreground = Color.LIGHT_GRAY }
-    private val openCvProgressBar = JProgressBar().also { it.isVisible = false }
-
-    private val keyboardListenerLabel = JLabel("Keyboard Listener ...").also { it.foreground = Color.LIGHT_GRAY }
-    private val keyboardListenerProgressBar = JProgressBar().also { it.isVisible = false }
-
-    private val initOkLabel = JLabel("VLDofusBot initialization OK !").also {
-        it.foreground = Color.GREEN
+    private val resultLabel = JTextArea().also {
+        it.lineWrap = true
+        it.isEditable = false
         it.isVisible = false
+    }
+    private val retryButton = JButton("Retry").also {
+        it.isVisible = false
+        it.addActionListener { Thread { InitFrame.startInit() }.start() }
     }
 
     init {
         background = Color.DARK_GRAY
-        addLine(decompiledLabel, decompiledProgressBar)
-        addLine(snifferHandlersLabel, snifferHandlersProgressBar)
-        addLine(dofusManagersLabel, dofusManagersProgressBar)
-        addLine(openCvLabel, openCvProgressBar)
-        addLine(keyboardListenerLabel, keyboardListenerProgressBar, false)
+        resultLabel.background = background
+        initTasks.forEach { addLine(it.label, it.progressBar, it != initTasks.last()) }
 
         add(JPanel().also { it.background = background }, "span 2, grow, pushy, wrap")
-        val okLabelPanel = JPanel(MigLayout("", "[center, grow]"))
-        okLabelPanel.background = background
-        okLabelPanel.add(initOkLabel)
-        add(okLabelPanel, "dock south")
+        val retryButtonPanel = JPanel(MigLayout("", "[center, grow]"))
+        val resultLabelPanel = JPanel(MigLayout("", "[fill, center, grow]"))
+        retryButtonPanel.background = background
+        resultLabelPanel.background = background
+        retryButtonPanel.add(retryButton)
+        resultLabelPanel.add(resultLabel)
+        add(retryButtonPanel, "dock south")
+        add(resultLabelPanel, "dock south")
+    }
+
+    private fun buildInitTask(labelStr: String, function: () -> Unit): InitTask {
+        return InitTask(JLabel(labelStr), JProgressBar(), function)
     }
 
     private fun addLine(leftComponent: JComponent, rightComponent: JComponent, separator: Boolean = true) {
@@ -60,52 +64,59 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         if (separator) add(JSeparator(JSeparator.HORIZONTAL), "span 2 1, width max, wrap")
     }
 
-    fun initAll() {
-        var success = true
-        success = success && startInit(decompiledLabel, decompiledProgressBar)
-        { DofusMessageReceiverUtil.prepareNetworkManagers() }
-        success = success && startInit(snifferHandlersLabel, snifferHandlersProgressBar) { initEventStoreHandlers() }
-        success = success && startInit(dofusManagersLabel, dofusManagersProgressBar) { initDofusManagers() }
-        success = success && startInit(openCvLabel, openCvProgressBar) { OpenCV.loadLocally() }
-        success = success && startInit(keyboardListenerLabel, keyboardListenerProgressBar) { KeyboardListener.start() }
-
+    fun initAll(): Boolean {
+        super.updateUI()
+        val toInitTasks = initTasks.filter { !it.success }
+        retryButton.isVisible = false
+        resultLabel.isVisible = false
+        val errors = ArrayList<String>()
+        toInitTasks.forEach { prepareInit(it) }
+        toInitTasks.forEach { startInit(it, errors) }
+        val success = initTasks.none { !it.success }
+        errorOnInit = false
+        resultLabel.isVisible = true
         if (success) {
-            initOkLabel.isVisible = true
-            DofusMessageReceiver.start()
-            WindowsUtil.updateGameBounds()
-            WaitUtil.sleep(2000)
+            resultLabel.text = "VLDofusBot initialization OK !"
+            resultLabel.foreground = Color.GREEN
+        } else {
+            resultLabel.text = "VLDofusBot initialization KO : ${errors.joinToString("") { "\n - $it" }}"
+            resultLabel.foreground = Color.RED
         }
-    }
-
-    private fun startInit(label: JLabel, progressBar: JProgressBar, function: () -> Unit): Boolean {
-        label.foreground = Color.WHITE
-        progressBar.isIndeterminate = true
-        progressBar.isVisible = true
-        var success = true
-        try {
-            function.invoke()
-        } catch (e: Throwable) {
-            VldbLogger.error(e.message ?: e.toString())
-            success = false
-        }
-        val color = if (success) Color.GREEN else Color.RED
-        progressBar.foreground = color
-        label.foreground = color
-        progressBar.isIndeterminate = false
-        progressBar.maximum = 1
-        progressBar.value = 1
+        retryButton.isVisible = !success
         return success
     }
 
-    private fun initDofusManagers() {
-        Reflections(VldbManager::class.java.packageName)
-            .getSubTypesOf(VldbManager::class.java)
-            .mapNotNull { it.kotlin.objectInstance }
-            .forEach { it.forceInit() }
+    private fun prepareInit(initTask: InitTask) {
+        initTask.label.foreground = Color.LIGHT_GRAY
+        initTask.progressBar.isVisible = false
+    }
+
+    private fun startInit(initTask: InitTask, errors: ArrayList<String>) {
+        initTask.label.foreground = Color.WHITE
+        initTask.progressBar.isIndeterminate = true
+        initTask.progressBar.isVisible = true
+        initTask.progressBar.foreground = Color.LIGHT_GRAY
+        try {
+            initTask.function.invoke()
+            initTask.success = true
+        } catch (e: Throwable) {
+            VldbLogger.error(e.message ?: e.toString())
+            errors.add(e.message ?: e.toString())
+            initTask.success = false
+        }
+        val color = if (initTask.success) Color.GREEN else Color.RED
+        initTask.progressBar.foreground = color
+        initTask.label.foreground = color
+        initTask.progressBar.isIndeterminate = false
+        initTask.progressBar.maximum = 1
+        initTask.progressBar.value = 1
+    }
+
+    private fun initConfigManagers() {
         Reflections(VLDofusBot::class.java.packageName)
             .getSubTypesOf(VldbManager::class.java)
             .mapNotNull { it.kotlin.objectInstance }
-            .forEach { it.forceInit() }
+            .forEach { it.initManager() }
     }
 
     private fun initEventStoreHandlers() {

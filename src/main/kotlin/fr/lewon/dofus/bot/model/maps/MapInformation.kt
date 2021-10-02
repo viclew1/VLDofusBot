@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.model.maps
 import com.fasterxml.jackson.annotation.JsonIgnore
 import fr.lewon.dofus.bot.util.manager.d2o.DofusMapManager
 
-class MapInformation(
+data class MapInformation(
     var mapId: Double = -1.0,
     var subAreaId: Int = -1
 ) {

@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.gui.scripts
 
+import fr.lewon.dofus.bot.gui.custom.CustomJTextField
 import fr.lewon.dofus.bot.gui.custom.IntegerJTextField
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
@@ -97,7 +98,7 @@ object ScriptTab : JPanel(MigLayout()) {
         param: DofusBotScriptParameter
     ): JComponent {
         val integerField = IntegerJTextField(param.value.toInt())
-        integerField.addCaretListener { updateParam(character, script, param, integerField.text) }
+        integerField.addCaretListener { updateParam(character, script, param, integerField.text.toIntOrNull() ?: 0) }
         return integerField
     }
 
@@ -117,7 +118,7 @@ object ScriptTab : JPanel(MigLayout()) {
         script: DofusBotScript,
         param: DofusBotScriptParameter
     ): JComponent {
-        val comboBox = JComboBox<String>(param.possibleValues.toTypedArray())
+        val comboBox = JComboBox(param.possibleValues.toTypedArray())
         comboBox.selectedItem = param.value
         comboBox.addItemListener { updateParam(character, script, param, comboBox.selectedItem?.toString() ?: "") }
         return comboBox.also { it.addItemListener { } }
@@ -128,7 +129,7 @@ object ScriptTab : JPanel(MigLayout()) {
         script: DofusBotScript,
         param: DofusBotScriptParameter
     ): JComponent {
-        val textField = JTextField(param.value)
+        val textField = CustomJTextField(param.value)
         textField.addCaretListener { updateParam(character, script, param, textField.text) }
         return textField
     }
@@ -137,9 +138,9 @@ object ScriptTab : JPanel(MigLayout()) {
         character: DofusCharacter,
         script: DofusBotScript,
         param: DofusBotScriptParameter,
-        value: String
+        value: Any
     ) {
-        param.value = value
+        param.value = value.toString()
         CharacterManager.updateParamValue(character, script, param)
         updateDescription()
     }

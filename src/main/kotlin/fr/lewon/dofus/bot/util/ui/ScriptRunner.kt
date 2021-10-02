@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.util.ui
 
 import fr.lewon.dofus.bot.gui.MainFrame
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
 import fr.lewon.dofus.bot.util.WindowsUtil
 import fr.lewon.dofus.bot.util.logs.LogItem
 import fr.lewon.dofus.bot.util.logs.VldbLogger
@@ -18,11 +19,14 @@ object ScriptRunner {
         if (isThreadRunning) {
             error("Cannot run script, there is already one running")
         }
-        WindowsUtil.bringGameToFront()
-        WindowsUtil.updateGameBounds()
         runnerThread = Thread {
             currentLogItem = VldbLogger.log("Executing Dofus script : [${dofusScript.name}]")
             try {
+                if (!DofusMessageReceiver.isThreadAlive()) {
+                    DofusMessageReceiver.restartThread()
+                }
+                WindowsUtil.bringGameToFront()
+                WindowsUtil.updateGameBounds()
                 dofusScript.execute(currentLogItem)
                 onScriptOk()
             } catch (e: Exception) {
@@ -37,7 +41,7 @@ object ScriptRunner {
     @Synchronized
     fun stopScript() {
         if (isThreadRunning) {
-            runnerThread.stop()
+            runnerThread.interrupt()
             onScriptCanceled()
         }
     }

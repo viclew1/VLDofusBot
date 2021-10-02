@@ -54,21 +54,19 @@ object CharactersTab : JPanel(MigLayout()) {
     }
 
     private fun processAddCharacterButton() {
-        val form = CharacterFormFrame("Create character")
-        MainFrame.isEnabled = false
+        val form = CharacterFormFrame("Create character", MainFrame)
         form.isUndecorated = true
+        form.setLocationRelativeTo(MainFrame)
         form.isVisible = true
-        form.setLocationRelativeTo(this)
         form.addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent) {
-                MainFrame.isEnabled = true
-                MainFrame.toFront()
                 if (form.resultOk) {
                     val createdCharacter = CharacterManager.addCharacter(
-                        form.connectionTab.getLogin(),
-                        form.connectionTab.getPassword(),
-                        form.connectionTab.getPseudo(),
-                        form.connectionTab.getDofusClass()
+                        form.connectionPanel.getLogin(),
+                        form.connectionPanel.getPassword(),
+                        form.connectionPanel.getPseudo(),
+                        form.connectionPanel.getDofusClass(),
+                        form.aiPanel.getSpells()
                     )
                     charactersCardList.addCharacterCard(createdCharacter)
                 }
@@ -81,22 +79,20 @@ object CharactersTab : JPanel(MigLayout()) {
     }
 
     fun updateCharacter(characterCard: CharacterCard) {
-        val form = CharacterFormFrame("Update : ${characterCard.character.pseudo}", characterCard.character)
-        MainFrame.isEnabled = false
+        val form = CharacterFormFrame("Update : ${characterCard.character.pseudo}", MainFrame, characterCard.character)
         form.isUndecorated = true
+        form.setLocationRelativeTo(MainFrame)
         form.isVisible = true
-        form.setLocationRelativeTo(this)
         form.addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent) {
-                MainFrame.isEnabled = true
-                MainFrame.toFront()
                 if (form.resultOk) {
                     CharacterManager.updateCharacter(
                         characterCard.character,
-                        form.connectionTab.getLogin(),
-                        form.connectionTab.getPassword(),
-                        form.connectionTab.getPseudo(),
-                        form.connectionTab.getDofusClass()
+                        form.connectionPanel.getLogin(),
+                        form.connectionPanel.getPassword(),
+                        form.connectionPanel.getPseudo(),
+                        form.connectionPanel.getDofusClass(),
+                        form.aiPanel.getSpells()
                     )
                     characterCard.update(characterCard.character == CharacterManager.getCurrentCharacter())
                 }
