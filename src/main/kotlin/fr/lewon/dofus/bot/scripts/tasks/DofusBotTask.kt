@@ -1,29 +1,30 @@
 package fr.lewon.dofus.bot.scripts.tasks
 
-import fr.lewon.dofus.bot.ui.DofusTreasureBotGUIController
-import fr.lewon.dofus.bot.ui.LogItem
+import fr.lewon.dofus.bot.util.logs.LogItem
+import fr.lewon.dofus.bot.util.logs.VldbLogger
 
-abstract class DofusBotTask<T>(
-    protected val controller: DofusTreasureBotGUIController,
-    private val parentLogItem: LogItem?
-) {
+abstract class DofusBotTask<T> {
 
     protected abstract fun execute(logItem: LogItem): T
 
-    protected abstract fun onFailed(exception: Exception, logItem: LogItem)
+    protected open fun onFailed(exception: Exception): String {
+        return "KO - [${exception.localizedMessage}]"
+    }
 
-    protected abstract fun onSucceeded(value: T, logItem: LogItem)
+    protected open fun onSucceeded(value: T): String {
+        return "OK"
+    }
 
-    protected abstract fun onStarted(parentLogItem: LogItem?): LogItem
+    protected abstract fun onStarted(): String
 
-    fun run(): T {
-        val logItem = onStarted(parentLogItem)
+    fun run(parentLogItem: LogItem?): T {
+        val logItem = VldbLogger.log(onStarted(), parentLogItem)
         try {
             val result = execute(logItem)
-            onSucceeded(result, logItem)
+            VldbLogger.closeLog(onSucceeded(result), logItem)
             return result
         } catch (e: Exception) {
-            onFailed(e, logItem)
+            VldbLogger.closeLog(onFailed(e), logItem)
             throw e
         }
     }
