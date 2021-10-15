@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
+import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.fight.*
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -25,7 +26,6 @@ import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
 import java.awt.event.KeyEvent
 
 class FightTask : DofusBotTask<Boolean>() {
@@ -69,10 +69,10 @@ class FightTask : DofusBotTask<Boolean>() {
 
     override fun execute(logItem: LogItem): Boolean {
         val character = CharacterManager.getCurrentCharacter() ?: error("No current character defined")
-        val preMoveBuffCombination = SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, 4, 1, 5, -2)
-        val losSpellCombo = SpellCombination(SpellType.ATTACK, "33", 2, 11, true, false, 0, 2, 2, 3)
+        val preMoveBuffCombination = SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, 4, 4, 1, 5, -2)
+        val losSpellCombo = SpellCombination(SpellType.ATTACK, "33", 2, 11, true, false, 0, 6, 2, 0, 5)
         val nonLosSpellCombo = SpellCombination(SpellType.ATTACK, "", -1, -1, false, false, 0, 0, 0, 0)
-        val contactSpellCombo = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, 0, 2, 2, 2)
+        val contactSpellCombo = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, 0, 8, 2, 0, 2)
         val gapCloserCombination = SpellCombination(SpellType.GAP_CLOSER, "", -1, -1, false, false, 0, 0, 0, 0)
         var preMoveBuffCd = 0
 

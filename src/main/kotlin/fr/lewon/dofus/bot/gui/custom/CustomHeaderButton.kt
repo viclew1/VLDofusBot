@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.gui.custom
 
+import fr.lewon.dofus.bot.gui.util.AppFonts
 import java.awt.Color
-import java.awt.Font
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JLabel
@@ -27,7 +27,7 @@ class CustomHeaderButton(title: String, onClick: (MouseEvent) -> Unit) : JLabel(
         horizontalAlignment = SwingConstants.CENTER
         verticalAlignment = SwingConstants.TOP
         foreground = Color.WHITE
-        font = Font("Tahoma", Font.PLAIN, 20)
+        font = AppFonts.HEADER_FONT
     }
 
 }

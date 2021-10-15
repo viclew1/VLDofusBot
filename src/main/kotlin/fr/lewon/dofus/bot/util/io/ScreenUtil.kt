@@ -140,8 +140,8 @@ object ScreenUtil {
      */
     fun isBetween(color: Color, min: Color, max: Color): Boolean {
         return color.red in min.red..max.red &&
-            color.green in min.green..max.green &&
-            color.blue in min.blue..max.blue
+                color.green in min.green..max.green &&
+                color.blue in min.blue..max.blue
     }
 
     /**

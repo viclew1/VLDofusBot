@@ -1,25 +1,29 @@
 package fr.lewon.dofus.bot.gui
 
 import com.formdev.flatlaf.FlatDarkLaf
+import com.formdev.flatlaf.FlatLaf
 import com.formdev.flatlaf.FlatLightLaf
 import fr.lewon.dofus.bot.VLDofusBot
+import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
 import fr.lewon.dofus.bot.gui.custom.CustomFrame
+import fr.lewon.dofus.bot.gui.tabs.exec.ExecutionTab
 import fr.lewon.dofus.bot.gui.util.AppColors
-import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
+import fr.lewon.dofus.bot.util.script.ScriptRunner
+import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
 import java.awt.Color
 import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.swing.JProgressBar
 import javax.swing.SwingUtilities
-import javax.swing.UIManager
 import kotlin.system.exitProcess
 
 object MainFrame : CustomFrame(
-    "VL Dofus Bot", 300, 700, AppColors.DEFAULT_UI_COLOR, 60,
+    "VL Dofus Bot", 309, 700, AppColors.DEFAULT_UI_COLOR, 60,
     MainFrame::class.java.getResource("/icon/logo.png")
-) {
+), ScriptRunnerListener {
     private const val progressBarHeight = 10
     private val progressBar = JProgressBar()
 
@@ -35,6 +39,7 @@ object MainFrame : CustomFrame(
                 exitProcess(0)
             }
         })
+        ScriptRunner.listeners.add(this)
     }
 
     private fun buildFooter() {
@@ -44,18 +49,6 @@ object MainFrame : CustomFrame(
         contentPane.add(progressBar)
     }
 
-    fun loading() {
-        progressBar.background = background
-        progressBar.isBorderPainted = false
-        progressBar.isIndeterminate = true
-    }
-
-    fun stopLoading(resultColor: Color) {
-        progressBar.isIndeterminate = false
-        progressBar.isBorderPainted = true
-        progressBar.background = resultColor
-    }
-
     fun updateAlwaysOnTop(alwaysOnTop: Boolean) {
         SwingUtilities.invokeLater {
             isAlwaysOnTop = alwaysOnTop
@@ -63,28 +56,45 @@ object MainFrame : CustomFrame(
     }
 
     fun lightMode() {
+        updateLaf(FlatLightLaf())
+    }
+
+    fun darkMode() {
+        updateLaf(FlatDarkLaf())
+    }
+
+    private fun updateLaf(laf: FlatLaf) {
         SwingUtilities.invokeLater {
-            FlatLightLaf.setUseNativeWindowDecorations(false)
-            FlatLightLaf.setup()
-            UIManager.setLookAndFeel(FlatLightLaf())
+            FlatLaf.setUseNativeWindowDecorations(false)
+            FlatLaf.setup(laf)
             SwingUtilities.updateComponentTreeUI(this)
         }
     }
 
-    fun darkMode() {
-        SwingUtilities.invokeLater {
-            FlatDarkLaf.setUseNativeWindowDecorations(false)
-            FlatDarkLaf.setup()
-            UIManager.setLookAndFeel(FlatDarkLaf())
-            SwingUtilities.updateComponentTreeUI(this)
+    override fun onScriptEnd(endType: DofusBotScriptEndType) {
+        progressBar.isIndeterminate = false
+        progressBar.isBorderPainted = true
+        progressBar.background = getScriptEndColor(endType)
+    }
+
+    private fun getScriptEndColor(endType: DofusBotScriptEndType): Color {
+        return when (endType) {
+            DofusBotScriptEndType.FAIL -> Color.RED
+            DofusBotScriptEndType.CANCEL -> Color.ORANGE
+            DofusBotScriptEndType.SUCCESS -> Color.GREEN
         }
+    }
+
+    override fun onScriptStart(script: DofusBotScript) {
+        MainPanel.selectedComponent = ExecutionTab
+        progressBar.isBorderPainted = false
+        progressBar.isIndeterminate = true
     }
 
 }
 
 fun main() {
-    CharacterManager.initManager()
-    ConfigManager.initManager()
+    VLDofusBotCoreUtil.initAll()
     MainFrame.isResizable = false
     MainFrame.isUndecorated = true
     MainFrame.setLocationRelativeTo(null)

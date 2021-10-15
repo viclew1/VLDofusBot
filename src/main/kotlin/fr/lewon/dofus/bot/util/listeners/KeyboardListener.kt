@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.util.listeners
 
-import fr.lewon.dofus.bot.util.ui.ScriptRunner
-import org.jnativehook.GlobalScreen
-import org.jnativehook.dispatcher.SwingDispatchService
-import org.jnativehook.keyboard.NativeKeyEvent
-import org.jnativehook.keyboard.NativeKeyListener
+import com.github.kwhat.jnativehook.GlobalScreen
+import com.github.kwhat.jnativehook.dispatcher.SwingDispatchService
+import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
+import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
+import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.util.logging.Level
 import java.util.logging.LogManager
 import java.util.logging.Logger

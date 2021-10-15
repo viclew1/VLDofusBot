@@ -1,7 +1,8 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
-import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.model.maps.MapInformation
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
@@ -17,7 +18,6 @@ import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
 
 class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
 

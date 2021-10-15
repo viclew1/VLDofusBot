@@ -1,12 +1,12 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
+import fr.lewon.dofus.bot.core.manager.VldbManager
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.model.hint.Hint
 import fr.lewon.dofus.bot.model.hint.MoveHints
-import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.model.maps.DofusMapWithDirection
-import fr.lewon.dofus.bot.model.move.Direction
 import fr.lewon.dofus.bot.util.RequestProcessor
-import fr.lewon.dofus.bot.util.manager.VldbManager
 import fr.lewon.dofus.bot.util.math.LevenshteinDistanceUtil
 
 object HintManager : VldbManager {
@@ -46,7 +46,8 @@ object HintManager : VldbManager {
 
     private fun synchronize(map: DofusMap) {
         for (dir in Direction.values()) {
-            val hintsByDirection = RequestProcessor.getHints(map.posX, map.posY, dir, map.worldMap)
+            val hintsByDirection =
+                RequestProcessor.getHints(map.posX, map.posY, dir, map.worldMap)
             synchronize(map, dir, hintsByDirection)
         }
     }

@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.game.move
 
-import fr.lewon.dofus.bot.model.maps.DofusMap
-import fr.lewon.dofus.bot.model.move.Direction
-import fr.lewon.dofus.bot.model.move.Move
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.model.move.Direction
+import fr.lewon.dofus.bot.core.model.move.Move
 import java.util.concurrent.LinkedBlockingDeque
 
 object MoveHistory {

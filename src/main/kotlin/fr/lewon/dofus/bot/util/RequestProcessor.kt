@@ -3,8 +3,8 @@ package fr.lewon.dofus.bot.util
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.model.hint.MoveHints
-import fr.lewon.dofus.bot.model.move.Direction
 import java.net.HttpURLConnection
 import java.net.URL
 

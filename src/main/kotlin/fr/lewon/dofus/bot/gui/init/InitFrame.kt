@@ -20,7 +20,6 @@ object InitFrame : CustomFrame("VL Dofus Bot Initializer", 300, 500, AppColors.D
     init {
         InitPanel.setBounds(0, headerHeight, size.width, size.height - headerHeight)
         contentPane.add(InitPanel)
-        isAlwaysOnTop = true
         iconImage = Toolkit.getDefaultToolkit().getImage(VLDofusBot::class.java.getResource("/icon/taskbar_logo.png"))
         addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent?) {
@@ -42,7 +41,7 @@ object InitFrame : CustomFrame("VL Dofus Bot Initializer", 300, 500, AppColors.D
             WaitUtil.sleep(2000)
             MainFrame.isResizable = false
             MainFrame.isUndecorated = true
-            MainFrame.setLocationRelativeTo(null)
+            MainFrame.setLocationRelativeTo(this)
             MainFrame.isVisible = true
             defaultCloseOperation = DO_NOTHING_ON_CLOSE
             windowListeners.forEach { removeWindowListener(it) }

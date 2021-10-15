@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.MoveHistory
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
@@ -10,7 +11,6 @@ import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
 import java.awt.event.KeyEvent
 
 class ReachHavenBagTask : DofusBotTask<Boolean>() {

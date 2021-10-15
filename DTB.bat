@@ -1,1 +1,0 @@
-java -jar %~dp0\target\DofusTreasureBot-1.0.0.jar

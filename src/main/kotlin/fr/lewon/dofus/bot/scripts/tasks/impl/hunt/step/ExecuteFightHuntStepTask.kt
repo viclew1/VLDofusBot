@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.GameInfo
-import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
 
 class ExecuteFightHuntStepTask() : DofusBotTask<DofusMap>() {
 

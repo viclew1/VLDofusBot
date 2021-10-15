@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks
 
-import fr.lewon.dofus.bot.util.logs.LogItem
-import fr.lewon.dofus.bot.util.logs.VldbLogger
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.logs.VldbLogger
 
 abstract class DofusBotTask<T> {
 

@@ -1,13 +1,11 @@
 package fr.lewon.dofus.bot.gui.init
 
 import fr.lewon.dofus.bot.VLDofusBot
+import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.VLDofusBotCoreUtil
-import fr.lewon.dofus.bot.util.logs.VldbLogger
-import fr.lewon.dofus.bot.util.manager.VldbManager
 import net.miginfocom.swing.MigLayout
 import nu.pattern.OpenCV
 import org.reflections.Reflections
@@ -21,10 +19,9 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
 
     private val initTasks = listOf(
         buildInitTask("Dofus decompiled") { DofusMessageReceiverUtil.prepareNetworkManagers() },
+        buildInitTask("VLDofusBotCore") { VLDofusBotCoreUtil.initAll() },
         buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
-        buildInitTask("Sniffer Message Receiver") { DofusMessageReceiver.restartThread() },
-        buildInitTask("VLDofusBotCore Managers") { VLDofusBotCoreUtil.initAll() },
-        buildInitTask("Config Managers") { initConfigManagers() },
+        buildInitTask("Sniffer Message Receiver") { DofusMessageReceiver.killAndStartThread() },
         buildInitTask("OpenCV") { OpenCV.loadLocally() },
     )
 
@@ -100,7 +97,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
             initTask.function.invoke()
             initTask.success = true
         } catch (e: Throwable) {
-            VldbLogger.error(e.message ?: e.toString())
+            e.printStackTrace()
             errors.add(e.message ?: e.toString())
             initTask.success = false
         }
@@ -112,21 +109,12 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         initTask.progressBar.value = 1
     }
 
-    private fun initConfigManagers() {
-        Reflections(VLDofusBot::class.java.packageName)
-            .getSubTypesOf(VldbManager::class.java)
-            .mapNotNull { it.kotlin.objectInstance }
-            .forEach { it.initManager() }
-    }
-
     private fun initEventStoreHandlers() {
         Reflections(VLDofusBot::class.java.packageName)
             .getSubTypesOf(EventHandler::class.java)
             .filter { !it.kotlin.isAbstract }
             .mapNotNull { it.kotlin.objectInstance ?: it.getConstructor().newInstance() }
-            .forEach {
-                EventStore.addEventHandler(it)
-            }
+            .forEach { EventStore.addEventHandler(it) }
     }
 
 }

@@ -1,15 +1,17 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
+import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.util.FormatUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
-import fr.lewon.dofus.bot.util.logs.VldbLogger
 
 object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
@@ -33,13 +35,16 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         )
     }
 
+    private val huntFetchDurations = ArrayList<Long>()
     private val huntDurations = ArrayList<Long>()
-    private var successRateStat = Pair("Success rate", "")
-    private var averageHuntDurationStat = Pair("Average hunt duration", "")
+    private val successRateStat = DofusBotScriptStat("Success rate")
+    private val averageHuntFetchDurationStat = DofusBotScriptStat("Average hunt fetch duration")
+    private val averageHuntDurationStat = DofusBotScriptStat("Average hunt duration")
 
-    override fun getStats(): List<Pair<String, String>> {
+    override fun getStats(): List<DofusBotScriptStat> {
         return listOf(
             successRateStat,
+            averageHuntFetchDurationStat,
             averageHuntDurationStat
         )
     }
@@ -65,11 +70,15 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         }
 
         for (i in 0 until huntCountParameter.value.toInt()) {
+            var startTimeStamp = System.currentTimeMillis()
             if (!TreasureHuntUtil.isHuntPresent()) {
                 FetchHuntTask().run(logItem)
             }
+            var duration = System.currentTimeMillis() - startTimeStamp
+            huntFetchDurations.add(duration)
+            averageHuntFetchDurationStat.value = FormatUtil.durationToStr(huntFetchDurations.average().toLong())
 
-            val startTimeStamp = System.currentTimeMillis()
+            startTimeStamp = System.currentTimeMillis()
 
             var success = true
             while (TreasureHuntUtil.isHuntPresent()) {
@@ -79,36 +88,27 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
                 WaitUtil.sleep(300)
             }
 
-            val duration = System.currentTimeMillis() - startTimeStamp
-            updateStats(duration, successCount, i + 1)
+            duration = System.currentTimeMillis() - startTimeStamp
+            huntDurations.add(duration)
+            averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
 
             if (success) {
                 VldbLogger.log("Hunt succeeded")
                 successCount++
             } else {
                 VldbLogger.log("Hunt failed")
+            }
+            successRateStat.value = "$successCount / ${i + 1}"
+            if (!success) {
                 WaitUtil.sleep(600 * 1000 - duration)
                 TreasureHuntUtil.giveUpHunt()
             }
         }
     }
 
-    private fun updateStats(duration: Long, successCount: Int, huntsCount: Int) {
-        huntDurations.add(duration)
-        successRateStat = Pair(successRateStat.first, "$successCount / $huntsCount")
-        averageHuntDurationStat = Pair(averageHuntDurationStat.first, getHuntDurationsStr())
-    }
-
-    private fun getHuntDurationsStr(): String {
-        val average = huntDurations.average().toLong()
-        val minutes = average / (60 * 1000)
-        val seconds = ((average - minutes * 60 * 1000) / 1000).toString().padStart(2, '0')
-        return "${minutes}M ${seconds}S"
-    }
-
     private fun clearStats() {
         huntDurations.clear()
-        successRateStat = Pair(successRateStat.first, "")
-        averageHuntDurationStat = Pair(averageHuntDurationStat.first, "")
+        successRateStat.resetValue()
+        averageHuntDurationStat.resetValue()
     }
 }

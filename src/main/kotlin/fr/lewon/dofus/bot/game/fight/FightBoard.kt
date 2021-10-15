@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.game.fight
 
+import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.manager.d2p.maps.cell.CellData
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap

@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
-import fr.lewon.dofus.bot.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.util.logs.LogItem
 
 open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<DofusMap>() {
 

@@ -1,8 +1,9 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
-import fr.lewon.dofus.bot.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.CustomMoveTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.TravelTask
@@ -12,7 +13,6 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
 import java.awt.Color
 
 class FetchHuntTask : DofusBotTask<Boolean>() {

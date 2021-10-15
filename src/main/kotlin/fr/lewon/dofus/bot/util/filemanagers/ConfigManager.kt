@@ -2,9 +2,9 @@ package fr.lewon.dofus.bot.util.filemanagers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
+import fr.lewon.dofus.bot.core.manager.VldbManager
 import fr.lewon.dofus.bot.model.config.VldbConfig
-import fr.lewon.dofus.bot.util.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.util.manager.VldbManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter

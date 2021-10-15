@@ -3,6 +3,8 @@ package fr.lewon.dofus.bot.util.filemanagers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
+import fr.lewon.dofus.bot.core.manager.VldbManager
 import fr.lewon.dofus.bot.gui.MainPanel
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
@@ -11,8 +13,6 @@ import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.maps.MapInformation
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
-import fr.lewon.dofus.bot.util.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.util.manager.VldbManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter

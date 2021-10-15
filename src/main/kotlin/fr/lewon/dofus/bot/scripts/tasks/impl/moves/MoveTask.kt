@@ -1,14 +1,14 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.MoveHistory
-import fr.lewon.dofus.bot.model.maps.DofusMap
-import fr.lewon.dofus.bot.model.move.Direction
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.logs.LogItem
 
 abstract class MoveTask(private val direction: Direction) : DofusBotTask<DofusMap>() {
 

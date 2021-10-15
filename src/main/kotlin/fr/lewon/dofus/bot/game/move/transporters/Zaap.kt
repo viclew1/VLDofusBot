@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.model.maps.DofusCoordinates
+import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 
 enum class Zaap(private val coordinates: DofusCoordinates, private val altWorld: Boolean = false) : ITravelElement {
 

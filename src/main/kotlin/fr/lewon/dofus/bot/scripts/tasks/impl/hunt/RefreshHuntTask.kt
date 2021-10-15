@@ -1,12 +1,12 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
+import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.logs.LogItem
 
 class RefreshHuntTask : DofusBotTask<TreasureHuntMessage>() {
 

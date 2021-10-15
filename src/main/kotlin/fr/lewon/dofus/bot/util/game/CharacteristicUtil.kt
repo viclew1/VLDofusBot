@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.util.game
 
+import fr.lewon.dofus.bot.core.manager.CharacteristicManager
 import fr.lewon.dofus.bot.game.fight.FighterCharacteristic
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicDetailed
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
-import fr.lewon.dofus.bot.util.manager.d2o.CharacteristicManager
 
 object CharacteristicUtil {
 
