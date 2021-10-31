@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.util.geometry
 
-class RectangleRelative(val x: Float, val y: Float, val width: Float, val height: Float) : IRectangle<PointRelative> {
+class RectangleRelative(val x: Float, val y: Float, val width: Float, val height: Float) :
+    IRectangle<RectangleRelative, PointRelative> {
 
     companion object {
 
@@ -30,4 +31,7 @@ class RectangleRelative(val x: Float, val y: Float, val width: Float, val height
         return PointRelative(x + width, y + height)
     }
 
+    override fun getTranslation(delta: PointRelative): RectangleRelative {
+        return RectangleRelative(x + delta.x, y + delta.y, width, height)
+    }
 }

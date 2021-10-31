@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.util.io.ConverterUtil
 import net.miginfocom.swing.MigLayout
 import java.awt.Insets
 import javax.swing.ImageIcon
@@ -45,7 +46,10 @@ class AccessSelectorPane : JPanel(MigLayout()) {
     private fun registerDirection(dir: Direction) {
         val locatorFrame = CursorLocatorFrame("Click on position to register") {
             val currentMap = GameInfo.currentMap
-            ConfigManager.editConfig { cfg -> cfg.moveAccessStore.registerAccessPoint(currentMap.id, dir, it) }
+            val locationRelative = ConverterUtil.toPointRelative(it)
+            ConfigManager.editConfig { cfg ->
+                cfg.moveAccessStore.registerAccessPoint(currentMap.id, dir, locationRelative)
+            }
         }
         locatorFrame.isVisible = true
     }

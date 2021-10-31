@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.fight.*
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -22,41 +23,46 @@ import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.imagetreatment.MatManager
 import fr.lewon.dofus.bot.util.imagetreatment.OpenCvUtil
-import fr.lewon.dofus.bot.util.io.KeyboardUtil
-import fr.lewon.dofus.bot.util.io.MouseUtil
-import fr.lewon.dofus.bot.util.io.ScreenUtil
-import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.io.*
 import java.awt.event.KeyEvent
 
 class FightTask : DofusBotTask<Boolean>() {
 
     companion object {
 
-        private val READY_BUTTON_POINT = PointRelative(0.91571426f, 0.93571424f)
         private val LVL_UP_OK_BUTTON_POINT = PointRelative(0.47435898f, 0.6868327f)
+        private val REF_TOP_LEFT_POINT = PointRelative(0.15609138f, 0.88906497f)
 
-        private val CREATURE_MODE_BUTTON_BOUNDS = RectangleRelative.build(
-            PointRelative(0.91109365f, 0.96755165f),
-            PointRelative(0.9291896f, 0.9882006f)
+        private val REF_READY_BUTTON_BOUNDS = RectangleRelative.build(
+            PointRelative(0.6294416f, 0.9001585f),
+            PointRelative(0.7385787f, 0.9540412f)
         )
 
-        private val BLOCK_HELP_BUTTON_BOUNDS = RectangleRelative.build(
-            PointRelative(0.92428577f, 0.86428577f),
-            PointRelative(0.94142854f, 0.88214284f)
+        private val REF_CREATURE_MODE_BUTTON_BOUNDS = RectangleRelative.build(
+            PointRelative(0.6497462f, 0.9667195f),
+            PointRelative(0.66497463f, 0.9857369f)
         )
+
+        private val REF_BLOCK_HELP_BUTTON_BOUNDS = RectangleRelative.build(
+            PointRelative(0.66243654f, 0.86529315f),
+            PointRelative(0.67893404f, 0.8827259f)
+        )
+
+        private val MIN_COLOR = AppColors.HIGHLIGHT_COLOR_MIN
+        private val MAX_COLOR = AppColors.HIGHLIGHT_COLOR_MAX
 
     }
 
+    private lateinit var readyButtonBounds: RectangleRelative
+    private lateinit var creatureModeBounds: RectangleRelative
+    private lateinit var blockHelpBounds: RectangleRelative
+
     private fun isPlayerTurn(): Boolean {
-        return ScreenUtil.isBetween(READY_BUTTON_POINT, AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX)
+        return ScreenUtil.colorCount(readyButtonBounds, MIN_COLOR, MAX_COLOR) > 0
     }
 
     private fun isLvlUp(): Boolean {
-        return ScreenUtil.isBetween(
-            LVL_UP_OK_BUTTON_POINT,
-            AppColors.HIGHLIGHT_COLOR_MIN,
-            AppColors.HIGHLIGHT_COLOR_MAX
-        )
+        return ScreenUtil.isBetween(LVL_UP_OK_BUTTON_POINT, MIN_COLOR, MAX_COLOR)
     }
 
     private fun isFightEnded(): Boolean {
@@ -200,7 +206,7 @@ class FightTask : DofusBotTask<Boolean>() {
     }
 
     private fun castSpell(key: Char, target: FightCell) {
-        KeyboardUtil.sendKey(KeyEvent.getExtendedKeyCodeForChar(key.toInt()), 150)
+        KeyboardUtil.sendKey(KeyEvent.getExtendedKeyCodeForChar(key.code), 150)
         MouseUtil.leftClick(target.getCenter(), false, 0)
         return waitForSequenceCompleteEnd()
     }
@@ -220,30 +226,21 @@ class FightTask : DofusBotTask<Boolean>() {
     }
 
     private fun initFight() {
-        if (!ScreenUtil.waitForColor(
-                READY_BUTTON_POINT,
-                AppColors.HIGHLIGHT_COLOR_MIN,
-                AppColors.HIGHLIGHT_COLOR_MAX
-            )
-        ) {
+        val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_FIGHT)
+        val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
+        val deltaTopLeftPoint = REF_TOP_LEFT_POINT.opposite().getSum(uiPointRelative)
+        readyButtonBounds = REF_READY_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
+        creatureModeBounds = REF_CREATURE_MODE_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
+        blockHelpBounds = REF_BLOCK_HELP_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
+
+        if (!WaitUtil.waitUntil({ ScreenUtil.colorCount(readyButtonBounds, MIN_COLOR, MAX_COLOR) > 0 })) {
             error("Couldn't find READY button")
         }
-
-        if (ScreenUtil.colorCount(
-                CREATURE_MODE_BUTTON_BOUNDS,
-                AppColors.HIGHLIGHT_COLOR_MIN,
-                AppColors.HIGHLIGHT_COLOR_MAX
-            ) == 0
-        ) {
-            MouseUtil.leftClick(CREATURE_MODE_BUTTON_BOUNDS.getCenter())
+        if (ScreenUtil.colorCount(creatureModeBounds, MIN_COLOR, MAX_COLOR) == 0) {
+            MouseUtil.leftClick(creatureModeBounds.getCenter())
         }
-        if (ScreenUtil.colorCount(
-                BLOCK_HELP_BUTTON_BOUNDS,
-                AppColors.HIGHLIGHT_COLOR_MIN,
-                AppColors.HIGHLIGHT_COLOR_MAX
-            ) == 0
-        ) {
-            MouseUtil.leftClick(BLOCK_HELP_BUTTON_BOUNDS.getCenter())
+        if (ScreenUtil.colorCount(blockHelpBounds, MIN_COLOR, MAX_COLOR) == 0) {
+            MouseUtil.leftClick(blockHelpBounds.getCenter())
         }
     }
 

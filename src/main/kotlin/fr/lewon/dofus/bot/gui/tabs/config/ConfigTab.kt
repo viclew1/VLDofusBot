@@ -3,7 +3,9 @@ package fr.lewon.dofus.bot.gui.tabs.config
 import fr.lewon.dofus.bot.core.logs.LogLevel
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.gui.MainFrame
+import fr.lewon.dofus.bot.util.WindowsUtil
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import net.miginfocom.swing.MigLayout
@@ -48,7 +50,13 @@ object ConfigTab : JPanel(MigLayout()) {
 
     private fun locatePoint() {
         val locatorFrame = CursorLocatorFrame("Click on position to register") {
-            println("PointRelative(${it.x}f, ${it.y}f)")
+            println("-----")
+            WindowsUtil.updateGameBounds()
+            println("PointAbsolute(${it.x}, ${it.y})")
+            val pointRelative = ConverterUtil.toPointRelative(it)
+            println("PointRelative(${pointRelative.x}f, ${pointRelative.y}f)")
+            val uiPoint = ConverterUtil.toUIPoint(it)
+            println("UIPoint(${uiPoint.x}, ${uiPoint.y})")
             Thread {
                 WaitUtil.sleep(1000)
                 val color = ScreenUtil.getPixelColor(it)

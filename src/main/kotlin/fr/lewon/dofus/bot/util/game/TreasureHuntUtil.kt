@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -16,40 +17,46 @@ import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFight
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToHint
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.imagetreatment.MatManager
-import fr.lewon.dofus.bot.util.imagetreatment.OpenCvUtil
 import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import java.awt.Color
 
 object TreasureHuntUtil {
 
-    private val REF_TOP_RIGHT_HUNT_POINT = PointRelative(0.0062942565f, 0.17010815f)
-    private val REF_GIVE_UP_HUNT_POINT = PointRelative(-0.010126582f, 0.21835445f)
-    private val REF_FIGHT_POINT = PointRelative(-0.08969315f, 0.2910521f)
-    private val REF_FIRST_FLAG_POINT = PointRelative(-0.014117647f, 0.2882353f)
-    private val REF_SIXTH_FLAG_POINT = PointRelative(-0.014117647f, 0.42794117f)
+    private val REF_TOP_LEFT_HUNT_POINT = PointRelative(-0.27520758f, 0.14222223f)
+    private val REF_GIVE_UP_HUNT_POINT = PointRelative(-0.03321471f, 0.19111112f)
+    private val REF_FIGHT_POINT = PointRelative(-0.2019774f, 0.2627866f)
+    private val REF_DISPLAY_BORDER_POINT = PointRelative(-0.080681816f, 0.3849432f)
+    private val REF_FIRST_FLAG_POINT = PointRelative(-0.03084223f, 0.26222223f)
+    private val REF_SIXTH_FLAG_POINT = PointRelative(-0.03084223f, 0.40564373f)
+    private val REF_SEARCH_POINT = PointRelative(-0.042372882f, 0.43915343f)
 
+    private val REF_DISPLAY_BORDERS_FROM_FLAG_X = REF_DISPLAY_BORDER_POINT.x - REF_FIRST_FLAG_POINT.x
     private const val FLAG_WIDTH = 0.02f
     private const val FLAG_HALF_WIDTH = FLAG_WIDTH / 2f
     private val FLAG_DELTA_Y = (REF_SIXTH_FLAG_POINT.y - REF_FIRST_FLAG_POINT.y) / 5
 
-    private val REF_DELTA_GIVE_UP_HUNT_POINT = REF_GIVE_UP_HUNT_POINT.getDifference(REF_TOP_RIGHT_HUNT_POINT)
-    private val REF_DELTA_SEARCH_BUTTON_POINT_FROM_BOT_RIGHT = PointRelative(-0.03f, -0.02f)
-    private val REF_DELTA_FLAGS_AREA_LIMIT_POINT_FROM_BOT_RIGHT = PointRelative(0f, -0.04f)
-    private val REF_DELTA_FIGHT_BUTTON_POINT = REF_FIGHT_POINT.getDifference(REF_TOP_RIGHT_HUNT_POINT)
-    private val REF_DELTA_FIRST_FLAG_POINT = REF_FIRST_FLAG_POINT.getDifference(REF_TOP_RIGHT_HUNT_POINT)
+    private val REF_DELTA_GIVE_UP_HUNT_POINT = REF_GIVE_UP_HUNT_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
+    private val REF_DELTA_FIRST_FLAG_POINT = REF_FIRST_FLAG_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
+    private val REF_DELTA_SEARCH_BUTTON_POINT_FROM_LAST_FLAG = REF_SEARCH_POINT.getDifference(REF_SIXTH_FLAG_POINT)
+    private val REF_DELTA_FIGHT_BUTTON_POINT = REF_FIGHT_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
 
     private lateinit var giveUpHuntPoint: PointRelative
     private lateinit var searchHuntPoint: PointRelative
     private lateinit var firstFlagPoint: PointRelative
-    private lateinit var flagsAreaLimitPoint: PointRelative
+    private lateinit var fightPoint: PointRelative
+    private var flagsCount = 0
 
     fun isHuntPresent(): Boolean {
-        return isSearchStep() || isFightStep()
+        val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition()
+        val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
+        fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
+        val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
+        return ScreenUtil.colorCount(refRect, AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX) > 0
+            && ScreenUtil.colorCount(refRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
     }
 
     fun getTreasureHunt(): TreasureHuntMessage {
@@ -63,12 +70,8 @@ object TreasureHuntUtil {
     }
 
     fun getLastNonTickedFlagIndex(): Int? {
-        val flagsLimitY = flagsAreaLimitPoint.y
-        for (i in 0 until 20) {
+        for (i in 0 until flagsCount) {
             val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * i)
-            if (tickPoint.y > flagsLimitY) {
-                return null
-            }
             val tickBox = RectangleRelative(
                 tickPoint.x - FLAG_HALF_WIDTH,
                 tickPoint.y - FLAG_HALF_WIDTH,
@@ -98,11 +101,15 @@ object TreasureHuntUtil {
     }
 
     fun isSearchStep(): Boolean {
-        return getSearchStepBounds() != null
+        return isHuntPresent() && !isFightStep()
     }
 
     fun isFightStep(): Boolean {
-        return getFightStepBounds() != null
+        return isHuntPresent() && ScreenUtil.isBetween(
+            fightPoint,
+            AppColors.HIGHLIGHT_COLOR_MIN,
+            AppColors.HIGHLIGHT_COLOR_MAX
+        )
     }
 
     fun giveUpHunt(): TreasureHuntMessage {
@@ -112,9 +119,6 @@ object TreasureHuntUtil {
     }
 
     fun fight(logItem: LogItem?) {
-        val fightBounds = getFightStepBounds() ?: error("Current step isn't fight step")
-        val topRightHuntPoint = ConverterUtil.toPointRelative(fightBounds.getTopRight())
-        val fightPoint = topRightHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
         MouseUtil.leftClick(fightPoint, false, 0)
         FightTask().run(logItem)
     }
@@ -123,34 +127,34 @@ object TreasureHuntUtil {
         return WaitUtil.waitForEvents(TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
     }
 
-    private fun getSearchStepBounds(): RectangleAbsolute? {
-        return OpenCvUtil.getFrameBounds(
-            MatManager.TOP_HUNT_MAT.buildMat(),
-            MatManager.BOT_HUNT_MAT.buildMat(),
-            MatManager.LEFT_HUNT_MAT.buildMat(),
-            MatManager.RIGHT_HUNT_MAT.buildMat(),
-            0.5
-        )
-    }
-
-    private fun getFightStepBounds(): RectangleAbsolute? {
-        return OpenCvUtil.getFrameBounds(
-            MatManager.TOP_HUNT_MAT.buildMat(),
-            MatManager.BOT_FIGHT_HUNT_MAT.buildMat(),
-            MatManager.LEFT_HUNT_MAT.buildMat(),
-            MatManager.RIGHT_HUNT_MAT.buildMat(),
-            0.7
-        )
-    }
-
     fun updatePoints() {
-        val bounds = getSearchStepBounds() ?: error("No hunt present")
-        val topRightHuntPoint = ConverterUtil.toPointRelative(bounds.getTopRight())
-        val botRightHuntPoint = ConverterUtil.toPointRelative(bounds.getBottomRight())
-        giveUpHuntPoint = topRightHuntPoint.getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
-        firstFlagPoint = topRightHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
-        searchHuntPoint = botRightHuntPoint.getSum(REF_DELTA_SEARCH_BUTTON_POINT_FROM_BOT_RIGHT)
-        flagsAreaLimitPoint = botRightHuntPoint.getSum(REF_DELTA_FLAGS_AREA_LIMIT_POINT_FROM_BOT_RIGHT)
+        val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition()
+        val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
+        giveUpHuntPoint = topLeftHuntPoint.getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
+        firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
+        fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
+        if (isSearchStep()) {
+            defineFlagsCount()
+            val firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
+            val lastFlagPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + (flagsCount - 1) * FLAG_DELTA_Y)
+            searchHuntPoint = lastFlagPoint.getSum(REF_DELTA_SEARCH_BUTTON_POINT_FROM_LAST_FLAG)
+        }
+    }
+
+    private fun defineFlagsCount() {
+        flagsCount = 0
+        val x = firstFlagPoint.x + REF_DISPLAY_BORDERS_FROM_FLAG_X
+        while (ScreenUtil.colorCount(
+                RectangleRelative(
+                    x - FLAG_HALF_WIDTH,
+                    firstFlagPoint.y + flagsCount * FLAG_DELTA_Y - FLAG_HALF_WIDTH,
+                    FLAG_WIDTH,
+                    FLAG_WIDTH
+                ), AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX
+            ) == 0
+        ) {
+            flagsCount++
+        }
     }
 
     fun refreshHuntIfNeeded(logItem: LogItem?) {

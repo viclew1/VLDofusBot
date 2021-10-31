@@ -1,9 +1,11 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.complex.MultimapMoveTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
@@ -15,15 +17,12 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
     override fun execute(logItem: LogItem): DofusMap {
         val hint = HintManager.getHint(GameInfo.currentMap, huntStep.direction, huntStep.label)
         val dToHint = hint?.d ?: 1
-        val moveTask = MoveUtil.buildMoveTask(huntStep.direction)
         val hunt = TreasureHuntUtil.getTreasureHunt()
 
-        for (i in 0 until dToHint) {
-            moveTask.run(logItem)
-        }
-
+        MultimapMoveTask(huntStep.direction, dToHint).run(logItem)
         while (hunt.startMap == GameInfo.currentMap || hunt.huntFlags.firstOrNull { it.map == GameInfo.currentMap } != null) {
-            moveTask.run(logItem)
+            VldbLogger.info("Invalid map, a flag has already been put here.")
+            MoveUtil.buildMoveTask(huntStep.direction).run(logItem)
         }
         TreasureHuntUtil.tickFlag(hunt.huntFlags.size)
 

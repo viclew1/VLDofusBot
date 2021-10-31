@@ -1,8 +1,6 @@
 package fr.lewon.dofus.bot.gui.tabs.config
 
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
-import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
 import java.awt.Color
 import java.awt.MouseInfo
 import java.awt.event.*
@@ -11,7 +9,7 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.SwingConstants
 
-class CursorLocatorFrame(text: String, onLocate: (PointRelative) -> Unit) : JFrame() {
+class CursorLocatorFrame(text: String, onLocate: (PointAbsolute) -> Unit) : JFrame() {
 
     init {
         addComponentListener(object : ComponentAdapter() {
@@ -28,9 +26,7 @@ class CursorLocatorFrame(text: String, onLocate: (PointRelative) -> Unit) : JFra
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 val point = MouseInfo.getPointerInfo().location
-                val selectedPoint = PointAbsolute(point.x, point.y)
-                val pointRelative = ConverterUtil.toPointRelative(PointAbsolute(selectedPoint.x, selectedPoint.y))
-                onLocate.invoke(pointRelative)
+                onLocate.invoke(PointAbsolute(point.x, point.y))
             }
         })
         addMouseListener(object : MouseAdapter() {

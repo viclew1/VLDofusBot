@@ -14,4 +14,7 @@ class PointRelative(var x: Float = 0f, var y: Float = 0f) : IPoint<PointRelative
         return PointRelative(x * prod, y * prod)
     }
 
+    override fun opposite(): PointRelative {
+        return PointRelative(-x, -y)
+    }
 }

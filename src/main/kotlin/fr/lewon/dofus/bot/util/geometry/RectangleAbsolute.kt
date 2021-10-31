@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.util.geometry
 
-class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int) : IRectangle<PointAbsolute> {
+class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int) :
+    IRectangle<RectangleAbsolute, PointAbsolute> {
 
     companion object {
 
@@ -30,4 +31,7 @@ class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int)
         return PointAbsolute(x + width, y + height)
     }
 
+    override fun getTranslation(delta: PointAbsolute): RectangleAbsolute {
+        return RectangleAbsolute(x + delta.x, y + delta.y, width, height)
+    }
 }

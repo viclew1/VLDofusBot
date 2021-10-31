@@ -14,4 +14,8 @@ class PointAbsolute(val x: Int, val y: Int) : IPoint<PointAbsolute, Int> {
         return PointAbsolute(x * prod, y * prod)
     }
 
+    override fun opposite(): PointAbsolute {
+        return PointAbsolute(-x, -y)
+    }
+
 }

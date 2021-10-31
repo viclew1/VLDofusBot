@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.gui.custom.CustomFrame
 import fr.lewon.dofus.bot.gui.tabs.exec.ExecutionTab
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.util.WindowsUtil
 import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
@@ -89,12 +90,14 @@ object MainFrame : CustomFrame(
         MainPanel.selectedComponent = ExecutionTab
         progressBar.isBorderPainted = false
         progressBar.isIndeterminate = true
+        progressBar.background = background
     }
 
 }
 
 fun main() {
     VLDofusBotCoreUtil.initAll()
+    WindowsUtil.updateGameBounds()
     MainFrame.isResizable = false
     MainFrame.isUndecorated = true
     MainFrame.setLocationRelativeTo(null)
