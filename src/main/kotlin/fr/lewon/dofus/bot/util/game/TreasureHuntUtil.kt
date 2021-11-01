@@ -51,7 +51,7 @@ object TreasureHuntUtil {
     private var flagsCount = 0
 
     fun isHuntPresent(): Boolean {
-        val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition()
+        val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition() ?: return false
         val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
         fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
         val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
@@ -129,6 +129,7 @@ object TreasureHuntUtil {
 
     fun updatePoints() {
         val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition()
+            ?: error("No hunt present, can't update points")
         val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
         giveUpHuntPoint = topLeftHuntPoint.getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
         firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)

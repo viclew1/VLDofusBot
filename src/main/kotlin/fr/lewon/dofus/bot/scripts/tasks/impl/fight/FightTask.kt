@@ -227,6 +227,7 @@ class FightTask : DofusBotTask<Boolean>() {
 
     private fun initFight() {
         val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_FIGHT)
+            ?: error("Couldn't find banner UI position")
         val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
         val deltaTopLeftPoint = REF_TOP_LEFT_POINT.opposite().getSum(uiPointRelative)
         readyButtonBounds = REF_READY_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
