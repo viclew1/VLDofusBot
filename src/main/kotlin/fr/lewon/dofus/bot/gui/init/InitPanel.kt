@@ -8,7 +8,6 @@ import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import net.miginfocom.swing.MigLayout
-import nu.pattern.OpenCV
 import org.reflections.Reflections
 import java.awt.Color
 import javax.swing.*
@@ -24,7 +23,6 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         buildInitTask("File managers") { VLDofusBotCoreUtil.initVldbManagers(CharacterManager::class.java.packageName) },
         buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
         buildInitTask("Sniffer Message Receiver") { DofusMessageReceiver.killAndStartThread() },
-        buildInitTask("OpenCV") { OpenCV.loadLocally() },
     )
 
     private val resultLabel = JTextArea().also {

@@ -4,24 +4,23 @@ import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.ConvolveOp
 import java.awt.image.Kernel
-import java.net.URL
 import javax.swing.ImageIcon
 
 object ImageUtil {
 
-    fun getScaledImage(imageUrl: URL, w: Int, h: Int): BufferedImage {
-        return getScaledImage(ImageIcon(imageUrl), w, h)
+    fun getScaledImage(imageData: ByteArray, w: Int, h: Int): BufferedImage {
+        return getScaledImage(ImageIcon(imageData), w, h)
     }
 
-    fun getScaledImage(imageUrl: URL, w: Int): BufferedImage {
-        val imageIcon = ImageIcon(imageUrl)
+    fun getScaledImage(imageData: ByteArray, w: Int): BufferedImage {
+        val imageIcon = ImageIcon(imageData)
         val ratio = imageIcon.iconWidth.toFloat() / imageIcon.iconHeight.toFloat()
         val h = w.toFloat() / ratio
         return getScaledImage(imageIcon, w, h.toInt())
     }
 
-    fun getScaledImageKeepHeight(imageUrl: URL, h: Int): BufferedImage {
-        val imageIcon = ImageIcon(imageUrl)
+    fun getScaledImageKeepHeight(imageData: ByteArray, h: Int): BufferedImage {
+        val imageIcon = ImageIcon(imageData)
         val ratio = imageIcon.iconWidth.toFloat() / imageIcon.iconHeight.toFloat()
         val w = h.toFloat() * ratio
         return getScaledImage(imageIcon, w.toInt(), h)

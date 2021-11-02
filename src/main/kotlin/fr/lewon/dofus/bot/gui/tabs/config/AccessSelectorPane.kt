@@ -30,15 +30,15 @@ class AccessSelectorPane : JPanel(MigLayout()) {
     }
 
     private fun buildButton(dir: Direction, iconPath: String, iconFillPath: String): JButton {
-        val imageUrl = javaClass.getResource(iconPath)
-        val imageFilledUrl = javaClass.getResource(iconFillPath)
+        val imageData = javaClass.getResourceAsStream(iconPath).readAllBytes()
+        val imageFilledData = javaClass.getResourceAsStream(iconFillPath).readAllBytes()
         val button = JButton()
         button.isBorderPainted = false
         button.border = null
         button.margin = Insets(0, 0, 0, 0)
         button.isContentAreaFilled = false
-        button.icon = ImageIcon(ImageUtil.getScaledImage(imageUrl, 30, 30))
-        button.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(imageFilledUrl, 30, 30))
+        button.icon = ImageIcon(ImageUtil.getScaledImage(imageData, 30, 30))
+        button.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(imageFilledData, 30, 30))
         button.addActionListener { registerDirection(dir) }
         return button
     }

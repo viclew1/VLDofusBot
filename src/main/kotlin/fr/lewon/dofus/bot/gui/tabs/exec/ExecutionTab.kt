@@ -29,11 +29,11 @@ object ExecutionTab : JPanel(MigLayout()), ScriptRunnerListener, VldbLoggerListe
     private val scriptTimerPanel = JPanel(MigLayout()).also { it.border = LineBorder(Color.BLACK, 1) }
     private val timerLabel = JLabel()
     private val stopButton = JButton().also {
-        it.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.STOP.url, 25, 25))
+        it.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.STOP.imageData, 25, 25))
         it.isBorderPainted = false
         it.border = null
         it.isContentAreaFilled = false
-        it.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(UiResource.STOP.filledUrl, 25, 25))
+        it.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(UiResource.STOP.filledImageData, 25, 25))
         it.isEnabled = false
         it.addActionListener { ScriptRunner.stopScript() }
     }

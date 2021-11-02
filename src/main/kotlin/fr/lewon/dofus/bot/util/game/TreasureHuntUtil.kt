@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -50,8 +51,12 @@ object TreasureHuntUtil {
     private lateinit var fightPoint: PointRelative
     private var flagsCount = 0
 
+    private fun getTreasureHuntUiPosition(): UIPoint {
+        return DofusUIPositionsManager.getTreasureHuntUiPosition() ?: UIPoint(0f, 180f)
+    }
+
     fun isHuntPresent(): Boolean {
-        val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition() ?: return false
+        val uiPoint = getTreasureHuntUiPosition()
         val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
         fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
         val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
@@ -128,8 +133,7 @@ object TreasureHuntUtil {
     }
 
     fun updatePoints() {
-        val uiPoint = DofusUIPositionsManager.getTreasureHuntUiPosition()
-            ?: error("No hunt present, can't update points")
+        val uiPoint = getTreasureHuntUiPosition()
         val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
         giveUpHuntPoint = topLeftHuntPoint.getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
         firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)

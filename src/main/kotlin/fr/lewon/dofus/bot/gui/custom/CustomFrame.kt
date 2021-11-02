@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.gui.custom
 
 import java.awt.Color
-import java.net.URL
 import javax.swing.JFrame
 
 open class CustomFrame(
@@ -10,7 +9,7 @@ open class CustomFrame(
     h: Int,
     headerColor: Color,
     val headerHeight: Int,
-    iconUrl: URL? = null,
+    iconImageData: ByteArray? = null,
     reduceButton: Boolean = true,
     closeButton: Boolean = true
 ) : JFrame(title) {
@@ -21,7 +20,7 @@ open class CustomFrame(
         if (closeButton) buttons.add(CustomHeaderButton("x") { dispose() })
         CustomWindowBuilder.initCustomWindow(
             this, getRootPane(), contentPane, title, w, h, headerHeight,
-            headerColor, buttons, iconUrl
+            headerColor, buttons, iconImageData
         )
         isUndecorated = true
         defaultCloseOperation = EXIT_ON_CLOSE

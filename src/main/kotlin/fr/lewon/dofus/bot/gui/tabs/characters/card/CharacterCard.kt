@@ -126,7 +126,7 @@ class CharacterCard(val character: DofusCharacter) : JPanel() {
         cardWidth = w
         cardHeight = h
         val iconImg =
-            ImageUtil.getScaledImageKeepHeight(character.dofusClass.iconUrl, (cardHeight * ICON_HEIGHT_RATIO).toInt())
+            ImageUtil.getScaledImageKeepHeight(character.dofusClass.iconData, (cardHeight * ICON_HEIGHT_RATIO).toInt())
         iconLabel.setBounds(
             (-cardHeight * ICON_DELTA_HEIGHT_RATIO).toInt(),
             (-cardHeight * ICON_DELTA_HEIGHT_RATIO).toInt(),
@@ -157,13 +157,14 @@ class CharacterCard(val character: DofusCharacter) : JPanel() {
 
         val buttonSz = (cardHeight * BUTTON_HEIGHT_RATIO).toInt()
         val buttonDelta = (BUTTON_DELTA_HEIGHT_RATIO * cardHeight).toInt()
-        editButton.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.EDIT.url, buttonSz, buttonSz))
-        editButton.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(UiResource.EDIT.filledUrl, buttonSz, buttonSz))
+        editButton.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.EDIT.imageData, buttonSz, buttonSz))
+        editButton.rolloverIcon =
+            ImageIcon(ImageUtil.getScaledImage(UiResource.EDIT.filledImageData, buttonSz, buttonSz))
         editButton.setBounds(cardWidth - buttonSz - buttonDelta, 0, buttonSz, buttonSz)
 
-        deleteButton.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.DELETE.url, buttonSz, buttonSz))
+        deleteButton.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.DELETE.imageData, buttonSz, buttonSz))
         deleteButton.rolloverIcon =
-            ImageIcon(ImageUtil.getScaledImage(UiResource.DELETE.filledUrl, buttonSz, buttonSz))
+            ImageIcon(ImageUtil.getScaledImage(UiResource.DELETE.filledImageData, buttonSz, buttonSz))
         deleteButton.setBounds(cardWidth - buttonSz - buttonDelta, buttonSz, buttonSz, buttonSz)
 
         updateBgImg()
@@ -187,7 +188,7 @@ class CharacterCard(val character: DofusCharacter) : JPanel() {
     }
 
     private fun updateBgImg() {
-        bgImg = ImageUtil.getScaledImage(dofusClass.bannerUrl, (cardWidth * BANNER_WIDTH_RATIO).toInt())
+        bgImg = ImageUtil.getScaledImage(dofusClass.bannerData, (cardWidth * BANNER_WIDTH_RATIO).toInt())
     }
 
     private fun updateBlurredImg() {

@@ -14,16 +14,16 @@ import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
 import java.awt.Color
-import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import javax.imageio.ImageIO
 import javax.swing.JProgressBar
 import javax.swing.SwingUtilities
 import kotlin.system.exitProcess
 
 object MainFrame : CustomFrame(
     "VL Dofus Bot", 309, 700, AppColors.DEFAULT_UI_COLOR, 60,
-    MainFrame::class.java.getResource("/icon/logo.png")
+    MainFrame::class.java.getResourceAsStream("/icon/logo.png")?.readAllBytes()
 ), ScriptRunnerListener {
     private const val progressBarHeight = 10
     private val progressBar = JProgressBar()
@@ -34,7 +34,7 @@ object MainFrame : CustomFrame(
         contentPane.add(MainPanel)
         isAlwaysOnTop = true
         defaultCloseOperation = EXIT_ON_CLOSE
-        iconImage = Toolkit.getDefaultToolkit().getImage(VLDofusBot::class.java.getResource("/icon/taskbar_logo.png"))
+        iconImage = ImageIO.read(VLDofusBot::class.java.getResourceAsStream("/icon/taskbar_logo.png"))
         addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent?) {
                 exitProcess(0)

@@ -1,7 +1,5 @@
 package fr.lewon.dofus.bot.model.characters
 
-import java.net.URL
-
 
 enum class DofusClass(
     iconFileName: String,
@@ -29,10 +27,11 @@ enum class DofusClass(
     OUGINAK("icon/symbol_18.png", "banner/banner_18.png", "simple_icon/180.png", "Ouginak");
 
     private val basePath = "/icon/classes/"
-    val iconUrl: URL = javaClass.getResource(basePath + iconFileName) ?: error("Couldn't find icon [$iconFileName]")
-    val bannerUrl: URL =
-        javaClass.getResource(basePath + bannerFileName) ?: error("Couldn't find banner [$bannerFileName]")
-    val simpleIconUrl: URL =
-        javaClass.getResource(basePath + simpleIconFileName) ?: error("Couldn't find simple icon [$simpleIconFileName]")
+    val iconData = javaClass.getResourceAsStream(basePath + iconFileName)?.readAllBytes()
+        ?: error("Couldn't find icon [$iconFileName]")
+    val bannerData = javaClass.getResourceAsStream(basePath + bannerFileName)?.readAllBytes()
+        ?: error("Couldn't find banner [$bannerFileName]")
+    val simpleIconData = javaClass.getResourceAsStream(basePath + simpleIconFileName)?.readAllBytes()
+        ?: error("Couldn't find simple icon [$simpleIconFileName]")
 
 }

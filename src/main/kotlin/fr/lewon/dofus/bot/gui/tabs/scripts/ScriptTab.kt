@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.gui.custom.CustomJTextField
 import fr.lewon.dofus.bot.gui.custom.IntegerJTextField
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.gui.util.ImageUtil
+import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
@@ -39,14 +40,14 @@ object ScriptTab : JPanel(MigLayout()), ScriptRunnerListener {
         updateScript()
         add(JLabel("Script").also { it.font = AppFonts.TITLE_FONT })
         add(scriptComboBox, "al right")
-        val imageUrl = javaClass.getResource("/icon/ui/play_arrow.png")
-        val imageFilledUrl = javaClass.getResource("/icon/ui/play_arrow_filled.png")
         startScriptButton.isBorderPainted = false
         startScriptButton.border = null
         startScriptButton.margin = Insets(0, 0, 0, 0)
         startScriptButton.isContentAreaFilled = false
-        startScriptButton.icon = ImageIcon(ImageUtil.getScaledImage(imageUrl, 36, 36))
-        startScriptButton.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(imageFilledUrl, 36, 36))
+        val imageData = UiResource.PLAY_ARROW.imageData
+        val filledImageData = UiResource.PLAY_ARROW.filledImageData
+        startScriptButton.icon = ImageIcon(ImageUtil.getScaledImage(imageData, 36, 36))
+        startScriptButton.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(filledImageData, 36, 36))
         startScriptButton.addActionListener { startScript() }
         add(startScriptButton, "al center, wrap")
         add(JSeparator(JSeparator.HORIZONTAL), "span 3 1, width max, wrap")

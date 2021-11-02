@@ -10,7 +10,7 @@ import javax.swing.ListCellRenderer
 
 class DofusClassRenderer : JLabel(), ListCellRenderer<DofusClass> {
 
-    private val images = DofusClass.values().map { ImageUtil.getScaledImage(it.simpleIconUrl, 25, 25) }
+    private val images = DofusClass.values().map { ImageUtil.getScaledImage(it.simpleIconData, 25, 25) }
     private val texts = DofusClass.values().map { it.classLabel }
 
     init {

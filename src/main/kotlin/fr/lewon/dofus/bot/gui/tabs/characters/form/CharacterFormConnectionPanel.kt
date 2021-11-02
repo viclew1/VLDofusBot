@@ -68,7 +68,7 @@ class CharacterFormConnectionPanel(w: Int, h: Int, character: DofusCharacter = D
     private fun updateBackground() {
         SwingUtilities.invokeLater {
             val dofusClass = classComboBox.selectedItem as DofusClass
-            val bgImg = ImageUtil.getScaledImageKeepHeight(dofusClass.bannerUrl, height)
+            val bgImg = ImageUtil.getScaledImageKeepHeight(dofusClass.bannerData, height)
             val blurredImg = ImageUtil.blurImage(bgImg, 0.85f)
             backgroundLabel.icon = ImageIcon(blurredImg)
             backgroundLabel.setBounds(width / 2 - bgImg.width / 2, 0, bgImg.width, height)

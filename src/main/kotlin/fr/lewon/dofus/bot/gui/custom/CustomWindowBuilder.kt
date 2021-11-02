@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.gui.custom
 
 import java.awt.*
-import java.net.URL
 import javax.swing.ImageIcon
 import javax.swing.JComponent
 import javax.swing.JLabel
@@ -11,8 +10,16 @@ import javax.swing.border.LineBorder
 object CustomWindowBuilder {
 
     fun initCustomWindow(
-        window: Window, rootPane: JRootPane, contentPane: Container, title: String, w: Int, h: Int,
-        headerHeight: Int, headerColor: Color, buttons: List<CustomHeaderButton> = emptyList(), iconUrl: URL? = null
+        window: Window,
+        rootPane: JRootPane,
+        contentPane: Container,
+        title: String,
+        w: Int,
+        h: Int,
+        headerHeight: Int,
+        headerColor: Color,
+        buttons: List<CustomHeaderButton> = emptyList(),
+        iconImageData: ByteArray? = null
     ) {
         rootPane.border = LineBorder(headerColor, 2)
         contentPane.layout = null
@@ -32,8 +39,8 @@ object CustomWindowBuilder {
         lblBd.background = contentPane.background
         lblBd.foreground = Color.WHITE
         lblBd.font = Font("Times New Roman", Font.BOLD, 20)
-        if (iconUrl != null) {
-            lblBd.icon = ImageIcon(iconUrl)
+        if (iconImageData != null) {
+            lblBd.icon = ImageIcon(iconImageData)
         }
         lblBd.setBounds(0, 0, window.size.width, headerHeight)
         contentPane.add(lblBd)

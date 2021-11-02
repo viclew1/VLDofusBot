@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.fight.*
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -19,10 +20,7 @@ import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.game.CharacteristicUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.imagetreatment.MatManager
-import fr.lewon.dofus.bot.util.imagetreatment.OpenCvUtil
 import fr.lewon.dofus.bot.util.io.*
 import java.awt.event.KeyEvent
 
@@ -48,8 +46,22 @@ class FightTask : DofusBotTask<Boolean>() {
             PointRelative(0.67893404f, 0.8827259f)
         )
 
+        private val CLOSE_FIGHT_BUTTON_1 = RectangleRelative.build(
+            PointRelative(0.9387097f, 0.27620968f),
+            PointRelative(0.95967746f, 0.30040324f)
+        )
+
+        private val CLOSE_FIGHT_BUTTON_2 = RectangleRelative.build(
+            PointRelative(0.7177419f, 0.6895161f),
+            PointRelative(0.7322581f, 0.7076613f)
+        )
+
         private val MIN_COLOR = AppColors.HIGHLIGHT_COLOR_MIN
         private val MAX_COLOR = AppColors.HIGHLIGHT_COLOR_MAX
+        private val MIN_COLOR_CROSS = AppColors.UI_BANNER_BLACK_COLOR_MIN
+        private val MAX_COLOR_CROSS = AppColors.UI_BANNER_BLACK_COLOR_MAX
+        private val MIN_COLOR_BG = AppColors.UI_BANNER_GREY_COLOR_MIN
+        private val MAX_COLOR_BG = AppColors.UI_BANNER_GREY_COLOR_MAX
 
     }
 
@@ -57,8 +69,18 @@ class FightTask : DofusBotTask<Boolean>() {
     private lateinit var creatureModeBounds: RectangleRelative
     private lateinit var blockHelpBounds: RectangleRelative
 
-    private fun isPlayerTurn(): Boolean {
-        return ScreenUtil.colorCount(readyButtonBounds, MIN_COLOR, MAX_COLOR) > 0
+    private fun getCloseButtonLocation(): RectangleRelative? {
+        if (ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_1, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
+            && ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_1, MIN_COLOR_BG, MAX_COLOR_BG) > 0
+        ) {
+            return CLOSE_FIGHT_BUTTON_1
+        }
+        if (ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_2, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
+            && ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_2, MIN_COLOR_BG, MAX_COLOR_BG) > 0
+        ) {
+            return CLOSE_FIGHT_BUTTON_2
+        }
+        return null
     }
 
     private fun isLvlUp(): Boolean {
@@ -67,10 +89,6 @@ class FightTask : DofusBotTask<Boolean>() {
 
     private fun isFightEnded(): Boolean {
         return EventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java) != null
-    }
-
-    private fun getFightButtonBounds(): RectangleAbsolute? {
-        return OpenCvUtil.getPatternBounds(GameInfo.bounds, MatManager.CLOSE_BATTLE_RESULT_MAT.buildMat(), 0.5)
     }
 
     override fun execute(logItem: LogItem): Boolean {
@@ -93,7 +111,7 @@ class FightTask : DofusBotTask<Boolean>() {
             ?.let { MouseUtil.leftClick(it.getCenter()) }
 
         EventStore.clear(MapComplementaryInformationsDataMessage::class.java)
-        KeyboardUtil.sendKey(KeyEvent.VK_F1, 0)
+        MouseUtil.leftClick(readyButtonBounds.getCenter(), false, 0)
         waitForMessage(GameFightTurnStartPlayingMessage::class.java)
         while (!isFightEnded()) {
             MouseUtil.leftClick(ConfigManager.config.mouseRestPos, false, 400)
@@ -123,7 +141,7 @@ class FightTask : DofusBotTask<Boolean>() {
                 useAttacks(playerPos, fightBoard, losSpellCombo, nonLosSpellCombo, contactSpellCombo)
             }
 
-            KeyboardUtil.sendKey(KeyEvent.VK_F1, 0)
+            MouseUtil.leftClick(readyButtonBounds.getCenter(), false, 0)
             waitForMessage(GameFightTurnEndMessage::class.java)
             waitForMessage(GameFightTurnStartPlayingMessage::class.java)
         }
@@ -134,7 +152,7 @@ class FightTask : DofusBotTask<Boolean>() {
             MouseUtil.leftClick(LVL_UP_OK_BUTTON_POINT)
             WaitUtil.waitUntil({ !isLvlUp() })
         }
-        val bounds = getFightButtonBounds() ?: error("Close battle button not found")
+        val bounds = getCloseButtonLocation() ?: error("Close battle button not found")
         MouseUtil.leftClick(bounds.getCenter())
         return true
     }
@@ -227,7 +245,7 @@ class FightTask : DofusBotTask<Boolean>() {
 
     private fun initFight() {
         val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_FIGHT)
-            ?: error("Couldn't find banner UI position")
+            ?: UIPoint(400f, 909f)
         val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
         val deltaTopLeftPoint = REF_TOP_LEFT_POINT.opposite().getSum(uiPointRelative)
         readyButtonBounds = REF_READY_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)

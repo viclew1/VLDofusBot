@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.util.io
 
-import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.manager.ui.UIBounds
+import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
@@ -11,28 +12,26 @@ import kotlin.math.roundToInt
 object ConverterUtil {
 
     private const val PRECISION = 10000.0f
-    private const val UI_POINT_TOTAL_WIDTH = 1280f
-    private const val UI_POINT_TOTAL_HEIGHT = 1024f
 
-    fun toPointAbsolute(point: DofusUIPositionsManager.UIPoint): PointAbsolute {
+    fun toPointAbsolute(point: UIPoint): PointAbsolute {
         return toPointAbsolute(toPointRelative(point))
     }
 
-    fun toPointRelative(point: DofusUIPositionsManager.UIPoint): PointRelative {
+    fun toPointRelative(point: UIPoint): PointRelative {
         return PointRelative(
-            point.x / UI_POINT_TOTAL_WIDTH,
-            point.y / UI_POINT_TOTAL_HEIGHT
+            point.x / UIBounds.TOTAL_WIDTH,
+            point.y / UIBounds.TOTAL_HEIGHT
         )
     }
 
-    fun toUIPoint(point: PointRelative): DofusUIPositionsManager.UIPoint {
-        return DofusUIPositionsManager.UIPoint(
-            point.x * UI_POINT_TOTAL_WIDTH,
-            point.y * UI_POINT_TOTAL_HEIGHT
+    fun toUIPoint(point: PointRelative): UIPoint {
+        return UIPoint(
+            point.x * UIBounds.TOTAL_WIDTH,
+            point.y * UIBounds.TOTAL_HEIGHT
         )
     }
 
-    fun toUIPoint(point: PointAbsolute): DofusUIPositionsManager.UIPoint {
+    fun toUIPoint(point: PointAbsolute): UIPoint {
         return toUIPoint(toPointRelative(point))
     }
 

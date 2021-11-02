@@ -8,9 +8,9 @@ import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.WindowsUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.listeners.KeyboardListener
-import java.awt.Toolkit
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import javax.imageio.ImageIO
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import kotlin.system.exitProcess
@@ -20,7 +20,7 @@ object InitFrame : CustomFrame("VL Dofus Bot Initializer", 300, 500, AppColors.D
     init {
         InitPanel.setBounds(0, headerHeight, size.width, size.height - headerHeight)
         contentPane.add(InitPanel)
-        iconImage = Toolkit.getDefaultToolkit().getImage(VLDofusBot::class.java.getResource("/icon/taskbar_logo.png"))
+        iconImage = ImageIO.read(VLDofusBot::class.java.getResourceAsStream("/icon/taskbar_logo.png"))
         addWindowListener(object : WindowAdapter() {
             override fun windowClosed(e: WindowEvent?) {
                 exitProcess(0)
