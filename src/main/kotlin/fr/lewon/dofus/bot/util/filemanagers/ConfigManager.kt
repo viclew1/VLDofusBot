@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
@@ -19,7 +20,8 @@ object ConfigManager : VldbManager {
     override fun initManager() {
         configFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/config")
         if (configFile.exists()) {
-            config = ObjectMapper().readValue(configFile)
+            config = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .readValue(configFile)
         } else {
             config = VldbConfig()
             saveConfig()

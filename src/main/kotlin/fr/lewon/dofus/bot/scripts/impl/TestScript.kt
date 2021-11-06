@@ -1,13 +1,11 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
-import fr.lewon.dofus.bot.core.manager.ui.UIPoint
+import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
-import fr.lewon.dofus.bot.util.io.ConverterUtil
-import fr.lewon.dofus.bot.util.io.MouseUtil
+import fr.lewon.dofus.bot.util.game.MoveUtil
 
 object TestScript : DofusBotScript("Test") {
 
@@ -25,9 +23,10 @@ object TestScript : DofusBotScript("Test") {
     }
 
     override fun execute(logItem: LogItem?) {
-        val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_FIGHT)
-            ?: UIPoint(400f, 909f)
-        MouseUtil.place(ConverterUtil.toPointRelative(uiPoint))
+        MoveUtil.buildMoveTask(Direction.RIGHT).run(logItem)
+        MoveUtil.buildMoveTask(Direction.BOTTOM).run(logItem)
+        MoveUtil.buildMoveTask(Direction.LEFT).run(logItem)
+        MoveUtil.buildMoveTask(Direction.TOP).run(logItem)
     }
 
 }

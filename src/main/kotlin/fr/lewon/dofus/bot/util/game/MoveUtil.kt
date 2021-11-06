@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.*
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -21,15 +22,19 @@ object MoveUtil {
         }
     }
 
-    fun processMove(clickLocation: PointAbsolute): MapComplementaryInformationsDataMessage {
+    fun processMove(clickLocation: PointAbsolute): Boolean {
         return processMove(ConverterUtil.toPointRelative(clickLocation))
     }
 
-    fun processMove(clickLocation: PointRelative): MapComplementaryInformationsDataMessage {
+    fun processMove(clickLocation: PointRelative): Boolean {
         MouseUtil.leftClick(clickLocation, false, 0)
-        val mapInfo = WaitUtil.waitForEvent(MapComplementaryInformationsDataMessage::class.java)
-        WaitUtil.waitForEvent(BasicNoOperationMessage::class.java)
-        return mapInfo
+        EventStore.clear(BasicNoOperationMessage::class.java)
+        val succeeded = WaitUtil.waitForEventWithoutError(MapComplementaryInformationsDataMessage::class.java) != null
+        if (!succeeded) {
+            return false
+        }
+        WaitUtil.waitForEventWithoutError(BasicNoOperationMessage::class.java)
+        return true
     }
 
 }

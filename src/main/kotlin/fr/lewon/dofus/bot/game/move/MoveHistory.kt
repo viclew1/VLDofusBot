@@ -9,7 +9,7 @@ object MoveHistory {
 
     private val lastMoves = LinkedBlockingDeque<Move>(10)
 
-    fun getLastMove(): Move? {
+    fun pollLastMove(): Move? {
         return lastMoves.pollLast()
     }
 

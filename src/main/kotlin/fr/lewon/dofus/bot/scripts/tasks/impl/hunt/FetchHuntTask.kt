@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
-import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.CustomMoveTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ZaapTowardTask
@@ -15,7 +15,7 @@ import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import java.awt.Color
 
-class FetchHuntTask : DofusBotTask<Boolean>() {
+class FetchHuntTask : BooleanDofusBotTask() {
 
     companion object {
         private val HUNT_MALL_ENTER_POINT_1 = PointRelative(0.53797466f, 0.38449368f)
@@ -42,7 +42,6 @@ class FetchHuntTask : DofusBotTask<Boolean>() {
         ScreenUtil.waitForColor(HUNT_SEEK_OPTION_POINT, HUNT_SEEK_OPTION_MIN_COLOR, HUNT_SEEK_OPTION_MAX_COLOR)
         MouseUtil.leftClick(HUNT_SEEK_OPTION_POINT, false, 0)
         WaitUtil.waitUntil({ TreasureHuntUtil.isHuntPresent() })
-        TreasureHuntUtil.updatePoints()
         CustomMoveTask(HUNT_MALL_EXIT_POINT_1).run(logItem)
         CustomMoveTask(HUNT_MALL_EXIT_POINT_2).run(logItem)
         return true

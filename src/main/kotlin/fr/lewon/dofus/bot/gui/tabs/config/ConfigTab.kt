@@ -23,8 +23,6 @@ object ConfigTab : JPanel(MigLayout()) {
     private val firstNameTextField = JTextField("25")
     private val locateCursorLabel = JLabel("Locate cursor")
     private val locateCursorButton = JButton("Locate")
-    private val selectAccessLabel = JLabel("Select access location")
-    private val accessSelectorPane = AccessSelectorPane()
 
     init {
         updateDarkMode(ConfigManager.config.darkMode)
@@ -45,7 +43,6 @@ object ConfigTab : JPanel(MigLayout()) {
 
         addLine(globalTimeoutLabel, firstNameTextField)
         addLine(locateCursorLabel, locateCursorButton)
-        addLine(selectAccessLabel, accessSelectorPane)
     }
 
     private fun locatePoint() {

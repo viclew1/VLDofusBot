@@ -18,7 +18,7 @@ abstract class DofusBotTask<T> {
     protected abstract fun onStarted(): String
 
     fun run(parentLogItem: LogItem?): T {
-        val logItem = VldbLogger.log(onStarted(), parentLogItem)
+        val logItem = VldbLogger.info(onStarted(), parentLogItem)
         try {
             val result = execute(logItem)
             VldbLogger.closeLog(onSucceeded(result), logItem)

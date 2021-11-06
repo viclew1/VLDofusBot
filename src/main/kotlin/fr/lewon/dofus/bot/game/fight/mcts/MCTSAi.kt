@@ -70,6 +70,7 @@ class MCTSAi(
     private fun getAllPossibleStates(fromState: MCTSState): List<MCTSState> {
         val fightBoard = fromState.fightBoard
         val fighter = fightBoard.getFighterById(fromState.fighterId)
+            ?: error("No fighter with id : $${fromState.fighterId}")
         val mp = CharacteristicUtil.getCharacteristicValue(FighterCharacteristic.MP, fighter.statsById) ?: 0
         return fromState.fightBoard.getMoveCells(mp, fighter.fightCell).map { moveCell ->
             fromState.clone().also {

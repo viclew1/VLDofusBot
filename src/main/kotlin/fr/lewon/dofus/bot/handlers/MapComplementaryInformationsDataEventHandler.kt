@@ -14,6 +14,10 @@ object MapComplementaryInformationsDataEventHandler : EventHandler<MapComplement
         GameInfo.phorrorOnMap = socketResult.actors.firstOrNull { it is GameRolePlayTreasureHintInformations } != null
         GameInfo.fightBoard.updateStartCells(socketResult.fightStartPositions.positionsForChallenger)
         GameInfo.fightBoard.resetFighters()
+        GameInfo.entityPositionsOnMapByEntityId.clear()
+        socketResult.actors.forEach {
+            GameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
+        }
         VldbLogger.debug("Moved to map [${socketResult.map.posX},${socketResult.map.posY}] ; World : ${socketResult.map.worldMap}")
     }
 

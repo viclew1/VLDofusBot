@@ -12,6 +12,7 @@ class FightCell(
     var cellData: CellData = CellData(cellId)
 ) {
 
+    val diagonalNeighbors = HashSet<FightCell>()
     val neighbors = HashSet<FightCell>()
 
     fun getCenter(): PointRelative {

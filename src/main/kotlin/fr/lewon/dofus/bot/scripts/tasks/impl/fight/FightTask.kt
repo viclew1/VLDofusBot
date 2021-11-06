@@ -8,7 +8,7 @@ import fr.lewon.dofus.bot.game.fight.*
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.characters.spells.SpellType
-import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightTurnEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightTurnStartPlayingMessage
@@ -24,7 +24,7 @@ import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
 import java.awt.event.KeyEvent
 
-class FightTask : DofusBotTask<Boolean>() {
+class FightTask : BooleanDofusBotTask() {
 
     companion object {
 
@@ -166,14 +166,6 @@ class FightTask : DofusBotTask<Boolean>() {
     }
 
     private fun getFighterCharacteristicValue(fighter: Fighter, fighterCharacteristic: FighterCharacteristic): Int {
-        println(
-            "${fighterCharacteristic.keyword}:${fighter.id} = ${
-                CharacteristicUtil.getCharacteristicValue(
-                    fighterCharacteristic,
-                    fighter.statsById
-                )
-            }"
-        )
         return CharacteristicUtil.getCharacteristicValue(fighterCharacteristic, fighter.statsById)
             ?: error("Characteristic not found for fighter [${fighter.id}] : ${fighterCharacteristic.keyword}")
     }

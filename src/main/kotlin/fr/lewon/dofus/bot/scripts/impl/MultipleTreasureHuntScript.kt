@@ -70,26 +70,22 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         }
 
         for (i in 0 until huntCountParameter.value.toInt()) {
-            var startTimeStamp = System.currentTimeMillis()
+            val fetchStartTimeStamp = System.currentTimeMillis()
             if (!TreasureHuntUtil.isHuntPresent()) {
                 FetchHuntTask().run(logItem)
             }
-            var duration = System.currentTimeMillis() - startTimeStamp
-            huntFetchDurations.add(duration)
+            val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp
+            huntFetchDurations.add(fetchDuration)
             averageHuntFetchDurationStat.value = FormatUtil.durationToStr(huntFetchDurations.average().toLong())
 
-            startTimeStamp = System.currentTimeMillis()
+            val huntStartTimeStamp = System.currentTimeMillis()
 
-            var success = true
-            while (TreasureHuntUtil.isHuntPresent()) {
-                TreasureHuntUtil.refreshHuntIfNeeded(logItem)
-                ReachMapTask(TreasureHuntUtil.getLastHintMap()).run(logItem)
-                success = ExecuteHuntTask().run(logItem)
-                WaitUtil.sleep(300)
-            }
+            ReachMapTask(TreasureHuntUtil.getLastHintMap()).run(logItem)
+            val success = ExecuteHuntTask().run(logItem)
+            WaitUtil.sleep(300)
 
-            duration = System.currentTimeMillis() - startTimeStamp
-            huntDurations.add(duration)
+            val huntDuration = System.currentTimeMillis() - huntStartTimeStamp
+            huntDurations.add(huntDuration)
             averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
 
             if (success) {
@@ -100,7 +96,7 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
             }
             successRateStat.value = "$successCount / ${i + 1}"
             if (!success) {
-                WaitUtil.sleep(600 * 1000 - duration)
+                WaitUtil.sleep(600 * 1000 - huntDuration)
                 TreasureHuntUtil.giveUpHunt()
             }
         }

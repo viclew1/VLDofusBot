@@ -38,7 +38,7 @@ object InitFrame : CustomFrame("VL Dofus Bot Initializer", 300, 500, AppColors.D
         if (InitPanel.initAll()) {
             KeyboardListener.start()
             WindowsUtil.updateGameBounds()
-            WaitUtil.sleep(2000)
+            WaitUtil.sleep(1000)
             MainFrame.isResizable = false
             MainFrame.isUndecorated = true
             MainFrame.setLocationRelativeTo(this)

@@ -5,6 +5,8 @@ import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.manager.ui.UIBounds
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.game.GameInfo
+import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.move.transporters.Zaap
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.model.maps.MapInformation
@@ -12,7 +14,6 @@ import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
@@ -43,7 +44,11 @@ class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
     override fun execute(logItem: LogItem): DofusMap {
         ReachHavenBagTask().run(logItem)
         WaitUtil.sleep(1500)
-        MouseUtil.leftClick(ConfigManager.config.havenBagZaapPos, false, 0)
+        val playerCellId = GameInfo.entityPositionsOnMapByEntityId[GameInfo.playerId]
+            ?: error("Couldn't find player position")
+        val playerPosition = GameInfo.fightBoard.getCell(playerCellId)
+        val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.2f * FightBoard.TILE_HEIGHT))
+        MouseUtil.leftClick(zaapPosition, false, 0)
         val zaapUiCenterPoint = DofusUIPositionsManager.getZaapSelectionUiPosition() ?: UIPoint()
         val zaapUiPoint = UIPoint(
             UIBounds.CENTER.x - 750 / 2 + 5 + zaapUiCenterPoint.x,

@@ -11,6 +11,10 @@ object MapComplementaryInformationsDataInHavenBagEventHandler :
     override fun onEventReceived(socketResult: MapComplementaryInformationsDataInHavenBagMessage) {
         GameInfo.currentMap = socketResult.map
         GameInfo.inHavenBag = true
+        GameInfo.entityPositionsOnMapByEntityId.clear()
+        socketResult.actors.forEach {
+            GameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
+        }
         VldbLogger.debug("Character in haven bag")
     }
 

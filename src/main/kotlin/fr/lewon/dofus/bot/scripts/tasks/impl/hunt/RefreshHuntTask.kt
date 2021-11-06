@@ -1,28 +1,31 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
-import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 
-class RefreshHuntTask : DofusBotTask<TreasureHuntMessage>() {
+class RefreshHuntTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem): TreasureHuntMessage {
-        if (TreasureHuntUtil.isHuntPresent()) {
-            TreasureHuntUtil.updatePoints()
+    override fun execute(logItem: LogItem): Boolean {
+        if (TreasureHuntUtil.isSearchStep()) {
             ReachHavenBagTask().run(logItem)
             val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex()
-                ?: error("Leave at least one flag non ticked to refresh the hunt")
-            TreasureHuntUtil.tickFlag(lastNonTickedIndex)
-            WaitUtil.sleep(1000)
-            val hunt = TreasureHuntUtil.tickFlag(lastNonTickedIndex)
+            if (lastNonTickedIndex != null) {
+                TreasureHuntUtil.tickFlag(lastNonTickedIndex)
+                WaitUtil.sleep(1000)
+                TreasureHuntUtil.tickFlag(lastNonTickedIndex)
+            } else {
+                TreasureHuntUtil.tickFlag(TreasureHuntUtil.flagsCount - 1)
+            }
             LeaveHavenBagTask().run(logItem)
-            return hunt
+            return true
+        } else if (TreasureHuntUtil.isFightStep()) {
+            return true
         }
-        error("No hunt ongoing")
+        return false
     }
 
     override fun onStarted(): String {

@@ -10,8 +10,14 @@ object GameMapMovementEventHandler : EventHandler<GameMapMovementMessage> {
     override fun onEventReceived(socketResult: GameMapMovementMessage) {
         val fromCellId = socketResult.keyMovements.first()
         val toCellId = socketResult.keyMovements.last()
-        GameInfo.fightBoard.move(socketResult.actorId, toCellId)
-        VldbLogger.debug("Fighter [${socketResult.actorId}] moved from cell [$fromCellId] to cell [$toCellId]")
+        val fighter = GameInfo.fightBoard.getFighterById(socketResult.actorId)
+        if (fighter != null) {
+            GameInfo.fightBoard.move(fighter, toCellId)
+            VldbLogger.debug("Fighter [${socketResult.actorId}] moved from cell [$fromCellId] to cell [$toCellId]")
+        } else if (GameInfo.playerId == socketResult.actorId) {
+            GameInfo.entityPositionsOnMapByEntityId[socketResult.actorId] = toCellId
+            VldbLogger.debug("Entity [${socketResult.actorId}] moved from cell [$fromCellId] to cell [$toCellId]")
+        }
     }
 
 }

@@ -7,7 +7,6 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.RefreshHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecutePoiHuntStepTask
@@ -45,11 +44,12 @@ object TreasureHuntUtil {
     private val REF_DELTA_SEARCH_BUTTON_POINT_FROM_LAST_FLAG = REF_SEARCH_POINT.getDifference(REF_SIXTH_FLAG_POINT)
     private val REF_DELTA_FIGHT_BUTTON_POINT = REF_FIGHT_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
 
+    private lateinit var topLeftHuntPoint: PointRelative
     private lateinit var giveUpHuntPoint: PointRelative
     private lateinit var searchHuntPoint: PointRelative
     private lateinit var firstFlagPoint: PointRelative
     private lateinit var fightPoint: PointRelative
-    private var flagsCount = 0
+    var flagsCount = 0
 
     private fun getTreasureHuntUiPosition(): UIPoint {
         return DofusUIPositionsManager.getTreasureHuntUiPosition() ?: UIPoint(0f, 180f)
@@ -57,11 +57,15 @@ object TreasureHuntUtil {
 
     fun isHuntPresent(): Boolean {
         val uiPoint = getTreasureHuntUiPosition()
-        val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
-        fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
+        topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
         val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
-        return ScreenUtil.colorCount(refRect, AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX) > 0
-            && ScreenUtil.colorCount(refRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
+        val isHuntPresent =
+            ScreenUtil.colorCount(refRect, AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX) > 0
+                && ScreenUtil.colorCount(refRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
+        if (isHuntPresent) {
+            updatePoints()
+        }
+        return isHuntPresent
     }
 
     fun getTreasureHunt(): TreasureHuntMessage {
@@ -90,7 +94,7 @@ object TreasureHuntUtil {
         return null
     }
 
-    fun executeStep(step: TreasureHuntStep, logItem: LogItem): DofusMap {
+    fun executeStep(step: TreasureHuntStep, logItem: LogItem): Boolean {
         return when (step) {
             is TreasureHuntStepFollowDirectionToPOI -> ExecutePoiHuntStepTask(step).run(logItem)
             is TreasureHuntStepFollowDirectionToHint -> ExecuteNpcHuntStepTask(step).run(logItem)
@@ -100,7 +104,6 @@ object TreasureHuntUtil {
     }
 
     fun clickSearch() {
-        GameInfo.treasureHunt = null
         MouseUtil.leftClick(searchHuntPoint, false, 0)
         waitForTreasureHuntUpdate()
     }
@@ -110,7 +113,11 @@ object TreasureHuntUtil {
     }
 
     fun isFightStep(): Boolean {
-        return isHuntPresent() && ScreenUtil.isBetween(
+        return isHuntPresent() && isFightButtonPresent()
+    }
+
+    private fun isFightButtonPresent(): Boolean {
+        return ScreenUtil.isBetween(
             fightPoint,
             AppColors.HIGHLIGHT_COLOR_MIN,
             AppColors.HIGHLIGHT_COLOR_MAX
@@ -118,27 +125,24 @@ object TreasureHuntUtil {
     }
 
     fun giveUpHunt(): TreasureHuntMessage {
-        GameInfo.treasureHunt = null
         MouseUtil.leftClick(giveUpHuntPoint, false, 0)
         return waitForTreasureHuntUpdate()
     }
 
-    fun fight(logItem: LogItem?) {
+    fun fight(logItem: LogItem?): Boolean {
         MouseUtil.leftClick(fightPoint, false, 0)
-        FightTask().run(logItem)
+        return FightTask().run(logItem)
     }
 
     private fun waitForTreasureHuntUpdate(): TreasureHuntMessage {
         return WaitUtil.waitForEvents(TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
     }
 
-    fun updatePoints() {
-        val uiPoint = getTreasureHuntUiPosition()
-        val topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
+    private fun updatePoints() {
         giveUpHuntPoint = topLeftHuntPoint.getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
         firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
         fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
-        if (isSearchStep()) {
+        if (!isFightButtonPresent()) {
             defineFlagsCount()
             val firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
             val lastFlagPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + (flagsCount - 1) * FLAG_DELTA_Y)
@@ -159,15 +163,6 @@ object TreasureHuntUtil {
             ) == 0
         ) {
             flagsCount++
-        }
-    }
-
-    fun refreshHuntIfNeeded(logItem: LogItem?) {
-        if (isSearchStep()) {
-            if (GameInfo.treasureHunt == null) {
-                RefreshHuntTask().run(logItem)
-            }
-            updatePoints()
         }
     }
 

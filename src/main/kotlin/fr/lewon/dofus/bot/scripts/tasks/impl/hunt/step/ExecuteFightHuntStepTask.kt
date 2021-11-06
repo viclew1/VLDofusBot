@@ -1,16 +1,13 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.game.GameInfo
-import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 
-class ExecuteFightHuntStepTask() : DofusBotTask<DofusMap>() {
+class ExecuteFightHuntStepTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem): DofusMap {
-        TreasureHuntUtil.fight(logItem)
-        return GameInfo.currentMap
+    override fun execute(logItem: LogItem): Boolean {
+        return TreasureHuntUtil.fight(logItem)
     }
 
     override fun onStarted(): String {

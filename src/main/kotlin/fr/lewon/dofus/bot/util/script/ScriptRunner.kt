@@ -3,12 +3,14 @@ package fr.lewon.dofus.bot.util.script
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
 import fr.lewon.dofus.bot.util.WindowsUtil
 
 object ScriptRunner {
 
     private var isThreadRunning = false
+    private var shouldInitBoard = true
     private lateinit var runnerThread: Thread
     private lateinit var currentLogItem: LogItem
     val listeners = ArrayList<ScriptRunnerListener>()
@@ -26,6 +28,10 @@ object ScriptRunner {
                 }
                 WindowsUtil.bringGameToFront()
                 WindowsUtil.updateGameBounds()
+                if (shouldInitBoard) {
+                    InitAllTask().run(currentLogItem)
+                    shouldInitBoard = false
+                }
                 dofusScript.execute(currentLogItem)
                 onScriptOk()
             } catch (e: Exception) {
