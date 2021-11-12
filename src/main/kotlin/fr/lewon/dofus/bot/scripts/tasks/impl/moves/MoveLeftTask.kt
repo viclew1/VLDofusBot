@@ -16,8 +16,8 @@ class MoveLeftTask : MoveTask(Direction.LEFT) {
 
     override fun isCellOk(cellData: CellData): Boolean {
         val mapChangeData = cellData.mapChangeData
-        return mapChangeData and 8 != 0 || mapChangeData and 16 != 0
-            || cellData.cellId >= FightBoard.MAP_WIDTH * 2 && mapChangeData and 32 != 0
+        return mapChangeData == 8 || mapChangeData and 16 != 0
+                || cellData.cellId >= FightBoard.MAP_WIDTH * 2 && mapChangeData and 32 != 0
     }
 
 }

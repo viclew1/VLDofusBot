@@ -23,10 +23,7 @@ object TestScript : DofusBotScript("Test") {
     }
 
     override fun execute(logItem: LogItem?) {
-        MoveUtil.buildMoveTask(Direction.RIGHT).run(logItem)
-        MoveUtil.buildMoveTask(Direction.BOTTOM).run(logItem)
         MoveUtil.buildMoveTask(Direction.LEFT).run(logItem)
-        MoveUtil.buildMoveTask(Direction.TOP).run(logItem)
     }
 
 }
