@@ -46,8 +46,7 @@ object HintManager : VldbManager {
 
     private fun synchronize(map: DofusMap) {
         for (dir in Direction.values()) {
-            val hintsByDirection =
-                RequestProcessor.getHints(map.posX, map.posY, dir, map.worldMap)
+            val hintsByDirection = RequestProcessor.getHints(map.posX, map.posY, dir, map.worldMap)
             synchronize(map, dir, hintsByDirection)
         }
     }

@@ -19,7 +19,7 @@ class MCTSState(val fightBoard: FightBoard, var fighterId: Double) {
         val fighter = fightBoard.getFighterById(fighterId)
             ?: error("No fighter with id : $fighterId")
         val mp = CharacteristicUtil.getCharacteristicValue(FighterCharacteristic.MP, fighter.statsById) ?: 0
-        val availablePositions = this.fightBoard.getMoveCells(mp, fighter.fightCell)
+        val availablePositions = this.fightBoard.getMoveCells(mp, fighter.cell)
         this.fightBoard.move(this.fighterId, availablePositions.random().cellId, false)
     }
 

@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.core.manager.VldbManager
@@ -10,7 +10,6 @@ import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
-import fr.lewon.dofus.bot.model.maps.MapInformation
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import java.io.File
@@ -22,14 +21,12 @@ object CharacterManager : VldbManager {
 
     private lateinit var characterStore: CharacterStore
     private lateinit var dataStoreFile: File
-    private val mapper = ObjectMapper()
 
     override fun initManager() {
         dataStoreFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/user_data")
-        val module = SimpleModule()
-        mapper.registerModule(module)
+        val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         if (dataStoreFile.exists()) {
-            characterStore = ObjectMapper().readValue(dataStoreFile)
+            characterStore = mapper.readValue(dataStoreFile)
         } else {
             characterStore = CharacterStore()
             saveUserData()
@@ -44,10 +41,12 @@ object CharacterManager : VldbManager {
     }
 
     fun setCurrentCharacter(character: DofusCharacter) {
-        characterStore.currentCharacterLogin = character.login
-        characterStore.currentCharacterPseudo = character.pseudo
-        MainPanel.refreshScriptsTab()
-        saveUserData()
+        if (characterStore.currentCharacterLogin != character.login || characterStore.currentCharacterPseudo != character.pseudo) {
+            characterStore.currentCharacterLogin = character.login
+            characterStore.currentCharacterPseudo = character.pseudo
+            MainPanel.refreshScriptsTab()
+            saveUserData()
+        }
     }
 
     fun getCurrentCharacter(): DofusCharacter? {
@@ -58,6 +57,14 @@ object CharacterManager : VldbManager {
 
     fun getCharacter(login: String, pseudo: String): DofusCharacter? {
         return characterStore.characters.firstOrNull { it.login == login && it.pseudo == pseudo }
+    }
+
+    fun getCharacterByName(pseudo: String): DofusCharacter? {
+        val matchingCharacters = characterStore.characters.filter { it.pseudo == pseudo }
+        if (matchingCharacters.size != 1) {
+            return null
+        }
+        return matchingCharacters[0]
     }
 
     fun getCharacters(): List<DofusCharacter> {
@@ -111,11 +118,6 @@ object CharacterManager : VldbManager {
         character.pseudo = pseudo
         character.dofusClass = dofusClass
         character.spells = ArrayList(spells)
-        saveUserData()
-    }
-
-    fun updateZaapDestinations(zaapDestinations: ArrayList<MapInformation>) {
-        getCurrentCharacter()?.let { it.zaapDestinations = zaapDestinations }
         saveUserData()
     }
 

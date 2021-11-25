@@ -1,10 +1,10 @@
-package fr.lewon.dofus.bot.game.fight
+package fr.lewon.dofus.bot.game
 
 import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 
-class FightCell(
+class DofusCell(
     val row: Int,
     val col: Int,
     val cellId: Int,
@@ -12,8 +12,8 @@ class FightCell(
     var cellData: CellData = CellData(cellId)
 ) {
 
-    val diagonalNeighbors = HashSet<FightCell>()
-    val neighbors = HashSet<FightCell>()
+    val diagonalNeighbors = HashSet<DofusCell>()
+    val neighbors = HashSet<DofusCell>()
 
     fun getCenter(): PointRelative {
         return bounds.getCenter()

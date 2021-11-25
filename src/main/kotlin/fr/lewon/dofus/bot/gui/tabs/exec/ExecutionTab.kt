@@ -115,8 +115,8 @@ object ExecutionTab : JPanel(MigLayout()), ScriptRunnerListener, VldbLoggerListe
     }
 
     override fun onLogsChange(logs: List<LogItem>) {
-        logsTextArea.text = logs.joinToString("\n\n")
         SwingUtilities.invokeLater {
+            logsTextArea.text = logs.joinToString("\n\n")
             executionLogsScrollPane.verticalScrollBar.value = executionLogsScrollPane.verticalScrollBar.maximum
         }
     }

@@ -4,8 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.game.GameInfo
-import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
@@ -22,6 +21,7 @@ import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.Color
 
 object TreasureHuntUtil {
@@ -52,33 +52,34 @@ object TreasureHuntUtil {
     var flagsCount = 0
 
     private fun getTreasureHuntUiPosition(): UIPoint {
-        return DofusUIPositionsManager.getTreasureHuntUiPosition() ?: UIPoint(0f, 180f)
+        return DofusUIPositionsManager.getTreasureHuntUiPosition() ?: DefaultUIPositions.TREASURE_HUNT_UI_POSITION
     }
 
-    fun isHuntPresent(): Boolean {
+    fun isHuntPresent(gameInfo: GameInfo): Boolean {
         val uiPoint = getTreasureHuntUiPosition()
         topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
-        val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
+        val refRect = RectangleRelative(topLeftHuntPoint.x + 0.01f, topLeftHuntPoint.y, 0.1f, 0.1f)
         val isHuntPresent =
-            ScreenUtil.colorCount(refRect, AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX) > 0
-                && ScreenUtil.colorCount(refRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
+            ScreenUtil.colorCount(
+                gameInfo, refRect, DofusColors.HIGHLIGHT_COLOR_MIN, DofusColors.HIGHLIGHT_COLOR_MAX
+            ) > 0 && ScreenUtil.colorCount(gameInfo, refRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
         if (isHuntPresent) {
-            updatePoints()
+            updatePoints(gameInfo)
         }
         return isHuntPresent
     }
 
-    fun getTreasureHunt(): TreasureHuntMessage {
-        return GameInfo.treasureHunt ?: error("No current hunt. Fetch one before executing it")
+    fun getTreasureHunt(gameInfo: GameInfo): TreasureHuntMessage {
+        return gameInfo.treasureHunt ?: error("No current hunt. Fetch one before executing it")
     }
 
-    fun tickFlag(flagIndex: Int): TreasureHuntMessage {
+    fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken): TreasureHuntMessage {
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
-        MouseUtil.leftClick(tickPoint, false, 0)
-        return waitForTreasureHuntUpdate()
+        MouseUtil.leftClick(gameInfo, tickPoint)
+        return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
 
-    fun getLastNonTickedFlagIndex(): Int? {
+    fun getLastNonTickedFlagIndex(gameInfo: GameInfo): Int? {
         for (i in 0 until flagsCount) {
             val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * i)
             val tickBox = RectangleRelative(
@@ -87,87 +88,111 @@ object TreasureHuntUtil {
                 FLAG_WIDTH,
                 FLAG_WIDTH
             )
-            if (ScreenUtil.colorCount(tickBox, AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX) == 0) {
+            if (ScreenUtil.colorCount(
+                    gameInfo,
+                    tickBox,
+                    DofusColors.HIGHLIGHT_COLOR_MIN,
+                    DofusColors.HIGHLIGHT_COLOR_MAX
+                ) == 0
+            ) {
                 return i
             }
         }
         return null
     }
 
-    fun executeStep(step: TreasureHuntStep, logItem: LogItem): Boolean {
+    fun executeStep(
+        gameInfo: GameInfo,
+        step: TreasureHuntStep,
+        logItem: LogItem,
+        cancellationToken: CancellationToken
+    ): Boolean {
         return when (step) {
-            is TreasureHuntStepFollowDirectionToPOI -> ExecutePoiHuntStepTask(step).run(logItem)
-            is TreasureHuntStepFollowDirectionToHint -> ExecuteNpcHuntStepTask(step).run(logItem)
-            is TreasureHuntStepFight -> ExecuteFightHuntStepTask().run(logItem)
+            is TreasureHuntStepFollowDirectionToPOI ->
+                ExecutePoiHuntStepTask(step).run(logItem, gameInfo, cancellationToken)
+            is TreasureHuntStepFollowDirectionToHint ->
+                ExecuteNpcHuntStepTask(step).run(logItem, gameInfo, cancellationToken)
+            is TreasureHuntStepFight ->
+                ExecuteFightHuntStepTask().run(logItem, gameInfo, cancellationToken)
             else -> error("Unsupported hunt step type : [${step::class.java.simpleName}]")
         }
     }
 
-    fun clickSearch() {
-        MouseUtil.leftClick(searchHuntPoint, false, 0)
-        waitForTreasureHuntUpdate()
+    fun clickSearch(gameInfo: GameInfo, cancellationToken: CancellationToken) {
+        MouseUtil.leftClick(gameInfo, searchHuntPoint)
+        waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
 
-    fun isSearchStep(): Boolean {
-        return isHuntPresent() && !isFightStep()
+    fun isSearchStep(gameInfo: GameInfo): Boolean {
+        return isHuntPresent(gameInfo) && !isFightStep(gameInfo)
     }
 
-    fun isFightStep(): Boolean {
-        return isHuntPresent() && isFightButtonPresent()
+    fun isFightStep(gameInfo: GameInfo): Boolean {
+        return isHuntPresent(gameInfo) && isFightButtonPresent(gameInfo)
     }
 
-    private fun isFightButtonPresent(): Boolean {
+    private fun isFightButtonPresent(gameInfo: GameInfo): Boolean {
         return ScreenUtil.isBetween(
+            gameInfo,
             fightPoint,
-            AppColors.HIGHLIGHT_COLOR_MIN,
-            AppColors.HIGHLIGHT_COLOR_MAX
+            DofusColors.HIGHLIGHT_COLOR_MIN,
+            DofusColors.HIGHLIGHT_COLOR_MAX
         )
     }
 
-    fun giveUpHunt(): TreasureHuntMessage {
-        MouseUtil.leftClick(giveUpHuntPoint, false, 0)
-        return waitForTreasureHuntUpdate()
+    fun giveUpHunt(gameInfo: GameInfo, cancellationToken: CancellationToken): TreasureHuntMessage {
+        MouseUtil.leftClick(gameInfo, giveUpHuntPoint)
+        return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
 
-    fun fight(logItem: LogItem?): Boolean {
-        MouseUtil.leftClick(fightPoint, false, 0)
-        return FightTask().run(logItem)
+    fun fight(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        MouseUtil.leftClick(gameInfo, fightPoint)
+        return FightTask().run(logItem, gameInfo, cancellationToken)
     }
 
-    private fun waitForTreasureHuntUpdate(): TreasureHuntMessage {
-        return WaitUtil.waitForEvents(TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
+    private fun waitForTreasureHuntUpdate(
+        gameInfo: GameInfo,
+        cancellationToken: CancellationToken
+    ): TreasureHuntMessage {
+        return WaitUtil.waitForEvents(
+            gameInfo.snifferId,
+            TreasureHuntMessage::class.java,
+            BasicNoOperationMessage::class.java,
+            cancellationToken = cancellationToken
+        )
     }
 
-    private fun updatePoints() {
+    private fun updatePoints(gameInfo: GameInfo) {
         giveUpHuntPoint = topLeftHuntPoint.getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
         firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
         fightPoint = topLeftHuntPoint.getSum(REF_DELTA_FIGHT_BUTTON_POINT)
-        if (!isFightButtonPresent()) {
-            defineFlagsCount()
+        if (!isFightButtonPresent(gameInfo)) {
+            defineFlagsCount(gameInfo)
             val firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
             val lastFlagPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + (flagsCount - 1) * FLAG_DELTA_Y)
             searchHuntPoint = lastFlagPoint.getSum(REF_DELTA_SEARCH_BUTTON_POINT_FROM_LAST_FLAG)
         }
     }
 
-    private fun defineFlagsCount() {
+    private fun defineFlagsCount(gameInfo: GameInfo) {
         flagsCount = 0
         val x = firstFlagPoint.x + REF_DISPLAY_BORDERS_FROM_FLAG_X
         while (ScreenUtil.colorCount(
+                gameInfo,
                 RectangleRelative(
                     x - FLAG_HALF_WIDTH,
                     firstFlagPoint.y + flagsCount * FLAG_DELTA_Y - FLAG_HALF_WIDTH,
                     FLAG_WIDTH,
                     FLAG_WIDTH
-                ), AppColors.HIGHLIGHT_COLOR_MIN, AppColors.HIGHLIGHT_COLOR_MAX
+                ), DofusColors.HIGHLIGHT_COLOR_MIN, DofusColors.HIGHLIGHT_COLOR_MAX
             ) == 0
         ) {
             flagsCount++
         }
     }
 
-    fun getLastHintMap(): DofusMap {
-        val treasureHunt = getTreasureHunt()
+    fun getLastHintMap(gameInfo: GameInfo): DofusMap {
+        val treasureHunt = getTreasureHunt(gameInfo)
         if (treasureHunt.huntFlags.isEmpty()) {
             return treasureHunt.startMap
         }

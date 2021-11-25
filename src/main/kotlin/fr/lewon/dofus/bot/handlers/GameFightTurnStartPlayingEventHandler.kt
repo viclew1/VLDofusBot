@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.sniffer.store.EventHandler
 
 object GameFightTurnStartPlayingEventHandler : EventHandler<GameFightTurnStartPlayingMessage> {
 
-    override fun onEventReceived(socketResult: GameFightTurnStartPlayingMessage) {
+    override fun onEventReceived(socketResult: GameFightTurnStartPlayingMessage, snifferId: Long) {
         VldbLogger.debug("Turn starting")
     }
 }

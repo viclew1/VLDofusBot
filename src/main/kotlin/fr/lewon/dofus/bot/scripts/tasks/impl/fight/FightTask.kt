@@ -2,12 +2,13 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
-import fr.lewon.dofus.bot.core.manager.ui.UIPoint
-import fr.lewon.dofus.bot.game.GameInfo
-import fr.lewon.dofus.bot.game.fight.*
-import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.game.DofusCell
+import fr.lewon.dofus.bot.game.fight.FightAI
+import fr.lewon.dofus.bot.game.fight.Fighter
+import fr.lewon.dofus.bot.game.fight.FighterCharacteristic
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.characters.spells.SpellType
+import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightTurnEndMessage
@@ -16,12 +17,14 @@ import fr.lewon.dofus.bot.sniffer.model.messages.fight.SequenceEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.game.CharacteristicUtil
+import fr.lewon.dofus.bot.util.game.DefaultUIPositions
+import fr.lewon.dofus.bot.util.game.DofusColors
+import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
+import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.event.KeyEvent
 
 class FightTask : BooleanDofusBotTask() {
@@ -56,104 +59,104 @@ class FightTask : BooleanDofusBotTask() {
             PointRelative(0.7322581f, 0.7076613f)
         )
 
-        private val MIN_COLOR = AppColors.HIGHLIGHT_COLOR_MIN
-        private val MAX_COLOR = AppColors.HIGHLIGHT_COLOR_MAX
-        private val MIN_COLOR_CROSS = AppColors.UI_BANNER_BLACK_COLOR_MIN
-        private val MAX_COLOR_CROSS = AppColors.UI_BANNER_BLACK_COLOR_MAX
-        private val MIN_COLOR_BG = AppColors.UI_BANNER_GREY_COLOR_MIN
-        private val MAX_COLOR_BG = AppColors.UI_BANNER_GREY_COLOR_MAX
+        private val MIN_COLOR = DofusColors.HIGHLIGHT_COLOR_MIN
+        private val MAX_COLOR = DofusColors.HIGHLIGHT_COLOR_MAX
+        private val MIN_COLOR_CROSS = DofusColors.UI_BANNER_BLACK_COLOR_MIN
+        private val MAX_COLOR_CROSS = DofusColors.UI_BANNER_BLACK_COLOR_MAX
+        private val MIN_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MIN
+        private val MAX_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MAX
 
     }
 
     private lateinit var readyButtonBounds: RectangleRelative
     private lateinit var creatureModeBounds: RectangleRelative
     private lateinit var blockHelpBounds: RectangleRelative
+    private var preMoveBuffCd = 0
 
-    private fun getCloseButtonLocation(): RectangleRelative? {
-        if (ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_1, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
-            && ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_1, MIN_COLOR_BG, MAX_COLOR_BG) > 0
+    private fun getCloseButtonLocation(gameInfo: GameInfo): RectangleRelative? {
+        if (ScreenUtil.colorCount(gameInfo, CLOSE_FIGHT_BUTTON_1, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
+            && ScreenUtil.colorCount(gameInfo, CLOSE_FIGHT_BUTTON_1, MIN_COLOR_BG, MAX_COLOR_BG) > 0
         ) {
             return CLOSE_FIGHT_BUTTON_1
         }
-        if (ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_2, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
-            && ScreenUtil.colorCount(CLOSE_FIGHT_BUTTON_2, MIN_COLOR_BG, MAX_COLOR_BG) > 0
+        if (ScreenUtil.colorCount(gameInfo, CLOSE_FIGHT_BUTTON_2, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
+            && ScreenUtil.colorCount(gameInfo, CLOSE_FIGHT_BUTTON_2, MIN_COLOR_BG, MAX_COLOR_BG) > 0
         ) {
             return CLOSE_FIGHT_BUTTON_2
         }
         return null
     }
 
-    private fun isLvlUp(): Boolean {
-        return ScreenUtil.isBetween(LVL_UP_OK_BUTTON_POINT, MIN_COLOR, MAX_COLOR)
+    private fun isLvlUp(gameInfo: GameInfo): Boolean {
+        return ScreenUtil.isBetween(gameInfo, LVL_UP_OK_BUTTON_POINT, MIN_COLOR, MAX_COLOR)
     }
 
-    private fun isFightEnded(): Boolean {
-        return EventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java) != null
+    private fun isFightEnded(gameInfo: GameInfo): Boolean {
+        return EventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId) != null
     }
 
-    override fun execute(logItem: LogItem): Boolean {
-        val character = CharacterManager.getCurrentCharacter() ?: error("No current character defined")
+    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val preMoveBuffCombination = SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, 4, 4, 1, 5, -2)
-        val losSpellCombo = SpellCombination(SpellType.ATTACK, "33", 2, 11, true, false, 0, 6, 2, 0, 5)
-        val nonLosSpellCombo = SpellCombination(SpellType.ATTACK, "", -1, -1, false, false, 0, 0, 0, 0)
-        val contactSpellCombo = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, 0, 8, 2, 0, 2)
+        val losSpells = SpellCombination(SpellType.ATTACK, "33", 2, 11, true, false, 0, 6, 2, 0, 5)
+        val nonLosSpells = SpellCombination(SpellType.ATTACK, "", -1, -1, false, false, 0, 0, 0, 0)
+        val contactSpells = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, 0, 8, 2, 0, 2)
         val gapCloserCombination = SpellCombination(SpellType.GAP_CLOSER, "", -1, -1, false, false, 0, 0, 0, 0)
-        var preMoveBuffCd = 0
+        preMoveBuffCd = 0
 
-        val fightBoard = GameInfo.fightBoard
-        initFight()
-        WaitUtil.waitUntil({ fightBoard.getPlayerFighter() != null && fightBoard.getEnemyFighters().isNotEmpty() })
+        val fightBoard = gameInfo.fightBoard
+        val dofusBoard = gameInfo.dofusBoard
+        initFight(gameInfo, cancellationToken)
+        WaitUtil.waitUntil(
+            { fightBoard.getPlayerFighter() != null && fightBoard.getEnemyFighters().isNotEmpty() }, cancellationToken
+        )
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
-        fightBoard.startCells
-            .minByOrNull { fightBoard.getPathLength(it, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE }
-            ?.takeIf { it != playerFighter.fightCell }
-            ?.let { MouseUtil.leftClick(it.getCenter()) }
+        dofusBoard.startCells
+            .minByOrNull { dofusBoard.getPathLength(it, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE }
+            ?.takeIf { it != playerFighter.cell }
+            ?.let { MouseUtil.leftClick(gameInfo, it.getCenter()) }
 
-        EventStore.clear(MapComplementaryInformationsDataMessage::class.java)
-        MouseUtil.leftClick(readyButtonBounds.getCenter(), false, 0)
-        waitForMessage(GameFightTurnStartPlayingMessage::class.java)
-        while (!isFightEnded()) {
-            MouseUtil.leftClick(ConfigManager.config.mouseRestPos, false, 400)
+        EventStore.clear(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId)
+        KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_F1, 0)
+        waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, cancellationToken)
+        while (!isFightEnded(gameInfo)) {
+            MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)
 
-            var playerPos = playerFighter.fightCell
+            var playerPos = playerFighter.cell
             val enemyFighter = fightBoard.getFighter(fightBoard.closestEnemyPosition) ?: error("No enemy left")
 
-            val closestEnemyDist = fightBoard.getDist(playerPos, fightBoard.closestEnemyPosition)
-                ?: Int.MAX_VALUE
-
-            if (--preMoveBuffCd <= 0 && closestEnemyDist > 1) {
-                castSpells(preMoveBuffCombination.keys, playerPos)
-                preMoveBuffCd = preMoveBuffCombination.cooldown
-            }
+            --preMoveBuffCd
 
             val mp = getFighterMp(playerFighter)
             val enemyMp = getFighterMp(enemyFighter)
 
-            val fightAI = FightAI(mp, enemyMp, fightBoard, losSpellCombo, nonLosSpellCombo, contactSpellCombo, 1)
+            val fightAI = FightAI(mp, enemyMp, dofusBoard, fightBoard, losSpells, nonLosSpells, contactSpells, 1)
 
-            if (fightBoard.getDist(playerPos, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE <= 1) {
-                castSpells(contactSpellCombo.keys, fightBoard.closestEnemyPosition)
+            if ((dofusBoard.getDist(playerPos, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE) <= 1) {
+                castSpells(gameInfo, contactSpells.keys, fightBoard.closestEnemyPosition, cancellationToken)
             } else {
-                moveToBestCell(playerPos, fightAI)
-                playerPos = playerFighter.fightCell
-                useGapClosers(playerPos, fightAI, gapCloserCombination)
-                useAttacks(playerPos, fightBoard, losSpellCombo, nonLosSpellCombo, contactSpellCombo)
+                moveToBestCell(gameInfo, playerPos, fightAI, preMoveBuffCombination, cancellationToken)
+                playerPos = playerFighter.cell
+                useGapClosers(gameInfo, playerPos, fightAI, gapCloserCombination, cancellationToken)
+                useAttacks(gameInfo, playerPos, losSpells, nonLosSpells, contactSpells, cancellationToken)
             }
 
-            MouseUtil.leftClick(readyButtonBounds.getCenter(), false, 0)
-            waitForMessage(GameFightTurnEndMessage::class.java)
-            waitForMessage(GameFightTurnStartPlayingMessage::class.java)
+            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
+            waitForMessage(gameInfo, GameFightTurnEndMessage::class.java, cancellationToken)
+            waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, cancellationToken)
         }
 
-        GameInfo.fightBoard.resetFighters()
+        gameInfo.fightBoard.resetFighters()
 
-        if (isLvlUp()) {
-            MouseUtil.leftClick(LVL_UP_OK_BUTTON_POINT)
-            WaitUtil.waitUntil({ !isLvlUp() })
+        if (isLvlUp(gameInfo)) {
+            MouseUtil.leftClick(gameInfo, LVL_UP_OK_BUTTON_POINT)
+            WaitUtil.waitUntil({ !isLvlUp(gameInfo) }, cancellationToken)
         }
-        val bounds = getCloseButtonLocation() ?: error("Close battle button not found")
-        MouseUtil.leftClick(bounds.getCenter())
+        if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null }, cancellationToken)) {
+            return false
+        }
+        val bounds = getCloseButtonLocation(gameInfo) ?: error("Close battle button not found")
+        MouseUtil.leftClick(gameInfo, bounds.getCenter())
         return true
     }
 
@@ -171,13 +174,16 @@ class FightTask : BooleanDofusBotTask() {
     }
 
     private fun useAttacks(
-        playerPosition: FightCell,
-        fightBoard: FightBoard,
+        gameInfo: GameInfo,
+        playerPosition: DofusCell,
         losSpellCombination: SpellCombination,
         nonLosSpellCombination: SpellCombination,
-        contactSpellCombination: SpellCombination
+        contactSpellCombination: SpellCombination,
+        cancellationToken: CancellationToken
     ) {
-        val dist = fightBoard.getDist(playerPosition, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE
+        val fightBoard = gameInfo.fightBoard
+        val dofusBoard = gameInfo.dofusBoard
+        val dist = dofusBoard.getDist(playerPosition, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE
         val los = fightBoard.lineOfSight(playerPosition, fightBoard.closestEnemyPosition)
         val attacks = when {
             dist <= 1 -> contactSpellCombination.keys
@@ -185,73 +191,112 @@ class FightTask : BooleanDofusBotTask() {
             dist in nonLosSpellCombination.minRange..nonLosSpellCombination.maxRange -> nonLosSpellCombination.keys
             else -> ""
         }
-        castSpells(attacks, fightBoard.closestEnemyPosition)
+        castSpells(gameInfo, attacks, fightBoard.closestEnemyPosition, cancellationToken)
     }
 
-    private fun useGapClosers(playerPosition: FightCell, fightAI: FightAI, gapCloserSpell: SpellCombination) {
+    private fun useGapClosers(
+        gameInfo: GameInfo,
+        playerPosition: DofusCell,
+        fightAI: FightAI,
+        gapCloserSpell: SpellCombination,
+        cancellationToken: CancellationToken
+    ) {
         if (gapCloserSpell.keys.isNotEmpty()) {
             val minRange = gapCloserSpell.minRange
             val maxRange = gapCloserSpell.maxRange
             val bestCell = fightAI.selectBestTpDest(minRange, maxRange)
             if (bestCell != playerPosition) {
-                castSpells(gapCloserSpell.keys, bestCell)
+                castSpells(gameInfo, gapCloserSpell.keys, bestCell, cancellationToken)
             }
         }
     }
 
-    private fun moveToBestCell(playerPosition: FightCell, fightAI: FightAI) {
-        fightAI.selectBestMoveDest().takeIf { it != playerPosition }?.let {
-            MouseUtil.leftClick(it.getCenter(), false, 0)
-            return waitForSequenceCompleteEnd()
+    private fun moveToBestCell(
+        gameInfo: GameInfo,
+        playerPosition: DofusCell,
+        fightAI: FightAI,
+        preMoveBuffCombination: SpellCombination,
+        cancellationToken: CancellationToken
+    ) {
+        val potentialMpBuff = if (preMoveBuffCd <= 0) preMoveBuffCombination.amount else 0
+        fightAI.selectBestMoveDest(potentialMpBuff).takeIf { it.first != playerPosition }?.let {
+            if (it.second) {
+                useMpBuff(gameInfo, preMoveBuffCombination, cancellationToken)
+            }
+            MouseUtil.leftClick(gameInfo, it.first.getCenter())
+            return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
         }
     }
 
-    private fun castSpells(keys: String, target: FightCell) {
+    private fun useMpBuff(
+        gameInfo: GameInfo,
+        preMoveBuffCombination: SpellCombination,
+        cancellationToken: CancellationToken
+    ) {
+        val playerPos = gameInfo.fightBoard.getPlayerFighter()?.cell ?: error("Player cell not found")
+        val closestEnemyDist = gameInfo.dofusBoard.getDist(playerPos, gameInfo.fightBoard.closestEnemyPosition)
+            ?: Int.MAX_VALUE
+        if (--preMoveBuffCd <= 0 && closestEnemyDist > 1) {
+            castSpells(gameInfo, preMoveBuffCombination.keys, playerPos, cancellationToken)
+            preMoveBuffCd = preMoveBuffCombination.cooldown
+        }
+    }
+
+    private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
         for (c in keys) {
-            castSpell(c, target)
-            if (isFightEnded()) {
+            castSpell(gameInfo, c, target, cancellationToken)
+            if (isFightEnded(gameInfo)) {
                 return
             }
         }
     }
 
-    private fun castSpell(key: Char, target: FightCell) {
-        KeyboardUtil.sendKey(KeyEvent.getExtendedKeyCodeForChar(key.code), 150)
-        MouseUtil.leftClick(target.getCenter(), false, 0)
-        return waitForSequenceCompleteEnd()
+    private fun castSpell(gameInfo: GameInfo, key: Char, target: DofusCell, cancellationToken: CancellationToken) {
+        KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 150)
+        MouseUtil.leftClick(gameInfo, target.getCenter())
+        return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
     }
 
-    private fun waitForSequenceCompleteEnd() {
-        if (waitForMessage(SequenceEndMessage::class.java, timeOutMillis = 2000)) {
-            waitForMessage(BasicNoOperationMessage::class.java, timeOutMillis = 2000)
+    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo, cancellationToken: CancellationToken) {
+        if (waitForMessage(gameInfo, SequenceEndMessage::class.java, cancellationToken, 2000)) {
+            waitForMessage(gameInfo, BasicNoOperationMessage::class.java, cancellationToken, 2000)
         }
     }
 
     private fun waitForMessage(
+        gameInfo: GameInfo,
         eventClass: Class<out INetworkMessage>,
-        timeOutMillis: Int = ConfigManager.config.globalTimeout * 1000
+        cancellationToken: CancellationToken,
+        timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
     ): Boolean {
-        EventStore.clear(eventClass)
-        return WaitUtil.waitUntil({ isFightEnded() || EventStore.getLastEvent(eventClass) != null }, timeOutMillis)
+        EventStore.clear(eventClass, gameInfo.snifferId)
+        return WaitUtil.waitUntil(
+            { isFightEnded(gameInfo) || EventStore.getLastEvent(eventClass, gameInfo.snifferId) != null },
+            cancellationToken,
+            timeOutMillis
+        )
     }
 
-    private fun initFight() {
+    private fun initFight(gameInfo: GameInfo, cancellationToken: CancellationToken) {
         val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_FIGHT)
-            ?: UIPoint(400f, 909f)
+            ?: DefaultUIPositions.BANNER_UI_POSITION
         val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
         val deltaTopLeftPoint = REF_TOP_LEFT_POINT.opposite().getSum(uiPointRelative)
         readyButtonBounds = REF_READY_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
         creatureModeBounds = REF_CREATURE_MODE_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
         blockHelpBounds = REF_BLOCK_HELP_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
 
-        if (!WaitUtil.waitUntil({ ScreenUtil.colorCount(readyButtonBounds, MIN_COLOR, MAX_COLOR) > 0 })) {
+        val readyButtonFound = WaitUtil.waitUntil(
+            { ScreenUtil.colorCount(gameInfo, readyButtonBounds, MIN_COLOR, MAX_COLOR) > 0 }, cancellationToken
+        )
+        if (!readyButtonFound) {
             error("Couldn't find READY button")
         }
-        if (ScreenUtil.colorCount(creatureModeBounds, MIN_COLOR, MAX_COLOR) == 0) {
-            MouseUtil.leftClick(creatureModeBounds.getCenter())
+        if (ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR, MAX_COLOR) == 0) {
+            MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter(), 200)
         }
-        if (ScreenUtil.colorCount(blockHelpBounds, MIN_COLOR, MAX_COLOR) == 0) {
-            MouseUtil.leftClick(blockHelpBounds.getCenter())
+        if (ScreenUtil.colorCount(gameInfo, blockHelpBounds, MIN_COLOR, MAX_COLOR) == 0) {
+            MouseUtil.leftClick(gameInfo, blockHelpBounds.getCenter(), 200)
         }
     }
 

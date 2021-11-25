@@ -1,17 +1,15 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.logs.VldbLogger
-import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
-import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.*
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.windows.RestartGameTask
 import fr.lewon.dofus.bot.util.FormatUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.network.GameInfo
 
 object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
@@ -24,7 +22,7 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
     )
 
     private val cleanCacheParameter = DofusBotScriptParameter(
-        "clean_cache_every", "Amount of hunts before cleaning Dofus cache", "12", DofusBotScriptParameterType.INTEGER
+        "clean_cache_every", "Amount of hunt(s) before cleaning Dofus cache", "12", DofusBotScriptParameterType.INTEGER
     )
 
     override fun getParameters(): List<DofusBotScriptParameter> {
@@ -40,12 +38,14 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
     private val successRateStat = DofusBotScriptStat("Success rate")
     private val averageHuntFetchDurationStat = DofusBotScriptStat("Average hunt fetch duration")
     private val averageHuntDurationStat = DofusBotScriptStat("Average hunt duration")
+    private val nextRestartInStat = DofusBotScriptStat("Next restart in")
 
     override fun getStats(): List<DofusBotScriptStat> {
         return listOf(
             successRateStat,
             averageHuntFetchDurationStat,
-            averageHuntDurationStat
+            averageHuntDurationStat,
+            nextRestartInStat
         )
     }
 
@@ -53,26 +53,28 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         val resumeHunt = resumeHuntParameter.value.toBoolean()
         val huntCount = huntCountParameter.value.toInt()
         val cleanCacheEvery = cleanCacheParameter.value.toInt()
-        var description = "Executes $huntCount starting with the current treasure hunt by : \n"
+        var description = "Executes $huntCount hunt(s) starting with the current treasure hunt by : \n"
         if (!resumeHunt) description += " - Reaching treasure hunt start location \n"
         description += " - Finding hints and resolving treasure hunt steps \n"
         description += " - Fighting the chest at the end \n"
-        description += "Dofus cache will be cleaned every $cleanCacheEvery hunts"
+        description += "Dofus cache will be cleaned every $cleanCacheEvery hunt(s)"
         return description
     }
 
-    override fun execute(logItem: LogItem?) {
+    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken) {
         clearStats()
         var successCount = 0
+        var cleanCacheCount = cleanCacheParameter.value.toInt()
 
-        if (TreasureHuntUtil.isFightStep()) {
-            TreasureHuntUtil.fight(logItem)
+        if (TreasureHuntUtil.isFightStep(gameInfo)) {
+            TreasureHuntUtil.fight(logItem, gameInfo, cancellationToken)
         }
 
         for (i in 0 until huntCountParameter.value.toInt()) {
+            nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             val fetchStartTimeStamp = System.currentTimeMillis()
-            if (!TreasureHuntUtil.isHuntPresent()) {
-                FetchHuntTask().run(logItem)
+            if (!TreasureHuntUtil.isHuntPresent(gameInfo)) {
+                FetchHuntTask().run(logItem, gameInfo, cancellationToken)
             }
             val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp
             huntFetchDurations.add(fetchDuration)
@@ -80,24 +82,27 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
             val huntStartTimeStamp = System.currentTimeMillis()
 
-            ReachMapTask(TreasureHuntUtil.getLastHintMap()).run(logItem)
-            val success = ExecuteHuntTask().run(logItem)
+            if (!ReachMapTask(TreasureHuntUtil.getLastHintMap(gameInfo)).run(logItem, gameInfo, cancellationToken)) {
+                error("Couldn't reach hunt start")
+            }
+            val success = ExecuteHuntTask().run(logItem, gameInfo, cancellationToken)
             WaitUtil.sleep(300)
 
             val huntDuration = System.currentTimeMillis() - huntStartTimeStamp
             huntDurations.add(huntDuration)
             averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
 
-            if (success) {
-                VldbLogger.log("Hunt succeeded")
-                successCount++
-            } else {
-                VldbLogger.log("Hunt failed")
-            }
+            if (success) successCount++
+            cleanCacheCount--
             successRateStat.value = "$successCount / ${i + 1}"
+            nextRestartInStat.value = "$cleanCacheCount hunt(s)"
+            if (cleanCacheCount == 0) {
+                RestartGameTask().run(logItem, gameInfo, cancellationToken)
+                cleanCacheCount = cleanCacheParameter.value.toInt()
+            }
             if (!success) {
                 WaitUtil.sleep(600 * 1000 - huntDuration)
-                TreasureHuntUtil.giveUpHunt()
+                TreasureHuntUtil.giveUpHunt(gameInfo, cancellationToken)
             }
         }
     }
@@ -106,5 +111,6 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         huntDurations.clear()
         successRateStat.resetValue()
         averageHuntDurationStat.resetValue()
+        nextRestartInStat.resetValue()
     }
 }

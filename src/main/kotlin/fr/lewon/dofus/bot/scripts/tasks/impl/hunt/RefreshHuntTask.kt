@@ -1,29 +1,32 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.network.GameInfo
 
 class RefreshHuntTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem): Boolean {
-        if (TreasureHuntUtil.isSearchStep()) {
-            ReachHavenBagTask().run(logItem)
-            val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex()
-            if (lastNonTickedIndex != null) {
-                TreasureHuntUtil.tickFlag(lastNonTickedIndex)
-                WaitUtil.sleep(1000)
-                TreasureHuntUtil.tickFlag(lastNonTickedIndex)
-            } else {
-                TreasureHuntUtil.tickFlag(TreasureHuntUtil.flagsCount - 1)
+    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        if (TreasureHuntUtil.isSearchStep(gameInfo)) {
+            if (!ReachHavenBagTask().run(logItem, gameInfo, cancellationToken)) {
+                return false
             }
-            LeaveHavenBagTask().run(logItem)
-            return true
-        } else if (TreasureHuntUtil.isFightStep()) {
-            return true
+            val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex(gameInfo)
+            if (lastNonTickedIndex != null) {
+                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
+                WaitUtil.sleep(300)
+                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
+            } else {
+                TreasureHuntUtil.tickFlag(gameInfo, TreasureHuntUtil.flagsCount - 1, cancellationToken)
+            }
+            return LeaveHavenBagTask().run(logItem, gameInfo, cancellationToken)
+        } else if (TreasureHuntUtil.isFightStep(gameInfo)) {
+            return LeaveHavenBagTask().run(logItem, gameInfo, cancellationToken)
         }
         return false
     }

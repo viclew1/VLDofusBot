@@ -72,7 +72,8 @@ object ScriptTab : JPanel(MigLayout()), ScriptRunnerListener {
         parametersScrollPane.isVisible = parameters.isNotEmpty()
         if (character != null) {
             for (parameter in parameters) {
-                parametersPane.add(JLabel(parameter.key), "height 20")
+                val parameterLabel = JLabel(parameter.key).also { it.toolTipText = parameter.description }
+                parametersPane.add(parameterLabel, "height 20")
                 parametersPane.add(JPanel(), "growx, height 20")
                 parametersPane.add(
                     buildInputField(character, dofusScript, parameter),

@@ -2,15 +2,17 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.game.GameInfo
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
+import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelToCoordinatesTask
+import fr.lewon.dofus.bot.util.network.GameInfo
 
-open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<DofusMap>() {
+open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<Boolean>() {
 
-    override fun execute(logItem: LogItem): DofusMap {
-        if (dofusMap == GameInfo.currentMap) {
-            return dofusMap
+    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        if (dofusMap == gameInfo.currentMap) {
+            return true
         }
 
         val zaaps = TravelUtil.getZaaps(dofusMap.isAltWorld())
@@ -25,13 +27,13 @@ open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<DofusMap>
 
         when {
             closestTransporter != null && transporterDist < zaapDist ->
-                TransportTowardTask(closestTransporter).run(logItem)
+                TransportTowardTask(closestTransporter).run(logItem, gameInfo, cancellationToken)
             closestZaap != null ->
-                ZaapTowardTask(closestZaap).run(logItem)
+                ZaapTowardTask(closestZaap).run(logItem, gameInfo, cancellationToken)
             else ->
                 error("No travel element found")
         }
-        return TravelTask(destinationCoordinates).run(logItem)
+        return TravelToCoordinatesTask(destinationCoordinates).run(logItem, gameInfo, cancellationToken)
     }
 
     override fun onStarted(): String {

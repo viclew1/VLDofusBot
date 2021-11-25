@@ -1,104 +1,15 @@
 package fr.lewon.dofus.bot.game.fight
 
-import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
-import fr.lewon.dofus.bot.game.GameInfo
+import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
-import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import fr.lewon.dofus.bot.util.network.GameInfo
 import kotlin.math.abs
 
-class FightBoard {
+class FightBoard(private val gameInfo: GameInfo) {
 
-    companion object {
-        private const val HEIGHT_RATIO = 0.885f
-        const val MAP_WIDTH = 14
-        const val MAP_HEIGHT = 20
-        const val TILE_WIDTH = 1f / (MAP_WIDTH.toFloat() + 0.5f)
-        const val TILE_HEIGHT = HEIGHT_RATIO / (MAP_HEIGHT.toFloat() + 0.5f)
-    }
-
-    var startCells: List<FightCell> = ArrayList()
-    var closestEnemyPosition: FightCell
-    val cells: ArrayList<FightCell>
-    private val cellsByPosition = HashMap<Pair<Int, Int>, FightCell>()
-    private val cellsByCellId = HashMap<Int, FightCell>()
+    private val dofusBoard = gameInfo.dofusBoard
+    var closestEnemyPosition = dofusBoard.cells[0]
     private val fightersById = HashMap<Double, Fighter>()
-
-    init {
-        val initialX = TILE_WIDTH / 2f
-        val initialY = TILE_HEIGHT / 4f
-
-        cells = ArrayList()
-        for (xMultiplier in 0 until MAP_WIDTH * 2) {
-            val x = initialX + (xMultiplier.toFloat() / 2f) * TILE_WIDTH
-            for (yMultiplier in 0 until MAP_HEIGHT) {
-                val row = -xMultiplier / 2 + yMultiplier
-                val col = xMultiplier / 2 + xMultiplier % 2 + yMultiplier
-                val cellId = xMultiplier / 2 + yMultiplier * 2 * MAP_WIDTH + xMultiplier % 2 * MAP_WIDTH
-                val y = initialY + yMultiplier * TILE_HEIGHT + (xMultiplier % 2) * TILE_HEIGHT / 2f
-                val boundsX = x - TILE_WIDTH / 4f
-                val boundsW = TILE_WIDTH / 2f
-                val boundsH = TILE_HEIGHT / 2f
-                val bounds = RectangleRelative(boundsX, y, boundsW, boundsH)
-                cells.add(FightCell(row, col, cellId, bounds))
-            }
-        }
-        initNeighbors(cells)
-        closestEnemyPosition = cells[0]
-    }
-
-    private fun initNeighbors(cells: List<FightCell>) {
-        for (cell in cells) {
-            cellsByPosition[Pair(cell.col, cell.row)] = cell
-            cellsByCellId[cell.cellId] = cell
-        }
-        for (cell in cells) {
-            val neighbors = listOfNotNull(
-                cellsByPosition[Pair(cell.col - 1, cell.row)],
-                cellsByPosition[Pair(cell.col + 1, cell.row)],
-                cellsByPosition[Pair(cell.col, cell.row - 1)],
-                cellsByPosition[Pair(cell.col, cell.row + 1)]
-            )
-            val diagonalNeighbors = listOfNotNull(
-                cellsByPosition[Pair(cell.col - 1, cell.row - 1)],
-                cellsByPosition[Pair(cell.col + 1, cell.row - 1)],
-                cellsByPosition[Pair(cell.col - 1, cell.row + 1)],
-                cellsByPosition[Pair(cell.col + 1, cell.row + 1)]
-            )
-            cell.neighbors.addAll(neighbors)
-            cell.diagonalNeighbors.addAll(diagonalNeighbors)
-        }
-    }
-
-    fun debugPrintGrid() {
-        for (row in 0 until 40) {
-            if (row % 2 == 1) print("  ")
-            for (col in 0 until 14) {
-                val cellId = row * 14 + col
-                val cell = getCell(cellId)
-                val cellStr = when {
-                    isFighterHere(cell) -> "F"
-                    cell.isAccessible() -> "."
-                    cell.isWall() -> "X"
-                    else -> "O"
-                }
-                print("$cellStr   ")
-            }
-            println("")
-        }
-    }
-
-    fun isOnSameLine(fromCellId: Int, toCellId: Int): Boolean {
-        val from = getCell(fromCellId)
-        val to = getCell(toCellId)
-        return from.row == to.row || from.col == to.col
-    }
-
-    fun getCell(cellId: Int): FightCell {
-        return cellsByCellId[cellId] ?: error("No cell with id $cellId")
-    }
 
     fun move(fromCellId: Int, toCellId: Int, updateClosestEnemy: Boolean = true) {
         val fighter = getFighter(fromCellId)
@@ -115,23 +26,12 @@ class FightBoard {
     }
 
     fun move(fighter: Fighter, toCellId: Int, updateClosestEnemy: Boolean = true) {
-        move(fighter, getCell(toCellId), updateClosestEnemy)
+        move(fighter, dofusBoard.getCell(toCellId), updateClosestEnemy)
     }
 
-    fun move(fighter: Fighter, toCell: FightCell, updateClosestEnemy: Boolean = true) {
-        fighter.fightCell = toCell
+    fun move(fighter: Fighter, toCell: DofusCell, updateClosestEnemy: Boolean = true) {
+        fighter.cell = toCell
         if (updateClosestEnemy) updateClosestEnemy()
-    }
-
-    fun updateCells(cellDataList: List<CellData>) {
-        for (cellData in cellDataList) {
-            val fightCell = getCell(cellData.cellId)
-            fightCell.cellData = cellData
-        }
-    }
-
-    fun updateStartCells(positionsForChallengers: ArrayList<Int>) {
-        startCells = positionsForChallengers.map { getCell(it) }
     }
 
     fun resetFighters() {
@@ -144,8 +44,10 @@ class FightBoard {
     }
 
     fun createOrUpdateFighter(fighterId: Double, cellId: Int) {
-        val cell = getCell(cellId)
-        val fighter = fightersById.computeIfAbsent(fighterId) { Fighter(cell, fighterId, !startCells.contains(cell)) }
+        val cell = dofusBoard.getCell(cellId)
+        val fighter = fightersById.computeIfAbsent(fighterId) {
+            Fighter(cell, fighterId, !dofusBoard.startCells.contains(cell))
+        }
         move(fighter, cell)
     }
 
@@ -161,13 +63,13 @@ class FightBoard {
     private fun updateClosestEnemy() {
         val playerFighter = getPlayerFighter() ?: return
         val enemyFighters = getEnemyFighters()
-        closestEnemyPosition = enemyFighters.map { it.fightCell }
-            .minByOrNull { getPathLength(playerFighter.fightCell, it) ?: Int.MAX_VALUE }
-            ?: getCell(0)
+        closestEnemyPosition = enemyFighters.map { it.cell }
+            .minByOrNull { dofusBoard.getPathLength(playerFighter.cell, it) ?: Int.MAX_VALUE }
+            ?: dofusBoard.getCell(0)
     }
 
     fun getPlayerFighter(): Fighter? {
-        return getAlliedFighters().firstOrNull { it.id == GameInfo.playerId }
+        return getAlliedFighters().firstOrNull { it.id == gameInfo.playerId }
     }
 
     fun getEnemyFighters(): List<Fighter> {
@@ -182,23 +84,23 @@ class FightBoard {
         return fightersById.values.filter { it.enemy == enemy }
     }
 
-    fun isFighterHere(cell: FightCell): Boolean {
+    fun isFighterHere(cell: DofusCell): Boolean {
         return getFighter(cell) != null
     }
 
-    fun getFighter(cell: FightCell): Fighter? {
+    fun getFighter(cell: DofusCell): Fighter? {
         return getFighter(cell.cellId)
     }
 
     fun getFighter(cellId: Int): Fighter? {
-        return fightersById.values.firstOrNull { it.fightCell.cellId == cellId }
+        return fightersById.values.firstOrNull { it.cell.cellId == cellId }
     }
 
     fun getFighterById(fighterId: Double): Fighter? {
         return fightersById[fighterId]
     }
 
-    fun lineOfSight(fromCell: FightCell, toCell: FightCell): Boolean {
+    fun lineOfSight(fromCell: DofusCell, toCell: DofusCell): Boolean {
         val x0 = fromCell.col
         val y0 = fromCell.row
         val x1 = toCell.col
@@ -234,7 +136,7 @@ class FightBoard {
         }
 
         while (n > 0) {
-            val cell = cellsByPosition[Pair(x, y)] ?: error("Cell [$x ; $y] does not exist")
+            val cell = dofusBoard.getCell(x, y) ?: error("Cell [$x ; $y] does not exist")
             if (cell.isWall() || cell != fromCell && cell != toCell && isFighterHere(cell)) {
                 return false
             }
@@ -261,54 +163,15 @@ class FightBoard {
         return true
     }
 
-    fun getPathLength(fromCell: FightCell, toCell: FightCell): Int? {
-        return getPath(fromCell, toCell)?.size
+    fun getMoveCells(range: Int, fromCell: DofusCell): List<DofusCell> {
+        return getMoveCells(range, listOf(fromCell))
     }
 
-    fun getDist(fromCell: FightCell, toCell: FightCell): Int? {
-        return getPath(fromCell, toCell, true)?.size
-    }
-
-    private fun getPath(fromCell: FightCell, toCell: FightCell, fly: Boolean = false): List<FightCell>? {
-        if (fromCell == toCell) {
-            return emptyList()
-        }
-        var node = findPath(fromCell, toCell, fly) ?: return null
-        val cells = LinkedList<FightCell>()
-        while (node.parent != null) {
-            cells.push(node.cell)
-            node = node.parent!!
-        }
-        return cells
-    }
-
-    private fun findPath(fromCell: FightCell, toCell: FightCell, fly: Boolean = false): Node? {
-        val initialNode = Node(null, fromCell)
-        val explored = mutableListOf(fromCell)
-        var frontier = listOf(initialNode)
-        while (frontier.isNotEmpty()) {
-            val newFrontier = ArrayList<Node>()
-            for (node in frontier) {
-                if (node.cell == toCell) {
-                    return node
-                }
-                for (neighbor in node.cell.neighbors) {
-                    if (!explored.contains(neighbor) && (fly || neighbor.isAccessible())) {
-                        explored.add(neighbor)
-                        newFrontier.add(Node(node, neighbor))
-                    }
-                }
-            }
-            frontier = newFrontier
-        }
-        return null
-    }
-
-    fun getMoveCells(range: Int, fromCell: FightCell): List<FightCell> {
-        val explored = mutableListOf(fromCell)
-        var frontier = listOf(fromCell)
+    fun getMoveCells(range: Int, initialFrontier: List<DofusCell>): List<DofusCell> {
+        val explored = ArrayList(initialFrontier)
+        var frontier = initialFrontier
         for (i in 0 until range) {
-            val newFrontier = ArrayList<FightCell>()
+            val newFrontier = ArrayList<DofusCell>()
             for (cell in frontier) {
                 for (neighbor in cell.neighbors) {
                     if (!explored.contains(neighbor) && !isFighterHere(neighbor) && neighbor.isAccessible()) {
@@ -322,44 +185,8 @@ class FightBoard {
         return explored
     }
 
-    fun cellsAtRange(minRange: Int, maxRange: Int, fromCellId: Int): List<FightCell> {
-        val fromCell = getCell(fromCellId)
-        return cellsAtRange(minRange, maxRange, fromCell)
-    }
-
-    fun cellsAtRange(minRange: Int, maxRange: Int, fromCell: FightCell): List<FightCell> {
-        val cellsAtRange = ArrayList<FightCell>()
-        val explored = mutableListOf(fromCell)
-        var frontier = listOf(fromCell)
-
-        if (minRange == 0) {
-            cellsAtRange.add(fromCell)
-        }
-
-        for (i in 1..maxRange) {
-            val newFrontier = ArrayList<FightCell>()
-            for (cell in frontier) {
-                for (neighbor in cell.neighbors) {
-                    if (!explored.contains(neighbor)) {
-                        if (i >= minRange) {
-                            cellsAtRange.add(neighbor)
-                        }
-                        explored.add(neighbor)
-                        newFrontier.add(neighbor)
-                    }
-                }
-            }
-            frontier = newFrontier
-        }
-        return cellsAtRange
-    }
-
-    private class Node(val parent: Node?, val cell: FightCell)
-
     fun clone(): FightBoard {
-        return FightBoard()
-            .also { it.cellsByPosition.putAll(cellsByPosition) }
-            .also { it.cellsByCellId.putAll(cellsByCellId) }
+        return FightBoard(gameInfo)
             .also { it.fightersById.putAll(fightersById) }
             .also { it.closestEnemyPosition = closestEnemyPosition }
     }

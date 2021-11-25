@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.util.network.GameInfo
 
 abstract class DofusBotScript(val name: String) {
 
@@ -10,7 +11,7 @@ abstract class DofusBotScript(val name: String) {
 
     abstract fun getDescription(): String
 
-    abstract fun execute(logItem: LogItem? = null)
+    abstract fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken)
 
     override fun toString(): String {
         return name

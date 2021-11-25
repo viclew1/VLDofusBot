@@ -1,31 +1,33 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.game.GameInfo
+import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecuteHuntTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem): Boolean {
-        if (!TreasureHuntUtil.isHuntPresent()) {
+    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        if (!TreasureHuntUtil.isHuntPresent(gameInfo)) {
             return false
         }
-        while (TreasureHuntUtil.isHuntPresent()) {
-            if (!TreasureHuntUtil.executeStep(TreasureHuntUtil.getTreasureHunt().huntSteps.last(), logItem)) {
+        while (TreasureHuntUtil.isHuntPresent(gameInfo)) {
+            val currentStep = TreasureHuntUtil.getTreasureHunt(gameInfo).huntSteps.last()
+            if (!TreasureHuntUtil.executeStep(gameInfo, currentStep, logItem, cancellationToken)) {
                 return false
             }
-            clickSearchIfNeeded()
+            clickSearchIfNeeded(gameInfo, cancellationToken)
         }
         return true
     }
 
-    private fun clickSearchIfNeeded() {
-        val hunt = GameInfo.treasureHunt
-        if (TreasureHuntUtil.isSearchStep() && hunt != null && hunt.huntFlags.size == hunt.huntSteps.size) {
+    private fun clickSearchIfNeeded(gameInfo: GameInfo, cancellationToken: CancellationToken) {
+        val hunt = gameInfo.treasureHunt
+        if (TreasureHuntUtil.isSearchStep(gameInfo) && hunt != null && hunt.huntFlags.size == hunt.huntSteps.size) {
             WaitUtil.sleep(300)
-            TreasureHuntUtil.clickSearch()
+            TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
         }
     }
 

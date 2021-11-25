@@ -1,94 +1,68 @@
 package fr.lewon.dofus.bot.util.io
 
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import com.sun.jna.platform.win32.User32
+import com.sun.jna.platform.win32.WinDef
+import fr.lewon.dofus.bot.util.JNAUtil
+import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import java.awt.Robot
-import java.awt.event.KeyEvent
+import fr.lewon.dofus.bot.util.network.GameInfo
 
 object MouseUtil {
 
-    /**
-     * Places the cursor at a given location.
-     * @param position - Location of the cursor in simple coordinates.
-     * @param millis - Time to wait after the click in ms.
-     */
-    fun place(position: PointAbsolute, millis: Int = 0) {
-        val robot = Robot()
-        robot.mouseMove(position.x, position.y)
+    const val WM_LBUTTONDOWN = 0x0201
+    const val WM_LBUTTONUP = 0x0202
+    const val WM_MOUSEMOVE = 0x0200
+
+    fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 0, moveToRestPos: Boolean = true) {
+        val pid = gameInfo.pid
+        val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+        doLeftClick(handle, position)
         WaitUtil.sleep(millis)
-    }
-
-    /**
-     * Places the cursor at a given location.
-     * @param position - Location of the cursor in relative coordinates.
-     * @param millis - Time to wait after the click in ms.
-     */
-    fun place(position: PointRelative, millis: Int = 0) {
-        place(ConverterUtil.toPointAbsolute(position), millis)
-    }
-
-    /**
-     * Performs a left click.
-     * @param position - Location of the mouse on the screen in simple coordinates.
-     * @param shift - `true` if Shift must be pressed at the same time. It can be used to stack actions.
-     * @param millis - Time to wait after the click in ms.
-     */
-    fun leftClick(position: PointAbsolute, shift: Boolean = false, millis: Int = 1000) {
-        val robot = Robot()
-        robot.mouseMove(position.x, position.y)
-        WaitUtil.sleep(40)
-        if (shift) robot.keyPress(KeyEvent.VK_SHIFT)
-        robot.mousePress(KeyEvent.BUTTON1_DOWN_MASK)
-        robot.mouseRelease(KeyEvent.BUTTON1_DOWN_MASK)
-        if (shift) robot.keyRelease(KeyEvent.VK_SHIFT)
-        WaitUtil.sleep(millis)
-        place(ConfigManager.config.mouseRestPos)
-    }
-
-    /**
-     * Performs a left click.
-     * @param position - Location of the mouse on the screen in relative coordinates.
-     * @param shift - `true` if Shift must be pressed at the same time. It can be used to stack actions.
-     * @param millis - Time to wait after the click in ms.
-     */
-    fun leftClick(position: PointRelative, shift: Boolean = false, millis: Int = 1000) {
-        leftClick(ConverterUtil.toPointAbsolute(position), shift, millis)
-    }
-
-    /**
-     * Performs a double left click.
-     * @param position - Location of the mouse on the screen in simple coordinates.
-     * @param shift - `true` if Shift must be pressed at the same time. It can be used to stack actions.
-     * @param millis - Time to wait after the click in ms.
-     */
-    fun doubleLeftClick(position: PointAbsolute, shift: Boolean = false, millis: Int = 1000) {
-        leftClick(position, shift, 0)
-        leftClick(position, shift, millis)
-    }
-
-    /**
-     * Performs a double left click.
-     * @param position - Location of the mouse on the screen in relative coordinates.
-     * @param shift - `true` if Shift must be pressed at the same time. It can be used to stack actions.
-     * @param millis - Time to wait after the click in ms.
-     */
-    fun doubleLeftClick(position: PointRelative, shift: Boolean = false, millis: Int = 1000) {
-        doubleLeftClick(ConverterUtil.toPointAbsolute(position), shift, millis)
-    }
-
-    fun scrollDown(position: PointAbsolute, scrollAmount: Int = 1, timeBetweenScrolls: Int) {
-        val robot = Robot()
-        place(position, timeBetweenScrolls)
-        for (i in 0 until scrollAmount) {
-            robot.mouseWheel(1)
-            place(position, timeBetweenScrolls)
+        if (moveToRestPos) {
+            doMove(handle, ConverterUtil.toPointAbsolute(gameInfo, MousePositionsUtil.getRestPosition(gameInfo)))
         }
-        place(ConfigManager.config.mouseRestPos)
     }
 
-    fun scrollDown(position: PointRelative, scrollAmount: Int = 1, timeBetweenScrolls: Int = 300) {
-        scrollDown(ConverterUtil.toPointAbsolute(position), scrollAmount, timeBetweenScrolls)
+    private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
+        val lParam = makeLParam(position.x, position.y)
+        User32.INSTANCE.SendMessage(handle, WM_LBUTTONDOWN, WinDef.WPARAM(1), lParam)
+        WaitUtil.sleep(40)
+        User32.INSTANCE.SendMessage(handle, WM_LBUTTONUP, WinDef.WPARAM(0), lParam)
+    }
+
+    fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 0) {
+        val pid = gameInfo.pid
+        val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+        doMove(handle, position)
+        WaitUtil.sleep(millis)
+    }
+
+    private fun doMove(handle: WinDef.HWND, position: PointAbsolute) {
+        val lParam = makeLParam(position.x, position.y)
+        User32.INSTANCE.SendMessage(handle, WM_MOUSEMOVE, WinDef.WPARAM(1), lParam)
+        WaitUtil.sleep(10)
+    }
+
+    private fun makeLParam(x: Int, y: Int): WinDef.LPARAM {
+        return WinDef.LPARAM(((y shl 16) or (x and 0xFFFF)).toLong())
+    }
+
+    fun leftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 0, moveToRestPos: Boolean = true) {
+        leftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis, moveToRestPos)
+    }
+
+    fun move(gameInfo: GameInfo, position: PointRelative, millis: Int = 0) {
+        move(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
+    }
+
+    fun doubleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 0, moveToRestPos: Boolean = true) {
+        leftClick(gameInfo, position, 20, moveToRestPos)
+        leftClick(gameInfo, position, millis, moveToRestPos)
+    }
+
+    fun doubleLeftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 0, moveToRestPos: Boolean = true) {
+        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis, moveToRestPos)
     }
 
 }

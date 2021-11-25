@@ -7,7 +7,7 @@
     <groupId>fr.lewon</groupId>
     <artifactId>VLDofusBot</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,18 +23,18 @@
         <dependency>
             <groupId>fr.lewon</groupId>
             <artifactId>VLDofusBotSniffer</artifactId>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
         </dependency>
 
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>5.5.0</version>
+            <version>5.10.0</version>
         </dependency>
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
-            <version>5.5.0</version>
+            <version>5.10.0</version>
         </dependency>
 
         <dependency>

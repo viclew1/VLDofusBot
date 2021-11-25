@@ -2,52 +2,74 @@ package fr.lewon.dofus.bot.util.script
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
+import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
-import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
-import fr.lewon.dofus.bot.util.WindowsUtil
+import fr.lewon.dofus.bot.scripts.tasks.impl.windows.RestartGameTask
+import fr.lewon.dofus.bot.util.JNAUtil
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 object ScriptRunner {
 
-    private var isThreadRunning = false
-    private var shouldInitBoard = true
-    private lateinit var runnerThread: Thread
+    private var runnerThread: Thread? = null
     private lateinit var currentLogItem: LogItem
+    private lateinit var cancellationToken: CancellationToken
     val listeners = ArrayList<ScriptRunnerListener>()
 
     @Synchronized
     fun runScript(dofusScript: DofusBotScript) {
-        if (isThreadRunning) {
+        if (runnerThread?.isAlive == true) {
             error("Cannot run script, there is already one running")
         }
         runnerThread = Thread {
             currentLogItem = VldbLogger.info("Executing Dofus script : [${dofusScript.name}]")
+            cancellationToken = CancellationToken()
             try {
-                if (!DofusMessageReceiver.isThreadAlive()) {
-                    DofusMessageReceiver.killAndStartThread()
-                }
-                WindowsUtil.bringGameToFront()
-                WindowsUtil.updateGameBounds()
-                if (shouldInitBoard) {
-                    InitAllTask().run(currentLogItem)
-                    shouldInitBoard = false
-                }
-                dofusScript.execute(currentLogItem)
+                val gameInfo = prepareScriptExecution()
+                dofusScript.execute(currentLogItem, gameInfo, cancellationToken)
                 onScriptOk()
             } catch (e: Exception) {
-                onScriptKo(e)
+                if (cancellationToken.cancel) {
+                    onScriptCanceled()
+                } else {
+                    onScriptKo(e)
+                }
             }
-        }
-        runnerThread.start()
+        }.also { it.start() }
         listeners.forEach { it.onScriptStart(dofusScript) }
-        isThreadRunning = true
+    }
+
+    private fun prepareScriptExecution(): GameInfo {
+        val pid = getDofusPID()
+        val gameInfo = GameSnifferUtil.getGameInfoByPID(pid)
+        JNAUtil.updateGameBounds(gameInfo, pid)
+
+        if (gameInfo.shouldInitBoard) {
+            InitAllTask().run(currentLogItem, gameInfo, cancellationToken)
+            gameInfo.shouldInitBoard = false
+        }
+        return gameInfo
+    }
+
+    private fun getDofusPID(): Long {
+        val connectionLog = VldbLogger.info("Fetching dofus PID ...", currentLogItem)
+        val currentCharacter = CharacterManager.getCurrentCharacter()
+            ?: error("There should be a selected character")
+        var dofusConnection = GameSnifferUtil.getCharacterPID(currentCharacter)
+        if (dofusConnection == null) {
+            dofusConnection = RestartGameTask().run(connectionLog, GameInfo(currentCharacter), cancellationToken)
+        }
+        VldbLogger.closeLog("OK", connectionLog)
+        return dofusConnection
     }
 
     @Synchronized
     fun stopScript() {
-        if (isThreadRunning) {
-            runnerThread.stop()
-            onScriptCanceled()
+        runnerThread?.takeIf { it.isAlive }?.let {
+            cancellationToken.cancel = true
+            it.interrupt()
         }
     }
 
@@ -69,6 +91,5 @@ object ScriptRunner {
 
     private fun onScriptEnd(endType: DofusBotScriptEndType) {
         listeners.forEach { it.onScriptEnd(endType) }
-        isThreadRunning = false
     }
 }

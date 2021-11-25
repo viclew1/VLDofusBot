@@ -4,12 +4,10 @@ import com.formdev.flatlaf.FlatDarkLaf
 import com.formdev.flatlaf.FlatLaf
 import com.formdev.flatlaf.FlatLightLaf
 import fr.lewon.dofus.bot.VLDofusBot
-import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
 import fr.lewon.dofus.bot.gui.custom.CustomFrame
 import fr.lewon.dofus.bot.gui.tabs.exec.ExecutionTab
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.util.WindowsUtil
 import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
@@ -93,13 +91,4 @@ object MainFrame : CustomFrame(
         progressBar.background = background
     }
 
-}
-
-fun main() {
-    VLDofusBotCoreUtil.initAll()
-    WindowsUtil.updateGameBounds()
-    MainFrame.isResizable = false
-    MainFrame.isUndecorated = true
-    MainFrame.setLocationRelativeTo(null)
-    MainFrame.isVisible = true
 }

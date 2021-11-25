@@ -3,11 +3,12 @@ package fr.lewon.dofus.bot.gui.tabs.config
 import fr.lewon.dofus.bot.core.logs.LogLevel
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.gui.MainFrame
-import fr.lewon.dofus.bot.util.WindowsUtil
+import fr.lewon.dofus.bot.util.JNAUtil
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.io.ConverterUtil
-import fr.lewon.dofus.bot.util.io.ScreenUtil
-import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import net.miginfocom.swing.MigLayout
 import javax.swing.*
 
@@ -19,8 +20,6 @@ object ConfigTab : JPanel(MigLayout()) {
     private val alwaysOnTopCheckBox = JCheckBox()
     private val logLevelLabel = JLabel("Log Debug")
     private val logLevelComboBox = JComboBox(LogLevel.values())
-    private val globalTimeoutLabel = JLabel("Global Timeout")
-    private val firstNameTextField = JTextField("25")
     private val locateCursorLabel = JLabel("Locate cursor")
     private val locateCursorButton = JButton("Locate")
 
@@ -41,24 +40,26 @@ object ConfigTab : JPanel(MigLayout()) {
 
         locateCursorButton.addActionListener { locatePoint() }
 
-        addLine(globalTimeoutLabel, firstNameTextField)
         addLine(locateCursorLabel, locateCursorButton)
     }
 
     private fun locatePoint() {
         val locatorFrame = CursorLocatorFrame("Click on position to register") {
             println("-----")
-            WindowsUtil.updateGameBounds()
-            println("PointAbsolute(${it.x}, ${it.y})")
-            val pointRelative = ConverterUtil.toPointRelative(it)
-            println("PointRelative(${pointRelative.x}f, ${pointRelative.y}f)")
-            val uiPoint = ConverterUtil.toUIPoint(it)
-            println("UIPoint(${uiPoint.x}, ${uiPoint.y})")
-            Thread {
-                WaitUtil.sleep(1000)
-                val color = ScreenUtil.getPixelColor(it)
-                println("Color : ${color.red} ${color.green} ${color.blue}")
-            }.start()
+            val currentCharacter = CharacterManager.getCurrentCharacter()
+            currentCharacter?.let { c ->
+                GameSnifferUtil.getCharacterPID(c)?.let { pid ->
+                    val gameInfo = GameSnifferUtil.getGameInfoByPID(pid)
+                    JNAUtil.updateGameBounds(gameInfo, pid)
+                    val windowPos = JNAUtil.getGamePosition(pid)
+                    val pointAbsolute = PointAbsolute(it.x - windowPos.x, it.y - windowPos.y)
+                    println("PointAbsolute(${pointAbsolute.x}, ${pointAbsolute.y})")
+                    val pointRelative = ConverterUtil.toPointRelative(gameInfo, pointAbsolute)
+                    println("PointRelative(${pointRelative.x}f, ${pointRelative.y}f)")
+                    val uiPoint = ConverterUtil.toUIPoint(gameInfo, pointAbsolute)
+                    println("UIPoint(${uiPoint.x}, ${uiPoint.y})")
+                }
+            } ?: println("Couldn't find dofus connection information.")
         }
         locatorFrame.isVisible = true
     }
