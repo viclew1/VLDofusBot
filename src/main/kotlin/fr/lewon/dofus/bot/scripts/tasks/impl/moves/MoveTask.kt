@@ -13,6 +13,7 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.InteractiveMoveTask
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import kotlin.math.abs
 
@@ -27,7 +28,7 @@ abstract class MoveTask(
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val fromMap = gameInfo.currentMap
-        val moveCellId = getMoveCellId(gameInfo)
+        val moveCellId = getMoveCellId(gameInfo, cancellationToken)
         var moveDone = false
         if (moveCellId != null) {
             val clickLoc = getStandardClickLoc(gameInfo, moveCellId)
@@ -68,9 +69,16 @@ abstract class MoveTask(
             ?.key?.elementId
     }
 
-    private fun getMoveCellId(gameInfo: GameInfo): Int? {
-        val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("No registered position for player")
+    private fun getMoveCellId(gameInfo: GameInfo, cancellationToken: CancellationToken): Int? {
+        var playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
+        if (playerCellId == null) {
+            WaitUtil.waitUntil(
+                { gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] != null },
+                cancellationToken
+            )
+            playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
+                ?: error("No registered position for player")
+        }
         val moveCells = getMoveCellIds(gameInfo)
         if (moveCells.isEmpty()) {
             return null

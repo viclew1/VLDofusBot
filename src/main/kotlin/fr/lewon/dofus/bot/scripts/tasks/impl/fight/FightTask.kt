@@ -136,6 +136,7 @@ class FightTask : BooleanDofusBotTask() {
                 castSpells(gameInfo, contactSpells.keys, fightBoard.closestEnemyPosition, cancellationToken)
             } else {
                 moveToBestCell(gameInfo, playerPos, fightAI, preMoveBuffCombination, cancellationToken)
+                MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 0, false)
                 playerPos = playerFighter.cell
                 useGapClosers(gameInfo, playerPos, fightAI, gapCloserCombination, cancellationToken)
                 useAttacks(gameInfo, playerPos, losSpells, nonLosSpells, contactSpells, cancellationToken)
@@ -223,7 +224,7 @@ class FightTask : BooleanDofusBotTask() {
             if (it.second) {
                 useMpBuff(gameInfo, preMoveBuffCombination, cancellationToken)
             }
-            MouseUtil.leftClick(gameInfo, it.first.getCenter())
+            MouseUtil.leftClick(gameInfo, it.first.getCenter(), 0, false)
             return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
         }
     }
@@ -253,7 +254,7 @@ class FightTask : BooleanDofusBotTask() {
 
     private fun castSpell(gameInfo: GameInfo, key: Char, target: DofusCell, cancellationToken: CancellationToken) {
         KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 150)
-        MouseUtil.leftClick(gameInfo, target.getCenter())
+        MouseUtil.leftClick(gameInfo, target.getCenter(), 0, false)
         return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
     }
 

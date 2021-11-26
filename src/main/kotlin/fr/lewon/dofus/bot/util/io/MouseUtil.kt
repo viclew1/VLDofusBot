@@ -25,9 +25,11 @@ object MouseUtil {
     }
 
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
+        doMove(handle, position)
+        WaitUtil.sleep(20)
         val lParam = makeLParam(position.x, position.y)
         User32.INSTANCE.SendMessage(handle, WM_LBUTTONDOWN, WinDef.WPARAM(1), lParam)
-        WaitUtil.sleep(40)
+        WaitUtil.sleep(20)
         User32.INSTANCE.SendMessage(handle, WM_LBUTTONUP, WinDef.WPARAM(0), lParam)
     }
 

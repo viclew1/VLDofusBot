@@ -45,8 +45,8 @@ class ZaapTowardTask(private val zaap: Zaap) : DofusBotTask<DofusMap>() {
             ?: error("Couldn't find player position")
 
         val playerPosition = gameInfo.dofusBoard.getCell(playerCellId)
-        val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.2f * DofusBoard.TILE_HEIGHT))
-        MouseUtil.leftClick(gameInfo, zaapPosition)
+        val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.3f * DofusBoard.TILE_HEIGHT))
+        MouseUtil.leftClick(gameInfo, zaapPosition, 0, false)
         val zaapDestinations = WaitUtil.waitForEvent(
             gameInfo.snifferId, ZaapDestinationsMessage::class.java, true, cancellationToken
         ).destinations.map { it.map }

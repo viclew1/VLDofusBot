@@ -15,7 +15,7 @@ class CellMoveTask(private val cellId: Int) : BooleanDofusBotTask() {
 
         val dxMultiplier = if (cellCenter.x > 0.5) 1 else -1
         val clickLocation = PointRelative(
-            cellCenter.x + dxMultiplier * cellBounds.width * 0.85f,
+            cellCenter.x + dxMultiplier * cellBounds.width * 0.8f,
             cellCenter.y
         )
         return MoveUtil.processMove(gameInfo, clickLocation, cancellationToken)
