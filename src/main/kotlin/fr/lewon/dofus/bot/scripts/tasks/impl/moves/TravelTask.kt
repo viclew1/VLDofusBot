@@ -4,9 +4,9 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.manager.world.Transition
 import fr.lewon.dofus.bot.core.manager.world.TransitionType
-import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.move.Direction
+import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.CellMoveTask
@@ -20,11 +20,7 @@ open class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTas
         if (destMaps.contains(gameInfo.currentMap)) {
             return true
         }
-        val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("Couldn't find player position on map")
-        val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
-            ?: error("Couldn't find cell data information for cell : $playerCellId")
-        val path = WorldGraphUtil.getPath(gameInfo.currentMap, cellData.getLinkedZoneRP(), destMaps)
+        val path = TravelUtil.getPath(gameInfo, destMaps)
         if (path == null) {
             VldbLogger.info("Travel path not found", logItem)
             return false

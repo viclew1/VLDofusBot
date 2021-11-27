@@ -48,4 +48,21 @@ object WaitUtil {
         )
     }
 
+    fun waitForSequence(
+        snifferId: Long,
+        mainEventClass: Class<out INetworkMessage>,
+        additionalEventClassesWithCount: Map<Class<out INetworkMessage>, Int>,
+        clearEventStore: Boolean = true,
+        cancellationToken: CancellationToken,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS
+    ): Boolean {
+        if (clearEventStore) {
+            EventStore.clear(snifferId)
+        }
+        return waitUntil(
+            { EventStore.containsSequence(snifferId, mainEventClass, additionalEventClassesWithCount) },
+            cancellationToken, timeout
+        )
+    }
+
 }

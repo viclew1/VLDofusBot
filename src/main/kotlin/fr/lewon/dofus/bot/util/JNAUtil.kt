@@ -41,30 +41,33 @@ object JNAUtil {
     }
 
     fun updateGameBounds(gameInfo: GameInfo, pid: Long) {
-        gameInfo.lock.lock()
-        val rect = WinDef.RECT()
-        User32.INSTANCE.GetClientRect(findByPID(pid), rect)
+        try {
+            gameInfo.lock.lock()
+            val rect = WinDef.RECT()
+            User32.INSTANCE.GetClientRect(findByPID(pid), rect)
 
-        var x = 0
-        var y = 0
-        var width = rect.right - rect.left
-        var height = rect.bottom - rect.top
+            var x = 0
+            var y = 0
+            var width = rect.right - rect.left
+            var height = rect.bottom - rect.top
 
-        val targetRatio = 5f / 4f
-        val ratio = width.toFloat() / height.toFloat()
-        val keepWidth = ratio < targetRatio
-        if (keepWidth) {
-            val newHeight = (width / targetRatio).toInt()
-            y += (height - newHeight) / 2
-            height = newHeight
-        } else {
-            val newWidth = (height * targetRatio).toInt()
-            x += (width - newWidth) / 2
-            width = newWidth
+            val targetRatio = 5f / 4f
+            val ratio = width.toFloat() / height.toFloat()
+            val keepWidth = ratio < targetRatio
+            if (keepWidth) {
+                val newHeight = (width / targetRatio).toInt()
+                y += (height - newHeight) / 2
+                height = newHeight
+            } else {
+                val newWidth = (height * targetRatio).toInt()
+                x += (width - newWidth) / 2
+                width = newWidth
+            }
+
+            gameInfo.bounds = Rectangle(x, y, width, height)
+        } finally {
+            gameInfo.lock.unlock()
         }
-
-        gameInfo.bounds = Rectangle(x, y, width, height)
-        gameInfo.lock.unlock()
     }
 
     fun openGame(): Long {
@@ -89,44 +92,47 @@ object JNAUtil {
     }
 
     fun takeCapture(gameInfo: GameInfo): BufferedImage {
-        gameInfo.lock.lock()
-        val pid = gameInfo.pid
-        val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
-        val hdcWindow = User32.INSTANCE.GetDC(handle)
-        val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
+        try {
+            gameInfo.lock.lock()
+            val pid = gameInfo.pid
+            val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
+            val hdcWindow = User32.INSTANCE.GetDC(handle)
+            val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
 
-        val bounds = WinDef.RECT()
-        User32.INSTANCE.GetClientRect(handle, bounds)
+            val bounds = WinDef.RECT()
+            User32.INSTANCE.GetClientRect(handle, bounds)
 
-        val width = bounds.right - bounds.left
-        val height = bounds.bottom - bounds.top
+            val width = bounds.right - bounds.left
+            val height = bounds.bottom - bounds.top
 
-        val hBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(hdcWindow, width, height)
+            val hBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(hdcWindow, width, height)
 
-        val hOld = GDI32.INSTANCE.SelectObject(hdcMemDC, hBitmap)
-        val srcCopy = 0x00CC0020
-        GDI32.INSTANCE.BitBlt(hdcMemDC, 0, 0, width, height, hdcWindow, 0, 0, srcCopy)
+            val hOld = GDI32.INSTANCE.SelectObject(hdcMemDC, hBitmap)
+            val srcCopy = 0x00CC0020
+            GDI32.INSTANCE.BitBlt(hdcMemDC, 0, 0, width, height, hdcWindow, 0, 0, srcCopy)
 
-        GDI32.INSTANCE.SelectObject(hdcMemDC, hOld)
-        GDI32.INSTANCE.DeleteDC(hdcMemDC)
+            GDI32.INSTANCE.SelectObject(hdcMemDC, hOld)
+            GDI32.INSTANCE.DeleteDC(hdcMemDC)
 
-        val bmi = WinGDI.BITMAPINFO()
-        bmi.bmiHeader.biWidth = width
-        bmi.bmiHeader.biHeight = -height
-        bmi.bmiHeader.biPlanes = 1
-        bmi.bmiHeader.biBitCount = 32
-        bmi.bmiHeader.biCompression = WinGDI.BI_RGB
+            val bmi = WinGDI.BITMAPINFO()
+            bmi.bmiHeader.biWidth = width
+            bmi.bmiHeader.biHeight = -height
+            bmi.bmiHeader.biPlanes = 1
+            bmi.bmiHeader.biBitCount = 32
+            bmi.bmiHeader.biCompression = WinGDI.BI_RGB
 
-        val buffer = Memory(width * height * 4L)
-        GDI32.INSTANCE.GetDIBits(hdcWindow, hBitmap, 0, height, buffer, bmi, WinGDI.DIB_RGB_COLORS)
+            val buffer = Memory(width * height * 4L)
+            GDI32.INSTANCE.GetDIBits(hdcWindow, hBitmap, 0, height, buffer, bmi, WinGDI.DIB_RGB_COLORS)
 
-        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-        image.setRGB(0, 0, width, height, buffer.getIntArray(0, width * height), 0, width)
+            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+            image.setRGB(0, 0, width, height, buffer.getIntArray(0, width * height), 0, width)
 
-        GDI32.INSTANCE.DeleteObject(hBitmap)
-        User32.INSTANCE.ReleaseDC(handle, hdcWindow)
-        gameInfo.lock.unlock()
-        return image
+            GDI32.INSTANCE.DeleteObject(hBitmap)
+            User32.INSTANCE.ReleaseDC(handle, hdcWindow)
+            return image
+        } finally {
+            gameInfo.lock.unlock()
+        }
     }
 
     private fun exec(processBuilder: ProcessBuilder): List<String> {

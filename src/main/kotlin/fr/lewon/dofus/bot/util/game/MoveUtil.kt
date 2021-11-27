@@ -38,6 +38,7 @@ object MoveUtil {
         return WaitUtil.waitForSequence(
             gameInfo.snifferId,
             CurrentMapMessage::class.java,
+            BasicNoOperationMessage::class.java,
             MapComplementaryInformationsDataMessage::class.java,
             GameContextRefreshEntityLookMessage::class.java,
             BasicNoOperationMessage::class.java,

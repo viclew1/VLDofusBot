@@ -43,7 +43,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
             return false
         }
         MouseUtil.leftClick(gameInfo, HUNT_SEEK_OPTION_POINT)
-        if (!WaitUtil.waitUntil({ TreasureHuntUtil.isHuntPresent(gameInfo) }, cancellationToken)) {
+        if (!TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
             return false
         }
         return TravelTask(listOf(outsideMap)).run(logItem, gameInfo, cancellationToken)

@@ -150,7 +150,7 @@ object TreasureHuntUtil {
         return FightTask().run(logItem, gameInfo, cancellationToken)
     }
 
-    private fun waitForTreasureHuntUpdate(
+    fun waitForTreasureHuntUpdate(
         gameInfo: GameInfo,
         cancellationToken: CancellationToken
     ): Boolean {

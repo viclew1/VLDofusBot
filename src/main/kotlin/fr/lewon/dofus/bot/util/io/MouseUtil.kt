@@ -14,16 +14,22 @@ object MouseUtil {
     private const val WM_MOUSEMOVE = 0x0200
 
     fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
-        gameInfo.lock.lock()
-        Thread {
+        try {
             gameInfo.lock.lock()
-            val pid = gameInfo.pid
-            val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            doLeftClick(handle, position)
-            WaitUtil.sleep(millis)
+            Thread {
+                try {
+                    gameInfo.lock.lock()
+                    val pid = gameInfo.pid
+                    val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+                    doLeftClick(handle, position)
+                    WaitUtil.sleep(millis)
+                } finally {
+                    gameInfo.lock.unlock()
+                }
+            }.start()
+        } finally {
             gameInfo.lock.unlock()
-        }.start()
-        gameInfo.lock.unlock()
+        }
     }
 
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
@@ -42,16 +48,22 @@ object MouseUtil {
     }
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
-        gameInfo.lock.lock()
-        Thread {
+        try {
             gameInfo.lock.lock()
-            val pid = gameInfo.pid
-            val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            doSendMouseMessage(handle, WM_MOUSEMOVE, WinDef.WPARAM(0), makeLParam(position.x, position.y))
-            WaitUtil.sleep(millis)
+            Thread {
+                try {
+                    gameInfo.lock.lock()
+                    val pid = gameInfo.pid
+                    val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+                    doSendMouseMessage(handle, WM_MOUSEMOVE, WinDef.WPARAM(0), makeLParam(position.x, position.y))
+                    WaitUtil.sleep(millis)
+                } finally {
+                    gameInfo.lock.unlock()
+                }
+            }.start()
+        } finally {
             gameInfo.lock.unlock()
-        }.start()
-        gameInfo.lock.unlock()
+        }
     }
 
     private fun makeLParam(x: Int, y: Int): WinDef.LPARAM {

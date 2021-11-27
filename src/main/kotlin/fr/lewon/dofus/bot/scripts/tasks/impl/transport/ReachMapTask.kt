@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelToCoordinatesTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
@@ -19,17 +20,25 @@ open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<Boolean>(
         val transporters = TravelUtil.getTransporters(dofusMap.isAltWorld())
 
         val destinationCoordinates = dofusMap.getCoordinates()
-        val closestZaap = TravelUtil.getClosestTravelElement(zaaps, destinationCoordinates)
-        val closestTransporter = TravelUtil.getClosestTravelElement(transporters, destinationCoordinates)
+        val zaap = TravelUtil.getClosestTravelElement(zaaps, destinationCoordinates)
+        val transporter = TravelUtil.getClosestTravelElement(transporters, destinationCoordinates)
+        val path = TravelUtil.getPath(gameInfo, dofusMap)
 
-        val transporterDist = closestTransporter?.getCoordinates()?.distanceTo(destinationCoordinates) ?: Int.MAX_VALUE
-        val zaapDist = closestZaap?.getCoordinates()?.distanceTo(destinationCoordinates) ?: Int.MAX_VALUE
+        val transporterDist = transporter?.getCoordinates()?.distanceTo(destinationCoordinates)
+            ?.plus(transporter.getClosestZaap().getCoordinates().distanceTo(transporter.getTransporterCoordinates()))
+            ?: Int.MAX_VALUE
+        val zaapDist = zaap?.getCoordinates()?.distanceTo(destinationCoordinates) ?: Int.MAX_VALUE
+        val travelDist = path?.size ?: Int.MAX_VALUE
+
+        val minDist = minOf(transporterDist, zaapDist, travelDist)
 
         when {
-            closestTransporter != null && transporterDist < zaapDist ->
-                TransportTowardTask(closestTransporter).run(logItem, gameInfo, cancellationToken)
-            closestZaap != null ->
-                ZaapTowardTask(closestZaap).run(logItem, gameInfo, cancellationToken)
+            path != null && minDist == travelDist ->
+                TravelTask(listOf(dofusMap)).run(logItem, gameInfo, cancellationToken)
+            transporter != null && transporterDist == minDist ->
+                TransportTowardTask(transporter).run(logItem, gameInfo, cancellationToken)
+            zaap != null && zaapDist == minDist ->
+                ZaapTowardTask(zaap).run(logItem, gameInfo, cancellationToken)
             else ->
                 error("No travel element found")
         }

@@ -12,29 +12,44 @@ import java.awt.event.KeyEvent
 object KeyboardUtil {
 
     fun sendKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100) {
-        gameInfo.lock.lock()
-        Thread {
+        try {
             gameInfo.lock.lock()
-            val handle = getHandle(gameInfo)
-            doSendKey(handle, keyEvent)
-            WaitUtil.sleep(time)
+            Thread {
+                try {
+                    gameInfo.lock.lock()
+                    val handle = getHandle(gameInfo)
+                    doSendKey(handle, keyEvent)
+                    WaitUtil.sleep(time)
+                } finally {
+                    gameInfo.lock.unlock()
+                }
+            }.start()
+        } finally {
             gameInfo.lock.unlock()
-        }.start()
-        gameInfo.lock.unlock()
+        }
     }
 
     fun sendSysKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100) {
-        gameInfo.lock.lock()
-        Thread {
+        try {
             gameInfo.lock.lock()
-            val handle = getHandle(gameInfo)
-            sendMessages(
-                handle, listOf(WinUser.WM_SYSKEYDOWN, WinUser.WM_CHAR, WinUser.WM_SYSKEYUP), keyEvent.toLong(), 0
-            )
-            WaitUtil.sleep(time)
+            Thread {
+                try {
+                    gameInfo.lock.lock()
+                    val handle = getHandle(gameInfo)
+                    sendMessages(
+                        handle,
+                        listOf(WinUser.WM_SYSKEYDOWN, WinUser.WM_CHAR, WinUser.WM_SYSKEYUP),
+                        keyEvent.toLong(),
+                        0
+                    )
+                    WaitUtil.sleep(time)
+                } finally {
+                    gameInfo.lock.unlock()
+                }
+            }.start()
+        } finally {
             gameInfo.lock.unlock()
-        }.start()
-        gameInfo.lock.unlock()
+        }
     }
 
     private fun sendMessages(handle: WinDef.HWND, messageTypes: List<Int>, wParamValue: Long, lParamValue: Long) {
@@ -56,17 +71,23 @@ object KeyboardUtil {
     }
 
     fun writeKeyboard(gameInfo: GameInfo, text: String, time: Int = 500) {
-        gameInfo.lock.lock()
-        Thread {
+        try {
             gameInfo.lock.lock()
-            val handle = getHandle(gameInfo)
-            text.forEach {
-                doSendKey(handle, KeyEvent.getExtendedKeyCodeForChar(it.code))
-            }
-            WaitUtil.sleep(time)
+            Thread {
+                try {
+                    gameInfo.lock.lock()
+                    val handle = getHandle(gameInfo)
+                    text.forEach {
+                        doSendKey(handle, KeyEvent.getExtendedKeyCodeForChar(it.code))
+                    }
+                    WaitUtil.sleep(time)
+                } finally {
+                    gameInfo.lock.unlock()
+                }
+            }.start()
+        } finally {
             gameInfo.lock.unlock()
-        }.start()
-        gameInfo.lock.unlock()
+        }
     }
 
     private fun getHandle(gameInfo: GameInfo): WinDef.HWND {
