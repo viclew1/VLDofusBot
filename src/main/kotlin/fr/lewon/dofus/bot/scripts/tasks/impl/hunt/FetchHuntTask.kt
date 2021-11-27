@@ -32,9 +32,12 @@ class FetchHuntTask : BooleanDofusBotTask() {
         }
         val outsideMap = DofusMapManager.getDofusMap(HUNT_MALL_OUTSIDE_MAP_ID)
         val insideMap = DofusMapManager.getDofusMap(HUNT_MALL_INSIDE_MAP_ID)
-        ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)
-        TravelTask(listOf(insideMap)).run(logItem, gameInfo, cancellationToken)
-        WaitUtil.sleep(2000)
+        if (!ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)) {
+            return false
+        }
+        if (!TravelTask(listOf(insideMap)).run(logItem, gameInfo, cancellationToken)) {
+            return false
+        }
         MouseUtil.leftClick(gameInfo, HUNT_MALL_CHEST_POINT)
         if (!WaitUtil.waitUntil({ isHuntSeekOptionFound(gameInfo) }, cancellationToken)) {
             return false
@@ -43,8 +46,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
         if (!WaitUtil.waitUntil({ TreasureHuntUtil.isHuntPresent(gameInfo) }, cancellationToken)) {
             return false
         }
-        TravelTask(listOf(outsideMap)).run(logItem, gameInfo, cancellationToken)
-        return true
+        return TravelTask(listOf(outsideMap)).run(logItem, gameInfo, cancellationToken)
     }
 
     private fun isHuntSeekOptionFound(gameInfo: GameInfo): Boolean {
