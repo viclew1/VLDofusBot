@@ -4,9 +4,9 @@ import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.*
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.misc.GameContextRefreshEntityLookMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.CurrentMapMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -31,23 +31,18 @@ object MoveUtil {
 
     fun processMove(gameInfo: GameInfo, clickLocation: PointRelative, cancellationToken: CancellationToken): Boolean {
         MouseUtil.leftClick(gameInfo, clickLocation)
-        try {
-            WaitUtil.waitForEvent(
-                gameInfo.snifferId,
-                CurrentMapMessage::class.java,
-                cancellationToken = cancellationToken
-            )
-        } catch (e: Exception) {
-            return false
-        }
-        EventStore.clear(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId)
-        EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
-        return WaitUtil.waitUntil({ isMoveFullyDone(gameInfo) }, cancellationToken)
+        return waitForMapChange(gameInfo, cancellationToken)
     }
 
-    private fun isMoveFullyDone(gameInfo: GameInfo): Boolean {
-        return EventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId) != null
-                && EventStore.getLastEvent(BasicNoOperationMessage::class.java, gameInfo.snifferId) != null
+    fun waitForMapChange(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        return WaitUtil.waitForSequence(
+            gameInfo.snifferId,
+            CurrentMapMessage::class.java,
+            MapComplementaryInformationsDataMessage::class.java,
+            GameContextRefreshEntityLookMessage::class.java,
+            BasicNoOperationMessage::class.java,
+            cancellationToken = cancellationToken,
+        )
     }
 
 }

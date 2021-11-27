@@ -18,11 +18,17 @@ class RefreshHuntTask : BooleanDofusBotTask() {
             }
             val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex(gameInfo)
             if (lastNonTickedIndex != null) {
-                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
+                if (!TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)) {
+                    return false
+                }
                 WaitUtil.sleep(300)
-                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
+                if (!TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)) {
+                    return false
+                }
             } else {
-                TreasureHuntUtil.tickFlag(gameInfo, TreasureHuntUtil.flagsCount - 1, cancellationToken)
+                if (!TreasureHuntUtil.tickFlag(gameInfo, TreasureHuntUtil.flagsCount - 1, cancellationToken)) {
+                    return false
+                }
             }
             return LeaveHavenBagTask().run(logItem, gameInfo, cancellationToken)
         } else if (TreasureHuntUtil.isFightStep(gameInfo)) {

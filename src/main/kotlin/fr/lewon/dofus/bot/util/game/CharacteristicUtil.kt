@@ -26,12 +26,4 @@ object CharacteristicUtil {
         return getCharacteristicValue(charac)
     }
 
-    fun getCharacteristicValue(
-        fighterCharacteristic: FighterCharacteristic,
-        characs: List<CharacterCharacteristic>
-    ): Int? {
-        val characsById = characs.map { it.characteristicId to it }.toMap()
-        return getCharacteristicValue(fighterCharacteristic, characsById)
-    }
-
 }

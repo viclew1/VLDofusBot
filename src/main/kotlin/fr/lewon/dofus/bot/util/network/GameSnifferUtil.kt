@@ -8,7 +8,6 @@ import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.*
 
 object GameSnifferUtil {
 
@@ -25,7 +24,6 @@ object GameSnifferUtil {
     private val connectionByCharacter = HashMap<DofusCharacter, DofusConnection>()
     private val snifferByPid = HashMap<Long, DofusMessageReceiver>()
     private val gameInfoByCharacter = HashMap<DofusCharacter, GameInfo>()
-    private val autoUpdaterTimer = Timer()
 
     fun updateNetwork() {
         synchronized(gameInfoByCharacter) {
@@ -37,15 +35,6 @@ object GameSnifferUtil {
             }
             updateGameInfo()
         }
-    }
-
-    fun startAutoUpdater() {
-        val timerTask = object : TimerTask() {
-            override fun run() {
-                updateNetwork()
-            }
-        }
-        //autoUpdaterTimer.schedule(timerTask, 10000, 10000)
     }
 
     private fun updateDofusConnections() {

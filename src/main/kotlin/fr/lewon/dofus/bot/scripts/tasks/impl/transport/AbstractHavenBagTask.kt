@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.chat.TextInformationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.GameContextRefreshEntityLookMessage
@@ -20,15 +21,10 @@ import java.awt.event.KeyEvent
 abstract class AbstractHavenBagTask(private var reachHavenBag: Boolean) : BooleanDofusBotTask() {
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
-        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 200)
-
-        EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
-        EventStore.clear(TextInformationMessage::class.java, gameInfo.snifferId)
-        EventStore.clear(GameContextRefreshEntityLookMessage::class.java, gameInfo.snifferId)
-        EventStore.clear(MapComplementaryInformationsDataInHavenBagMessage::class.java, gameInfo.snifferId)
-        EventStore.clear(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         val snifferId = gameInfo.snifferId
+        EventStore.clear(snifferId)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_H, 0)
         if (!WaitUtil.waitUntil({ isToggleHavenBagFinished(snifferId) }, cancellationToken)) {
             return false
@@ -44,15 +40,9 @@ abstract class AbstractHavenBagTask(private var reachHavenBag: Boolean) : Boolea
             VldbLogger.info("Reached haven bag instead, trying again...", logItem)
             return execute(logItem, gameInfo, cancellationToken)
         }
-        val refreshEntityLookMessageReceived = WaitUtil.waitUntil(
-            { EventStore.getAllEvents(GameContextRefreshEntityLookMessage::class.java, snifferId).isNotEmpty() },
-            cancellationToken
-        )
-        if (!refreshEntityLookMessageReceived) {
-            return false
-        }
-        val refreshEntityMessage =
-            EventStore.getAllEvents(GameContextRefreshEntityLookMessage::class.java, snifferId).first()
+        val refreshEntityMessage = EventStore.getFirstEvent(GameContextRefreshEntityLookMessage::class.java, snifferId)
+            ?: return false
+
         gameInfo.playerId = refreshEntityMessage.id
         VldbLogger.info("Player ID is : ${gameInfo.playerId}", logItem)
         return true
@@ -68,12 +58,19 @@ abstract class AbstractHavenBagTask(private var reachHavenBag: Boolean) : Boolea
     }
 
     private fun isReachHavenBagSuccess(snifferId: Long): Boolean {
-        return EventStore.getLastEvent(MapComplementaryInformationsDataInHavenBagMessage::class.java, snifferId) != null
-                && EventStore.getAllEvents(BasicNoOperationMessage::class.java, snifferId).size > 1
+        return isToggleHavenBagSuccess(snifferId, MapComplementaryInformationsDataInHavenBagMessage::class.java)
     }
 
     private fun isLeaveHavenBagSuccess(snifferId: Long): Boolean {
-        return EventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java, snifferId) != null
-                && EventStore.getAllEvents(BasicNoOperationMessage::class.java, snifferId).size > 1
+        return isToggleHavenBagSuccess(snifferId, MapComplementaryInformationsDataMessage::class.java)
+    }
+
+    private fun isToggleHavenBagSuccess(snifferId: Long, eventClass: Class<out INetworkMessage>): Boolean {
+        return EventStore.containsSequence(
+            snifferId,
+            eventClass,
+            GameContextRefreshEntityLookMessage::class.java,
+            BasicNoOperationMessage::class.java
+        )
     }
 }

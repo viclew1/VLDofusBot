@@ -4,7 +4,6 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightAI
-import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.game.fight.FighterCharacteristic
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.characters.spells.SpellType
@@ -17,7 +16,6 @@ import fr.lewon.dofus.bot.sniffer.model.messages.fight.SequenceEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.game.CharacteristicUtil
 import fr.lewon.dofus.bot.util.game.DefaultUIPositions
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
@@ -96,11 +94,12 @@ class FightTask : BooleanDofusBotTask() {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
-        val preMoveBuffCombination = SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, 4, 4, 1, 5, -2)
-        val losSpells = SpellCombination(SpellType.ATTACK, "33", 2, 11, true, false, 0, 6, 2, 0, 5)
-        val nonLosSpells = SpellCombination(SpellType.ATTACK, "", -1, -1, false, false, 0, 0, 0, 0)
-        val contactSpells = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, 0, 8, 2, 0, 2)
-        val gapCloserCombination = SpellCombination(SpellType.GAP_CLOSER, "", -1, -1, false, false, 0, 0, 0, 0)
+        val preMoveBuffCombination =
+            SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, false, 4, 4, 1, 5, -2)
+        val losSpells = SpellCombination(SpellType.ATTACK, "33", 2, 6, true, false, true, 0, 6, 2, 0, 5)
+        val nonLosSpells = SpellCombination(SpellType.ATTACK, "", -1, -1, false, false, false, 0, 0, 0, 0)
+        val contactSpells = SpellCombination(SpellType.ATTACK, "44", 1, 1, true, true, false, 0, 8, 2, 0, 2)
+        val gapCloserCombination = SpellCombination(SpellType.GAP_CLOSER, "", -1, -1, false, false, false, 0, 0, 0, 0)
         preMoveBuffCd = 0
 
         val fightBoard = gameInfo.fightBoard
@@ -116,6 +115,9 @@ class FightTask : BooleanDofusBotTask() {
             ?.takeIf { it != playerFighter.cell }
             ?.let { MouseUtil.leftClick(gameInfo, it.getCenter()) }
 
+        playerFighter.statsById.putAll(gameInfo.playerBaseCharacteristics)
+        val baseRange = FighterCharacteristic.RANGE.getFighterCharacteristicValue(playerFighter)
+
         EventStore.clear(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId)
         KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, cancellationToken)
@@ -127,19 +129,20 @@ class FightTask : BooleanDofusBotTask() {
 
             --preMoveBuffCd
 
-            val mp = getFighterMp(playerFighter)
-            val enemyMp = getFighterMp(enemyFighter)
+            val mp = FighterCharacteristic.MP.getFighterCharacteristicValue(playerFighter)
+            val enemyMp = FighterCharacteristic.MP.getFighterCharacteristicValue(enemyFighter)
 
-            val fightAI = FightAI(mp, enemyMp, dofusBoard, fightBoard, losSpells, nonLosSpells, contactSpells, 1)
+            val fightAI =
+                FightAI(mp, baseRange, enemyMp, dofusBoard, fightBoard, losSpells, nonLosSpells, contactSpells, 1)
 
             if ((dofusBoard.getDist(playerPos, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE) <= 1) {
                 castSpells(gameInfo, contactSpells.keys, fightBoard.closestEnemyPosition, cancellationToken)
             } else {
                 moveToBestCell(gameInfo, playerPos, fightAI, preMoveBuffCombination, cancellationToken)
-                MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 0, false)
+                MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
                 playerPos = playerFighter.cell
                 useGapClosers(gameInfo, playerPos, fightAI, gapCloserCombination, cancellationToken)
-                useAttacks(gameInfo, playerPos, losSpells, nonLosSpells, contactSpells, cancellationToken)
+                useAttacks(gameInfo, playerPos, baseRange, losSpells, nonLosSpells, contactSpells, cancellationToken)
             }
 
             KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
@@ -161,22 +164,10 @@ class FightTask : BooleanDofusBotTask() {
         return true
     }
 
-    private fun getFighterMp(playerFighter: Fighter): Int {
-        return getFighterCharacteristicValue(playerFighter, FighterCharacteristic.MP)
-    }
-
-    private fun getFighterAp(playerFighter: Fighter): Int {
-        return getFighterCharacteristicValue(playerFighter, FighterCharacteristic.AP)
-    }
-
-    private fun getFighterCharacteristicValue(fighter: Fighter, fighterCharacteristic: FighterCharacteristic): Int {
-        return CharacteristicUtil.getCharacteristicValue(fighterCharacteristic, fighter.statsById)
-            ?: error("Characteristic not found for fighter [${fighter.id}] : ${fighterCharacteristic.keyword}")
-    }
-
     private fun useAttacks(
         gameInfo: GameInfo,
         playerPosition: DofusCell,
+        range: Int,
         losSpellCombination: SpellCombination,
         nonLosSpellCombination: SpellCombination,
         contactSpellCombination: SpellCombination,
@@ -186,9 +177,13 @@ class FightTask : BooleanDofusBotTask() {
         val dofusBoard = gameInfo.dofusBoard
         val dist = dofusBoard.getDist(playerPosition, fightBoard.closestEnemyPosition) ?: Int.MAX_VALUE
         val los = fightBoard.lineOfSight(playerPosition, fightBoard.closestEnemyPosition)
+        var losMaxRange = losSpellCombination.maxRange
+        if (losSpellCombination.modifiableRange) {
+            losMaxRange += range
+        }
         val attacks = when {
             dist <= 1 -> contactSpellCombination.keys
-            los && dist in losSpellCombination.minRange..losSpellCombination.maxRange -> losSpellCombination.keys
+            los && dist in losSpellCombination.minRange..losMaxRange -> losSpellCombination.keys
             dist in nonLosSpellCombination.minRange..nonLosSpellCombination.maxRange -> nonLosSpellCombination.keys
             else -> ""
         }
@@ -218,15 +213,15 @@ class FightTask : BooleanDofusBotTask() {
         fightAI: FightAI,
         preMoveBuffCombination: SpellCombination,
         cancellationToken: CancellationToken
-    ) {
+    ): Boolean {
         val potentialMpBuff = if (preMoveBuffCd <= 0) preMoveBuffCombination.amount else 0
         fightAI.selectBestMoveDest(potentialMpBuff).takeIf { it.first != playerPosition }?.let {
             if (it.second) {
                 useMpBuff(gameInfo, preMoveBuffCombination, cancellationToken)
             }
-            MouseUtil.leftClick(gameInfo, it.first.getCenter(), 0, false)
-            return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
+            processMove(gameInfo, it.first, cancellationToken)
         }
+        return true
     }
 
     private fun useMpBuff(
@@ -243,25 +238,51 @@ class FightTask : BooleanDofusBotTask() {
         }
     }
 
+    private fun processMove(gameInfo: GameInfo, target: DofusCell, cancellationToken: CancellationToken) {
+        MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
+        var moveOk = waitForSequenceCompleteEnd(gameInfo, cancellationToken)
+        var retryCpt = 0
+        while (!moveOk && retryCpt++ < 3) {
+            MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
+            moveOk = waitForSequenceCompleteEnd(gameInfo, cancellationToken)
+        }
+    }
+
     private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
         for (c in keys) {
-            castSpell(gameInfo, c, target, cancellationToken)
-            if (isFightEnded(gameInfo)) {
+            var spellCastedOk = castSpell(gameInfo, c, target, cancellationToken)
+            var retryCpt = 0
+            while (!spellCastedOk && retryCpt++ < 3) {
+                spellCastedOk = castSpell(gameInfo, c, target, cancellationToken)
+            }
+            if (isFightEnded(gameInfo) || !gameInfo.fightBoard.isFighterHere(target)) {
                 return
             }
         }
     }
 
-    private fun castSpell(gameInfo: GameInfo, key: Char, target: DofusCell, cancellationToken: CancellationToken) {
-        KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 150)
-        MouseUtil.leftClick(gameInfo, target.getCenter(), 0, false)
+    private fun castSpell(
+        gameInfo: GameInfo,
+        key: Char,
+        target: DofusCell,
+        cancellationToken: CancellationToken
+    ): Boolean {
+        KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 200)
+        MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
         return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
     }
 
-    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo, cancellationToken: CancellationToken) {
-        if (waitForMessage(gameInfo, SequenceEndMessage::class.java, cancellationToken, 2000)) {
-            waitForMessage(gameInfo, BasicNoOperationMessage::class.java, cancellationToken, 2000)
+    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
+        EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
+        val isSequenceCompleteFunc = {
+            EventStore.containsSequence(
+                gameInfo.snifferId,
+                SequenceEndMessage::class.java,
+                BasicNoOperationMessage::class.java
+            )
         }
+        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceCompleteFunc() }, cancellationToken, 4000)
     }
 
     private fun waitForMessage(
@@ -294,10 +315,10 @@ class FightTask : BooleanDofusBotTask() {
             error("Couldn't find READY button")
         }
         if (ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR, MAX_COLOR) == 0) {
-            MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter(), 200)
+            MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter())
         }
         if (ScreenUtil.colorCount(gameInfo, blockHelpBounds, MIN_COLOR, MAX_COLOR) == 0) {
-            MouseUtil.leftClick(gameInfo, blockHelpBounds.getCenter(), 200)
+            MouseUtil.leftClick(gameInfo, blockHelpBounds.getCenter())
         }
     }
 

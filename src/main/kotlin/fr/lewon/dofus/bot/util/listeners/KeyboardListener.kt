@@ -6,6 +6,8 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper
+import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.io.SystemKeyLock
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.util.logging.Level
@@ -37,25 +39,39 @@ object KeyboardListener : Thread(), NativeKeyListener {
             ScriptRunner.stopScript()
         }
         toggleOverlay()
+        toggleSystemKeyLock()
     }
 
     override fun nativeKeyReleased(e: NativeKeyEvent) {
         keysPressed[e.keyCode] = false
         toggleOverlay()
+        toggleSystemKeyLock()
     }
 
     private fun toggleOverlay() {
         val newDisplayedOverlay = keysByOverlay.entries.firstOrNull { shouldDisplayOverlay(it.value) }?.key
         if (newDisplayedOverlay != null && newDisplayedOverlay != displayedOverlay) {
-            val foregroundGamePID = GameSnifferUtil.getAllPIDs().firstOrNull()
-            if (foregroundGamePID != null) {
-                newDisplayedOverlay.updateOverlay(foregroundGamePID)
-                displayedOverlay = newDisplayedOverlay
+            val character = CharacterManager.getCurrentCharacter()
+            if (character != null) {
+                val pid = GameSnifferUtil.getCharacterPID(character)
+                if (pid != null) {
+                    newDisplayedOverlay.updateOverlay(pid)
+                    displayedOverlay = newDisplayedOverlay
+                }
             }
         } else if (newDisplayedOverlay == null) {
             displayedOverlay = null
         }
         keysByOverlay.keys.forEach { it.isVisible = displayedOverlay == it }
+    }
+
+    private fun toggleSystemKeyLock() {
+        val sysKeyDown = keysPressed[NativeKeyEvent.VC_CONTROL] == true || keysPressed[NativeKeyEvent.VC_SHIFT] == true
+        if (sysKeyDown && !SystemKeyLock.isHeldByCurrentThread) {
+            SystemKeyLock.lock()
+        } else if (!sysKeyDown && SystemKeyLock.isHeldByCurrentThread) {
+            SystemKeyLock.unlock()
+        }
     }
 
     private fun shouldDisplayOverlay(nativeKeyEvents: List<Int>): Boolean {

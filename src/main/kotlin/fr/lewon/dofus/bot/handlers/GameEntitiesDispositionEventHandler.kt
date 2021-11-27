@@ -10,9 +10,9 @@ object GameEntitiesDispositionEventHandler : EventHandler<GameEntitiesDispositio
     override fun onEventReceived(socketResult: GameEntitiesDispositionMessage, snifferId: Long) {
         val gameInfo = GameSnifferUtil.getGameInfoBySnifferId(snifferId)
         for (disposition in socketResult.dispositions) {
+            VldbLogger.debug("Fighter ${disposition.id} position updated : ${disposition.cellId}")
             gameInfo.fightBoard.createOrUpdateFighter(disposition.id, disposition.cellId)
         }
-        VldbLogger.debug("Fighters positions updated")
     }
 
 }

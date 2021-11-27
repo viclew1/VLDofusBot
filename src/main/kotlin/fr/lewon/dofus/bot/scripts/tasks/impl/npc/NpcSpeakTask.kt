@@ -16,21 +16,23 @@ class NpcSpeakTask(private val npcLocation: PointRelative, private val optionLoc
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         MouseUtil.leftClick(gameInfo, npcLocation)
-        WaitUtil.waitForEvents(
-            gameInfo.snifferId,
-            NpcDialogCreationMessage::class.java,
-            BasicNoOperationMessage::class.java,
-            cancellationToken = cancellationToken
-        )
+        if (!WaitUtil.waitForSequence(
+                gameInfo.snifferId,
+                NpcDialogCreationMessage::class.java,
+                BasicNoOperationMessage::class.java,
+                cancellationToken = cancellationToken
+            )
+        ) {
+            return false
+        }
         WaitUtil.sleep(300)
         MouseUtil.leftClick(gameInfo, optionLocation)
-        WaitUtil.waitForEvents(
+        return WaitUtil.waitForSequence(
             gameInfo.snifferId,
             LeaveDialogMessage::class.java,
             BasicNoOperationMessage::class.java,
             cancellationToken = cancellationToken
         )
-        return true
     }
 
     override fun onStarted(): String {

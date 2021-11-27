@@ -7,10 +7,14 @@ import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
+import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import java.awt.Rectangle
+import java.util.concurrent.locks.ReentrantLock
 
 class GameInfo(val character: DofusCharacter) {
 
+    val lock = ReentrantLock()
+    var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
     var shouldInitBoard = true
     val dofusBoard = DofusBoard()
     val fightBoard = FightBoard(this)

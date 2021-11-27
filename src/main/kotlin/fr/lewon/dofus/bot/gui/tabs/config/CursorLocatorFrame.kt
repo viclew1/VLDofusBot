@@ -26,7 +26,7 @@ class CursorLocatorFrame(text: String, onLocate: (Point) -> Unit) : JFrame() {
         addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
                 val point = MouseInfo.getPointerInfo().location
-                onLocate.invoke(point)
+                onLocate(point)
             }
         })
         addMouseListener(object : MouseAdapter() {

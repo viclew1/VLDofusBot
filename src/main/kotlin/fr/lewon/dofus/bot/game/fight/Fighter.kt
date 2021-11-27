@@ -9,4 +9,8 @@ class Fighter(
     var enemy: Boolean
 ) {
     val statsById: MutableMap<Int, CharacterCharacteristic> = HashMap()
+
+    fun clone(): Fighter {
+        return Fighter(cell, id, enemy).also { it.statsById.putAll(statsById) }
+    }
 }

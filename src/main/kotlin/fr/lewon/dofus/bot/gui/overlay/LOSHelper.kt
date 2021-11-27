@@ -5,9 +5,11 @@ import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.awt.*
+import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.JPanel
@@ -37,7 +39,26 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
                 override fun mouseMoved(e: MouseEvent) {
                     updateHighlightedCells(e.point)
                 }
+
+                override fun mouseDragged(e: MouseEvent) {
+                    mouseMoved(e)
+                }
             })
+            addMouseListener(object : MouseAdapter() {
+                override fun mouseReleased(e: MouseEvent) {
+                    if (e.button == MouseEvent.BUTTON1) {
+                        sendClickToGame(e.point)
+                    }
+                }
+            })
+        }
+
+        private fun sendClickToGame(mouseLocation: Point) {
+            val absoluteLocation = PointAbsolute(
+                mouseLocation.x + gameInfo.bounds.x,
+                mouseLocation.y + gameInfo.bounds.y
+            )
+            MouseUtil.leftClick(gameInfo, absoluteLocation)
         }
 
         fun updateHighlightedCells(mouseLocation: Point) {

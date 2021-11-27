@@ -35,7 +35,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
         ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)
         TravelTask(listOf(insideMap)).run(logItem, gameInfo, cancellationToken)
         WaitUtil.sleep(2000)
-        MouseUtil.leftClick(gameInfo, HUNT_MALL_CHEST_POINT, 0, false)
+        MouseUtil.leftClick(gameInfo, HUNT_MALL_CHEST_POINT)
         if (!WaitUtil.waitUntil({ isHuntSeekOptionFound(gameInfo) }, cancellationToken)) {
             return false
         }
@@ -48,7 +48,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
     }
 
     private fun isHuntSeekOptionFound(gameInfo: GameInfo): Boolean {
-        MouseUtil.move(gameInfo, HUNT_MALL_CHEST_POINT, 100)
+        MouseUtil.move(gameInfo, HUNT_MALL_CHEST_POINT)
         return ScreenUtil.isBetween(
             gameInfo,
             HUNT_SEEK_OPTION_POINT,

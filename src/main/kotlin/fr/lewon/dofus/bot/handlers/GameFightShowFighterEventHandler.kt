@@ -14,7 +14,7 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
         val characteristics = socketResult.informations.stats.characteristics.characteristics
         gameInfo.fightBoard.createOrUpdateFighter(fighterId, cellId)
         gameInfo.fightBoard.updateFighterCharacteristics(fighterId, characteristics)
-        VldbLogger.debug("Fighter [$fighterId] characteristics and position updated")
+        VldbLogger.debug("Fighter [$fighterId] characteristics and position updated : cell $cellId")
     }
 
 }

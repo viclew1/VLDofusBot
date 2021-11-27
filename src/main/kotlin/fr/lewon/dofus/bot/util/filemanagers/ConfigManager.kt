@@ -29,7 +29,7 @@ object ConfigManager : VldbManager {
     }
 
     fun editConfig(function: (VldbConfig) -> Unit) {
-        function.invoke(config)
+        function(config)
         saveConfig()
     }
 

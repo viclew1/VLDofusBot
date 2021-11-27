@@ -41,6 +41,7 @@ object JNAUtil {
     }
 
     fun updateGameBounds(gameInfo: GameInfo, pid: Long) {
+        gameInfo.lock.lock()
         val rect = WinDef.RECT()
         User32.INSTANCE.GetClientRect(findByPID(pid), rect)
 
@@ -63,6 +64,7 @@ object JNAUtil {
         }
 
         gameInfo.bounds = Rectangle(x, y, width, height)
+        gameInfo.lock.unlock()
     }
 
     fun openGame(): Long {
@@ -86,7 +88,9 @@ object JNAUtil {
         return pidResults[0].toLong()
     }
 
-    fun takeCapture(pid: Long): BufferedImage {
+    fun takeCapture(gameInfo: GameInfo): BufferedImage {
+        gameInfo.lock.lock()
+        val pid = gameInfo.pid
         val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
         val hdcWindow = User32.INSTANCE.GetDC(handle)
         val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
@@ -121,7 +125,7 @@ object JNAUtil {
 
         GDI32.INSTANCE.DeleteObject(hBitmap)
         User32.INSTANCE.ReleaseDC(handle, hdcWindow)
-
+        gameInfo.lock.unlock()
         return image
     }
 

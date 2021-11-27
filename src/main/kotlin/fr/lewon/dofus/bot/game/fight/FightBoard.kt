@@ -187,8 +187,8 @@ class FightBoard(private val gameInfo: GameInfo) {
 
     fun clone(): FightBoard {
         return FightBoard(gameInfo)
-            .also { it.fightersById.putAll(fightersById) }
             .also { it.closestEnemyPosition = closestEnemyPosition }
+            .also { it.fightersById.putAll(fightersById.entries.map { e -> e.key to e.value.clone() }) }
     }
 
 }

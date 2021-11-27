@@ -1,12 +1,12 @@
 package fr.lewon.dofus.bot.util.io
 
 import fr.lewon.dofus.bot.scripts.CancellationToken
-import fr.lewon.dofus.bot.sniffer.model.INetworkType
+import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 
 object WaitUtil {
 
-    const val DEFAULT_TIMEOUT_MILLIS = 25 * 1000
+    const val DEFAULT_TIMEOUT_MILLIS = 60 * 1000
 
     fun sleep(time: Long) {
         Thread.sleep(time)
@@ -24,46 +24,28 @@ object WaitUtil {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < timeOutMillis) {
             cancellationToken.checkCancel()
-            if (condition.invoke()) {
+            if (condition()) {
                 return true
             }
         }
         return false
     }
 
-    fun <T : INetworkType> waitForEvents(
+    fun waitForSequence(
         snifferId: Long,
-        mainEventClass: Class<T>,
-        vararg additionalEventClasses: Class<out INetworkType>,
-        clearQueue: Boolean = true,
+        mainEventClass: Class<out INetworkMessage>,
+        vararg additionalEventClasses: Class<out INetworkMessage>,
+        clearEventStore: Boolean = true,
         cancellationToken: CancellationToken,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
-    ): T {
-        if (clearQueue) {
-            additionalEventClasses.forEach { EventStore.clear(it, snifferId) }
+    ): Boolean {
+        if (clearEventStore) {
+            EventStore.clear(snifferId)
         }
-        val result = waitForEvent(snifferId, mainEventClass, clearQueue, cancellationToken, timeout)
-        additionalEventClasses.forEach { waitForEvent(snifferId, it, false, cancellationToken, timeout) }
-        return result
+        return waitUntil(
+            { EventStore.containsSequence(snifferId, mainEventClass, *additionalEventClasses) },
+            cancellationToken, timeout
+        )
     }
 
-    fun <T : INetworkType> waitForEvent(
-        snifferId: Long,
-        eventClass: Class<T>,
-        clearQueue: Boolean = true,
-        cancellationToken: CancellationToken,
-        timeout: Int = DEFAULT_TIMEOUT_MILLIS
-    ): T {
-        var socketEvent: INetworkType? = null
-        if (clearQueue) {
-            EventStore.clear(eventClass, snifferId)
-        }
-        waitUntil(
-            { EventStore.getLastEvent(eventClass, snifferId).also { socketEvent = it } != null },
-            cancellationToken,
-            timeout
-        )
-        socketEvent ?: error("No event of type [${eventClass.simpleName}] arrived in time ($timeout millis)")
-        return eventClass.cast(socketEvent)
-    }
 }

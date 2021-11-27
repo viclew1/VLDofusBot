@@ -19,13 +19,9 @@ object ScreenUtil {
     fun getPixelColor(
         gameInfo: GameInfo,
         point: PointRelative,
-        fullScreenshot: BufferedImage = takeCapture(gameInfo)
+        fullScreenshot: BufferedImage = JNAUtil.takeCapture(gameInfo)
     ): Color {
         return getPixelColor(ConverterUtil.toPointAbsolute(gameInfo, point), fullScreenshot)
-    }
-
-    private fun takeCapture(gameInfo: GameInfo): BufferedImage {
-        return JNAUtil.takeCapture(gameInfo.pid)
     }
 
     fun isBetween(gameInfo: GameInfo, point: PointRelative, min: Color, max: Color): Boolean {
@@ -43,7 +39,7 @@ object ScreenUtil {
         bounds: RectangleRelative,
         min: Color,
         max: Color,
-        fullScreenshot: BufferedImage = takeCapture(gameInfo)
+        fullScreenshot: BufferedImage = JNAUtil.takeCapture(gameInfo)
     ): Int {
         return colorCount(gameInfo, ConverterUtil.toRectangleAbsolute(gameInfo, bounds), min, max, fullScreenshot)
     }
@@ -53,7 +49,7 @@ object ScreenUtil {
         bounds: RectangleAbsolute,
         min: Color,
         max: Color,
-        fullScreenshot: BufferedImage = takeCapture(gameInfo)
+        fullScreenshot: BufferedImage = JNAUtil.takeCapture(gameInfo)
     ): Int {
         return colorCount(gameInfo, bounds, fullScreenshot) { isBetween(it, min, max) }
     }
@@ -61,7 +57,7 @@ object ScreenUtil {
     private fun colorCount(
         gameInfo: GameInfo,
         bounds: RectangleAbsolute,
-        fullScreenshot: BufferedImage = takeCapture(gameInfo),
+        fullScreenshot: BufferedImage = JNAUtil.takeCapture(gameInfo),
         acceptColorCondition: (Color) -> Boolean
     ): Int {
         var cpt = 0
@@ -73,7 +69,7 @@ object ScreenUtil {
             for (y in bounds.y until bounds.y + bounds.height) {
                 if (x in minX until maxX && y in minY until maxY) {
                     val color = getPixelColor(PointAbsolute(x, y), fullScreenshot)
-                    if (acceptColorCondition.invoke(color)) {
+                    if (acceptColorCondition(color)) {
                         cpt++
                     }
                 }

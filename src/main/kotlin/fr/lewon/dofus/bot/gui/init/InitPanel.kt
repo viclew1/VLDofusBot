@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
-import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import net.miginfocom.swing.MigLayout
 import org.reflections.Reflections
 import java.awt.Color
@@ -22,7 +21,6 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         buildInitTask("VLDofusBotCore") { VLDofusBotCoreUtil.initAll() },
         buildInitTask("File managers") { VLDofusBotCoreUtil.initVldbManagers(CharacterManager::class.java.packageName) },
         buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
-        buildInitTask("Initial game info") { GameSnifferUtil.updateNetwork() },
     )
 
     private val resultLabel = JTextArea().also {
@@ -94,7 +92,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         initTask.progressBar.isVisible = true
         initTask.progressBar.foreground = Color.LIGHT_GRAY
         try {
-            initTask.function.invoke()
+            initTask.function()
             initTask.success = true
         } catch (e: Throwable) {
             e.printStackTrace()

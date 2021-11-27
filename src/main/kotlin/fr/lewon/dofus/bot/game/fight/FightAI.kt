@@ -7,6 +7,7 @@ import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 
 class FightAI(
     private val playerMovePoints: Int,
+    playerRange: Int,
     private val enemyMovePoints: Int,
     private val dofusBoard: DofusBoard,
     private val fightBoard: FightBoard,
@@ -15,6 +16,14 @@ class FightAI(
     private val contactSpellCombination: SpellCombination,
     private val initialDepth: Int
 ) {
+
+    private val losSpellCombinationMaxRange = if (losSpellCombination.modifiableRange) {
+        losSpellCombination.maxRange + playerRange
+    } else losSpellCombination.maxRange
+
+    private val nonLosSpellCombinationMaxRange = if (nonLosSpellCombination.modifiableRange) {
+        nonLosSpellCombination.maxRange + playerRange
+    } else nonLosSpellCombination.maxRange
 
     fun selectBestTpDest(minRange: Int, maxRange: Int): DofusCell {
         val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
@@ -68,9 +77,9 @@ class FightAI(
         state.playerPosition = newPlayerPosition
         val dist = dofusBoard.getDist(newPlayerPosition, state.fb.closestEnemyPosition) ?: error("Invalid board")
         val los = state.fb.lineOfSight(newPlayerPosition, state.fb.closestEnemyPosition)
-        if (losSpellCombination.keys.isNotEmpty() && los && dist in losSpellCombination.minRange..losSpellCombination.maxRange) {
+        if (losSpellCombination.keys.isNotEmpty() && los && dist in losSpellCombination.minRange..losSpellCombinationMaxRange) {
             state.attacksDone += losSpellCombination.aiWeight
-        } else if (nonLosSpellCombination.keys.isNotEmpty() && dist in nonLosSpellCombination.minRange..nonLosSpellCombination.maxRange) {
+        } else if (nonLosSpellCombination.keys.isNotEmpty() && dist in nonLosSpellCombination.minRange..nonLosSpellCombinationMaxRange) {
             state.attacksDone += nonLosSpellCombination.aiWeight
         } else if (contactSpellCombination.keys.isNotEmpty() && dist <= 1) {
             state.attacksDone += contactSpellCombination.aiWeight

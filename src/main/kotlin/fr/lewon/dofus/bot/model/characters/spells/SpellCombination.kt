@@ -7,6 +7,7 @@ data class SpellCombination(
     var maxRange: Int = -1,
     var needsLos: Boolean = true,
     var castInLine: Boolean = false,
+    var modifiableRange: Boolean = false,
     var cooldown: Int = 0,
     var apCost: Int = 0,
     var usesPerTurn: Int = 0,

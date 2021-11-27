@@ -67,10 +67,10 @@ class OpenGameTask : DofusBotTask<Long>() {
     }
 
     private fun enterLoginAndPassword(gameInfo: GameInfo, login: String, password: String) {
-        MouseUtil.doubleLeftClick(gameInfo, LOGIN_LOCATION, 200)
+        MouseUtil.doubleLeftClick(gameInfo, LOGIN_LOCATION)
         KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_BACK_SPACE, 100)
         KeyboardUtil.writeKeyboard(gameInfo, login, 200)
-        MouseUtil.doubleLeftClick(gameInfo, PASSWORD_LOCATION, 200)
+        MouseUtil.doubleLeftClick(gameInfo, PASSWORD_LOCATION)
         KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_BACK_SPACE, 100)
         KeyboardUtil.writeKeyboard(gameInfo, password, 200)
         MouseUtil.leftClick(gameInfo, PLAY_BUTTON_BOUNDS.getCenter())
@@ -87,7 +87,7 @@ class OpenGameTask : DofusBotTask<Long>() {
             error("Dofus window not found")
         }
         JNAUtil.updateGameBounds(gameInfo, pid)
-        MouseUtil.leftClick(gameInfo, MIDDLE_BOTTOM_LOCATION, 200)
+        MouseUtil.leftClick(gameInfo, MIDDLE_BOTTOM_LOCATION)
         val frameNameValidFunc = { Regex("Dofus [0-9].*?").matches(JNAUtil.getFrameName(pid).trim()) }
         if (!WaitUtil.waitUntil(frameNameValidFunc, cancellationToken)) {
             error("Couldn't open game")
@@ -138,7 +138,7 @@ class OpenGameTask : DofusBotTask<Long>() {
         if (!WaitUtil.waitUntil({ isGameFullyLoaded(gameInfo) }, cancellationToken, 1000 * 3 * 60)) {
             error("Couldn't enter game")
         }
-        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 200)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         var pid = -1L
         val isDofusConnectionNotNullFunc = {

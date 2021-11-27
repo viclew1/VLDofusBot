@@ -9,7 +9,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirecti
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToPOI) : BooleanDofusBotTask() {
@@ -28,11 +27,12 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
                 return false
             }
         }
-        TreasureHuntUtil.tickFlag(gameInfo, hunt.huntFlags.size, cancellationToken)
+        if (!TreasureHuntUtil.tickFlag(gameInfo, hunt.huntFlags.size, cancellationToken)) {
+            return false
+        }
 
         if (hint == null) {
-            TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
-            WaitUtil.sleep(300)
+            return TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
         }
 
         return true

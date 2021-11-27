@@ -58,7 +58,7 @@ object TreasureHuntUtil {
     fun isHuntPresent(gameInfo: GameInfo): Boolean {
         val uiPoint = getTreasureHuntUiPosition()
         topLeftHuntPoint = ConverterUtil.toPointRelative(uiPoint)
-        val refRect = RectangleRelative(topLeftHuntPoint.x + 0.01f, topLeftHuntPoint.y, 0.1f, 0.1f)
+        val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
         val isHuntPresent =
             ScreenUtil.colorCount(
                 gameInfo, refRect, DofusColors.HIGHLIGHT_COLOR_MIN, DofusColors.HIGHLIGHT_COLOR_MAX
@@ -73,7 +73,7 @@ object TreasureHuntUtil {
         return gameInfo.treasureHunt ?: error("No current hunt. Fetch one before executing it")
     }
 
-    fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken): TreasureHuntMessage {
+    fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken): Boolean {
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
         MouseUtil.leftClick(gameInfo, tickPoint)
         return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
@@ -118,9 +118,9 @@ object TreasureHuntUtil {
         }
     }
 
-    fun clickSearch(gameInfo: GameInfo, cancellationToken: CancellationToken) {
+    fun clickSearch(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         MouseUtil.leftClick(gameInfo, searchHuntPoint)
-        waitForTreasureHuntUpdate(gameInfo, cancellationToken)
+        return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
 
     fun isSearchStep(gameInfo: GameInfo): Boolean {
@@ -140,7 +140,7 @@ object TreasureHuntUtil {
         )
     }
 
-    fun giveUpHunt(gameInfo: GameInfo, cancellationToken: CancellationToken): TreasureHuntMessage {
+    fun giveUpHunt(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         MouseUtil.leftClick(gameInfo, giveUpHuntPoint)
         return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
@@ -153,13 +153,13 @@ object TreasureHuntUtil {
     private fun waitForTreasureHuntUpdate(
         gameInfo: GameInfo,
         cancellationToken: CancellationToken
-    ): TreasureHuntMessage {
-        return WaitUtil.waitForEvents(
+    ): Boolean {
+        return WaitUtil.waitForSequence(
             gameInfo.snifferId,
             TreasureHuntMessage::class.java,
             BasicNoOperationMessage::class.java,
             cancellationToken = cancellationToken
-        )
+        ) && WaitUtil.waitUntil({ isHuntPresent(gameInfo) }, cancellationToken)
     }
 
     private fun updatePoints(gameInfo: GameInfo) {

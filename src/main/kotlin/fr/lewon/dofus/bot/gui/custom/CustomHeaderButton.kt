@@ -13,7 +13,7 @@ class CustomHeaderButton(title: String, onClick: (MouseEvent) -> Unit) : JLabel(
         verticalAlignment = SwingConstants.BOTTOM
         addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent) {
-                onClick.invoke(e)
+                onClick(e)
             }
 
             override fun mouseEntered(e: MouseEvent) {

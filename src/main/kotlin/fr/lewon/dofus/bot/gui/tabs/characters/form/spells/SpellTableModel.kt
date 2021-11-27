@@ -13,6 +13,7 @@ class SpellTableModel(spells: List<SpellCombination>) : DefaultTableModel() {
         ColumnInfo("Max range", Int::class.java) { it.maxRange },
         ColumnInfo("Needs LOS", Boolean::class.java) { it.needsLos },
         ColumnInfo("Cast in line", Boolean::class.java) { it.castInLine },
+        ColumnInfo("Modifiable range", Boolean::class.java) { it.modifiableRange },
         ColumnInfo("Cooldown", Int::class.java) { it.cooldown },
         ColumnInfo("AP cost", Int::class.java) { it.apCost },
         ColumnInfo("Uses per turn", Int::class.java) { it.usesPerTurn },
@@ -26,7 +27,7 @@ class SpellTableModel(spells: List<SpellCombination>) : DefaultTableModel() {
     }
 
     private fun buildRow(spell: SpellCombination): Array<*> {
-        return columnsWithTypes.map { it.valueGetter.invoke(spell) }.toTypedArray()
+        return columnsWithTypes.map { it.valueGetter(spell) }.toTypedArray()
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {

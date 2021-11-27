@@ -18,17 +18,20 @@ class ExecuteHuntTask : BooleanDofusBotTask() {
             if (!TreasureHuntUtil.executeStep(gameInfo, currentStep, logItem, cancellationToken)) {
                 return false
             }
-            clickSearchIfNeeded(gameInfo, cancellationToken)
+            if (!clickSearchIfNeeded(gameInfo, cancellationToken)) {
+                return false
+            }
         }
         return true
     }
 
-    private fun clickSearchIfNeeded(gameInfo: GameInfo, cancellationToken: CancellationToken) {
+    private fun clickSearchIfNeeded(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val hunt = gameInfo.treasureHunt
         if (TreasureHuntUtil.isSearchStep(gameInfo) && hunt != null && hunt.huntFlags.size == hunt.huntSteps.size) {
             WaitUtil.sleep(300)
-            TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
+            return TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
         }
+        return true
     }
 
     override fun onStarted(): String {
