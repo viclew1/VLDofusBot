@@ -56,11 +56,13 @@ class FightAI(
                 best = it
             }
         }
-        for (cell in accessibleCellsWithBuff) {
-            evaluateMove(playerPosition, cell).takeIf { it - 500 > best }?.let {
-                chosenCell = cell
-                best = it - 500
-                mpBuffUsed = true
+        if (best < 0) {
+            for (cell in accessibleCellsWithBuff) {
+                evaluateMove(playerPosition, cell).takeIf { it - 500 > best }?.let {
+                    chosenCell = cell
+                    best = it - 500
+                    mpBuffUsed = true
+                }
             }
         }
         return chosenCell to mpBuffUsed

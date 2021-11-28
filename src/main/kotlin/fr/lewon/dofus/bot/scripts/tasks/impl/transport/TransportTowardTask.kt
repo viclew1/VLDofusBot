@@ -6,19 +6,21 @@ import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelToCoordinatesTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
+import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class TransportTowardTask(private val transporter: ITransporter) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         ZaapTowardTask(transporter.getClosestZaap()).run(logItem, gameInfo, cancellationToken)
         TravelToCoordinatesTask(transporter.getTransporterCoordinates()).run(logItem, gameInfo, cancellationToken)
         WaitUtil.sleep(2000)
+        EventStore.clear(gameInfo.snifferId)
         NpcSpeakTask(transporter.getNpcPointRelative(), transporter.getOptionPointRelative())
             .run(logItem, gameInfo, cancellationToken)
-        return MoveUtil.waitForMapChange(gameInfo, cancellationToken)
+        return MoveUtil.waitForMapChange(gameInfo, cancellationToken, false)
     }
 
     override fun onStarted(): String {

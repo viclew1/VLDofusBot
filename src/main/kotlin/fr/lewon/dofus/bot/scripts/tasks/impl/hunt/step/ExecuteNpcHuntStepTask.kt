@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToHint) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val moveTask = MoveUtil.buildMoveTask(huntStep.direction)
         for (i in 0 until 10) {
             if (!moveTask.run(logItem, gameInfo, cancellationToken)) {

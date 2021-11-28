@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecuteHuntTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         if (!TreasureHuntUtil.isHuntPresent(gameInfo)) {
             return false
         }

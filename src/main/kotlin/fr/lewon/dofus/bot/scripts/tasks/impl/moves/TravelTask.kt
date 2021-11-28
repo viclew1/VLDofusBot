@@ -16,15 +16,11 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 open class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         if (destMaps.contains(gameInfo.currentMap)) {
             return true
         }
-        val path = TravelUtil.getPath(gameInfo, destMaps)
-        if (path == null) {
-            VldbLogger.info("Travel path not found", logItem)
-            return false
-        }
+        val path = TravelUtil.getPath(gameInfo, destMaps) ?: error("Travel path not found")
         for (i in path.indices) {
             VldbLogger.closeLog("Moves done : $i/${path.size}", logItem)
             if (!processTransition(logItem, gameInfo, cancellationToken, path[i])) {

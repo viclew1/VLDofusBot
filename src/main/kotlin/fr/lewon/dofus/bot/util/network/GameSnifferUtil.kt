@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.concurrent.locks.ReentrantLock
 
 object GameSnifferUtil {
 
@@ -21,19 +22,20 @@ object GameSnifferUtil {
     )
     private val FRAME_NAME_REGEX = Regex("(.*?) - Dofus.*?")
 
+    private val lock = ReentrantLock()
+
     private val connectionByCharacter = HashMap<DofusCharacter, DofusConnection>()
     private val snifferByPid = HashMap<Long, DofusMessageReceiver>()
     private val gameInfoByCharacter = HashMap<DofusCharacter, GameInfo>()
 
     fun updateNetwork() {
-        synchronized(gameInfoByCharacter) {
-            synchronized(snifferByPid) {
-                synchronized(connectionByCharacter) {
-                    updateDofusConnections()
-                }
-                updateSniffers()
-            }
+        try {
+            lock.lock()
+            updateDofusConnections()
+            updateSniffers()
             updateGameInfo()
+        } finally {
+            lock.unlock()
         }
     }
 
@@ -106,14 +108,24 @@ object GameSnifferUtil {
     }
 
     fun getGameInfoBySnifferId(snifferId: Long): GameInfo {
-        val characterName = getCharacterBySnifferId(snifferId)
-        return gameInfoByCharacter[characterName]
-            ?: error("Game info should be initialized for character : $characterName")
+        try {
+            lock.lock()
+            val character = getCharacterBySnifferId(snifferId)
+            return gameInfoByCharacter[character]
+                ?: error("Game info should be initialized for character : ${character.pseudo}")
+        } finally {
+            lock.unlock()
+        }
     }
 
     fun getGamePidBySnifferId(snifferId: Long): Long {
-        return snifferByPid.entries.firstOrNull { it.value.snifferId == snifferId }?.key
-            ?: error("There should be a PID associated to sniffer : $snifferId")
+        try {
+            lock.lock()
+            return snifferByPid.entries.firstOrNull { it.value.snifferId == snifferId }?.key
+                ?: error("There should be a PID associated to sniffer : $snifferId")
+        } finally {
+            lock.unlock()
+        }
     }
 
     private fun getCharacterNameFromFrame(pid: Long): String? {
@@ -127,23 +139,43 @@ object GameSnifferUtil {
     }
 
     fun getGameInfoByPID(pid: Long): GameInfo {
-        val sniffer = snifferByPid[pid] ?: error("Sniffer should be initialized for PID : $pid")
-        return getGameInfoBySnifferId(sniffer.snifferId)
+        try {
+            lock.lock()
+            val sniffer = snifferByPid[pid] ?: error("Sniffer should be initialized for PID : $pid")
+            return getGameInfoBySnifferId(sniffer.snifferId)
+        } finally {
+            lock.unlock()
+        }
     }
 
     fun getCharacterPID(character: DofusCharacter): Long? {
-        if (!connectionByCharacter.containsKey(character)) {
-            updateNetwork()
+        try {
+            lock.lock()
+            if (!connectionByCharacter.containsKey(character)) {
+                updateNetwork()
+            }
+            return connectionByCharacter[character]?.pid
+        } finally {
+            lock.unlock()
         }
-        return connectionByCharacter[character]?.pid
     }
 
     fun getAllPIDs(): List<Long> {
-        return connectionByCharacter.values.map { it.pid }
+        try {
+            lock.lock()
+            return connectionByCharacter.values.map { it.pid }
+        } finally {
+            lock.unlock()
+        }
     }
 
     fun setGameInfo(character: DofusCharacter, gameInfo: GameInfo) {
-        gameInfoByCharacter[character] = gameInfo
+        try {
+            lock.lock()
+            gameInfoByCharacter[character] = gameInfo
+        } finally {
+            lock.unlock()
+        }
     }
 
 }

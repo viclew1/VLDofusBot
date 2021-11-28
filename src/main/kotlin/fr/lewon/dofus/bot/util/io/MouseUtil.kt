@@ -38,13 +38,13 @@ object MouseUtil {
         doSendMouseMessage(handle, WM_MOUSEMOVE, wParam, lParam)
         doSendMouseMessage(handle, WM_LBUTTONDOWN, wParam, lParam)
         doSendMouseMessage(handle, WM_LBUTTONUP, wParam, lParam)
+        doSendMouseMessage(handle, WM_MOUSEMOVE, wParam, lParam)
     }
 
     private fun doSendMouseMessage(handle: WinDef.HWND, message: Int, wParam: WinDef.WPARAM, lParam: WinDef.LPARAM) {
         SystemKeyLock.lock()
         User32.INSTANCE.SendMessage(handle, message, wParam, lParam)
         SystemKeyLock.unlock()
-        WaitUtil.sleep(20)
     }
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
@@ -79,7 +79,7 @@ object MouseUtil {
     }
 
     fun doubleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
-        leftClick(gameInfo, position, 250)
+        leftClick(gameInfo, position, 100)
         leftClick(gameInfo, position, millis)
     }
 

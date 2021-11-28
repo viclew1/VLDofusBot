@@ -11,7 +11,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class RefreshHuntTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         if (TreasureHuntUtil.isSearchStep(gameInfo)) {
             if (!ReachHavenBagTask().run(logItem, gameInfo, cancellationToken)) {
                 return false

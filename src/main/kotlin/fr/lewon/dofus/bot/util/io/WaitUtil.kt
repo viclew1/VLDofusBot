@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.sniffer.store.EventStore
 
 object WaitUtil {
 
-    const val DEFAULT_TIMEOUT_MILLIS = 60 * 1000
+    const val DEFAULT_TIMEOUT_MILLIS = 25 * 1000
 
     fun sleep(time: Long) {
         Thread.sleep(time)
@@ -34,35 +34,43 @@ object WaitUtil {
     fun waitForSequence(
         snifferId: Long,
         mainEventClass: Class<out INetworkMessage>,
-        vararg additionalEventClasses: Class<out INetworkMessage>,
+        endEventClass: Class<out INetworkMessage>,
         clearEventStore: Boolean = true,
+        removeWhenFound: Boolean = true,
         cancellationToken: CancellationToken,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
     ): Boolean {
         if (clearEventStore) {
             EventStore.clear(snifferId)
         }
-        return waitUntil(
-            { EventStore.containsSequence(snifferId, mainEventClass, *additionalEventClasses) },
-            cancellationToken, timeout
-        )
+        val containsSequenceFunc = {
+            EventStore.containsSequence(
+                snifferId,
+                mainEventClass,
+                endEventClass,
+            )
+        }
+        if (!waitUntil({ containsSequenceFunc() }, cancellationToken, timeout)) {
+            error("Sequence not found in time. Events in store : ${EventStore.getStoredEventsStr(snifferId)}")
+        }
+        if (removeWhenFound) {
+            EventStore.removeSequence(
+                snifferId,
+                mainEventClass,
+                endEventClass
+            )
+        }
+        return true
     }
 
-    fun waitForSequence(
+    fun <T : INetworkMessage> waitForEvent(
         snifferId: Long,
-        mainEventClass: Class<out INetworkMessage>,
-        additionalEventClassesWithCount: Map<Class<out INetworkMessage>, Int>,
-        clearEventStore: Boolean = true,
+        messageClass: Class<T>,
         cancellationToken: CancellationToken,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
-    ): Boolean {
-        if (clearEventStore) {
-            EventStore.clear(snifferId)
-        }
-        return waitUntil(
-            { EventStore.containsSequence(snifferId, mainEventClass, additionalEventClassesWithCount) },
-            cancellationToken, timeout
-        )
+    ): T? {
+        waitUntil({ EventStore.getLastEvent(messageClass, snifferId) != null }, cancellationToken, timeout)
+        return EventStore.getLastEvent(messageClass, snifferId)
     }
 
 }

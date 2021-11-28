@@ -6,6 +6,9 @@ import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
 import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
+import java.awt.datatransfer.Transferable
 import java.awt.event.KeyEvent
 
 
@@ -57,7 +60,7 @@ object KeyboardUtil {
             SystemKeyLock.lock()
             User32.INSTANCE.SendMessage(handle, messageType, WinDef.WPARAM((wParamValue)), LPARAM(lParamValue))
             SystemKeyLock.unlock()
-            WaitUtil.sleep(10)
+            WaitUtil.sleep(20)
         }
     }
 
@@ -77,9 +80,15 @@ object KeyboardUtil {
                 try {
                     gameInfo.lock.lock()
                     val handle = getHandle(gameInfo)
-                    text.forEach {
-                        doSendKey(handle, KeyEvent.getExtendedKeyCodeForChar(it.code))
-                    }
+                    val oldClipBoard = getClipboard()
+                    setClipboard(StringSelection(text))
+                    SystemKeyLock.lock()
+                    sendMessages(
+                        handle, listOf(WinUser.WM_KEYDOWN, WinUser.WM_CHAR), KeyEvent.VK_CONTROL.toLong(), 0x1000000
+                    )
+                    doSendKey(handle, KeyEvent.VK_V)
+                    sendMessages(handle, listOf(WinUser.WM_KEYUP), KeyEvent.VK_CONTROL.toLong(), 0x1000000)
+                    setClipboard(oldClipBoard)
                     WaitUtil.sleep(time)
                 } finally {
                     gameInfo.lock.unlock()
@@ -88,6 +97,16 @@ object KeyboardUtil {
         } finally {
             gameInfo.lock.unlock()
         }
+    }
+
+    private fun setClipboard(content: Transferable?) {
+        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+        clipboard.setContents(content, null)
+    }
+
+    private fun getClipboard(): Transferable? {
+        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+        return clipboard.getContents(null)
     }
 
     private fun getHandle(gameInfo: GameInfo): WinDef.HWND {

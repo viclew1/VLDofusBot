@@ -26,14 +26,14 @@ abstract class MoveTask(
         return "Moving toward [$direction] ..."
     }
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val fromMap = gameInfo.currentMap
         val moveCellId = getMoveCellId(gameInfo, cancellationToken)
         var moveDone = false
         if (moveCellId != null) {
             val clickLoc = getStandardClickLoc(gameInfo, moveCellId)
             if (!MoveUtil.processMove(gameInfo, clickLoc, cancellationToken)) {
-                return false
+                error("Failed to move to [$direction]")
             }
             moveDone = true
         }

@@ -73,8 +73,9 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         for (i in 0 until huntCountParameter.value.toInt()) {
             nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             val fetchStartTimeStamp = System.currentTimeMillis()
-            if (!TreasureHuntUtil.isHuntPresent(gameInfo)) {
-                FetchHuntTask().run(logItem, gameInfo, cancellationToken)
+            val isHuntPresent = TreasureHuntUtil.isHuntPresent(gameInfo)
+            if (!isHuntPresent && !FetchHuntTask().run(logItem, gameInfo, cancellationToken)) {
+                error("Couldn't fetch a new hunt")
             }
             val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp
             huntFetchDurations.add(fetchDuration)

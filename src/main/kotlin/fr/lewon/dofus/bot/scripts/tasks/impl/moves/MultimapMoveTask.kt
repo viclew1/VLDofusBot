@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class MultimapMoveTask(private val direction: Direction, private val dist: Int) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         for (i in 0 until dist) {
             VldbLogger.closeLog("Moves done : $i/$dist", logItem)
             if (!MoveUtil.buildMoveTask(direction).run(logItem, gameInfo, cancellationToken)) {

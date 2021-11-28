@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class CustomMoveTask(private val location: PointRelative) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         return MoveUtil.processMove(gameInfo, location, cancellationToken)
     }
 

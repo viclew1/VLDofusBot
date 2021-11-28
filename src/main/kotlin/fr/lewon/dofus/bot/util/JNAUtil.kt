@@ -6,6 +6,7 @@ import com.sun.jna.platform.win32.*
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.ptr.IntByReference
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
+import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.Point
 import java.awt.Rectangle
@@ -92,18 +93,30 @@ object JNAUtil {
     }
 
     fun takeCapture(gameInfo: GameInfo): BufferedImage {
+        return RetryUtil.tryUntilSuccess(
+            { doTakeCapture(gameInfo) },
+            { it != null },
+            5,
+            500
+        ) ?: error("Failed to take capture.")
+    }
+
+    fun doTakeCapture(gameInfo: GameInfo): BufferedImage? {
+        val pid = gameInfo.pid
+        val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
+        val hdcWindow = User32.INSTANCE.GetDC(handle)
+        val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
         try {
             gameInfo.lock.lock()
-            val pid = gameInfo.pid
-            val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
-            val hdcWindow = User32.INSTANCE.GetDC(handle)
-            val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
 
             val bounds = WinDef.RECT()
             User32.INSTANCE.GetClientRect(handle, bounds)
-
             val width = bounds.right - bounds.left
             val height = bounds.bottom - bounds.top
+            if (width == 0 || height == 0) {
+                User32.INSTANCE.ReleaseDC(handle, hdcWindow)
+                return null
+            }
 
             val hBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(hdcWindow, width, height)
 
@@ -112,7 +125,6 @@ object JNAUtil {
             GDI32.INSTANCE.BitBlt(hdcMemDC, 0, 0, width, height, hdcWindow, 0, 0, srcCopy)
 
             GDI32.INSTANCE.SelectObject(hdcMemDC, hOld)
-            GDI32.INSTANCE.DeleteDC(hdcMemDC)
 
             val bmi = WinGDI.BITMAPINFO()
             bmi.bmiHeader.biWidth = width
@@ -128,9 +140,10 @@ object JNAUtil {
             image.setRGB(0, 0, width, height, buffer.getIntArray(0, width * height), 0, width)
 
             GDI32.INSTANCE.DeleteObject(hBitmap)
-            User32.INSTANCE.ReleaseDC(handle, hdcWindow)
             return image
         } finally {
+            GDI32.INSTANCE.DeleteDC(hdcMemDC)
+            User32.INSTANCE.ReleaseDC(handle, hdcWindow)
             gameInfo.lock.unlock()
         }
     }

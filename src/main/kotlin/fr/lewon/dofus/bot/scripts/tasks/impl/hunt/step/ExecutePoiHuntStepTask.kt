@@ -13,7 +13,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToPOI) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val hint = HintManager.getHint(gameInfo.currentMap, huntStep.direction, huntStep.label)
         val dToHint = hint?.d ?: 1
         val hunt = TreasureHuntUtil.getTreasureHunt(gameInfo)

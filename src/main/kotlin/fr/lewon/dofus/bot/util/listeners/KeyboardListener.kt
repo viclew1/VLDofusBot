@@ -66,7 +66,9 @@ object KeyboardListener : Thread(), NativeKeyListener {
     }
 
     private fun toggleSystemKeyLock() {
-        val sysKeyDown = keysPressed[NativeKeyEvent.VC_CONTROL] == true || keysPressed[NativeKeyEvent.VC_SHIFT] == true
+        val sysKeyDown = keysPressed[NativeKeyEvent.VC_CONTROL] == true
+                || keysPressed[NativeKeyEvent.VC_SHIFT] == true
+                || keysPressed[NativeKeyEvent.VC_ALT] == true
         if (sysKeyDown && !SystemKeyLock.isHeldByCurrentThread) {
             SystemKeyLock.lock()
         } else if (!sysKeyDown && SystemKeyLock.isHeldByCurrentThread) {

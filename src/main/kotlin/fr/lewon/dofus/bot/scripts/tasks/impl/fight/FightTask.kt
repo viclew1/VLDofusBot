@@ -19,6 +19,7 @@ import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.DefaultUIPositions
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
+import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
@@ -93,7 +94,7 @@ class FightTask : BooleanDofusBotTask() {
         return EventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId) != null
     }
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val preMoveBuffCombination =
             SpellCombination(SpellType.MP_BUFF, "121", 0, 0, true, false, false, 4, 4, 1, 5, -2)
         val losSpells = SpellCombination(SpellType.ATTACK, "33", 2, 6, true, false, true, 0, 6, 2, 0, 5)
@@ -239,22 +240,16 @@ class FightTask : BooleanDofusBotTask() {
     }
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell, cancellationToken: CancellationToken) {
-        MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
-        var moveOk = waitForSequenceCompleteEnd(gameInfo, cancellationToken)
-        var retryCpt = 0
-        while (!moveOk && retryCpt++ < 3) {
-            MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
-            moveOk = waitForSequenceCompleteEnd(gameInfo, cancellationToken)
-        }
+        RetryUtil.tryUntilSuccess(
+            { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
+            { waitForSequenceCompleteEnd(gameInfo, cancellationToken, 5000) },
+            2
+        )
     }
 
     private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
         for (c in keys) {
-            var spellCastedOk = castSpell(gameInfo, c, target, cancellationToken)
-            var retryCpt = 0
-            while (!spellCastedOk && retryCpt++ < 3) {
-                spellCastedOk = castSpell(gameInfo, c, target, cancellationToken)
-            }
+            RetryUtil.tryUntilSuccess({ castSpell(gameInfo, c, target, cancellationToken) }, 3)
             if (isFightEnded(gameInfo) || !gameInfo.fightBoard.isFighterHere(target)) {
                 return
             }
@@ -269,10 +264,14 @@ class FightTask : BooleanDofusBotTask() {
     ): Boolean {
         KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 200)
         MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
-        return waitForSequenceCompleteEnd(gameInfo, cancellationToken)
+        return waitForSequenceCompleteEnd(gameInfo, cancellationToken, 3000)
     }
 
-    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    private fun waitForSequenceCompleteEnd(
+        gameInfo: GameInfo,
+        cancellationToken: CancellationToken,
+        waitTime: Int
+    ): Boolean {
         EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
         EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
         val isSequenceCompleteFunc = {
@@ -282,7 +281,7 @@ class FightTask : BooleanDofusBotTask() {
                 BasicNoOperationMessage::class.java
             )
         }
-        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceCompleteFunc() }, cancellationToken, 4000)
+        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceCompleteFunc() }, cancellationToken, waitTime)
     }
 
     private fun waitForMessage(

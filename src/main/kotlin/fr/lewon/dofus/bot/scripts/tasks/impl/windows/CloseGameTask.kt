@@ -11,7 +11,7 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 class CloseGameTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         if (isCharacterLoggedIn(gameInfo)) {
             VldbLogger.info("Game already closed.", logItem)
             return true

@@ -8,7 +8,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecuteFightHuntStepTask : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         return TreasureHuntUtil.fight(logItem, gameInfo, cancellationToken)
     }
 

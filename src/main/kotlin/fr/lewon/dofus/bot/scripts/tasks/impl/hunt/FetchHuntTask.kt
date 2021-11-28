@@ -6,6 +6,7 @@ import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -25,7 +26,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
         private val HUNT_SEEK_OPTION_MAX_COLOR = Color(25, 25, 25)
     }
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         gameInfo.treasureHunt = null
         if (TreasureHuntUtil.isHuntPresent(gameInfo)) {
             return true
@@ -42,6 +43,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
         if (!WaitUtil.waitUntil({ isHuntSeekOptionFound(gameInfo) }, cancellationToken)) {
             return false
         }
+        EventStore.clear(gameInfo.snifferId)
         MouseUtil.leftClick(gameInfo, HUNT_SEEK_OPTION_POINT)
         if (!TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
             return false

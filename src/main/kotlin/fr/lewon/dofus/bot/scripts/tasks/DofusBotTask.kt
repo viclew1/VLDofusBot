@@ -27,6 +27,7 @@ abstract class DofusBotTask<T> {
             VldbLogger.closeLog(onSucceeded(result), logItem)
             return result
         } catch (e: Throwable) {
+            e.printStackTrace()
             VldbLogger.closeLog(onFailed(e), logItem)
             throw e
         }

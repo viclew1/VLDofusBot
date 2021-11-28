@@ -15,6 +15,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStep
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFight
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToHint
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
+import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -75,8 +76,12 @@ object TreasureHuntUtil {
 
     fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken): Boolean {
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
-        MouseUtil.leftClick(gameInfo, tickPoint)
-        return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
+        EventStore.clear(gameInfo.snifferId)
+        return RetryUtil.tryUntilSuccess(
+            { MouseUtil.leftClick(gameInfo, tickPoint) },
+            { waitForTreasureHuntUpdate(gameInfo, cancellationToken, 5000) },
+            3
+        ) != null
     }
 
     fun getLastNonTickedFlagIndex(gameInfo: GameInfo): Int? {
@@ -119,6 +124,7 @@ object TreasureHuntUtil {
     }
 
     fun clickSearch(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        EventStore.clear(gameInfo.snifferId)
         MouseUtil.leftClick(gameInfo, searchHuntPoint)
         return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
@@ -141,6 +147,7 @@ object TreasureHuntUtil {
     }
 
     fun giveUpHunt(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+        EventStore.clear(gameInfo.snifferId)
         MouseUtil.leftClick(gameInfo, giveUpHuntPoint)
         return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
     }
@@ -152,14 +159,15 @@ object TreasureHuntUtil {
 
     fun waitForTreasureHuntUpdate(
         gameInfo: GameInfo,
-        cancellationToken: CancellationToken
+        cancellationToken: CancellationToken,
+        timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
     ): Boolean {
-        return WaitUtil.waitForSequence(
-            gameInfo.snifferId,
-            TreasureHuntMessage::class.java,
-            BasicNoOperationMessage::class.java,
-            cancellationToken = cancellationToken
-        ) && WaitUtil.waitUntil({ isHuntPresent(gameInfo) }, cancellationToken)
+        return WaitUtil.waitUntil({
+            EventStore.containsSequence(
+                gameInfo.snifferId, TreasureHuntMessage::class.java,
+                BasicNoOperationMessage::class.java
+            ) && isHuntPresent(gameInfo)
+        }, cancellationToken, timeOutMillis = timeOutMillis)
     }
 
     private fun updatePoints(gameInfo: GameInfo) {

@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class CellMoveTask(private val cellId: Int) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         val cellBounds = gameInfo.dofusBoard.getCell(cellId).bounds
         val cellCenter = cellBounds.getCenter()
 

@@ -4,14 +4,13 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.CancellationToken
-import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelToCoordinatesTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<Boolean>() {
+class ReachMapTask(private val dofusMap: DofusMap) : BooleanDofusBotTask() {
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         if (dofusMap == gameInfo.currentMap) {
             return true
         }
@@ -32,9 +31,9 @@ open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<Boolean>(
 
         val minDist = minOf(transporterDist, zaapDist, travelDist)
 
-        when {
+        val transportResult = when {
             path != null && minDist == travelDist ->
-                TravelTask(listOf(dofusMap)).run(logItem, gameInfo, cancellationToken)
+                true
             transporter != null && transporterDist == minDist ->
                 TransportTowardTask(transporter).run(logItem, gameInfo, cancellationToken)
             zaap != null && zaapDist == minDist ->
@@ -42,7 +41,7 @@ open class ReachMapTask(private val dofusMap: DofusMap) : DofusBotTask<Boolean>(
             else ->
                 error("No travel element found")
         }
-        return TravelToCoordinatesTask(destinationCoordinates).run(logItem, gameInfo, cancellationToken)
+        return transportResult && TravelTask(listOf(dofusMap)).run(logItem, gameInfo, cancellationToken)
     }
 
     override fun onStarted(): String {
