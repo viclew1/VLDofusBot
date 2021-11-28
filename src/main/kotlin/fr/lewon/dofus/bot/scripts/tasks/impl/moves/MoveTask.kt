@@ -77,7 +77,7 @@ abstract class MoveTask(
                 cancellationToken
             )
             playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-                ?: error("No registered position for player")
+                ?: error("No registered position for player : ${gameInfo.playerId}")
         }
         val moveCells = getMoveCellIds(gameInfo)
         if (moveCells.isEmpty()) {

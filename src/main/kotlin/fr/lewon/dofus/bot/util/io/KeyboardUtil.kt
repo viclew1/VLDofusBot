@@ -82,7 +82,6 @@ object KeyboardUtil {
                     val handle = getHandle(gameInfo)
                     val oldClipBoard = getClipboard()
                     setClipboard(StringSelection(text))
-                    SystemKeyLock.lock()
                     sendMessages(
                         handle, listOf(WinUser.WM_KEYDOWN, WinUser.WM_CHAR), KeyEvent.VK_CONTROL.toLong(), 0x1000000
                     )
