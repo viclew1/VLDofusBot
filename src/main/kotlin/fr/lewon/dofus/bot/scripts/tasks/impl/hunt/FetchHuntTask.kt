@@ -4,7 +4,6 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusMapManager
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
@@ -36,19 +35,19 @@ class FetchHuntTask : BooleanDofusBotTask() {
         if (!ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)) {
             return false
         }
-        if (!TravelTask(listOf(insideMap)).run(logItem, gameInfo, cancellationToken)) {
+        if (!ReachMapTask(insideMap).run(logItem, gameInfo, cancellationToken)) {
             return false
         }
         MouseUtil.leftClick(gameInfo, HUNT_MALL_CHEST_POINT)
         if (!WaitUtil.waitUntil({ isHuntSeekOptionFound(gameInfo) }, cancellationToken)) {
-            return false
+            error("Couldn't open chest")
         }
         EventStore.clear(gameInfo.snifferId)
         MouseUtil.leftClick(gameInfo, HUNT_SEEK_OPTION_POINT)
         if (!TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
-            return false
+            error("No treasure hunt update arrived in time")
         }
-        return TravelTask(listOf(outsideMap)).run(logItem, gameInfo, cancellationToken)
+        return ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)
     }
 
     private fun isHuntSeekOptionFound(gameInfo: GameInfo): Boolean {

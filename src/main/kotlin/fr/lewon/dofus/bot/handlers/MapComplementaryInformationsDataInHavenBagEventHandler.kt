@@ -11,7 +11,6 @@ object MapComplementaryInformationsDataInHavenBagEventHandler :
     override fun onEventReceived(socketResult: MapComplementaryInformationsDataInHavenBagMessage, snifferId: Long) {
         val gameInfo = GameSnifferUtil.getGameInfoBySnifferId(snifferId)
         gameInfo.currentMap = socketResult.map
-        gameInfo.inHavenBag = true
         gameInfo.entityPositionsOnMapByEntityId.clear()
         socketResult.actors.forEach {
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId

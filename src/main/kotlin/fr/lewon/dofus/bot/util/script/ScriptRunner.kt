@@ -6,8 +6,9 @@ import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.windows.RestartGameTask
-import fr.lewon.dofus.bot.util.JNAUtil
+import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
@@ -28,6 +29,7 @@ object ScriptRunner {
             cancellationToken = CancellationToken()
             try {
                 val gameInfo = prepareScriptExecution()
+                EventStore.clear(gameInfo.snifferId)
                 dofusScript.execute(currentLogItem, gameInfo, cancellationToken)
                 onScriptOk()
             } catch (e: Exception) {
@@ -44,7 +46,7 @@ object ScriptRunner {
     private fun prepareScriptExecution(): GameInfo {
         val pid = getDofusPID()
         val gameInfo = GameSnifferUtil.getGameInfoByPID(pid)
-        JNAUtil.updateGameBounds(gameInfo, pid)
+        JNAUtil.updateGameBounds(gameInfo)
 
         if (gameInfo.shouldInitBoard) {
             InitAllTask().run(currentLogItem, gameInfo, cancellationToken)
@@ -57,12 +59,12 @@ object ScriptRunner {
         val connectionLog = VldbLogger.info("Fetching dofus PID ...", currentLogItem)
         val currentCharacter = CharacterManager.getCurrentCharacter()
             ?: error("There should be a selected character")
-        var dofusConnection = GameSnifferUtil.getCharacterPID(currentCharacter)
-        if (dofusConnection == null) {
-            dofusConnection = RestartGameTask().run(connectionLog, GameInfo(currentCharacter), cancellationToken)
+        var pid = GameSnifferUtil.getCharacterPID(currentCharacter)
+        if (pid == null) {
+            pid = RestartGameTask().run(connectionLog, GameInfo(currentCharacter), cancellationToken)
         }
         VldbLogger.closeLog("OK", connectionLog)
-        return dofusConnection
+        return pid
     }
 
     @Synchronized

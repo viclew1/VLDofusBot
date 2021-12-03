@@ -77,11 +77,12 @@ object TreasureHuntUtil {
     fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken): Boolean {
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
         EventStore.clear(gameInfo.snifferId)
-        return RetryUtil.tryUntilSuccess(
-            { MouseUtil.leftClick(gameInfo, tickPoint) },
-            { waitForTreasureHuntUpdate(gameInfo, cancellationToken, 5000) },
-            3
-        ) != null
+        MouseUtil.move(gameInfo, tickPoint)
+        MouseUtil.leftClick(gameInfo, tickPoint)
+        if (!waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
+            error("No treasure hunt update arrived in time.")
+        }
+        return true
     }
 
     fun getLastNonTickedFlagIndex(gameInfo: GameInfo): Int? {
@@ -126,7 +127,10 @@ object TreasureHuntUtil {
     fun clickSearch(gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         EventStore.clear(gameInfo.snifferId)
         MouseUtil.leftClick(gameInfo, searchHuntPoint)
-        return waitForTreasureHuntUpdate(gameInfo, cancellationToken)
+        if (!waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
+            error("No treasure hunt update arrived in time.")
+        }
+        return true
     }
 
     fun isSearchStep(gameInfo: GameInfo): Boolean {
@@ -162,12 +166,19 @@ object TreasureHuntUtil {
         cancellationToken: CancellationToken,
         timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
     ): Boolean {
-        return WaitUtil.waitUntil({
-            EventStore.containsSequence(
-                gameInfo.snifferId, TreasureHuntMessage::class.java,
-                BasicNoOperationMessage::class.java
-            ) && isHuntPresent(gameInfo)
-        }, cancellationToken, timeOutMillis = timeOutMillis)
+        return WaitUtil.waitUntil(
+            { isTreasureHuntUpdated(gameInfo) && isHuntPresent(gameInfo) },
+            cancellationToken,
+            timeOutMillis = timeOutMillis
+        )
+    }
+
+    private fun isTreasureHuntUpdated(gameInfo: GameInfo): Boolean {
+        return EventStore.isAllEventsPresent(
+            gameInfo.snifferId,
+            TreasureHuntMessage::class.java,
+            BasicNoOperationMessage::class.java
+        ) && isHuntPresent(gameInfo)
     }
 
     private fun updatePoints(gameInfo: GameInfo) {

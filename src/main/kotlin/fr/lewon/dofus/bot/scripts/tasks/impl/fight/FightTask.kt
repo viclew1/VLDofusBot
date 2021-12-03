@@ -120,7 +120,7 @@ class FightTask : BooleanDofusBotTask() {
         val baseRange = FighterCharacteristic.RANGE.getFighterCharacteristicValue(playerFighter)
 
         EventStore.clear(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId)
-        KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_F1, 0)
+        KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, cancellationToken)
         while (!isFightEnded(gameInfo)) {
             MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)
@@ -140,7 +140,6 @@ class FightTask : BooleanDofusBotTask() {
                 castSpells(gameInfo, contactSpells.keys, fightBoard.closestEnemyPosition, cancellationToken)
             } else {
                 moveToBestCell(gameInfo, playerPos, fightAI, preMoveBuffCombination, cancellationToken)
-                MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
                 playerPos = playerFighter.cell
                 useGapClosers(gameInfo, playerPos, fightAI, gapCloserCombination, cancellationToken)
                 useAttacks(gameInfo, playerPos, baseRange, losSpells, nonLosSpells, contactSpells, cancellationToken)
@@ -241,10 +240,31 @@ class FightTask : BooleanDofusBotTask() {
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell, cancellationToken: CancellationToken) {
         RetryUtil.tryUntilSuccess(
-            { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
+            { clickAfterMovingAroundCell(gameInfo, target) },
             { waitForSequenceCompleteEnd(gameInfo, cancellationToken, 5000) },
             2
         )
+    }
+
+    private fun clickAfterMovingAroundCell(gameInfo: GameInfo, target: DofusCell) {
+        moveAroundCell(gameInfo, target)
+        WaitUtil.sleep(100)
+        MouseUtil.doubleLeftClick(gameInfo, target.getCenter(), moveBeforeClick = false)
+    }
+
+    private fun moveAroundCell(gameInfo: GameInfo, target: DofusCell) {
+        val center = target.getCenter()
+        val bounds = target.bounds
+        val cornerPoints = listOf(
+            PointRelative(center.x + bounds.width / 2f, center.y),
+            PointRelative(center.x, center.y + bounds.height / 2f),
+            PointRelative(center.x - bounds.width / 2f, center.y),
+            PointRelative(center.x, center.y - bounds.height / 2f),
+            PointRelative(center.x, center.y)
+        )
+        cornerPoints.forEach {
+            MouseUtil.move(gameInfo, it, 25)
+        }
     }
 
     private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
@@ -262,8 +282,8 @@ class FightTask : BooleanDofusBotTask() {
         target: DofusCell,
         cancellationToken: CancellationToken
     ): Boolean {
-        KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 200)
-        MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
+        KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 300)
+        clickAfterMovingAroundCell(gameInfo, target)
         return waitForSequenceCompleteEnd(gameInfo, cancellationToken, 3000)
     }
 
@@ -275,9 +295,11 @@ class FightTask : BooleanDofusBotTask() {
         EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
         EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
         val isSequenceCompleteFunc = {
-            EventStore.containsSequence(
+            EventStore.isAllEventsPresent(
                 gameInfo.snifferId,
                 SequenceEndMessage::class.java,
+                SequenceEndMessage::class.java,
+                BasicNoOperationMessage::class.java,
                 BasicNoOperationMessage::class.java
             )
         }

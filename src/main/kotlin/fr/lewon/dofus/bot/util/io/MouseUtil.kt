@@ -2,9 +2,9 @@ package fr.lewon.dofus.bot.util.io
 
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 object MouseUtil {
@@ -13,7 +13,10 @@ object MouseUtil {
     private const val WM_LBUTTONUP = 0x0202
     private const val WM_MOUSEMOVE = 0x0200
 
-    fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
+    fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100, moveBeforeClick: Boolean = true) {
+        if (moveBeforeClick) {
+            move(gameInfo, position)
+        }
         try {
             gameInfo.lock.lock()
             Thread {
@@ -21,6 +24,8 @@ object MouseUtil {
                     gameInfo.lock.lock()
                     val pid = gameInfo.pid
                     val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+                    User32.INSTANCE.SetFocus(handle)
+                    User32.INSTANCE.BringWindowToTop(handle)
                     doLeftClick(handle, position)
                     WaitUtil.sleep(millis)
                 } finally {
@@ -35,10 +40,8 @@ object MouseUtil {
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
         val wParam = WinDef.WPARAM(0)
-        doSendMouseMessage(handle, WM_MOUSEMOVE, wParam, lParam)
         doSendMouseMessage(handle, WM_LBUTTONDOWN, wParam, lParam)
         doSendMouseMessage(handle, WM_LBUTTONUP, wParam, lParam)
-        doSendMouseMessage(handle, WM_MOUSEMOVE, wParam, lParam)
     }
 
     private fun doSendMouseMessage(handle: WinDef.HWND, message: Int, wParam: WinDef.WPARAM, lParam: WinDef.LPARAM) {
@@ -70,21 +73,41 @@ object MouseUtil {
         return WinDef.LPARAM(((y shl 16) or (x and 0xFFFF)).toLong())
     }
 
-    fun leftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
-        leftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
+    fun leftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100, moveBeforeClick: Boolean = true) {
+        leftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis, moveBeforeClick)
     }
 
     fun move(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
         move(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
     }
 
-    fun doubleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
-        leftClick(gameInfo, position, 100)
-        leftClick(gameInfo, position, millis)
+    fun doubleLeftClick(
+        gameInfo: GameInfo,
+        position: PointAbsolute,
+        millis: Int = 100,
+        moveBeforeClick: Boolean = true
+    ) {
+        leftClick(gameInfo, position, 100, moveBeforeClick)
+        leftClick(gameInfo, position, millis, moveBeforeClick = false)
     }
 
-    fun doubleLeftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
-        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
+    fun doubleLeftClick(
+        gameInfo: GameInfo,
+        position: PointRelative,
+        millis: Int = 100,
+        moveBeforeClick: Boolean = true
+    ) {
+        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis, moveBeforeClick)
+    }
+
+    fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
+        leftClick(gameInfo, position, 100)
+        leftClick(gameInfo, position, 100, moveBeforeClick = false)
+        leftClick(gameInfo, position, millis, moveBeforeClick = false)
+    }
+
+    fun tripleLeftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
+        tripleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
     }
 
 }

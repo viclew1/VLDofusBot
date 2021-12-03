@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.util
+package fr.lewon.dofus.bot.util.jna
 
 import com.sun.jna.Memory
 import com.sun.jna.Native
@@ -6,7 +6,6 @@ import com.sun.jna.platform.win32.*
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.ptr.IntByReference
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.Point
 import java.awt.Rectangle
@@ -26,31 +25,31 @@ object JNAUtil {
     }
 
     fun findByPID(pid: Long): HWND? {
-        val windows = ArrayList<HWND>()
+        var foundHandle: HWND? = null
         User32.INSTANCE.EnumWindows({ handle, _ ->
             val pidRef = IntByReference()
             User32.INSTANCE.GetWindowThreadProcessId(handle, pidRef)
             if (pidRef.value.toLong() == pid) {
-                windows.add(handle)
+                foundHandle = handle
+                false
+            } else {
+                true
             }
-            true
         }, null)
-        if (windows.isEmpty()) {
-            return null
-        }
-        return windows[0]
+        return foundHandle
     }
 
-    fun updateGameBounds(gameInfo: GameInfo, pid: Long) {
+    fun updateGameBounds(gameInfo: GameInfo) {
         try {
             gameInfo.lock.lock()
             val rect = WinDef.RECT()
-            User32.INSTANCE.GetClientRect(findByPID(pid), rect)
+            User32.INSTANCE.GetClientRect(findByPID(gameInfo.pid), rect)
 
             var x = 0
             var y = 0
             var width = rect.right - rect.left
             var height = rect.bottom - rect.top
+            gameInfo.completeBounds = Rectangle(x, y, width, height)
 
             val targetRatio = 5f / 4f
             val ratio = width.toFloat() / height.toFloat()
@@ -65,7 +64,7 @@ object JNAUtil {
                 width = newWidth
             }
 
-            gameInfo.bounds = Rectangle(x, y, width, height)
+            gameInfo.gameBounds = Rectangle(x, y, width, height)
         } finally {
             gameInfo.lock.unlock()
         }
@@ -93,15 +92,6 @@ object JNAUtil {
     }
 
     fun takeCapture(gameInfo: GameInfo): BufferedImage {
-        return RetryUtil.tryUntilSuccess(
-            { doTakeCapture(gameInfo) },
-            { it != null },
-            5,
-            500
-        ) ?: error("Failed to take capture.")
-    }
-
-    fun doTakeCapture(gameInfo: GameInfo): BufferedImage? {
         val pid = gameInfo.pid
         val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
         val hdcWindow = User32.INSTANCE.GetDC(handle)
@@ -109,13 +99,10 @@ object JNAUtil {
         try {
             gameInfo.lock.lock()
 
-            val bounds = WinDef.RECT()
-            User32.INSTANCE.GetClientRect(handle, bounds)
-            val width = bounds.right - bounds.left
-            val height = bounds.bottom - bounds.top
+            val width = gameInfo.completeBounds.width
+            val height = gameInfo.completeBounds.height
             if (width == 0 || height == 0) {
-                User32.INSTANCE.ReleaseDC(handle, hdcWindow)
-                return null
+                error("Failed to take capture.")
             }
 
             val hBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(hdcWindow, width, height)
@@ -167,16 +154,6 @@ object JNAUtil {
         val rect = WinDef.RECT()
         User32.INSTANCE.GetWindowRect(findByPID(pid), rect)
         return Point(rect.left + 8, rect.top + 8 + 23)
-    }
-
-    fun getGameSize(pid: Long): Point {
-        val bounds = WinDef.RECT()
-        val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
-        User32.INSTANCE.GetClientRect(handle, bounds)
-
-        val width = bounds.right - bounds.left
-        val height = bounds.bottom - bounds.top
-        return Point(width, height)
     }
 
 }

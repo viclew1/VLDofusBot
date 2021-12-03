@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.gui.overlay
 
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.awt.*
@@ -21,11 +21,11 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
 
     override fun updateOverlay(pid: Long) {
         gameInfo = GameSnifferUtil.getGameInfoByPID(pid)
-        JNAUtil.updateGameBounds(gameInfo, pid)
+        JNAUtil.updateGameBounds(gameInfo)
         val windowPos = JNAUtil.getGamePosition(pid)
-        val gameBounds = gameInfo.bounds
+        val gameBounds = gameInfo.gameBounds
         bounds = Rectangle(gameBounds.x + windowPos.x, gameBounds.y + windowPos.y, gameBounds.width, gameBounds.height)
-        contentPane.size = Dimension(gameInfo.bounds.width, gameInfo.bounds.height)
+        contentPane.size = Dimension(gameInfo.gameBounds.width, gameInfo.gameBounds.height)
         hitBoxByCell = gameInfo.dofusBoard.cells.associateWith { buildCellHitBox(it) }
     }
 
@@ -55,8 +55,8 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
 
         private fun sendClickToGame(mouseLocation: Point) {
             val absoluteLocation = PointAbsolute(
-                mouseLocation.x + gameInfo.bounds.x,
-                mouseLocation.y + gameInfo.bounds.y
+                mouseLocation.x + gameInfo.gameBounds.x,
+                mouseLocation.y + gameInfo.gameBounds.y
             )
             MouseUtil.leftClick(gameInfo, absoluteLocation)
         }
@@ -85,7 +85,7 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
         }
 
         private fun drawLine(g: Graphics, from: PointRelative, to: PointRelative) {
-            val origin = PointAbsolute(gameInfo.bounds.x, gameInfo.bounds.y)
+            val origin = PointAbsolute(gameInfo.gameBounds.x, gameInfo.gameBounds.y)
             val fromAbsolute = ConverterUtil.toPointAbsolute(gameInfo, from).getDifference(origin)
             val toAbsolute = ConverterUtil.toPointAbsolute(gameInfo, to).getDifference(origin)
             g.drawLine(fromAbsolute.x, fromAbsolute.y, toAbsolute.x, toAbsolute.y)
@@ -171,7 +171,7 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
     }
 
     private fun buildPolygon(pointRelatives: List<PointRelative>): Polygon {
-        val origin = PointAbsolute(gameInfo.bounds.x, gameInfo.bounds.y)
+        val origin = PointAbsolute(gameInfo.gameBounds.x, gameInfo.gameBounds.y)
         val absolutePoints = pointRelatives.map { ConverterUtil.toPointAbsolute(gameInfo, it).getDifference(origin) }
         val xPoints = absolutePoints.map { it.x }.toIntArray()
         val yPoints = absolutePoints.map { it.y }.toIntArray()

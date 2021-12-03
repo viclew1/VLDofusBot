@@ -41,7 +41,6 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         val MAX_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MAX
     }
 
-    private lateinit var searchLocation: PointRelative
     private lateinit var teleportLocation: PointRelative
     private lateinit var closeZaapSelectionButtonBounds: RectangleRelative
 
@@ -75,10 +74,11 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
             .firstOrNull { it.getCoordinates() == zaap.getCoordinates() }
             ?: error("Could not find zaap destination [${zaap.name}]. Did you explore it with this character ?")
 
-        MouseUtil.leftClick(gameInfo, searchLocation, 500)
-        KeyboardUtil.writeKeyboard(gameInfo, getUniqueIdentifier(zaapDestination, zaapDestinations), 1500)
+        KeyboardUtil.writeKeyboard(gameInfo, getUniqueIdentifier(zaapDestination, zaapDestinations))
         MouseUtil.leftClick(gameInfo, teleportLocation)
-        return MoveUtil.waitForMapChange(gameInfo, cancellationToken)
+        EventStore.clear(gameInfo.snifferId)
+        MoveUtil.waitForMapChange(gameInfo, cancellationToken)
+        return true
     }
 
     private fun waitForZaapFrameOpened(
@@ -89,7 +89,7 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
     }
 
     private fun isZaapFrameOpened(gameInfo: GameInfo): Boolean {
-        return EventStore.containsSequence(
+        return EventStore.isAllEventsPresent(
             gameInfo.snifferId,
             ZaapDestinationsMessage::class.java,
             BasicNoOperationMessage::class.java
@@ -118,7 +118,6 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         )
         val zaapUiPointRelative = ConverterUtil.toPointRelative(zaapUiPoint)
         teleportLocation = zaapUiPointRelative.getSum(REF_DELTA_TELEPORT_LOCATION)
-        searchLocation = zaapUiPointRelative.getSum(REF_DELTA_SEARCH_LOCATION)
         closeZaapSelectionButtonBounds = REF_CLOSE_ZAAP_SELECTION_BUTTON_BOUNDS
             .getTranslation(REF_TOP_LEFT_LOCATION.opposite())
             .getTranslation(zaapUiPointRelative)

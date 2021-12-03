@@ -3,9 +3,9 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.windows
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.game.DefaultUIPositions
 import fr.lewon.dofus.bot.util.game.DofusColors
@@ -13,6 +13,7 @@ import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.awt.Color
@@ -21,7 +22,7 @@ import java.awt.event.KeyEvent
 class OpenGameTask : DofusBotTask<Long>() {
 
     companion object {
-        private val MIDDLE_BOTTOM_LOCATION = PointRelative(0.4967825f, 0.94212216f)
+        private val BOTTOM_MIDDLE_POINT = PointRelative(0.5f, 0.95f)
         private val LOGO_BOUNDS = RectangleRelative.build(
             PointRelative(0.47625f, 0.1875f),
             PointRelative(0.49125f, 0.20625f)
@@ -47,6 +48,9 @@ class OpenGameTask : DofusBotTask<Long>() {
         val character = gameInfo.character
         GameSnifferUtil.setGameInfo(character, gameInfo)
 
+        val bannerUiPosition = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_DEFAULT)
+            ?: DefaultUIPositions.BANNER_UI_POSITION
+
         val openGameLogs = VldbLogger.info("Opening game ...", logItem)
         openGame(gameInfo, cancellationToken)
         VldbLogger.closeLog("OK", openGameLogs)
@@ -60,19 +64,19 @@ class OpenGameTask : DofusBotTask<Long>() {
         VldbLogger.closeLog("OK", enterLoginLogs)
 
         val enterGameLogs = VldbLogger.info("Trying to enter game ... ", logItem)
-        val dofusConnection = enterGame(enterGameLogs, gameInfo, cancellationToken)
+        val pid = enterGame(enterGameLogs, gameInfo, cancellationToken, bannerUiPosition)
         enterGameLogs.closeLog("OK")
 
-        return dofusConnection
+        return pid
     }
 
     private fun enterLoginAndPassword(gameInfo: GameInfo, login: String, password: String) {
-        MouseUtil.doubleLeftClick(gameInfo, LOGIN_LOCATION)
-        KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_BACK_SPACE, 100)
-        KeyboardUtil.writeKeyboard(gameInfo, login, 200)
-        MouseUtil.doubleLeftClick(gameInfo, PASSWORD_LOCATION)
-        KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_BACK_SPACE, 100)
-        KeyboardUtil.writeKeyboard(gameInfo, password, 200)
+        MouseUtil.tripleLeftClick(gameInfo, LOGIN_LOCATION)
+        KeyboardUtil.writeKeyboard(gameInfo, login)
+        MouseUtil.leftClick(gameInfo, BOTTOM_MIDDLE_POINT)
+        MouseUtil.tripleLeftClick(gameInfo, PASSWORD_LOCATION)
+        KeyboardUtil.writeKeyboard(gameInfo, password)
+        MouseUtil.leftClick(gameInfo, BOTTOM_MIDDLE_POINT)
         MouseUtil.leftClick(gameInfo, PLAY_BUTTON_BOUNDS.getCenter())
     }
 
@@ -86,27 +90,30 @@ class OpenGameTask : DofusBotTask<Long>() {
         if (!WaitUtil.waitUntil(isWindowLoadedFunc, cancellationToken)) {
             error("Dofus window not found")
         }
-        JNAUtil.updateGameBounds(gameInfo, pid)
-        MouseUtil.leftClick(gameInfo, MIDDLE_BOTTOM_LOCATION)
-        val frameNameValidFunc = { Regex("Dofus [0-9].*?").matches(JNAUtil.getFrameName(pid).trim()) }
-        if (!WaitUtil.waitUntil(frameNameValidFunc, cancellationToken)) {
-            error("Couldn't open game")
-        }
-        if (!WaitUtil.waitUntil({ isLogoVisible(gameInfo) }, cancellationToken)) {
+        JNAUtil.updateGameBounds(gameInfo)
+        if (!WaitUtil.waitUntil({ isFrameValid(gameInfo) }, cancellationToken)
+            || !WaitUtil.waitUntil({ isLogoVisible(gameInfo) }, cancellationToken)
+        ) {
             error("Couldn't open game")
         }
     }
 
+    private fun isFrameValid(gameInfo: GameInfo): Boolean {
+        MouseUtil.leftClick(gameInfo, BOTTOM_MIDDLE_POINT)
+        val frameName = JNAUtil.getFrameName(gameInfo.pid)
+        return Regex("Dofus [0-9].*?").matches(frameName.trim())
+    }
+
     private fun isLogoVisible(gameInfo: GameInfo): Boolean {
-        JNAUtil.updateGameBounds(gameInfo, gameInfo.pid)
+        JNAUtil.updateGameBounds(gameInfo)
         return ScreenUtil.colorCount(gameInfo, LOGO_BOUNDS, LOGO_SHADOWED_COLOR, LOGO_SHADOWED_COLOR) > 0
                 || ScreenUtil.colorCount(gameInfo, LOGO_BOUNDS, LOGO_COLOR, LOGO_COLOR) > 0
     }
 
     private fun waitForLoginArea(gameInfo: GameInfo, cancellationToken: CancellationToken) {
         if (ScreenUtil.colorCount(gameInfo, LOGO_BOUNDS, LOGO_SHADOWED_COLOR, LOGO_SHADOWED_COLOR) > 0) {
-            MouseUtil.leftClick(gameInfo, MIDDLE_BOTTOM_LOCATION, 200)
-            KeyboardUtil.sendSysKey(gameInfo, KeyEvent.VK_ESCAPE, 500)
+            MouseUtil.leftClick(gameInfo, BOTTOM_MIDDLE_POINT, 200)
+            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE, 500)
             val colorOkFunc = { ScreenUtil.colorCount(gameInfo, LOGO_BOUNDS, LOGO_COLOR, LOGO_COLOR) > 0 }
             if (!WaitUtil.waitUntil(colorOkFunc, cancellationToken)) {
                 error("Couldn't close warning window")
@@ -126,37 +133,38 @@ class OpenGameTask : DofusBotTask<Long>() {
         ) > 0
     }
 
-    private fun enterGame(enterGameLogs: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Long {
-        if (!WaitUtil.waitUntil({ isAccountLoggedIn(gameInfo) }, cancellationToken, 1000 * 3 * 60)) {
+    private fun enterGame(
+        enterGameLogs: LogItem,
+        gameInfo: GameInfo,
+        cancellationToken: CancellationToken,
+        bannerUiPosition: UIPoint
+    ): Long {
+        if (!WaitUtil.waitUntil({ isAccountLoggedIn(gameInfo, bannerUiPosition) }, cancellationToken, 1000 * 3 * 60)) {
             error("Couldn't log in")
         }
-        if (isChooseCharacterReady(gameInfo)) {
+        if (!isGameFullyLoaded(gameInfo, bannerUiPosition)) {
             VldbLogger.info("Character chosen, entering game.", enterGameLogs)
             MouseUtil.leftClick(gameInfo, CHOOSE_CHARACTER_BUTTON_BOUNDS.getCenter())
         }
 
-        if (!WaitUtil.waitUntil({ isGameFullyLoaded(gameInfo) }, cancellationToken, 1000 * 3 * 60)) {
+        if (!WaitUtil.waitUntil({ isGameFullyLoaded(gameInfo, bannerUiPosition) }, cancellationToken, 1000 * 3 * 60)) {
             error("Couldn't enter game")
         }
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         var pid = -1L
-        val isDofusConnectionNotNullFunc = {
-            GameSnifferUtil.getCharacterPID(gameInfo.character)?.also { pid = it } != null
-        }
+        val isDofusConnectionNotNullFunc =
+            { GameSnifferUtil.getCharacterPID(gameInfo.character)?.also { pid = it } != null }
         if (!WaitUtil.waitUntil(isDofusConnectionNotNullFunc, cancellationToken, 1000 * 3 * 60)) {
             error("Couldn't find dofus connection information")
         }
         return pid
     }
 
-    private fun isAccountLoggedIn(gameInfo: GameInfo): Boolean {
-        JNAUtil.updateGameBounds(gameInfo, gameInfo.pid)
-        val gameSize = JNAUtil.getGameSize(gameInfo.pid)
-        if (gameSize.x <= 0 || gameSize.y <= 0) {
-            return false
-        }
-        return isChooseCharacterReady(gameInfo) || isGameFullyLoaded(gameInfo)
+    private fun isAccountLoggedIn(gameInfo: GameInfo, bannerUiPosition: UIPoint): Boolean {
+        JNAUtil.updateGameBounds(gameInfo)
+        MouseUtil.leftClick(gameInfo, BOTTOM_MIDDLE_POINT)
+        return isChooseCharacterReady(gameInfo) || isGameFullyLoaded(gameInfo, bannerUiPosition)
     }
 
     private fun isChooseCharacterReady(gameInfo: GameInfo): Boolean {
@@ -168,10 +176,8 @@ class OpenGameTask : DofusBotTask<Long>() {
         ) > 0
     }
 
-    private fun isGameFullyLoaded(gameInfo: GameInfo): Boolean {
-        val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_DEFAULT)
-            ?: DefaultUIPositions.BANNER_UI_POSITION
-        val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
+    private fun isGameFullyLoaded(gameInfo: GameInfo, bannerUiPosition: UIPoint): Boolean {
+        val uiPointRelative = ConverterUtil.toPointRelative(bannerUiPosition)
         val uiApMpArea = RectangleRelative.build(
             uiPointRelative,
             uiPointRelative.getSum(UI_HP_AP_MP_AREA_VECTOR)

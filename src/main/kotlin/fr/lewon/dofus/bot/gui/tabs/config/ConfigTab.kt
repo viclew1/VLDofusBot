@@ -3,11 +3,11 @@ package fr.lewon.dofus.bot.gui.tabs.config
 import fr.lewon.dofus.bot.core.logs.LogLevel
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.gui.MainFrame
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import net.miginfocom.swing.MigLayout
 import javax.swing.*
@@ -50,7 +50,7 @@ object ConfigTab : JPanel(MigLayout()) {
             currentCharacter?.let { c ->
                 GameSnifferUtil.getCharacterPID(c)?.let { pid ->
                     val gameInfo = GameSnifferUtil.getGameInfoByPID(pid)
-                    JNAUtil.updateGameBounds(gameInfo, pid)
+                    JNAUtil.updateGameBounds(gameInfo)
                     val windowPos = JNAUtil.getGamePosition(pid)
                     val pointAbsolute = PointAbsolute(it.x - windowPos.x, it.y - windowPos.y)
                     println("PointAbsolute(${pointAbsolute.x}, ${pointAbsolute.y})")

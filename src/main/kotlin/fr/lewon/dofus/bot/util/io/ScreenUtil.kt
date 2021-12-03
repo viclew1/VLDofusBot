@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.util.io
 
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.Color
 import java.awt.image.BufferedImage

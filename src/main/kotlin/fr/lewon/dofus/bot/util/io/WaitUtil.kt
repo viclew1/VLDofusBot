@@ -31,46 +31,36 @@ object WaitUtil {
         return false
     }
 
-    fun waitForSequence(
-        snifferId: Long,
-        mainEventClass: Class<out INetworkMessage>,
-        endEventClass: Class<out INetworkMessage>,
-        clearEventStore: Boolean = true,
-        removeWhenFound: Boolean = true,
-        cancellationToken: CancellationToken,
-        timeout: Int = DEFAULT_TIMEOUT_MILLIS
-    ): Boolean {
-        if (clearEventStore) {
-            EventStore.clear(snifferId)
-        }
-        val containsSequenceFunc = {
-            EventStore.containsSequence(
-                snifferId,
-                mainEventClass,
-                endEventClass,
-            )
-        }
-        if (!waitUntil({ containsSequenceFunc() }, cancellationToken, timeout)) {
-            error("Sequence not found in time. Events in store : ${EventStore.getStoredEventsStr(snifferId)}")
-        }
-        if (removeWhenFound) {
-            EventStore.removeSequence(
-                snifferId,
-                mainEventClass,
-                endEventClass
-            )
-        }
-        return true
-    }
-
     fun <T : INetworkMessage> waitForEvent(
         snifferId: Long,
         messageClass: Class<T>,
         cancellationToken: CancellationToken,
+        removeWhenFound: Boolean = true,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
-    ): T? {
-        waitUntil({ EventStore.getLastEvent(messageClass, snifferId) != null }, cancellationToken, timeout)
-        return EventStore.getLastEvent(messageClass, snifferId)
+    ): T {
+        waitUntil({ EventStore.getFirstEvent(messageClass, snifferId) != null }, cancellationToken, timeout)
+        val event = EventStore.getFirstEvent(messageClass, snifferId)
+            ?: error("No message [${messageClass.typeName}] arrived in time. ${EventStore.getStoredEventsStr(snifferId)}")
+        if (removeWhenFound) {
+            EventStore.removeEvent(messageClass, snifferId, 1)
+        }
+        return event
+    }
+
+    fun waitForEvents(
+        snifferId: Long,
+        vararg messageClasses: Class<out INetworkMessage>,
+        cancellationToken: CancellationToken,
+        removeWhenFound: Boolean = true,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS,
+    ) {
+        if (!waitUntil({ EventStore.isAllEventsPresent(snifferId, *messageClasses) }, cancellationToken, timeout)) {
+            val messageClassesStr = messageClasses.joinToString(", ") { it.simpleName }
+            error("Not all messages [$messageClassesStr] arrived in time. ${EventStore.getStoredEventsStr(snifferId)}")
+        }
+        if (removeWhenFound) {
+            messageClasses.forEach { EventStore.removeEvent(it, snifferId, 1) }
+        }
     }
 
 }

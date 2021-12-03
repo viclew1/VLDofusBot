@@ -3,9 +3,9 @@ package fr.lewon.dofus.bot.util.network
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.locks.ReentrantLock

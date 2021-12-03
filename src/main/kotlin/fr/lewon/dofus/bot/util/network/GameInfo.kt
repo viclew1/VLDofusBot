@@ -13,21 +13,23 @@ import java.util.concurrent.locks.ReentrantLock
 
 class GameInfo(val character: DofusCharacter) {
 
+    var snifferId: Long = -1
+    var pid: Long = -1
+    var gameBounds = Rectangle()
+    var completeBounds = Rectangle()
     val lock = ReentrantLock()
-    var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
+
     var shouldInitBoard = true
     val dofusBoard = DofusBoard()
     val fightBoard = FightBoard(this)
-    var snifferId: Long = -1
-    var pid: Long = -1
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
-    var treasureHunt: TreasureHuntMessage? = null
     var entityPositionsOnMapByEntityId = HashMap<Double, Int>()
-    var currentMap = DofusMap()
+
+    var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
     var playerId = -1.0
-    var inHavenBag = false
+    var currentMap = DofusMap()
+    var treasureHunt: TreasureHuntMessage? = null
     var drhellerOnMap = false
-    var bounds = Rectangle()
 
 }

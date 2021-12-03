@@ -11,8 +11,6 @@ class DofusCell(
     val bounds: RectangleRelative,
     var cellData: CellData = CellData(cellId)
 ) {
-
-    val diagonalNeighbors = HashSet<DofusCell>()
     val neighbors = HashSet<DofusCell>()
 
     fun getCenter(): PointRelative {

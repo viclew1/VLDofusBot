@@ -37,22 +37,23 @@ object ConverterUtil {
 
 
     fun toPointRelative(gameInfo: GameInfo, point: PointAbsolute): PointRelative {
-        val x = (point.x - gameInfo.bounds.x).toFloat() / gameInfo.bounds.width.toFloat()
-        val y = (point.y - gameInfo.bounds.y).toFloat() / gameInfo.bounds.height.toFloat()
+        val x = (point.x - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
+        val y = (point.y - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
         return PointRelative((x * PRECISION) / PRECISION, (y * PRECISION) / PRECISION)
     }
 
     fun toPointAbsolute(gameInfo: GameInfo, point: PointRelative): PointAbsolute {
-        val x = point.x * gameInfo.bounds.width + gameInfo.bounds.x
-        val y = point.y * gameInfo.bounds.height + gameInfo.bounds.y
+        val x = point.x * gameInfo.gameBounds.width + gameInfo.gameBounds.x
+        val y = point.y * gameInfo.gameBounds.height + gameInfo.gameBounds.y
         return PointAbsolute(x.roundToInt(), y.roundToInt())
     }
 
     fun toRectangleRelative(gameInfo: GameInfo, rectangle: RectangleAbsolute): RectangleRelative {
-        val x1 = (rectangle.x - gameInfo.bounds.x).toFloat() / gameInfo.bounds.width.toFloat()
-        val y1 = (rectangle.y - gameInfo.bounds.y).toFloat() / gameInfo.bounds.height.toFloat()
-        val x2 = (rectangle.x + rectangle.width - gameInfo.bounds.x).toFloat() / gameInfo.bounds.width.toFloat()
-        val y2 = (rectangle.y + rectangle.height - gameInfo.bounds.y).toFloat() / gameInfo.bounds.height.toFloat()
+        val x1 = (rectangle.x - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
+        val y1 = (rectangle.y - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
+        val x2 = (rectangle.x + rectangle.width - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
+        val y2 =
+            (rectangle.y + rectangle.height - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
         return RectangleRelative(
             (x1 * PRECISION) / PRECISION,
             (y1 * PRECISION) / PRECISION,
@@ -62,10 +63,10 @@ object ConverterUtil {
     }
 
     fun toRectangleAbsolute(gameInfo: GameInfo, rectangle: RectangleRelative): RectangleAbsolute {
-        val x1 = rectangle.x * gameInfo.bounds.width + gameInfo.bounds.x
-        val y1 = rectangle.y * gameInfo.bounds.height + gameInfo.bounds.y
-        val x2 = (rectangle.x + rectangle.width) * gameInfo.bounds.width + gameInfo.bounds.x
-        val y2 = (rectangle.y + rectangle.height) * gameInfo.bounds.height + gameInfo.bounds.y
+        val x1 = rectangle.x * gameInfo.gameBounds.width + gameInfo.gameBounds.x
+        val y1 = rectangle.y * gameInfo.gameBounds.height + gameInfo.gameBounds.y
+        val x2 = (rectangle.x + rectangle.width) * gameInfo.gameBounds.width + gameInfo.gameBounds.x
+        val y2 = (rectangle.y + rectangle.height) * gameInfo.gameBounds.height + gameInfo.gameBounds.y
         return RectangleAbsolute(x1.roundToInt(), y1.roundToInt(), (x2 - x1).roundToInt(), (y2 - y1).roundToInt())
     }
 

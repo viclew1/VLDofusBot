@@ -4,8 +4,8 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.util.JNAUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 

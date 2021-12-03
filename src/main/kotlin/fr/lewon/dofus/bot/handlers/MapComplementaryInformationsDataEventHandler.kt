@@ -12,7 +12,6 @@ object MapComplementaryInformationsDataEventHandler : EventHandler<MapComplement
     override fun onEventReceived(socketResult: MapComplementaryInformationsDataMessage, snifferId: Long) {
         val gameInfo = GameSnifferUtil.getGameInfoBySnifferId(snifferId)
         gameInfo.currentMap = socketResult.map
-        gameInfo.inHavenBag = false
         gameInfo.drhellerOnMap = socketResult.actors.firstOrNull { it is GameRolePlayTreasureHintInformations } != null
         gameInfo.dofusBoard.updateStartCells(socketResult.fightStartPositions.positionsForChallenger)
         gameInfo.fightBoard.resetFighters()

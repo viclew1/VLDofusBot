@@ -4,12 +4,8 @@ import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
-import fr.lewon.dofus.bot.util.JNAUtil
+import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
-import java.awt.datatransfer.Transferable
-import java.awt.event.KeyEvent
 
 
 object KeyboardUtil {
@@ -32,45 +28,16 @@ object KeyboardUtil {
         }
     }
 
-    fun sendSysKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100) {
-        try {
-            gameInfo.lock.lock()
-            Thread {
-                try {
-                    gameInfo.lock.lock()
-                    val handle = getHandle(gameInfo)
-                    sendMessages(
-                        handle,
-                        listOf(WinUser.WM_SYSKEYDOWN, WinUser.WM_CHAR, WinUser.WM_SYSKEYUP),
-                        keyEvent.toLong(),
-                        0
-                    )
-                    WaitUtil.sleep(time)
-                } finally {
-                    gameInfo.lock.unlock()
-                }
-            }.start()
-        } finally {
-            gameInfo.lock.unlock()
-        }
-    }
-
-    private fun sendMessages(handle: WinDef.HWND, messageTypes: List<Int>, wParamValue: Long, lParamValue: Long) {
-        for (messageType in messageTypes) {
-            SystemKeyLock.lock()
-            User32.INSTANCE.SendMessage(handle, messageType, WinDef.WPARAM((wParamValue)), LPARAM(lParamValue))
-            SystemKeyLock.unlock()
-            WaitUtil.sleep(20)
-        }
+    fun sendKey(gameInfo: GameInfo, key: Char, time: Int = 100) {
+        sendKey(gameInfo, key.code, time)
     }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int) {
-        sendMessages(
-            handle,
-            listOf(WinUser.WM_KEYDOWN, WinUser.WM_CHAR, WinUser.WM_KEYUP),
-            keyEvent.toLong(),
-            0
-        )
+        SystemKeyLock.lock()
+        User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+        User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+        User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+        SystemKeyLock.unlock()
     }
 
     fun writeKeyboard(gameInfo: GameInfo, text: String, time: Int = 500) {
@@ -80,14 +47,7 @@ object KeyboardUtil {
                 try {
                     gameInfo.lock.lock()
                     val handle = getHandle(gameInfo)
-                    val oldClipBoard = getClipboard()
-                    setClipboard(StringSelection(text))
-                    sendMessages(
-                        handle, listOf(WinUser.WM_KEYDOWN, WinUser.WM_CHAR), KeyEvent.VK_CONTROL.toLong(), 0x1000000
-                    )
-                    doSendKey(handle, KeyEvent.VK_V)
-                    sendMessages(handle, listOf(WinUser.WM_KEYUP), KeyEvent.VK_CONTROL.toLong(), 0x1000000)
-                    setClipboard(oldClipBoard)
+                    text.forEach { doSendKey(handle, it.code) }
                     WaitUtil.sleep(time)
                 } finally {
                     gameInfo.lock.unlock()
@@ -96,16 +56,6 @@ object KeyboardUtil {
         } finally {
             gameInfo.lock.unlock()
         }
-    }
-
-    private fun setClipboard(content: Transferable?) {
-        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-        clipboard.setContents(content, null)
-    }
-
-    private fun getClipboard(): Transferable? {
-        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-        return clipboard.getContents(null)
     }
 
     private fun getHandle(gameInfo: GameInfo): WinDef.HWND {
