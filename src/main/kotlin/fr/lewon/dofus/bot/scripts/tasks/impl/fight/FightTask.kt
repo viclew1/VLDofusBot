@@ -240,31 +240,10 @@ class FightTask : BooleanDofusBotTask() {
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell, cancellationToken: CancellationToken) {
         RetryUtil.tryUntilSuccess(
-            { clickAfterMovingAroundCell(gameInfo, target) },
+            { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
             { waitForSequenceCompleteEnd(gameInfo, cancellationToken, 5000) },
             2
         )
-    }
-
-    private fun clickAfterMovingAroundCell(gameInfo: GameInfo, target: DofusCell) {
-        moveAroundCell(gameInfo, target)
-        WaitUtil.sleep(100)
-        MouseUtil.doubleLeftClick(gameInfo, target.getCenter(), moveBeforeClick = false)
-    }
-
-    private fun moveAroundCell(gameInfo: GameInfo, target: DofusCell) {
-        val center = target.getCenter()
-        val bounds = target.bounds
-        val cornerPoints = listOf(
-            PointRelative(center.x + bounds.width / 2f, center.y),
-            PointRelative(center.x, center.y + bounds.height / 2f),
-            PointRelative(center.x - bounds.width / 2f, center.y),
-            PointRelative(center.x, center.y - bounds.height / 2f),
-            PointRelative(center.x, center.y)
-        )
-        cornerPoints.forEach {
-            MouseUtil.move(gameInfo, it, 25)
-        }
     }
 
     private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
@@ -283,7 +262,7 @@ class FightTask : BooleanDofusBotTask() {
         cancellationToken: CancellationToken
     ): Boolean {
         KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 300)
-        clickAfterMovingAroundCell(gameInfo, target)
+        MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
         return waitForSequenceCompleteEnd(gameInfo, cancellationToken, 3000)
     }
 

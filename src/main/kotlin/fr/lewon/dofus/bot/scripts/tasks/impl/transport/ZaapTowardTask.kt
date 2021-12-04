@@ -14,7 +14,6 @@ import fr.lewon.dofus.bot.sniffer.model.messages.move.ZaapDestinationsMessage
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MoveUtil
-import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
@@ -57,13 +56,8 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         val playerPosition = gameInfo.dofusBoard.getCell(playerCellId)
         val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.3f * DofusBoard.TILE_HEIGHT))
         EventStore.clear(gameInfo.snifferId)
-        val zaapFrameOpened = RetryUtil.tryUntilSuccess(
-            { MouseUtil.leftClick(gameInfo, zaapPosition) },
-            { waitForZaapFrameOpened(gameInfo, cancellationToken) },
-            3
-        ) != null
-
-        if (!zaapFrameOpened) {
+        MouseUtil.leftClick(gameInfo, zaapPosition)
+        if (!waitForZaapFrameOpened(gameInfo, cancellationToken)) {
             error("Couldn't open zaap selection frame")
         }
         val zaapDestMsg = EventStore.getLastEvent(ZaapDestinationsMessage::class.java, gameInfo.snifferId)
@@ -85,7 +79,7 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         gameInfo: GameInfo,
         cancellationToken: CancellationToken
     ): Boolean {
-        return WaitUtil.waitUntil({ isZaapFrameOpened(gameInfo) }, cancellationToken, 5000)
+        return WaitUtil.waitUntil({ isZaapFrameOpened(gameInfo) }, cancellationToken)
     }
 
     private fun isZaapFrameOpened(gameInfo: GameInfo): Boolean {

@@ -77,8 +77,7 @@ object TreasureHuntUtil {
     fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken): Boolean {
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
         EventStore.clear(gameInfo.snifferId)
-        MouseUtil.move(gameInfo, tickPoint)
-        MouseUtil.leftClick(gameInfo, tickPoint)
+        MouseUtil.doubleLeftClick(gameInfo, tickPoint)
         if (!waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
             error("No treasure hunt update arrived in time.")
         }

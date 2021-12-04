@@ -15,7 +15,7 @@ object MouseUtil {
 
     fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100, moveBeforeClick: Boolean = true) {
         if (moveBeforeClick) {
-            move(gameInfo, position)
+            moveAround(gameInfo, position)
         }
         try {
             gameInfo.lock.lock()
@@ -37,6 +37,19 @@ object MouseUtil {
         }
     }
 
+    private fun moveAround(gameInfo: GameInfo, position: PointAbsolute) {
+        val cornerPoints = listOf(
+            PointAbsolute(position.x + 1, position.y),
+            PointAbsolute(position.x, position.y + 1),
+            PointAbsolute(position.x - 1, position.y),
+            PointAbsolute(position.x, position.y - 1),
+            PointAbsolute(position.x, position.y)
+        )
+        cornerPoints.forEach {
+            move(gameInfo, it, 20)
+        }
+    }
+
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
         val wParam = WinDef.WPARAM(0)
@@ -46,7 +59,7 @@ object MouseUtil {
 
     private fun doSendMouseMessage(handle: WinDef.HWND, message: Int, wParam: WinDef.WPARAM, lParam: WinDef.LPARAM) {
         SystemKeyLock.lock()
-        User32.INSTANCE.SendMessage(handle, message, wParam, lParam)
+        User32.INSTANCE.PostMessage(handle, message, wParam, lParam)
         SystemKeyLock.unlock()
     }
 
@@ -84,20 +97,14 @@ object MouseUtil {
     fun doubleLeftClick(
         gameInfo: GameInfo,
         position: PointAbsolute,
-        millis: Int = 100,
-        moveBeforeClick: Boolean = true
+        millis: Int = 100
     ) {
-        leftClick(gameInfo, position, 100, moveBeforeClick)
+        leftClick(gameInfo, position, 100)
         leftClick(gameInfo, position, millis, moveBeforeClick = false)
     }
 
-    fun doubleLeftClick(
-        gameInfo: GameInfo,
-        position: PointRelative,
-        millis: Int = 100,
-        moveBeforeClick: Boolean = true
-    ) {
-        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis, moveBeforeClick)
+    fun doubleLeftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
+        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
     }
 
     fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
