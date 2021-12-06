@@ -239,11 +239,14 @@ class FightTask : BooleanDofusBotTask() {
     }
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell, cancellationToken: CancellationToken) {
+        EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
+        EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
         RetryUtil.tryUntilSuccess(
-            { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
-            { waitForSequenceCompleteEnd(gameInfo, cancellationToken, 5000) },
-            2
+            { MouseUtil.tripleLeftClick(gameInfo, target.getCenter()) },
+            { WaitUtil.waitUntil({ isSequenceComplete(gameInfo) }, cancellationToken, 500) },
+            20
         )
+        WaitUtil.waitUntil({ isSequenceComplete(gameInfo) }, cancellationToken, 5000)
     }
 
     private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
@@ -273,16 +276,21 @@ class FightTask : BooleanDofusBotTask() {
     ): Boolean {
         EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
         EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
-        val isSequenceCompleteFunc = {
-            EventStore.isAllEventsPresent(
-                gameInfo.snifferId,
-                SequenceEndMessage::class.java,
-                SequenceEndMessage::class.java,
-                BasicNoOperationMessage::class.java,
-                BasicNoOperationMessage::class.java
-            )
-        }
-        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceCompleteFunc() }, cancellationToken, waitTime)
+        return WaitUtil.waitUntil(
+            { isFightEnded(gameInfo) || isSequenceComplete(gameInfo) },
+            cancellationToken,
+            waitTime
+        )
+    }
+
+    private fun isSequenceComplete(gameInfo: GameInfo): Boolean {
+        return EventStore.isAllEventsPresent(
+            gameInfo.snifferId,
+            SequenceEndMessage::class.java,
+            SequenceEndMessage::class.java,
+            BasicNoOperationMessage::class.java,
+            BasicNoOperationMessage::class.java
+        )
     }
 
     private fun waitForMessage(

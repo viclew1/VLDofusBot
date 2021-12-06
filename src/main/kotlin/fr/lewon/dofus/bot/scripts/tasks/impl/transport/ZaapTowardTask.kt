@@ -24,10 +24,8 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
     companion object {
         private val REF_TOP_LEFT_LOCATION = PointRelative(0.21373057f, 0.10194175f)
         private val REF_TELEPORT_LOCATION = PointRelative(0.43902436f, 0.7460087f)
-        private val REF_SEARCH_LOCATION = PointRelative(0.6144737f, 0.20559211f)
 
         private val REF_DELTA_TELEPORT_LOCATION = REF_TELEPORT_LOCATION.getDifference(REF_TOP_LEFT_LOCATION)
-        private val REF_DELTA_SEARCH_LOCATION = REF_SEARCH_LOCATION.getDifference(REF_TOP_LEFT_LOCATION)
 
         private val REF_CLOSE_ZAAP_SELECTION_BUTTON_BOUNDS = RectangleRelative.build(
             PointRelative(0.75259066f, 0.100323625f),
@@ -68,6 +66,7 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
             .firstOrNull { it.getCoordinates() == zaap.getCoordinates() }
             ?: error("Could not find zaap destination [${zaap.name}]. Did you explore it with this character ?")
 
+        WaitUtil.sleep(1500)
         KeyboardUtil.writeKeyboard(gameInfo, getUniqueIdentifier(zaapDestination, zaapDestinations))
         MouseUtil.leftClick(gameInfo, teleportLocation)
         EventStore.clear(gameInfo.snifferId)
