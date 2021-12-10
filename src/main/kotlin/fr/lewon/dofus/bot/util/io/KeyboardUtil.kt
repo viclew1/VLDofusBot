@@ -10,21 +10,17 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 object KeyboardUtil {
 
+    private const val ENTER_KEY = 13
+
+    fun enter(gameInfo: GameInfo) {
+        sendKey(gameInfo, ENTER_KEY)
+    }
+
     fun sendKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100) {
-        try {
-            gameInfo.lock.lock()
-            Thread {
-                try {
-                    gameInfo.lock.lock()
-                    val handle = getHandle(gameInfo)
-                    doSendKey(handle, keyEvent)
-                    WaitUtil.sleep(time)
-                } finally {
-                    gameInfo.lock.unlock()
-                }
-            }.start()
-        } finally {
-            gameInfo.lock.unlock()
+        gameInfo.executeThreadedSyncOperation {
+            val handle = getHandle(gameInfo)
+            doSendKey(handle, keyEvent)
+            WaitUtil.sleep(time)
         }
     }
 
@@ -33,28 +29,21 @@ object KeyboardUtil {
     }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int) {
-        SystemKeyLock.lock()
-        User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
-        User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
-        User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
-        SystemKeyLock.unlock()
+        try {
+            SystemKeyLock.lock()
+            User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+            User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+            User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+        } finally {
+            SystemKeyLock.unlock()
+        }
     }
 
     fun writeKeyboard(gameInfo: GameInfo, text: String, time: Int = 500) {
-        try {
-            gameInfo.lock.lock()
-            Thread {
-                try {
-                    gameInfo.lock.lock()
-                    val handle = getHandle(gameInfo)
-                    text.forEach { doSendKey(handle, it.code) }
-                    WaitUtil.sleep(time)
-                } finally {
-                    gameInfo.lock.unlock()
-                }
-            }.start()
-        } finally {
-            gameInfo.lock.unlock()
+        gameInfo.executeThreadedSyncOperation {
+            val handle = getHandle(gameInfo)
+            text.forEach { doSendKey(handle, it.code) }
+            WaitUtil.sleep(time)
         }
     }
 

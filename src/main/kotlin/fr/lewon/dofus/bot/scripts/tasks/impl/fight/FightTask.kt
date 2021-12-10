@@ -119,6 +119,12 @@ class FightTask : BooleanDofusBotTask() {
         playerFighter.statsById.putAll(gameInfo.playerBaseCharacteristics)
         val baseRange = FighterCharacteristic.RANGE.getFighterCharacteristicValue(playerFighter)
 
+        println("----")
+        println(FighterCharacteristic.HP.getFighterCharacteristicValue(playerFighter))
+        println(FighterCharacteristic.CUR_LIFE.getFighterCharacteristicValue(playerFighter))
+        println(FighterCharacteristic.MAX_HP.getFighterCharacteristicValue(playerFighter))
+        println(FighterCharacteristic.VITALITY.getFighterCharacteristicValue(playerFighter))
+
         EventStore.clear(MapComplementaryInformationsDataMessage::class.java, gameInfo.snifferId)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, cancellationToken)
@@ -129,7 +135,6 @@ class FightTask : BooleanDofusBotTask() {
             val enemyFighter = fightBoard.getFighter(fightBoard.closestEnemyPosition) ?: error("No enemy left")
 
             --preMoveBuffCd
-
             val mp = FighterCharacteristic.MP.getFighterCharacteristicValue(playerFighter)
             val enemyMp = FighterCharacteristic.MP.getFighterCharacteristicValue(enemyFighter)
 
@@ -243,10 +248,10 @@ class FightTask : BooleanDofusBotTask() {
         EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
         RetryUtil.tryUntilSuccess(
             { MouseUtil.tripleLeftClick(gameInfo, target.getCenter()) },
-            { WaitUtil.waitUntil({ isSequenceComplete(gameInfo) }, cancellationToken, 500) },
+            { waitForSequenceCompleteEnd(gameInfo, cancellationToken, 500) },
             20
         )
-        WaitUtil.waitUntil({ isSequenceComplete(gameInfo) }, cancellationToken, 5000)
+        waitForSequenceCompleteEnd(gameInfo, cancellationToken, 5000)
     }
 
     private fun castSpells(gameInfo: GameInfo, keys: String, target: DofusCell, cancellationToken: CancellationToken) {
@@ -264,9 +269,11 @@ class FightTask : BooleanDofusBotTask() {
         target: DofusCell,
         cancellationToken: CancellationToken
     ): Boolean {
+        EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
+        EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 300)
         MouseUtil.doubleLeftClick(gameInfo, target.getCenter())
-        return waitForSequenceCompleteEnd(gameInfo, cancellationToken, 3000)
+        return waitForSequenceCompleteEnd(gameInfo, cancellationToken, 8000)
     }
 
     private fun waitForSequenceCompleteEnd(
@@ -274,8 +281,6 @@ class FightTask : BooleanDofusBotTask() {
         cancellationToken: CancellationToken,
         waitTime: Int
     ): Boolean {
-        EventStore.clear(SequenceEndMessage::class.java, gameInfo.snifferId)
-        EventStore.clear(BasicNoOperationMessage::class.java, gameInfo.snifferId)
         return WaitUtil.waitUntil(
             { isFightEnded(gameInfo) || isSequenceComplete(gameInfo) },
             cancellationToken,

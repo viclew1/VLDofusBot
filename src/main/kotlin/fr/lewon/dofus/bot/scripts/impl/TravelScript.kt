@@ -32,8 +32,11 @@ object TravelScript : DofusBotScript("Travel") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken) {
-        TravelToCoordinatesTask(DofusCoordinates(xParameter.value.toInt(), yParameter.value.toInt()))
+        val travelOk = TravelToCoordinatesTask(DofusCoordinates(xParameter.value.toInt(), yParameter.value.toInt()))
             .run(logItem, gameInfo, cancellationToken)
+        if (!travelOk) {
+            error("Failed to reach destination")
+        }
     }
 
 }

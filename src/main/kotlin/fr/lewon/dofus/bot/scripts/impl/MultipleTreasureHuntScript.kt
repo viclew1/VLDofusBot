@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.gui.sound.SoundType
 import fr.lewon.dofus.bot.scripts.*
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
@@ -102,6 +103,7 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
                 cleanCacheCount = cleanCacheParameter.value.toInt()
             }
             if (!success) {
+                SoundType.FAILED.playSound()
                 WaitUtil.sleep(600 * 1000 - huntDuration)
                 TreasureHuntUtil.giveUpHunt(gameInfo, cancellationToken)
             }

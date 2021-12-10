@@ -27,12 +27,10 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
                 return false
             }
         }
-        if (!TreasureHuntUtil.tickFlag(gameInfo, hunt.huntFlags.size, cancellationToken)) {
-            return false
-        }
+        TreasureHuntUtil.tickFlag(gameInfo, hunt.huntFlags.size, cancellationToken)
 
         if (hint == null) {
-            return TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
+            TreasureHuntUtil.clickSearch(gameInfo, cancellationToken)
         }
 
         return true

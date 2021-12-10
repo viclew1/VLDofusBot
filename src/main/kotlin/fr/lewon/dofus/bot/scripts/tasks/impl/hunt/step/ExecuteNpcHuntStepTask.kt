@@ -18,7 +18,8 @@ class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
             }
             if (TreasureHuntUtil.getTreasureHunt(gameInfo).huntFlags.firstOrNull { it.map == gameInfo.currentMap } == null && gameInfo.drhellerOnMap) {
                 val flagIndex = TreasureHuntUtil.getTreasureHunt(gameInfo).huntFlags.size
-                return TreasureHuntUtil.tickFlag(gameInfo, flagIndex, cancellationToken)
+                TreasureHuntUtil.tickFlag(gameInfo, flagIndex, cancellationToken)
+                return true
             }
         }
         return false

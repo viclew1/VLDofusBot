@@ -40,8 +40,7 @@ object JNAUtil {
     }
 
     fun updateGameBounds(gameInfo: GameInfo) {
-        try {
-            gameInfo.lock.lock()
+        gameInfo.executeSyncOperation {
             val rect = WinDef.RECT()
             User32.INSTANCE.GetClientRect(findByPID(gameInfo.pid), rect)
 
@@ -65,8 +64,6 @@ object JNAUtil {
             }
 
             gameInfo.gameBounds = Rectangle(x, y, width, height)
-        } finally {
-            gameInfo.lock.unlock()
         }
     }
 
@@ -92,46 +89,45 @@ object JNAUtil {
     }
 
     fun takeCapture(gameInfo: GameInfo): BufferedImage {
-        val pid = gameInfo.pid
-        val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
-        val hdcWindow = User32.INSTANCE.GetDC(handle)
-        val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
-        try {
-            gameInfo.lock.lock()
+        return gameInfo.executeSyncOperation {
+            val pid = gameInfo.pid
+            val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
+            val hdcWindow = User32.INSTANCE.GetDC(handle)
+            val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
+            try {
+                val width = gameInfo.completeBounds.width
+                val height = gameInfo.completeBounds.height
+                if (width == 0 || height == 0) {
+                    error("Failed to take capture.")
+                }
 
-            val width = gameInfo.completeBounds.width
-            val height = gameInfo.completeBounds.height
-            if (width == 0 || height == 0) {
-                error("Failed to take capture.")
+                val hBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(hdcWindow, width, height)
+
+                val hOld = GDI32.INSTANCE.SelectObject(hdcMemDC, hBitmap)
+                val srcCopy = 0x00CC0020
+                GDI32.INSTANCE.BitBlt(hdcMemDC, 0, 0, width, height, hdcWindow, 0, 0, srcCopy)
+
+                GDI32.INSTANCE.SelectObject(hdcMemDC, hOld)
+
+                val bmi = WinGDI.BITMAPINFO()
+                bmi.bmiHeader.biWidth = width
+                bmi.bmiHeader.biHeight = -height
+                bmi.bmiHeader.biPlanes = 1
+                bmi.bmiHeader.biBitCount = 32
+                bmi.bmiHeader.biCompression = WinGDI.BI_RGB
+
+                val buffer = Memory(width * height * 4L)
+                GDI32.INSTANCE.GetDIBits(hdcWindow, hBitmap, 0, height, buffer, bmi, WinGDI.DIB_RGB_COLORS)
+
+                val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+                image.setRGB(0, 0, width, height, buffer.getIntArray(0, width * height), 0, width)
+
+                GDI32.INSTANCE.DeleteObject(hBitmap)
+                image
+            } finally {
+                GDI32.INSTANCE.DeleteDC(hdcMemDC)
+                User32.INSTANCE.ReleaseDC(handle, hdcWindow)
             }
-
-            val hBitmap = GDI32.INSTANCE.CreateCompatibleBitmap(hdcWindow, width, height)
-
-            val hOld = GDI32.INSTANCE.SelectObject(hdcMemDC, hBitmap)
-            val srcCopy = 0x00CC0020
-            GDI32.INSTANCE.BitBlt(hdcMemDC, 0, 0, width, height, hdcWindow, 0, 0, srcCopy)
-
-            GDI32.INSTANCE.SelectObject(hdcMemDC, hOld)
-
-            val bmi = WinGDI.BITMAPINFO()
-            bmi.bmiHeader.biWidth = width
-            bmi.bmiHeader.biHeight = -height
-            bmi.bmiHeader.biPlanes = 1
-            bmi.bmiHeader.biBitCount = 32
-            bmi.bmiHeader.biCompression = WinGDI.BI_RGB
-
-            val buffer = Memory(width * height * 4L)
-            GDI32.INSTANCE.GetDIBits(hdcWindow, hBitmap, 0, height, buffer, bmi, WinGDI.DIB_RGB_COLORS)
-
-            val image = BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
-            image.setRGB(0, 0, width, height, buffer.getIntArray(0, width * height), 0, width)
-
-            GDI32.INSTANCE.DeleteObject(hBitmap)
-            return image
-        } finally {
-            GDI32.INSTANCE.DeleteDC(hdcMemDC)
-            User32.INSTANCE.ReleaseDC(handle, hdcWindow)
-            gameInfo.lock.unlock()
         }
     }
 

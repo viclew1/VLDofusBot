@@ -39,13 +39,13 @@ object KeyboardListener : Thread(), NativeKeyListener {
             ScriptRunner.stopScript()
         }
         toggleOverlay()
-        toggleSystemKeyLock()
+        toggleSystemKeyLock(e.modifiers)
     }
 
     override fun nativeKeyReleased(e: NativeKeyEvent) {
         keysPressed[e.keyCode] = false
         toggleOverlay()
-        toggleSystemKeyLock()
+        toggleSystemKeyLock(e.modifiers)
     }
 
     private fun toggleOverlay() {
@@ -65,10 +65,8 @@ object KeyboardListener : Thread(), NativeKeyListener {
         keysByOverlay.keys.forEach { it.isVisible = displayedOverlay == it }
     }
 
-    private fun toggleSystemKeyLock() {
-        val sysKeyDown = keysPressed[NativeKeyEvent.VC_CONTROL] == true
-                || keysPressed[NativeKeyEvent.VC_SHIFT] == true
-                || keysPressed[NativeKeyEvent.VC_ALT] == true
+    private fun toggleSystemKeyLock(modifiers: Int) {
+        val sysKeyDown = modifiers != 0
         if (sysKeyDown && !SystemKeyLock.isHeldByCurrentThread) {
             SystemKeyLock.lock()
         } else if (!sysKeyDown && SystemKeyLock.isHeldByCurrentThread) {

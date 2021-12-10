@@ -17,23 +17,13 @@ object MouseUtil {
         if (moveBeforeClick) {
             moveAround(gameInfo, position)
         }
-        try {
-            gameInfo.lock.lock()
-            Thread {
-                try {
-                    gameInfo.lock.lock()
-                    val pid = gameInfo.pid
-                    val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-                    User32.INSTANCE.SetFocus(handle)
-                    User32.INSTANCE.BringWindowToTop(handle)
-                    doLeftClick(handle, position)
-                    WaitUtil.sleep(millis)
-                } finally {
-                    gameInfo.lock.unlock()
-                }
-            }.start()
-        } finally {
-            gameInfo.lock.unlock()
+        gameInfo.executeThreadedSyncOperation {
+            val pid = gameInfo.pid
+            val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+            User32.INSTANCE.SetFocus(handle)
+            User32.INSTANCE.BringWindowToTop(handle)
+            doLeftClick(handle, position)
+            WaitUtil.sleep(millis)
         }
     }
 
@@ -43,11 +33,14 @@ object MouseUtil {
             PointAbsolute(position.x, position.y + 1),
             PointAbsolute(position.x - 1, position.y),
             PointAbsolute(position.x, position.y - 1),
-            PointAbsolute(position.x, position.y)
         )
         cornerPoints.forEach {
-            move(gameInfo, it, 20)
+            move(gameInfo, it, 10)
         }
+        cornerPoints.forEach {
+            move(gameInfo, it, 10)
+        }
+        move(gameInfo, PointAbsolute(position.x, position.y), 10)
     }
 
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
@@ -58,27 +51,20 @@ object MouseUtil {
     }
 
     private fun doSendMouseMessage(handle: WinDef.HWND, message: Int, wParam: WinDef.WPARAM, lParam: WinDef.LPARAM) {
-        SystemKeyLock.lock()
-        User32.INSTANCE.PostMessage(handle, message, wParam, lParam)
-        SystemKeyLock.unlock()
+        try {
+            SystemKeyLock.lock()
+            User32.INSTANCE.PostMessage(handle, message, wParam, lParam)
+        } finally {
+            SystemKeyLock.unlock()
+        }
     }
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
-        try {
-            gameInfo.lock.lock()
-            Thread {
-                try {
-                    gameInfo.lock.lock()
-                    val pid = gameInfo.pid
-                    val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-                    doSendMouseMessage(handle, WM_MOUSEMOVE, WinDef.WPARAM(0), makeLParam(position.x, position.y))
-                    WaitUtil.sleep(millis)
-                } finally {
-                    gameInfo.lock.unlock()
-                }
-            }.start()
-        } finally {
-            gameInfo.lock.unlock()
+        gameInfo.executeThreadedSyncOperation {
+            val pid = gameInfo.pid
+            val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
+            doSendMouseMessage(handle, WM_MOUSEMOVE, WinDef.WPARAM(0), makeLParam(position.x, position.y))
+            WaitUtil.sleep(millis)
         }
     }
 

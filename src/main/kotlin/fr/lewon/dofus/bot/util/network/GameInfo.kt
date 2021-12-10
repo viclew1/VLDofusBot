@@ -13,11 +13,12 @@ import java.util.concurrent.locks.ReentrantLock
 
 class GameInfo(val character: DofusCharacter) {
 
+    private val lock = ReentrantLock(true)
+
     var snifferId: Long = -1
     var pid: Long = -1
     var gameBounds = Rectangle()
     var completeBounds = Rectangle()
-    val lock = ReentrantLock()
 
     var shouldInitBoard = true
     val dofusBoard = DofusBoard()
@@ -31,5 +32,30 @@ class GameInfo(val character: DofusCharacter) {
     var currentMap = DofusMap()
     var treasureHunt: TreasureHuntMessage? = null
     var drhellerOnMap = false
+
+    fun executeThreadedSyncOperation(operation: () -> Unit) {
+        try {
+            lock.lockInterruptibly()
+            val condition = lock.newCondition()
+            Thread {
+                executeSyncOperation {
+                    condition.signal()
+                    operation()
+                }
+            }.start()
+            condition.await()
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    fun <T> executeSyncOperation(operation: () -> T): T {
+        try {
+            lock.lockInterruptibly()
+            return operation()
+        } finally {
+            lock.unlock()
+        }
+    }
 
 }

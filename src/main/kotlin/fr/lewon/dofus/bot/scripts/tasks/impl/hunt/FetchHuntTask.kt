@@ -44,9 +44,7 @@ class FetchHuntTask : BooleanDofusBotTask() {
         }
         EventStore.clear(gameInfo.snifferId)
         MouseUtil.leftClick(gameInfo, HUNT_SEEK_OPTION_POINT)
-        if (!TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo, cancellationToken)) {
-            error("No treasure hunt update arrived in time")
-        }
+        TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo, cancellationToken)
         return ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)
     }
 

@@ -23,9 +23,7 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
 
     companion object {
         private val REF_TOP_LEFT_LOCATION = PointRelative(0.21373057f, 0.10194175f)
-        private val REF_TELEPORT_LOCATION = PointRelative(0.43902436f, 0.7460087f)
 
-        private val REF_DELTA_TELEPORT_LOCATION = REF_TELEPORT_LOCATION.getDifference(REF_TOP_LEFT_LOCATION)
 
         private val REF_CLOSE_ZAAP_SELECTION_BUTTON_BOUNDS = RectangleRelative.build(
             PointRelative(0.75259066f, 0.100323625f),
@@ -38,19 +36,14 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         val MAX_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MAX
     }
 
-    private lateinit var teleportLocation: PointRelative
-    private lateinit var closeZaapSelectionButtonBounds: RectangleRelative
-
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
         if (!ReachHavenBagTask().run(logItem, gameInfo, cancellationToken)) {
             return false
         }
 
-        WaitUtil.sleep(1500)
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player position")
 
-        updateLocations()
         val playerPosition = gameInfo.dofusBoard.getCell(playerCellId)
         val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.3f * DofusBoard.TILE_HEIGHT))
         EventStore.clear(gameInfo.snifferId)
@@ -66,9 +59,8 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
             .firstOrNull { it.getCoordinates() == zaap.getCoordinates() }
             ?: error("Could not find zaap destination [${zaap.name}]. Did you explore it with this character ?")
 
-        WaitUtil.sleep(1500)
-        KeyboardUtil.writeKeyboard(gameInfo, getUniqueIdentifier(zaapDestination, zaapDestinations))
-        MouseUtil.leftClick(gameInfo, teleportLocation)
+        KeyboardUtil.writeKeyboard(gameInfo, getUniqueIdentifier(zaapDestination, zaapDestinations), 100)
+        KeyboardUtil.enter(gameInfo)
         EventStore.clear(gameInfo.snifferId)
         MoveUtil.waitForMapChange(gameInfo, cancellationToken)
         return true
@@ -78,15 +70,19 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         gameInfo: GameInfo,
         cancellationToken: CancellationToken
     ): Boolean {
+        WaitUtil.waitForEvents(
+            gameInfo.snifferId,
+            ZaapDestinationsMessage::class.java,
+            BasicNoOperationMessage::class.java,
+            cancellationToken = cancellationToken,
+            removeWhenFound = false
+        )
         return WaitUtil.waitUntil({ isZaapFrameOpened(gameInfo) }, cancellationToken)
     }
 
     private fun isZaapFrameOpened(gameInfo: GameInfo): Boolean {
-        return EventStore.isAllEventsPresent(
-            gameInfo.snifferId,
-            ZaapDestinationsMessage::class.java,
-            BasicNoOperationMessage::class.java
-        ) && ScreenUtil.colorCount(gameInfo, closeZaapSelectionButtonBounds, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
+        val closeZaapSelectionButtonBounds = getCloseZaapSelectionButtonBounds()
+        return ScreenUtil.colorCount(gameInfo, closeZaapSelectionButtonBounds, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
                 && ScreenUtil.colorCount(gameInfo, closeZaapSelectionButtonBounds, MIN_COLOR_BG, MAX_COLOR_BG) > 0
     }
 
@@ -103,15 +99,14 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         error("No unique identifier for destination [${coordinates.x}, ${coordinates.y}]")
     }
 
-    private fun updateLocations() {
+    private fun getCloseZaapSelectionButtonBounds(): RectangleRelative {
         val zaapUiCenterPoint = DofusUIPositionsManager.getZaapSelectionUiPosition() ?: UIPoint()
         val zaapUiPoint = UIPoint(
             UIBounds.CENTER.x - 750 / 2 + 5 + zaapUiCenterPoint.x,
             UIBounds.CENTER.y - 710 / 2 - 60 + 5 + zaapUiCenterPoint.y
         )
         val zaapUiPointRelative = ConverterUtil.toPointRelative(zaapUiPoint)
-        teleportLocation = zaapUiPointRelative.getSum(REF_DELTA_TELEPORT_LOCATION)
-        closeZaapSelectionButtonBounds = REF_CLOSE_ZAAP_SELECTION_BUTTON_BOUNDS
+        return REF_CLOSE_ZAAP_SELECTION_BUTTON_BOUNDS
             .getTranslation(REF_TOP_LEFT_LOCATION.opposite())
             .getTranslation(zaapUiPointRelative)
     }

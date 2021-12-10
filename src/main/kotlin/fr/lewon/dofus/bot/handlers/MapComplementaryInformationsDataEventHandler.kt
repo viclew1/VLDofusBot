@@ -3,12 +3,12 @@ package fr.lewon.dofus.bot.handlers
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper
+import fr.lewon.dofus.bot.gui.sound.SoundType
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTreasureHintInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
-import java.awt.Toolkit
 
 object MapComplementaryInformationsDataEventHandler : EventHandler<MapComplementaryInformationsDataMessage> {
 
@@ -34,7 +34,7 @@ object MapComplementaryInformationsDataEventHandler : EventHandler<MapComplement
             .map { it.staticInfos.mainCreatureLightInfos }
             .mapNotNull { D2OUtil.getObject("Monsters", it.genericId.toDouble()) }
             .firstOrNull { it["isMiniBoss"]?.toString()?.toBoolean() ?: false }
-            ?.let { Toolkit.getDefaultToolkit().beep() }
+            ?.let { SoundType.RARE_MONSTER_FOUND.playSound() }
     }
 
 }

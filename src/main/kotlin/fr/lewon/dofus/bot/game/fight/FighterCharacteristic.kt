@@ -7,6 +7,8 @@ enum class FighterCharacteristic(val keyword: String) {
     MP("movementPoints"),
     AP("actionPoints"),
     HP("lifePoints"),
+    CUR_LIFE("curLife"),
+    VITALITY("vitality"),
     MAX_HP("maxLifePoints"),
     RANGE("range");
 

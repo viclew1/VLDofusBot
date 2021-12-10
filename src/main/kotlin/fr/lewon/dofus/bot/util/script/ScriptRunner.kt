@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.util.script
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
+import fr.lewon.dofus.bot.gui.sound.SoundType
 import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
@@ -78,6 +79,7 @@ object ScriptRunner {
     private fun onScriptKo(e: Exception) {
         VldbLogger.closeLog("Execution KO - ${e.localizedMessage}", currentLogItem)
         e.printStackTrace()
+        SoundType.FAILED.playSound()
         onScriptEnd(DofusBotScriptEndType.FAIL)
     }
 

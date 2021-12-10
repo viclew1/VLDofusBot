@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class RefreshHuntTask : BooleanDofusBotTask() {
@@ -18,17 +17,11 @@ class RefreshHuntTask : BooleanDofusBotTask() {
             }
             val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex(gameInfo)
             if (lastNonTickedIndex != null) {
-                if (!TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)) {
-                    return false
-                }
-                WaitUtil.sleep(300)
-                if (!TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)) {
-                    return false
-                }
+                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
+                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
             } else {
-                if (!TreasureHuntUtil.tickFlag(gameInfo, TreasureHuntUtil.flagsCount - 1, cancellationToken)) {
-                    return false
-                }
+                val flagIndex = TreasureHuntUtil.getFlagsCount(gameInfo) - 1
+                TreasureHuntUtil.tickFlag(gameInfo, flagIndex, cancellationToken)
             }
             return LeaveHavenBagTask().run(logItem, gameInfo, cancellationToken)
         } else if (TreasureHuntUtil.isFightStep(gameInfo)) {
