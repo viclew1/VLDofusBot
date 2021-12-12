@@ -33,11 +33,11 @@ object ScriptRunner {
                 EventStore.clear(gameInfo.snifferId)
                 dofusScript.execute(currentLogItem, gameInfo, cancellationToken)
                 onScriptOk()
-            } catch (e: Exception) {
+            } catch (t: Throwable) {
                 if (cancellationToken.cancel) {
                     onScriptCanceled()
                 } else {
-                    onScriptKo(e)
+                    onScriptKo(t)
                 }
             }
         }.also { it.start() }
@@ -76,9 +76,9 @@ object ScriptRunner {
         }
     }
 
-    private fun onScriptKo(e: Exception) {
-        VldbLogger.closeLog("Execution KO - ${e.localizedMessage}", currentLogItem)
-        e.printStackTrace()
+    private fun onScriptKo(t: Throwable) {
+        VldbLogger.closeLog("Execution KO - ${t.localizedMessage}", currentLogItem)
+        t.printStackTrace()
         SoundType.FAILED.playSound()
         onScriptEnd(DofusBotScriptEndType.FAIL)
     }
