@@ -2,10 +2,9 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusMapManager
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
-import fr.lewon.dofus.bot.sniffer.store.EventStore
+import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -25,27 +24,28 @@ class FetchHuntTask : BooleanDofusBotTask() {
         private val HUNT_SEEK_OPTION_MAX_COLOR = Color(25, 25, 25)
     }
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         gameInfo.treasureHunt = null
         if (TreasureHuntUtil.isHuntPresent(gameInfo)) {
             return true
         }
         val outsideMap = DofusMapManager.getDofusMap(HUNT_MALL_OUTSIDE_MAP_ID)
         val insideMap = DofusMapManager.getDofusMap(HUNT_MALL_INSIDE_MAP_ID)
-        if (!ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)) {
+        if (!ReachMapTask(listOf(outsideMap)).run(logItem, gameInfo)) {
             return false
         }
-        if (!ReachMapTask(insideMap).run(logItem, gameInfo, cancellationToken)) {
+        if (!ReachMapTask(listOf(insideMap)).run(logItem, gameInfo)) {
             return false
         }
         MouseUtil.leftClick(gameInfo, HUNT_MALL_CHEST_POINT)
-        if (!WaitUtil.waitUntil({ isHuntSeekOptionFound(gameInfo) }, cancellationToken)) {
+        if (!WaitUtil.waitUntil({ isHuntSeekOptionFound(gameInfo) })) {
             error("Couldn't open chest")
         }
-        EventStore.clear(gameInfo.snifferId)
+        gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, HUNT_SEEK_OPTION_POINT)
-        TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo, cancellationToken)
-        return ReachMapTask(outsideMap).run(logItem, gameInfo, cancellationToken)
+        TreasureHuntUtil.waitForTreasureHuntUpdate(gameInfo)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
+        return ReachMapTask(listOf(outsideMap)).run(logItem, gameInfo)
     }
 
     private fun isHuntSeekOptionFound(gameInfo: GameInfo): Boolean {

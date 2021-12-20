@@ -9,7 +9,6 @@ enum class FighterCharacteristic(val keyword: String) {
     HP("lifePoints"),
     CUR_LIFE("curLife"),
     VITALITY("vitality"),
-    MAX_HP("maxLifePoints"),
     RANGE("range");
 
     fun getFighterCharacteristicValue(fighter: Fighter): Int {

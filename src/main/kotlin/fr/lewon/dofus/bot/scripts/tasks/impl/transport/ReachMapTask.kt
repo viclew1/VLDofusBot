@@ -1,32 +1,32 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.manager.WaypointsManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class ReachMapTask(private val dofusMap: DofusMap) : BooleanDofusBotTask() {
+open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBotTask() {
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
-        if (dofusMap == gameInfo.currentMap) {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        if (dofusMaps.contains(gameInfo.currentMap)) {
             return true
         }
+        val zaaps = WaypointsManager.getAllZaapMaps()
+        val transporters = TravelUtil.getTransporters()
 
-        val zaaps = TravelUtil.getZaaps(dofusMap.isAltWorld())
-        val transporters = TravelUtil.getTransporters(dofusMap.isAltWorld())
+        val zaapWithDist = TravelUtil.getClosestZaap(dofusMaps)
+        val transporterWithDist = TravelUtil.getClosestTransporter(transporters, dofusMaps)
+        val transporterToZaapDist = transporterWithDist?.first?.let {
+            TravelUtil.getPath(transporterWithDist.first.getMap(), 1, zaaps)?.size
+        } ?: Int.MAX_VALUE
+        val path = TravelUtil.getPath(gameInfo, dofusMaps)
 
-        val destinationCoordinates = dofusMap.getCoordinates()
-        val zaap = TravelUtil.getClosestTravelElement(zaaps, destinationCoordinates)
-        val transporter = TravelUtil.getClosestTravelElement(transporters, destinationCoordinates)
-        val path = TravelUtil.getPath(gameInfo, dofusMap)
 
-        val transporterDist = transporter?.getCoordinates()?.distanceTo(destinationCoordinates)
-            ?.plus(transporter.getClosestZaap().getCoordinates().distanceTo(transporter.getTransporterCoordinates()))
-            ?: Int.MAX_VALUE
-        val zaapDist = zaap?.getCoordinates()?.distanceTo(destinationCoordinates) ?: Int.MAX_VALUE
+        val transporterDist = transporterWithDist?.second?.plus(transporterToZaapDist) ?: Int.MAX_VALUE
+        val zaapDist = zaapWithDist?.second ?: Int.MAX_VALUE
         val travelDist = path?.size ?: Int.MAX_VALUE
 
         val minDist = minOf(transporterDist, zaapDist, travelDist)
@@ -34,18 +34,20 @@ class ReachMapTask(private val dofusMap: DofusMap) : BooleanDofusBotTask() {
         val transportResult = when {
             path != null && minDist == travelDist ->
                 true
-            transporter != null && transporterDist == minDist ->
-                TransportTowardTask(transporter).run(logItem, gameInfo, cancellationToken)
-            zaap != null && zaapDist == minDist ->
-                ZaapTowardTask(zaap).run(logItem, gameInfo, cancellationToken)
+            transporterWithDist != null && transporterDist == minDist ->
+                TransportTowardTask(transporterWithDist.first).run(logItem, gameInfo)
+            zaapWithDist != null && zaapDist == minDist ->
+                ZaapTowardTask(zaapWithDist.first).run(logItem, gameInfo)
             else ->
                 error("No travel element found")
         }
-        return transportResult && TravelTask(listOf(dofusMap)).run(logItem, gameInfo, cancellationToken)
+        return transportResult && TravelTask(dofusMaps).run(logItem, gameInfo)
     }
 
     override fun onStarted(): String {
-        val coordinates = dofusMap.getCoordinates()
-        return "Reaching map [${coordinates.x}, ${coordinates.y}] ..."
+        val mapsStr = dofusMaps.map { it.getCoordinates() }
+            .distinct()
+            .joinToString(", ") { "(${it.x}; ${it.y})" }
+        return "Reaching any map in [$mapsStr] ..."
     }
 }

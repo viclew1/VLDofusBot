@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot
 
-import fr.lewon.dofus.bot.gui.init.InitFrame
+import fr.lewon.dofus.bot.gui.InitFrame
+
 
 class VLDofusBot
 

@@ -5,9 +5,11 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.store.EventStore
 import java.awt.Rectangle
 import java.util.concurrent.locks.ReentrantLock
 
@@ -15,8 +17,9 @@ class GameInfo(val character: DofusCharacter) {
 
     private val lock = ReentrantLock(true)
 
-    var snifferId: Long = -1
-    var pid: Long = -1
+    val logger = character.executionLogger
+    val eventStore = EventStore()
+    lateinit var connection: DofusConnection
     var gameBounds = Rectangle()
     var completeBounds = Rectangle()
 

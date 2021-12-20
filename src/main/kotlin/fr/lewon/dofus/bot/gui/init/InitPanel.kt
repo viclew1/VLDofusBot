@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.gui.init
 
 import fr.lewon.dofus.bot.VLDofusBot
 import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
+import fr.lewon.dofus.bot.gui.InitFrame
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore

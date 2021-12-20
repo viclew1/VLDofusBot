@@ -25,24 +25,29 @@ object JNAUtil {
     }
 
     fun findByPID(pid: Long): HWND? {
-        var foundHandle: HWND? = null
+        val foundHandlesWithSizes = HashMap<HWND, Int>()
         User32.INSTANCE.EnumWindows({ handle, _ ->
             val pidRef = IntByReference()
             User32.INSTANCE.GetWindowThreadProcessId(handle, pidRef)
             if (pidRef.value.toLong() == pid) {
-                foundHandle = handle
-                false
-            } else {
-                true
+                val rect = WinDef.RECT()
+                User32.INSTANCE.GetClientRect(handle, rect)
+                val width = rect.right - rect.left
+                val height = rect.bottom - rect.top
+                val isHandleValid = width > 10 && height > 10 && User32.INSTANCE.IsWindowVisible(handle)
+                if (isHandleValid) {
+                    foundHandlesWithSizes[handle] = width * height
+                }
             }
+            true
         }, null)
-        return foundHandle
+        return foundHandlesWithSizes.entries.maxByOrNull { it.value }?.key
     }
 
     fun updateGameBounds(gameInfo: GameInfo) {
         gameInfo.executeSyncOperation {
             val rect = WinDef.RECT()
-            User32.INSTANCE.GetClientRect(findByPID(gameInfo.pid), rect)
+            User32.INSTANCE.GetClientRect(findByPID(gameInfo.connection.pid), rect)
 
             var x = 0
             var y = 0
@@ -90,14 +95,14 @@ object JNAUtil {
 
     fun takeCapture(gameInfo: GameInfo): BufferedImage {
         return gameInfo.executeSyncOperation {
-            val pid = gameInfo.pid
+            val pid = gameInfo.connection.pid
             val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
             val hdcWindow = User32.INSTANCE.GetDC(handle)
             val hdcMemDC = GDI32.INSTANCE.CreateCompatibleDC(hdcWindow)
             try {
                 val width = gameInfo.completeBounds.width
                 val height = gameInfo.completeBounds.height
-                if (width == 0 || height == 0) {
+                if (width < 10 || height < 10) {
                     error("Failed to take capture.")
                 }
 

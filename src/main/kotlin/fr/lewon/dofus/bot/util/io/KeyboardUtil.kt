@@ -30,7 +30,7 @@ object KeyboardUtil {
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int) {
         try {
-            SystemKeyLock.lock()
+            SystemKeyLock.lockInterruptibly()
             User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
             User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
             User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
@@ -42,13 +42,15 @@ object KeyboardUtil {
     fun writeKeyboard(gameInfo: GameInfo, text: String, time: Int = 500) {
         gameInfo.executeThreadedSyncOperation {
             val handle = getHandle(gameInfo)
-            text.forEach { doSendKey(handle, it.code) }
+            text.forEach {
+                doSendKey(handle, it.code)
+            }
             WaitUtil.sleep(time)
         }
     }
 
     private fun getHandle(gameInfo: GameInfo): WinDef.HWND {
-        val pid = gameInfo.pid
+        val pid = gameInfo.connection.pid
         return JNAUtil.findByPID(pid) ?: error("Couldn't press key, no handle for PID : $pid")
     }
 

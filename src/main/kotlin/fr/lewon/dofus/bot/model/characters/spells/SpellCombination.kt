@@ -11,6 +11,7 @@ data class SpellCombination(
     var cooldown: Int = 0,
     var apCost: Int = 0,
     var usesPerTurn: Int = 0,
+    var usesPerTurnPerTarget: Int = 0,
     var amount: Int = 0,
     var aiWeight: Int = 0
 )

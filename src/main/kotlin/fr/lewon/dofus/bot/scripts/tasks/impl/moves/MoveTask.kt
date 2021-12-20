@@ -7,7 +7,6 @@ import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.move.MoveHistory
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.InteractiveMoveTask
 import fr.lewon.dofus.bot.util.game.MoveUtil
@@ -26,13 +25,13 @@ abstract class MoveTask(
         return "Moving toward [$direction] ..."
     }
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val fromMap = gameInfo.currentMap
-        val moveCellId = getMoveCellId(gameInfo, cancellationToken)
+        val moveCellId = getMoveCellId(gameInfo)
         var moveDone = false
         if (moveCellId != null) {
             val clickLoc = getStandardClickLoc(gameInfo, moveCellId)
-            if (!MoveUtil.processMove(gameInfo, clickLoc, cancellationToken)) {
+            if (!MoveUtil.processMove(gameInfo, clickLoc)) {
                 error("Failed to move to [$direction]")
             }
             moveDone = true
@@ -40,7 +39,7 @@ abstract class MoveTask(
         if (!moveDone) {
             val elementId = getMoveElementId(gameInfo)
             if (elementId != null) {
-                if (!InteractiveMoveTask(elementId).run(logItem, gameInfo, cancellationToken)) {
+                if (!InteractiveMoveTask(elementId).run(logItem, gameInfo)) {
                     return false
                 }
                 moveDone = true
@@ -69,13 +68,10 @@ abstract class MoveTask(
             ?.key?.elementId
     }
 
-    private fun getMoveCellId(gameInfo: GameInfo, cancellationToken: CancellationToken): Int? {
+    private fun getMoveCellId(gameInfo: GameInfo): Int? {
         var playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
         if (playerCellId == null) {
-            WaitUtil.waitUntil(
-                { gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] != null },
-                cancellationToken
-            )
+            WaitUtil.waitUntil({ gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] != null })
             playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
                 ?: error("No registered position for player : ${gameInfo.playerId}")
         }

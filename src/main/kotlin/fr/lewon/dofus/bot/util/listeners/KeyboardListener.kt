@@ -9,7 +9,6 @@ import fr.lewon.dofus.bot.gui.overlay.LOSHelper
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
-import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.util.logging.Level
 import java.util.logging.LogManager
 import java.util.logging.Logger
@@ -35,9 +34,6 @@ object KeyboardListener : Thread(), NativeKeyListener {
 
     override fun nativeKeyPressed(e: NativeKeyEvent) {
         keysPressed[e.keyCode] = true
-        if (keysPressed[NativeKeyEvent.VC_K] == true && keysPressed[NativeKeyEvent.VC_CONTROL] == true) {
-            ScriptRunner.stopScript()
-        }
         toggleOverlay()
         toggleSystemKeyLock(e.modifiers)
     }
@@ -53,9 +49,9 @@ object KeyboardListener : Thread(), NativeKeyListener {
         if (newDisplayedOverlay != null && newDisplayedOverlay != displayedOverlay) {
             val character = CharacterManager.getCurrentCharacter()
             if (character != null) {
-                val pid = GameSnifferUtil.getCharacterPID(character)
-                if (pid != null) {
-                    newDisplayedOverlay.updateOverlay(pid)
+                val connection = GameSnifferUtil.getConnection(character)
+                if (connection != null) {
+                    newDisplayedOverlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
                     displayedOverlay = newDisplayedOverlay
                 }
             }
@@ -68,7 +64,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
     private fun toggleSystemKeyLock(modifiers: Int) {
         val sysKeyDown = modifiers != 0
         if (sysKeyDown && !SystemKeyLock.isHeldByCurrentThread) {
-            SystemKeyLock.lock()
+            SystemKeyLock.lockInterruptibly()
         } else if (!sysKeyDown && SystemKeyLock.isHeldByCurrentThread) {
             SystemKeyLock.unlock()
         }

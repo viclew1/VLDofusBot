@@ -1,8 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.windows
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.logs.VldbLogger
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.jna.JNAUtil
@@ -11,17 +9,17 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 class CloseGameTask : BooleanDofusBotTask() {
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         if (isCharacterLoggedIn(gameInfo)) {
-            VldbLogger.info("Game already closed.", logItem)
+            gameInfo.logger.addSubLog("Game already closed.", logItem)
             return true
         }
-        JNAUtil.closeGame(gameInfo.pid)
-        return WaitUtil.waitUntil({ isCharacterLoggedIn(gameInfo) }, cancellationToken)
+        JNAUtil.closeGame(gameInfo.connection.pid)
+        return WaitUtil.waitUntil({ isCharacterLoggedIn(gameInfo) })
     }
 
     private fun isCharacterLoggedIn(gameInfo: GameInfo): Boolean {
-        return GameSnifferUtil.getCharacterPID(gameInfo.character) == null
+        return GameSnifferUtil.getConnection(gameInfo.character) == null
     }
 
     override fun onStarted(): String {

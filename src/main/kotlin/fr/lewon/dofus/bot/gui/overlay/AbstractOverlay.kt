@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.gui.overlay
 
+import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.Color
 import javax.swing.JFrame
 import javax.swing.JPanel
@@ -14,6 +15,6 @@ abstract class AbstractOverlay(contentPane: JPanel) : JFrame() {
         opacity = 0.60f
     }
 
-    abstract fun updateOverlay(pid: Long)
+    abstract fun updateOverlay(gameInfo: GameInfo)
 
 }

@@ -2,7 +2,10 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.sound.SoundType
-import fr.lewon.dofus.bot.scripts.*
+import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
+import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
+import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
@@ -12,7 +15,7 @@ import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
+class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
     private val resumeHuntParameter = DofusBotScriptParameter(
         "resume_hunt", "Set to true if you wish to resume an ongoing hunt", "false", DofusBotScriptParameterType.BOOLEAN
@@ -62,20 +65,20 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         return description
     }
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken) {
+    override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         clearStats()
         var successCount = 0
         var cleanCacheCount = cleanCacheParameter.value.toInt()
 
         if (TreasureHuntUtil.isFightStep(gameInfo)) {
-            TreasureHuntUtil.fight(logItem, gameInfo, cancellationToken)
+            TreasureHuntUtil.fight(logItem, gameInfo)
         }
 
         for (i in 0 until huntCountParameter.value.toInt()) {
             nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             val fetchStartTimeStamp = System.currentTimeMillis()
             val isHuntPresent = TreasureHuntUtil.isHuntPresent(gameInfo)
-            if (!isHuntPresent && !FetchHuntTask().run(logItem, gameInfo, cancellationToken)) {
+            if (!isHuntPresent && !FetchHuntTask().run(logItem, gameInfo)) {
                 error("Couldn't fetch a new hunt")
             }
             val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp
@@ -84,10 +87,10 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
             val huntStartTimeStamp = System.currentTimeMillis()
 
-            if (!ReachMapTask(TreasureHuntUtil.getLastHintMap(gameInfo)).run(logItem, gameInfo, cancellationToken)) {
+            if (!ReachMapTask(listOf(TreasureHuntUtil.getLastHintMap(gameInfo))).run(logItem, gameInfo)) {
                 error("Couldn't reach hunt start")
             }
-            val success = ExecuteHuntTask().run(logItem, gameInfo, cancellationToken)
+            val success = ExecuteHuntTask().run(logItem, gameInfo)
             WaitUtil.sleep(300)
 
             val huntDuration = System.currentTimeMillis() - huntStartTimeStamp
@@ -99,13 +102,15 @@ object MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
             successRateStat.value = "$successCount / ${i + 1}"
             nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             if (cleanCacheCount == 0) {
-                RestartGameTask().run(logItem, gameInfo, cancellationToken)
+                RestartGameTask().run(logItem, gameInfo)
                 cleanCacheCount = cleanCacheParameter.value.toInt()
             }
             if (!success) {
                 SoundType.FAILED.playSound()
                 WaitUtil.sleep(600 * 1000 - huntDuration)
-                TreasureHuntUtil.giveUpHunt(gameInfo, cancellationToken)
+                if (TreasureHuntUtil.isHuntPresent(gameInfo)) {
+                    TreasureHuntUtil.giveUpHunt(gameInfo)
+                }
             }
         }
     }

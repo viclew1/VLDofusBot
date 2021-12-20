@@ -1,13 +1,11 @@
 package fr.lewon.dofus.bot.scripts.tasks
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.logs.VldbLogger
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 abstract class DofusBotTask<T> {
 
-    protected abstract fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): T
+    protected abstract fun execute(logItem: LogItem, gameInfo: GameInfo): T
 
     protected open fun onFailed(error: Throwable): String {
         return "KO - [${error.localizedMessage}]"
@@ -19,16 +17,14 @@ abstract class DofusBotTask<T> {
 
     protected abstract fun onStarted(): String
 
-    fun run(parentLogItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): T {
-        val logItem = VldbLogger.info(onStarted(), parentLogItem)
+    fun run(parentLogItem: LogItem, gameInfo: GameInfo): T {
+        val logItem = gameInfo.logger.addSubLog(onStarted(), parentLogItem)
         try {
-            cancellationToken.checkCancel()
-            val result = execute(logItem, gameInfo, cancellationToken)
-            VldbLogger.closeLog(onSucceeded(result), logItem)
+            val result = execute(logItem, gameInfo)
+            gameInfo.logger.closeLog(onSucceeded(result), logItem)
             return result
         } catch (e: Throwable) {
-            e.printStackTrace()
-            VldbLogger.closeLog(onFailed(e), logItem)
+            gameInfo.logger.closeLog(onFailed(e), logItem)
             throw e
         }
     }

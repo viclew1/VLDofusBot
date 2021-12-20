@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
@@ -10,22 +9,22 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class RefreshHuntTask : BooleanDofusBotTask() {
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         if (TreasureHuntUtil.isSearchStep(gameInfo)) {
-            if (!ReachHavenBagTask().run(logItem, gameInfo, cancellationToken)) {
+            if (!ReachHavenBagTask().run(logItem, gameInfo)) {
                 return false
             }
             val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex(gameInfo)
             if (lastNonTickedIndex != null) {
-                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
-                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex, cancellationToken)
+                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex)
+                TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex)
             } else {
                 val flagIndex = TreasureHuntUtil.getFlagsCount(gameInfo) - 1
-                TreasureHuntUtil.tickFlag(gameInfo, flagIndex, cancellationToken)
+                TreasureHuntUtil.tickFlag(gameInfo, flagIndex)
             }
-            return LeaveHavenBagTask().run(logItem, gameInfo, cancellationToken)
+            return LeaveHavenBagTask().run(logItem, gameInfo)
         } else if (TreasureHuntUtil.isFightStep(gameInfo)) {
-            return LeaveHavenBagTask().run(logItem, gameInfo, cancellationToken)
+            return LeaveHavenBagTask().run(logItem, gameInfo)
         }
         return false
     }

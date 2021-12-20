@@ -1,17 +1,20 @@
 package fr.lewon.dofus.bot.scripts.tasks
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 abstract class BooleanDofusBotTask : DofusBotTask<Boolean>() {
 
     private var error: Throwable? = null
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun execute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         error = null
         return try {
-            doExecute(logItem, gameInfo, cancellationToken)
+            doExecute(logItem, gameInfo)
+        } catch (e: InterruptedException) {
+            throw e
+        } catch (e: IllegalMonitorStateException) {
+            throw e
         } catch (e: Throwable) {
             e.printStackTrace()
             error = e
@@ -19,11 +22,7 @@ abstract class BooleanDofusBotTask : DofusBotTask<Boolean>() {
         }
     }
 
-    protected abstract fun doExecute(
-        logItem: LogItem,
-        gameInfo: GameInfo,
-        cancellationToken: CancellationToken
-    ): Boolean
+    protected abstract fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean
 
     override fun onSucceeded(value: Boolean): String {
         return if (value) {

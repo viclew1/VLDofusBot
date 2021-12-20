@@ -6,20 +6,19 @@ import fr.lewon.dofus.bot.core.manager.ui.UIBounds
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.DofusBoard
-import fr.lewon.dofus.bot.game.move.transporters.Zaap
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.ZaapDestinationsMessage
-import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MoveUtil
+import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
 import fr.lewon.dofus.bot.util.network.GameInfo
+import java.awt.event.KeyEvent
 
-class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
+class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
 
     companion object {
         private val REF_TOP_LEFT_LOCATION = PointRelative(0.21373057f, 0.10194175f)
@@ -36,48 +35,52 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
         val MAX_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MAX
     }
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
-        if (!ReachHavenBagTask().run(logItem, gameInfo, cancellationToken)) {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        if (!ReachHavenBagTask().run(logItem, gameInfo)) {
             return false
         }
 
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player position")
 
+        WaitUtil.sleep(500)
         val playerPosition = gameInfo.dofusBoard.getCell(playerCellId)
         val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.3f * DofusBoard.TILE_HEIGHT))
-        EventStore.clear(gameInfo.snifferId)
-        MouseUtil.leftClick(gameInfo, zaapPosition)
-        if (!waitForZaapFrameOpened(gameInfo, cancellationToken)) {
+        gameInfo.eventStore.clear()
+        val getZaapDestMessageFun = { gameInfo.eventStore.getLastEvent(ZaapDestinationsMessage::class.java) }
+        RetryUtil.tryUntilSuccess(
+            { MouseUtil.leftClick(gameInfo, zaapPosition) },
+            { WaitUtil.waitUntil({ getZaapDestMessageFun() != null }, 8000) },
+            3
+        ) ?: error("Couldn't open zaap selection frame")
+        if (!waitForZaapFrameOpened(gameInfo)) {
             error("Couldn't open zaap selection frame")
         }
-        val zaapDestMsg = EventStore.getLastEvent(ZaapDestinationsMessage::class.java, gameInfo.snifferId)
+        val zaapDestMsg = getZaapDestMessageFun()
             ?: error("Zaap destinations not found")
 
         val zaapDestinations = zaapDestMsg.destinations.map { it.map }
         val zaapDestination = zaapDestinations
             .firstOrNull { it.getCoordinates() == zaap.getCoordinates() }
-            ?: error("Could not find zaap destination [${zaap.name}]. Did you explore it with this character ?")
+            ?: error("Could not find zaap destination [${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]. Did you explore it with this character ?")
 
-        KeyboardUtil.writeKeyboard(gameInfo, getUniqueIdentifier(zaapDestination, zaapDestinations), 100)
+        val uniqueIdentifier = getUniqueIdentifier(zaapDestination, zaapDestinations).lowercase()
+        KeyboardUtil.writeKeyboard(gameInfo, uniqueIdentifier, 100)
+        restoreChatSize(gameInfo, uniqueIdentifier)
         KeyboardUtil.enter(gameInfo)
-        EventStore.clear(gameInfo.snifferId)
-        MoveUtil.waitForMapChange(gameInfo, cancellationToken)
+
+        gameInfo.eventStore.clear()
+        MoveUtil.waitForMapChange(gameInfo)
         return true
     }
 
-    private fun waitForZaapFrameOpened(
-        gameInfo: GameInfo,
-        cancellationToken: CancellationToken
-    ): Boolean {
+    private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {
         WaitUtil.waitForEvents(
-            gameInfo.snifferId,
+            gameInfo,
             ZaapDestinationsMessage::class.java,
             BasicNoOperationMessage::class.java,
-            cancellationToken = cancellationToken,
-            removeWhenFound = false
         )
-        return WaitUtil.waitUntil({ isZaapFrameOpened(gameInfo) }, cancellationToken)
+        return WaitUtil.waitUntil({ isZaapFrameOpened(gameInfo) })
     }
 
     private fun isZaapFrameOpened(gameInfo: GameInfo): Boolean {
@@ -97,6 +100,14 @@ class ZaapTowardTask(private val zaap: Zaap) : BooleanDofusBotTask() {
 
         val coordinates = destMap.getCoordinates()
         error("No unique identifier for destination [${coordinates.x}, ${coordinates.y}]")
+    }
+
+    private fun restoreChatSize(gameInfo: GameInfo, searchedString: String) {
+        searchedString.filter { it == 'k' }.forEach { _ ->
+            KeyboardUtil.writeKeyboard(gameInfo, "kk", 0)
+            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_BACK_SPACE, 0)
+            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_BACK_SPACE, 0)
+        }
     }
 
     private fun getCloseZaapSelectionButtonBounds(): RectangleRelative {

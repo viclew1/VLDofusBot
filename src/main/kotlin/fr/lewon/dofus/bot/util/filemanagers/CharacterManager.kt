@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.core.manager.VldbManager
-import fr.lewon.dofus.bot.gui.MainPanel
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
@@ -44,7 +43,6 @@ object CharacterManager : VldbManager {
         if (characterStore.currentCharacterLogin != character.login || characterStore.currentCharacterPseudo != character.pseudo) {
             characterStore.currentCharacterLogin = character.login
             characterStore.currentCharacterPseudo = character.pseudo
-            MainPanel.refreshScriptsTab()
             saveUserData()
         }
     }
@@ -93,7 +91,6 @@ object CharacterManager : VldbManager {
             characterStore.currentCharacterLogin = null
             characterStore.currentCharacterPseudo = null
         }
-        MainPanel.refreshScriptsTab()
         saveUserData()
     }
 

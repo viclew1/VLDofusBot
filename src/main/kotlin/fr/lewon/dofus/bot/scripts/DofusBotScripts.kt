@@ -1,15 +1,18 @@
 package fr.lewon.dofus.bot.scripts
 
-import fr.lewon.dofus.bot.scripts.impl.InitAllScript
-import fr.lewon.dofus.bot.scripts.impl.MultipleTreasureHuntScript
-import fr.lewon.dofus.bot.scripts.impl.TestScript
-import fr.lewon.dofus.bot.scripts.impl.TravelScript
+import fr.lewon.dofus.bot.scripts.impl.*
 
-enum class DofusBotScripts(val script: DofusBotScript) {
+enum class DofusBotScripts(val buildScriptFun: () -> DofusBotScript) {
 
-    TREASURE_HUNT_EXECUTE(MultipleTreasureHuntScript),
-    INIT_ALL(InitAllScript),
-    TRAVEL(TravelScript),
-    TEST(TestScript)
+    TREASURE_HUNT_EXECUTE({ MultipleTreasureHuntScript() }),
+    REACH_MAP({ ReachMapScript() }),
+    TRAVEL({ TravelScript() }),
+    INIT_ALL({ InitAllScript() }),
+    SHOW_D20_CONTENT({ ReadD2OFileScript() }),
+    TEST({ TestScript() });
+
+    fun buildScript(): DofusBotScript {
+        return buildScriptFun()
+    }
 
 }

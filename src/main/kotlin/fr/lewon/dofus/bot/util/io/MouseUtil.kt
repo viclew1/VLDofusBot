@@ -15,15 +15,14 @@ object MouseUtil {
 
     fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100, moveBeforeClick: Boolean = true) {
         gameInfo.executeThreadedSyncOperation {
-            val pid = gameInfo.pid
+            val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            User32.INSTANCE.BringWindowToTop(handle)
             try {
-                SystemKeyLock.lock()
+                SystemKeyLock.lockInterruptibly()
                 if (moveBeforeClick) {
                     moveAround(handle, position)
+                    WaitUtil.sleep(120)
                 }
-                WaitUtil.sleep(150)
                 doLeftClick(handle, position)
             } finally {
                 SystemKeyLock.unlock()
@@ -60,10 +59,10 @@ object MouseUtil {
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
         gameInfo.executeThreadedSyncOperation {
-            val pid = gameInfo.pid
+            val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
             try {
-                SystemKeyLock.lock()
+                SystemKeyLock.lockInterruptibly()
                 doMove(handle, position)
             } finally {
                 SystemKeyLock.unlock()

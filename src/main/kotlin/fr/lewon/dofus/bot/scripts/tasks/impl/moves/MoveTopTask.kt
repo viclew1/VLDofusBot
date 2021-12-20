@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.game.DofusBoard
 class MoveTopTask(linkedZoneCellId: Int? = null) : MoveTask(Direction.TOP, linkedZoneCellId) {
 
     override fun getDefaultMoveCell(): Int {
-        return 0
+        return 14
     }
 
     override fun getOverrideX(): Float? {
@@ -20,7 +20,8 @@ class MoveTopTask(linkedZoneCellId: Int? = null) : MoveTask(Direction.TOP, linke
 
     override fun isCellOk(cellData: CellData): Boolean {
         val mapChangeData = cellData.mapChangeData
-        return cellData.cellId < DofusBoard.MAP_WIDTH * 2 &&
-                (mapChangeData and 32 != 0 || mapChangeData and 64 != 0 || mapChangeData and 128 != 0)
+        return cellData.cellId < DofusBoard.MAP_WIDTH * 2
+                && (mapChangeData and 32 != 0 || mapChangeData and 64 != 0 || mapChangeData and 128 != 0)
+                && cellData.cellId != 0 && cellData.cellId != 27
     }
 }

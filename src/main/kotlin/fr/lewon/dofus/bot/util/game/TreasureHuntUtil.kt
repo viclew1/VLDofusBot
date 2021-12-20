@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.scripts.CancellationToken
+import fr.lewon.dofus.bot.game.fight.complements.TreasureChestAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
@@ -15,7 +15,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStep
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFight
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToHint
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -86,12 +85,14 @@ object TreasureHuntUtil {
         return gameInfo.treasureHunt ?: error("No current hunt. Fetch one before executing it")
     }
 
-    fun tickFlag(gameInfo: GameInfo, flagIndex: Int, cancellationToken: CancellationToken) {
+    fun tickFlag(gameInfo: GameInfo, flagIndex: Int) {
         val firstFlagPoint = getFirstFlagPoint()
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
-        EventStore.clear(gameInfo.snifferId)
+        gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, tickPoint)
-        waitForTreasureHuntUpdate(gameInfo, cancellationToken)
+        WaitUtil.waitUntilMessageArrives(gameInfo, TreasureHuntMessage::class.java)
+        waitForTreasureHuntUpdate(gameInfo)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
     }
 
     fun getLastNonTickedFlagIndex(gameInfo: GameInfo): Int? {
@@ -121,23 +122,24 @@ object TreasureHuntUtil {
         gameInfo: GameInfo,
         step: TreasureHuntStep,
         logItem: LogItem,
-        cancellationToken: CancellationToken
-    ): Boolean {
+
+        ): Boolean {
         return when (step) {
             is TreasureHuntStepFollowDirectionToPOI ->
-                ExecutePoiHuntStepTask(step).run(logItem, gameInfo, cancellationToken)
+                ExecutePoiHuntStepTask(step).run(logItem, gameInfo)
             is TreasureHuntStepFollowDirectionToHint ->
-                ExecuteNpcHuntStepTask(step).run(logItem, gameInfo, cancellationToken)
+                ExecuteNpcHuntStepTask(step).run(logItem, gameInfo)
             is TreasureHuntStepFight ->
-                ExecuteFightHuntStepTask().run(logItem, gameInfo, cancellationToken)
+                ExecuteFightHuntStepTask().run(logItem, gameInfo)
             else -> error("Unsupported hunt step type : [${step::class.java.simpleName}]")
         }
     }
 
-    fun clickSearch(gameInfo: GameInfo, cancellationToken: CancellationToken) {
-        EventStore.clear(gameInfo.snifferId)
+    fun clickSearch(gameInfo: GameInfo) {
+        gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getSearchHuntPoint(gameInfo))
-        waitForTreasureHuntUpdate(gameInfo, cancellationToken)
+        waitForTreasureHuntUpdate(gameInfo)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
     }
 
     fun isSearchStep(gameInfo: GameInfo): Boolean {
@@ -157,25 +159,26 @@ object TreasureHuntUtil {
         )
     }
 
-    fun giveUpHunt(gameInfo: GameInfo, cancellationToken: CancellationToken) {
-        EventStore.clear(gameInfo.snifferId)
+    fun giveUpHunt(gameInfo: GameInfo) {
+        gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getGiveUpHuntPoint())
-        waitForTreasureHuntUpdate(gameInfo, cancellationToken)
+        waitForTreasureHuntUpdate(gameInfo)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
     }
 
-    fun fight(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    fun fight(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getFightPoint())
-        return FightTask().run(logItem, gameInfo, cancellationToken)
+        return FightTask(TreasureChestAIComplement()).run(logItem, gameInfo)
     }
 
-    fun waitForTreasureHuntUpdate(gameInfo: GameInfo, cancellationToken: CancellationToken) {
+    fun waitForTreasureHuntUpdate(gameInfo: GameInfo) {
         WaitUtil.waitForEvents(
-            gameInfo.snifferId,
+            gameInfo,
             TreasureHuntMessage::class.java,
-            BasicNoOperationMessage::class.java,
-            cancellationToken = cancellationToken
+            BasicNoOperationMessage::class.java
         )
-        if (!WaitUtil.waitUntil({ isHuntPresent(gameInfo) }, cancellationToken)) {
+        if (!WaitUtil.waitUntil({ isHuntPresent(gameInfo) })) {
             error("No treasure hunt update arrived in time.")
         }
     }

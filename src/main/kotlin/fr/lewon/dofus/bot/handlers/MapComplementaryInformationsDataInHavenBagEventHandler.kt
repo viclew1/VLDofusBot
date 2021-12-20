@@ -1,21 +1,19 @@
 package fr.lewon.dofus.bot.handlers
 
-import fr.lewon.dofus.bot.core.logs.VldbLogger
+import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataInHavenBagMessage
-import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 object MapComplementaryInformationsDataInHavenBagEventHandler :
-    EventHandler<MapComplementaryInformationsDataInHavenBagMessage> {
+    AbstractMapComplementaryInformationsDataEventHandler<MapComplementaryInformationsDataInHavenBagMessage>() {
 
-    override fun onEventReceived(socketResult: MapComplementaryInformationsDataInHavenBagMessage, snifferId: Long) {
-        val gameInfo = GameSnifferUtil.getGameInfoBySnifferId(snifferId)
-        gameInfo.currentMap = socketResult.map
-        gameInfo.entityPositionsOnMapByEntityId.clear()
-        socketResult.actors.forEach {
-            gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
-        }
-        VldbLogger.debug("Character in haven bag")
+    override fun onEventReceived(
+        socketResult: MapComplementaryInformationsDataInHavenBagMessage,
+        connection: DofusConnection
+    ) {
+        super.onEventReceived(socketResult, connection)
+        val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
+        gameInfo.logger.debug("Character in haven bag")
     }
 
 }

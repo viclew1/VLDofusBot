@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.gui.util
 
 enum class UiResource(path: String, filledPath: String) {
 
+    VLDB_LOGO("/icon/logo.png", "/icon/logo.png"),
     EDIT("/icon/ui/edit.png", "/icon/ui/edit_filled.png"),
     DELETE("/icon/ui/delete.png", "/icon/ui/delete_filled.png"),
     STOP("/icon/ui/stop.png", "/icon/ui/stop_filled.png"),

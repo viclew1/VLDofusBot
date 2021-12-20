@@ -7,7 +7,6 @@ import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
-import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -19,10 +18,10 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
     private var hitBoxByCell: Map<DofusCell, Polygon> = HashMap()
     private lateinit var gameInfo: GameInfo
 
-    override fun updateOverlay(pid: Long) {
-        gameInfo = GameSnifferUtil.getGameInfoByPID(pid)
+    override fun updateOverlay(gameInfo: GameInfo) {
+        this.gameInfo = gameInfo
         JNAUtil.updateGameBounds(gameInfo)
-        val windowPos = JNAUtil.getGamePosition(pid)
+        val windowPos = JNAUtil.getGamePosition(gameInfo.connection.pid)
         val gameBounds = gameInfo.gameBounds
         bounds = Rectangle(gameBounds.x + windowPos.x, gameBounds.y + windowPos.y, gameBounds.width, gameBounds.height)
         contentPane.size = Dimension(gameInfo.gameBounds.width, gameInfo.gameBounds.height)

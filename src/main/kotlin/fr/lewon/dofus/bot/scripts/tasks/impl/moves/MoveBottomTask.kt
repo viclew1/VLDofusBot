@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.game.DofusBoard
 class MoveBottomTask(linkedZoneCellId: Int? = null) : MoveTask(Direction.BOTTOM, linkedZoneCellId) {
 
     override fun getDefaultMoveCell(): Int {
-        return DofusBoard.MAP_CELLS_COUNT - 1
+        return 545
     }
 
     override fun getOverrideX(): Float? {
@@ -22,5 +22,6 @@ class MoveBottomTask(linkedZoneCellId: Int? = null) : MoveTask(Direction.BOTTOM,
         val mapChangeData = cellData.mapChangeData
         return cellData.cellId >= DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2
                 && (mapChangeData and 2 != 0 || mapChangeData and 4 != 0)
+                && cellData.cellId != 532 && cellData.cellId != 559
     }
 }

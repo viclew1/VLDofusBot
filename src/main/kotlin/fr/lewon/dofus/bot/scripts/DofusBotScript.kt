@@ -11,7 +11,7 @@ abstract class DofusBotScript(val name: String) {
 
     abstract fun getDescription(): String
 
-    abstract fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken)
+    abstract fun execute(logItem: LogItem, gameInfo: GameInfo)
 
     override fun toString(): String {
         return name

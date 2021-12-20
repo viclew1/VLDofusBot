@@ -1,8 +1,7 @@
 package fr.lewon.dofus.bot.util.io
 
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
-import fr.lewon.dofus.bot.sniffer.store.EventStore
+import fr.lewon.dofus.bot.util.network.GameInfo
 
 object WaitUtil {
 
@@ -16,51 +15,74 @@ object WaitUtil {
         sleep(time.toLong())
     }
 
-    fun waitUntil(
-        condition: () -> Boolean,
-        cancellationToken: CancellationToken,
-        timeOutMillis: Int = DEFAULT_TIMEOUT_MILLIS
-    ): Boolean {
+    fun waitUntil(condition: () -> Boolean, timeOutMillis: Int = DEFAULT_TIMEOUT_MILLIS): Boolean {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < timeOutMillis) {
-            cancellationToken.checkCancel()
             if (condition()) {
                 return true
             }
+            sleep(100)
         }
         return false
     }
 
     fun <T : INetworkMessage> waitForEvent(
-        snifferId: Long,
+        gameInfo: GameInfo,
         messageClass: Class<T>,
-        cancellationToken: CancellationToken,
-        removeWhenFound: Boolean = true,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
     ): T {
-        waitUntil({ EventStore.getFirstEvent(messageClass, snifferId) != null }, cancellationToken, timeout)
-        val event = EventStore.getFirstEvent(messageClass, snifferId)
-            ?: error("No message [${messageClass.typeName}] arrived in time. ${EventStore.getStoredEventsStr(snifferId)}")
-        if (removeWhenFound) {
-            EventStore.removeEvent(messageClass, snifferId, 1)
-        }
-        return event
+        waitUntil({ gameInfo.eventStore.getFirstEvent(messageClass) != null }, timeout)
+        return gameInfo.eventStore.getFirstEvent(messageClass)
+            ?: error(getErrorMessage(gameInfo, messageClass))
     }
 
     fun waitForEvents(
-        snifferId: Long,
+        gameInfo: GameInfo,
         vararg messageClasses: Class<out INetworkMessage>,
-        cancellationToken: CancellationToken,
-        removeWhenFound: Boolean = true,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS,
     ) {
-        if (!waitUntil({ EventStore.isAllEventsPresent(snifferId, *messageClasses) }, cancellationToken, timeout)) {
-            val messageClassesStr = messageClasses.joinToString(", ") { it.simpleName }
-            error("Not all messages [$messageClassesStr] arrived in time. ${EventStore.getStoredEventsStr(snifferId)}")
+        if (!waitUntil({ gameInfo.eventStore.isAllEventsPresent(*messageClasses) }, timeout)) {
+            error(getErrorMessage(gameInfo, *messageClasses))
         }
-        if (removeWhenFound) {
-            messageClasses.forEach { EventStore.removeEvent(it, snifferId, 1) }
+    }
+
+    fun waitUntilMessageArrives(
+        gameInfo: GameInfo,
+        messageClass: Class<out INetworkMessage>,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS
+    ) {
+        if (!gameInfo.eventStore.waitUntilMessagesArrives(messageClass, timeout)) {
+            error(getErrorMessage(gameInfo, messageClass))
         }
+    }
+
+    fun waitUntilMultipleMessagesArrive(
+        gameInfo: GameInfo,
+        vararg messageClasses: Class<out INetworkMessage>,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS
+    ) {
+        if (!gameInfo.eventStore.waitUntilMultipleMessagesArrive(messageClasses, timeout)) {
+            error(getErrorMessage(gameInfo, *messageClasses))
+        }
+    }
+
+    fun waitUntilOrderedMessagesArrive(
+        gameInfo: GameInfo,
+        vararg messageClasses: Class<out INetworkMessage>,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS
+    ) {
+        if (!gameInfo.eventStore.waitUntilOrderedMessagesArrive(messageClasses, timeout)) {
+            error(getErrorMessage(gameInfo, *messageClasses))
+        }
+    }
+
+    private fun getErrorMessage(gameInfo: GameInfo, vararg messageClasses: Class<out INetworkMessage>): String {
+        val messageClassesStr = messageClasses.joinToString(", ") { it.simpleName }
+        return "Not all messages [$messageClassesStr] arrived in time. ${gameInfo.eventStore.getStoredEventsStr()}"
+    }
+
+    private fun getErrorMessage(gameInfo: GameInfo, messageClass: Class<out INetworkMessage>): String {
+        return "No message [${messageClass.typeName}] arrived in time. ${gameInfo.eventStore.getStoredEventsStr()}"
     }
 
 }

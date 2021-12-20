@@ -7,7 +7,7 @@
     <groupId>fr.lewon</groupId>
     <artifactId>VLDofusBot</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>fr.lewon</groupId>
             <artifactId>VLDofusBotSniffer</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
@@ -41,6 +41,12 @@
             <groupId>com.miglayout</groupId>
             <artifactId>miglayout</artifactId>
             <version>3.7.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.swinglabs.swingx</groupId>
+            <artifactId>swingx-all</artifactId>
+            <version>1.6.5-1</version>
         </dependency>
 
         <dependency>

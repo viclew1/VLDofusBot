@@ -72,10 +72,10 @@ class MCTSAi(
         val fighter = fightBoard.getFighterById(fromState.fighterId)
             ?: error("No fighter with id : $${fromState.fighterId}")
         val mp = CharacteristicUtil.getCharacteristicValue(FighterCharacteristic.MP, fighter.statsById) ?: 0
-        return fromState.fightBoard.getMoveCells(mp, fighter.cell).map { moveCell ->
+        return fromState.fightBoard.getMoveCellsWithMpUsed(mp, fighter.cell).map { moveCell ->
             fromState.clone().also {
                 it.fighterId = getOpponentId(fromState.fighterId)
-                it.fightBoard.move(it.fighterId, moveCell.cellId, false)
+                it.fightBoard.move(it.fighterId, moveCell.first.cellId)
             }
         }
     }

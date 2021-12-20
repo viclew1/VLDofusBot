@@ -1,14 +1,10 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.logs.VldbLogger
-import fr.lewon.dofus.bot.scripts.CancellationToken
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.chat.TextInformationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.GameContextRefreshEntityLookMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataInHavenBagMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
@@ -18,36 +14,29 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : BooleanDofusBotTask() {
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
-        val snifferId = gameInfo.snifferId
-        EventStore.clear(snifferId)
+        gameInfo.eventStore.clear()
         KeyboardUtil.sendKey(gameInfo, 'H', 0)
-        if (!WaitUtil.waitUntil({ isToggleHavenBagFinished(snifferId) }, cancellationToken)) {
-            error("No message arrived in time. Events in store : ${EventStore.getStoredEventsStr(snifferId)}")
+        if (!WaitUtil.waitUntil({ isToggleHavenBagFinished(gameInfo) })) {
+            error("No message arrived in time. Events in store : ${gameInfo.eventStore.getStoredEventsStr()}")
         }
-        if (isToggleHavenBagFail(snifferId)) {
-            VldbLogger.info("Can't reach haven bag on this map.", logItem)
+        if (isToggleHavenBagFail(gameInfo)) {
+            gameInfo.logger.addSubLog("Can't reach haven bag on this map.", logItem)
             return false
         }
 
-        val reachedHavenBag = isReachHavenBagSuccess(snifferId)
-
-        gameInfo.playerId = WaitUtil.waitForEvent(
-            snifferId, GameContextRefreshEntityLookMessage::class.java, cancellationToken, false
-        ).id
-        VldbLogger.info("Player ID is : ${gameInfo.playerId}", logItem)
-
-        MoveUtil.waitForMapChange(gameInfo, cancellationToken, getComplementaryInformationClass(reachedHavenBag))
+        val reachedHavenBag = isReachHavenBagSuccess(gameInfo)
+        MoveUtil.waitForMapChange(gameInfo, getComplementaryInformationClass(reachedHavenBag))
 
         if (shouldReachHavenBag && !reachedHavenBag) {
-            VldbLogger.info("Left haven bag instead, trying again...", logItem)
-            return doExecute(logItem, gameInfo, cancellationToken)
+            gameInfo.logger.addSubLog("Left haven bag instead, trying again...", logItem)
+            return doExecute(logItem, gameInfo)
         }
         if (!shouldReachHavenBag && reachedHavenBag) {
-            VldbLogger.info("Reached haven bag instead, trying again...", logItem)
-            return doExecute(logItem, gameInfo, cancellationToken)
+            gameInfo.logger.addSubLog("Reached haven bag instead, trying again...", logItem)
+            return doExecute(logItem, gameInfo)
         }
         return true
     }
@@ -60,27 +49,23 @@ abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : 
         }
     }
 
-    private fun isToggleHavenBagFinished(snifferId: Long): Boolean {
-        return isToggleHavenBagFail(snifferId) || isReachHavenBagSuccess(snifferId) || isLeaveHavenBagSuccess(snifferId)
+    private fun isToggleHavenBagFinished(gameInfo: GameInfo): Boolean {
+        return isToggleHavenBagFail(gameInfo) || isReachHavenBagSuccess(gameInfo) || isLeaveHavenBagSuccess(gameInfo)
     }
 
-    private fun isToggleHavenBagFail(snifferId: Long): Boolean {
-        val lastTextInformation = EventStore.getLastEvent(TextInformationMessage::class.java, snifferId)
+    private fun isToggleHavenBagFail(gameInfo: GameInfo): Boolean {
+        val lastTextInformation = gameInfo.eventStore.getLastEvent(TextInformationMessage::class.java)
         return lastTextInformation != null && lastTextInformation.msgId == 471
     }
 
-    private fun isReachHavenBagSuccess(snifferId: Long): Boolean {
-        return EventStore.getFirstEvent(
-            MapComplementaryInformationsDataInHavenBagMessage::class.java,
-            snifferId
-        ) != null && MoveUtil.isMapChanged(snifferId, getComplementaryInformationClass(true))
+    private fun isReachHavenBagSuccess(gameInfo: GameInfo): Boolean {
+        return gameInfo.eventStore.getFirstEvent(MapComplementaryInformationsDataInHavenBagMessage::class.java) != null
+                && MoveUtil.isMapChanged(gameInfo, getComplementaryInformationClass(true))
     }
 
-    private fun isLeaveHavenBagSuccess(snifferId: Long): Boolean {
-        return EventStore.getFirstEvent(
-            MapComplementaryInformationsDataMessage::class.java,
-            snifferId
-        ) != null && MoveUtil.isMapChanged(snifferId, getComplementaryInformationClass(false))
+    private fun isLeaveHavenBagSuccess(gameInfo: GameInfo): Boolean {
+        return gameInfo.eventStore.getFirstEvent(MapComplementaryInformationsDataMessage::class.java) != null
+                && MoveUtil.isMapChanged(gameInfo, getComplementaryInformationClass(false))
     }
 
 }

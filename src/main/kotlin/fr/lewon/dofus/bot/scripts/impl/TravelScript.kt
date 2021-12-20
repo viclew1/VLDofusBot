@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.scripts.*
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelToCoordinatesTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-object TravelScript : DofusBotScript("Travel") {
+class TravelScript : DofusBotScript("Travel") {
 
     private val xParameter = DofusBotScriptParameter(
         "x", "X coordinates of destination", "0", DofusBotScriptParameterType.INTEGER
@@ -31,9 +31,9 @@ object TravelScript : DofusBotScript("Travel") {
         return "Does the same as the autopilot mount, except you don't need to have an autopilot mount."
     }
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo, cancellationToken: CancellationToken) {
+    override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val travelOk = TravelToCoordinatesTask(DofusCoordinates(xParameter.value.toInt(), yParameter.value.toInt()))
-            .run(logItem, gameInfo, cancellationToken)
+            .run(logItem, gameInfo)
         if (!travelOk) {
             error("Failed to reach destination")
         }

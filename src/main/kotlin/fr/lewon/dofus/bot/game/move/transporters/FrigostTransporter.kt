@@ -1,29 +1,25 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
+import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 
-enum class FrigostTransporter(
-    private val coordinates: DofusCoordinates,
-    private val optionPointRelative: PointRelative
-) :
-    ITransporter {
+enum class FrigostTransporter(idMap: Double, private val optionPointRelative: PointRelative) : ITransporter {
 
-    CHAMPS_DE_GLACE(DofusCoordinates(-68, -34), PointRelative(0.375f, 0.642f)),
-    BERCEAU_ALMA(DofusCoordinates(-56, -74), PointRelative(0.375f, 0.665f)),
-    LARMES_OURONIGRIDE(DofusCoordinates(-69, -87), PointRelative(0.375f, 0.689f)),
-    CREVASSE_PERGE(DofusCoordinates(-78, -82), PointRelative(0.375f, 0.714f));
+    CHAMPS_DE_GLACE(54167842.0, PointRelative(0.375f, 0.642f)),
+    BERCEAU_ALMA(54161738.0, PointRelative(0.375f, 0.665f)),
+    LARMES_OURONIGRIDE(54168407.0, PointRelative(0.375f, 0.689f)),
+    CREVASSE_PERGE(54173010.0, PointRelative(0.375f, 0.714f));
 
-    override fun getTransporterCoordinates(): DofusCoordinates {
-        return DofusCoordinates(-76, -66)
+    private val map = DofusMapManager.getDofusMap(idMap)
+    private val transporterMap = DofusMapManager.getDofusMap(60035079.0)
+
+    override fun getTransporterMap(): DofusMap {
+        return transporterMap
     }
 
-    override fun getClosestZaap(): Zaap {
-        return Zaap.FRIGOST_VILLAGE_ENSEVELI
-    }
-
-    override fun getCoordinates(): DofusCoordinates {
-        return coordinates
+    override fun getMap(): DofusMap {
+        return map
     }
 
     override fun getNpcPointRelative(): PointRelative {
@@ -34,7 +30,4 @@ enum class FrigostTransporter(
         return optionPointRelative
     }
 
-    override fun isAltWorld(): Boolean {
-        return false
-    }
 }

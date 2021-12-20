@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.manager.d2p.maps.D2PMapsAdapter
 import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import java.util.*
+import kotlin.math.abs
 
 class DofusBoard {
 
@@ -89,7 +90,7 @@ class DofusBoard {
     }
 
     fun getDist(fromCell: DofusCell, toCell: DofusCell): Int? {
-        return getPath(fromCell, toCell, true)?.size
+        return abs(fromCell.col - toCell.col) + abs(fromCell.row - toCell.row)
     }
 
     private fun getPath(fromCell: DofusCell, toCell: DofusCell, fly: Boolean = false): List<DofusCell>? {
@@ -127,18 +128,13 @@ class DofusBoard {
         return null
     }
 
-    fun cellsAtRange(minRange: Int, maxRange: Int, fromCellId: Int): List<DofusCell> {
-        val fromCell = getCell(fromCellId)
-        return cellsAtRange(minRange, maxRange, fromCell)
-    }
-
-    fun cellsAtRange(minRange: Int, maxRange: Int, fromCell: DofusCell): List<DofusCell> {
-        val cellsAtRange = ArrayList<DofusCell>()
+    fun cellsAtRange(minRange: Int, maxRange: Int, fromCell: DofusCell): List<Pair<DofusCell, Int>> {
+        val cellsAtRange = ArrayList<Pair<DofusCell, Int>>()
         val explored = mutableListOf(fromCell)
         var frontier = listOf(fromCell)
 
         if (minRange == 0) {
-            cellsAtRange.add(fromCell)
+            cellsAtRange.add(fromCell to 0)
         }
 
         for (i in 1..maxRange) {
@@ -147,7 +143,7 @@ class DofusBoard {
                 for (neighbor in cell.neighbors) {
                     if (!explored.contains(neighbor)) {
                         if (i >= minRange) {
-                            cellsAtRange.add(neighbor)
+                            cellsAtRange.add(neighbor to i)
                         }
                         explored.add(neighbor)
                         newFrontier.add(neighbor)
