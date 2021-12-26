@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.gui.panes.config
 
 import fr.lewon.dofus.bot.core.logs.LogLevel
-import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -32,7 +32,7 @@ object ConfigPanel : JPanel(MigLayout()) {
     private fun locatePoint() {
         val locatorFrame = CursorLocatorFrame("Click on position to register") {
             println("-----")
-            val currentCharacter = CharacterManager.getCurrentCharacter()
+            val currentCharacter = CharacterSelectionPanel.cardList.selectedItem
             currentCharacter?.let { c ->
                 GameSnifferUtil.getConnection(c)?.let { connection ->
                     val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)

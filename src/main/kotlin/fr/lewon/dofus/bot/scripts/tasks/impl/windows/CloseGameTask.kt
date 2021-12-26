@@ -10,15 +10,16 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 class CloseGameTask : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        if (isCharacterLoggedIn(gameInfo)) {
+        if (isCharacterLoggedOut(gameInfo)) {
             gameInfo.logger.addSubLog("Game already closed.", logItem)
             return true
         }
         JNAUtil.closeGame(gameInfo.connection.pid)
-        return WaitUtil.waitUntil({ isCharacterLoggedIn(gameInfo) })
+        return WaitUtil.waitUntil({ isCharacterLoggedOut(gameInfo) })
     }
 
-    private fun isCharacterLoggedIn(gameInfo: GameInfo): Boolean {
+    private fun isCharacterLoggedOut(gameInfo: GameInfo): Boolean {
+        GameSnifferUtil.updateNetwork()
         return GameSnifferUtil.getConnection(gameInfo.character) == null
     }
 

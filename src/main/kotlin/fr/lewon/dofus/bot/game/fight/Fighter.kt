@@ -6,6 +6,8 @@ import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacterist
 class Fighter(var cell: DofusCell, var id: Double, var enemy: Boolean, var isSummon: Boolean) {
 
     var maxHp = 0
+    var hpLost = 0
+    var hpHealed = 0
     var hp = 0
     val statsById: MutableMap<Int, CharacterCharacteristic> = HashMap()
 

@@ -130,7 +130,7 @@ class FightBoard(private val gameInfo: GameInfo) {
 
     fun getClosestEnemy(): Fighter? {
         val playerFighter = getPlayerFighter() ?: return null
-        return getEnemyFighters().minByOrNull { dofusBoard.getDist(playerFighter.cell, it.cell) ?: Int.MAX_VALUE }
+        return getEnemyFighters().minByOrNull { dofusBoard.getDist(playerFighter.cell, it.cell) }
     }
 
     fun getAlliedFighters(): List<Fighter> {

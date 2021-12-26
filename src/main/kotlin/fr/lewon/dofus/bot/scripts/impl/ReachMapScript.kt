@@ -2,24 +2,24 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.scripts.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ReachMapScript : DofusBotScript("Reach map") {
 
-    private val xParameter = DofusBotScriptParameter(
-        "x", "X coordinates of destination", "0", DofusBotScriptParameterType.INTEGER
+    private val xParameter = DofusBotParameter(
+        "x", "X coordinates of destination", "0", DofusBotParameterType.INTEGER
     )
 
-    private val yParameter = DofusBotScriptParameter(
-        "y", "Y coordinates of destination", "0", DofusBotScriptParameterType.INTEGER
+    private val yParameter = DofusBotParameter(
+        "y", "Y coordinates of destination", "0", DofusBotParameterType.INTEGER
     )
 
-    override fun getParameters(): List<DofusBotScriptParameter> {
+    override fun getParameters(): List<DofusBotParameter> {
         return listOf(
             xParameter,
             yParameter

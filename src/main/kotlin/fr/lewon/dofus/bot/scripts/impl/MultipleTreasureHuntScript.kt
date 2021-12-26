@@ -2,9 +2,9 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.sound.SoundType
+import fr.lewon.dofus.bot.scripts.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
@@ -17,19 +17,19 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
-    private val resumeHuntParameter = DofusBotScriptParameter(
-        "resume_hunt", "Set to true if you wish to resume an ongoing hunt", "false", DofusBotScriptParameterType.BOOLEAN
+    private val resumeHuntParameter = DofusBotParameter(
+        "resume_hunt", "Set to true if you wish to resume an ongoing hunt", "false", DofusBotParameterType.BOOLEAN
     )
 
-    private val huntCountParameter = DofusBotScriptParameter(
-        "hunt_count", "Amount of hunts to process before stopping", "50", DofusBotScriptParameterType.INTEGER
+    private val huntCountParameter = DofusBotParameter(
+        "hunt_count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
     )
 
-    private val cleanCacheParameter = DofusBotScriptParameter(
-        "clean_cache_every", "Amount of hunt(s) before cleaning Dofus cache", "12", DofusBotScriptParameterType.INTEGER
+    private val cleanCacheParameter = DofusBotParameter(
+        "clean_cache_every", "Amount of hunt(s) before cleaning Dofus cache", "12", DofusBotParameterType.INTEGER
     )
 
-    override fun getParameters(): List<DofusBotScriptParameter> {
+    override fun getParameters(): List<DofusBotParameter> {
         return listOf(
             resumeHuntParameter,
             huntCountParameter,

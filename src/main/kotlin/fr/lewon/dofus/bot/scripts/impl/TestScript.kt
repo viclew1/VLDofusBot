@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.util.network.GameInfo
@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class TestScript : DofusBotScript("Test") {
 
 
-    override fun getParameters(): List<DofusBotScriptParameter> {
+    override fun getParameters(): List<DofusBotParameter> {
         return listOf()
     }
 
@@ -23,6 +23,9 @@ class TestScript : DofusBotScript("Test") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
+        val cellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] ?: return
+        val cell = gameInfo.dofusBoard.getCell(cellId)
+        println(cell)
         FightTask().run(logItem, gameInfo)
     }
 

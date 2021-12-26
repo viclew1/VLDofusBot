@@ -38,8 +38,7 @@ class FightAI(
             tempFightBoard.move(playerFighter, it)
             val closestEnemy = tempFightBoard.getClosestEnemy() ?: error("Closest enemy not found")
             it to (dofusBoard.getPathLength(it, closestEnemy.cell)
-                ?: dofusBoard.getDist(it, closestEnemy.cell)
-                ?: Int.MAX_VALUE)
+                ?: dofusBoard.getDist(it, closestEnemy.cell))
         }.minByOrNull { abs(idealDist - it.second) }?.first
     }
 
@@ -75,8 +74,8 @@ class FightAI(
             return FightOperation(FightOperationType.SPELL, it.cellId, gapCloserCombination.keys)
         }
         getBestSpell(fightBoard, playerFighter.cell, enemies, playerAp, usesStore, cdBySpellKey)?.let {
-            useSpell(fightBoard, it.first, usesStore, cdBySpellKey, it.second.cell)
-            return FightOperation(FightOperationType.SPELL, it.second.cell.cellId, it.first.keys)
+            useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, it.target.cell)
+            return FightOperation(FightOperationType.SPELL, it.target.cell.cellId, it.spell.keys)
         }
         if (shouldUseMpBuff(playerAp, playerMP)) {
             useSpell(fightBoard, mpBuffCombination, usesStore, cdBySpellKey, playerFighter.cell)
@@ -114,6 +113,9 @@ class FightAI(
     }
 
     private fun selectBestMoveDest(playerAp: Int, playerMovePoints: Int): DofusCell {
+        if (getNeighborEnemies(fightBoard, playerFighter.cell).isNotEmpty()) {
+            return playerFighter.cell
+        }
         val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
         val accessibleCells = fightBoard.getMoveCellsWithMpUsed(playerMovePoints, playerPosition)
         return selectBestCell(playerPosition, accessibleCells, playerAp)
@@ -121,8 +123,8 @@ class FightAI(
 
     private fun shouldUseMpBuff(playerAp: Int, playerMovePoints: Int): Boolean {
         val currentAp = initialPlayerAp - mpBuffCombination.apCost
-        val canCastSpell = !canCastSpell(
-            mpBuffCombination, 0, true, true, currentAp, playerFighter, usesStore, cdBySpellKey
+        val canCastSpell = canCastSpell(
+            mpBuffCombination, 0, true, true, true, currentAp, playerFighter, usesStore, cdBySpellKey
         )
 
         if (!canCastSpell) {
@@ -185,13 +187,10 @@ class FightAI(
         state.playerPosition = move.first
         state.mpUsed += move.second
         var ap = playerAp
-        while (true) {
-            getBestSpell(state.fb, move.first, enemies, ap, usesStore, cdBySpellKey)?.let {
-                useSpell(state.fb, it.first, usesStore, cdBySpellKey, it.second.cell)
-                val summonMultiplier = if (it.second.isSummon) 1 else 10
-                state.attacksDone += it.first.aiWeight * aiWeightMultiplier * summonMultiplier
-                ap -= it.first.apCost
-            } ?: break
+        getBestSpell(state.fb, move.first, enemies, ap, usesStore, cdBySpellKey)?.let {
+            useSpell(state.fb, it.spell, usesStore, cdBySpellKey, it.target.cell)
+            state.attacksDone += it.value * aiWeightMultiplier
+            ap -= it.spell.apCost
         }
     }
 
@@ -202,32 +201,31 @@ class FightAI(
         ap: Int,
         usesStore: UsesStore,
         cdBySpellKey: Map<String, Int>
-    ): Pair<SpellCombination, Fighter>? {
-        val bestSpells = ArrayList<Pair<SpellCombination, Fighter>>()
+    ): SpellUsage? {
+        val spells = ArrayList<SpellUsage>()
         for (enemy in enemies) {
             val enemyPosition = enemy.cell
-            val dist = dofusBoard.getDist(playerPosition, enemyPosition) ?: error("Invalid board")
+            val dist = dofusBoard.getDist(playerPosition, enemyPosition)
             val los = fightBoard.lineOfSight(playerPosition, enemyPosition)
             val onSameLine = dofusBoard.isOnSameLine(playerPosition.cellId, enemyPosition.cellId)
-            getBestSpell(dist, los, onSameLine, ap, enemy, usesStore, cdBySpellKey)?.let {
-                bestSpells.add(it to enemy)
-            }
+            val onSameDiagonal = dofusBoard.isOnSameDiagonal(playerPosition.cellId, enemyPosition.cellId)
+            val spellsOnEnemy = attackSpellCombinations
+                .filter { canCastSpell(it, dist, los, onSameLine, onSameDiagonal, ap, enemy, usesStore, cdBySpellKey) }
+                .map { SpellUsage(it, enemy, getHitValue(enemies, it, playerPosition, enemy.cell)) }
+            spells.addAll(spellsOnEnemy)
         }
-        return bestSpells.maxByOrNull { it.first.aiWeight }
+        return spells.maxByOrNull { it.value }
     }
 
-    private fun getBestSpell(
-        dist: Int,
-        los: Boolean,
-        onSameLine: Boolean,
-        ap: Int,
-        target: Fighter,
-        usesStore: UsesStore,
-        cdBySpellKey: Map<String, Int>
-    ): SpellCombination? {
-        return attackSpellCombinations.firstOrNull {
-            canCastSpell(it, dist, los, onSameLine, ap, target, usesStore, cdBySpellKey)
-        }
+    private fun getHitValue(
+        enemies: List<Fighter>,
+        spell: SpellCombination,
+        playerPosition: DofusCell,
+        targetCell: DofusCell
+    ): Int {
+        val spellCells = spell.areaType.getAreaCells(dofusBoard, playerPosition, targetCell, spell.areaSize)
+        return enemies.filter { spellCells.contains(it.cell) }
+            .sumOf { (if (it.isSummon) 1 else 10).toInt() } * spell.aiWeight
     }
 
     private fun canCastSpell(
@@ -235,6 +233,7 @@ class FightAI(
         dist: Int,
         los: Boolean,
         onSameLine: Boolean,
+        onSameDiagonal: Boolean,
         ap: Int,
         target: Fighter,
         usesStore: UsesStore,
@@ -247,7 +246,9 @@ class FightAI(
                 && usesThisTurn < spell.usesPerTurn
                 && usesThisTurnOnTarget < spell.usesPerTurnPerTarget
                 && cdBySpellKey[spell.keys]?.takeIf { it > 0 } == null
-                && (!spell.castInLine || onSameLine)
+                && (!spell.castInLine && !spell.castInDiagonal
+                || spell.castInLine && onSameLine
+                || spell.castInDiagonal && onSameDiagonal)
                 && ap >= spell.apCost
                 && (!spell.needsLos || los)
                 && dist in spell.minRange..getSpellMaxRange(spell)
@@ -305,8 +306,12 @@ class FightAI(
         val dist = dofusBoard.getPathLength(state.playerPosition, closestEnemy.cell)
             ?: Short.MAX_VALUE.toInt()
         val idealDist = aiComplement.getIdealDistance(playerFighter, attackSpellCombinations, playerRange)
-        var score = state.attacksDone - state.mpUsed
-        if (state.attacksDone < 100) {
+        var score = state.attacksDone
+        val shouldAvoidUsingMp = aiComplement.shouldAvoidUsingMp()
+        if (shouldAvoidUsingMp) {
+            score -= state.mpUsed
+        }
+        if (!shouldAvoidUsingMp || state.attacksDone < 100) {
             score -= 10 * abs(dist - idealDist)
         }
         return score
@@ -315,6 +320,13 @@ class FightAI(
     private fun getEnemyPlayers(fightBoard: FightBoard): List<Fighter> {
         return fightBoard.getEnemyFighters()
     }
+
+    private fun getNeighborEnemies(fightBoard: FightBoard, playerPosition: DofusCell): List<Fighter> {
+        val enemies = getEnemyPlayers(fightBoard)
+        return enemies.filter { playerPosition.neighbors.contains(it.cell) }
+    }
+
+    private class SpellUsage(val spell: SpellCombination, val target: Fighter, val value: Int)
 
     private class FightState(
         var attacksDone: Int,

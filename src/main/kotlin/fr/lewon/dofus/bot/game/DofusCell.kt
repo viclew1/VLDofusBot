@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 
-class DofusCell(
+data class DofusCell(
     val row: Int,
     val col: Int,
     val cellId: Int,

@@ -1,12 +1,14 @@
 package fr.lewon.dofus.bot.model.characters
 
+import fr.lewon.dofus.bot.gui.custom.listrenderer.TextImageListItem
+
 
 enum class DofusClass(
     iconFileName: String,
     bannerFileName: String,
     simpleIconFileName: String,
     val classLabel: String
-) {
+) : TextImageListItem {
     FECA("icon/symbol_1.png", "banner/banner_1.png", "simple_icon/10.png", "Feca"),
     OSAMODAS("icon/symbol_2.png", "banner/banner_2.png", "simple_icon/20.png", "Osamodas"),
     ENUTROF("icon/symbol_3.png", "banner/banner_3.png", "simple_icon/30.png", "Enutrof"),
@@ -34,4 +36,15 @@ enum class DofusClass(
     val simpleIconData = javaClass.getResourceAsStream(basePath + simpleIconFileName)?.readAllBytes()
         ?: error("Couldn't find simple icon [$simpleIconFileName]")
 
+    override fun getListImageIcon(): ByteArray {
+        return simpleIconData
+    }
+
+    override fun getIndex(): Int {
+        return ordinal
+    }
+
+    override fun getLabel(): String {
+        return classLabel
+    }
 }

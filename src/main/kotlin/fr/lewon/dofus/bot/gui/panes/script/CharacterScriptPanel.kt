@@ -1,14 +1,12 @@
 package fr.lewon.dofus.bot.gui.panes.script
 
-import fr.lewon.dofus.bot.gui.custom.CustomJTextField
-import fr.lewon.dofus.bot.gui.custom.IntegerJTextField
+import fr.lewon.dofus.bot.gui.custom.parameters.ParametersPanel
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
 import fr.lewon.dofus.bot.util.script.ScriptRunner
@@ -100,86 +98,18 @@ class CharacterScriptPanel(private val character: DofusCharacter) : JPanel(MigLa
 
     private fun buildParametersPane(): JPanel {
         val dofusScript = scriptComboBox.selectedItem as DofusBotScript
-        val parametersPane = JPanel(MigLayout("fillX"))
         val parameters = dofusScript.getParameters()
+        parameters.forEach {
+            it.value = CharacterManager.getParamValue(character, dofusScript, it) ?: it.defaultValue
+        }
+        val parametersPanel = ParametersPanel(parameters) { p, v -> updateParam(character, dofusScript, p, v) }
         parametersSeparator.isVisible = parameters.isNotEmpty()
         parametersLabel.isVisible = parameters.isNotEmpty()
         parametersScrollPane.isVisible = parameters.isNotEmpty()
-        for (parameter in parameters) {
-            val parameterLabel = JLabel(parameter.key).also { it.toolTipText = parameter.description }
-            parametersPane.add(parameterLabel, "height 20")
-            parametersPane.add(JPanel(), "growX, height 20")
-            parametersPane.add(
-                buildInputField(character, dofusScript, parameter),
-                "al right, width 80, height 25, wrap"
-            )
-        }
-        return parametersPane
+        return parametersPanel
     }
 
-    private fun buildInputField(
-        character: DofusCharacter,
-        script: DofusBotScript,
-        param: DofusBotScriptParameter
-    ): JComponent {
-        param.value = CharacterManager.getParamValue(character, script, param) ?: param.defaultValue
-        return when (param.type) {
-            DofusBotScriptParameterType.INTEGER -> buildIntegerField(character, script, param)
-            DofusBotScriptParameterType.BOOLEAN -> buildCheckbox(character, script, param)
-            DofusBotScriptParameterType.CHOICE -> buildComboBox(character, script, param)
-            else -> buildTextField(character, script, param)
-        }
-    }
-
-    private fun buildIntegerField(
-        character: DofusCharacter,
-        script: DofusBotScript,
-        param: DofusBotScriptParameter
-    ): JComponent {
-        val integerField = IntegerJTextField(param.value.toInt())
-        integerField.addCaretListener { updateParam(character, script, param, integerField.text.toIntOrNull() ?: 0) }
-        return integerField
-    }
-
-    private fun buildCheckbox(
-        character: DofusCharacter,
-        script: DofusBotScript,
-        param: DofusBotScriptParameter
-    ): JComponent {
-        val checkBox = JCheckBox()
-        checkBox.isSelected = param.value.toBoolean()
-        checkBox.addItemListener { updateParam(character, script, param, checkBox.isSelected.toString()) }
-        return checkBox
-    }
-
-    private fun buildComboBox(
-        character: DofusCharacter,
-        script: DofusBotScript,
-        param: DofusBotScriptParameter
-    ): JComponent {
-        val comboBox = JComboBox(param.possibleValues.toTypedArray())
-        comboBox.selectedItem = param.value
-        comboBox.addItemListener { updateParam(character, script, param, comboBox.selectedItem?.toString() ?: "") }
-        return comboBox.also { it.addItemListener { } }
-    }
-
-    private fun buildTextField(
-        character: DofusCharacter,
-        script: DofusBotScript,
-        param: DofusBotScriptParameter
-    ): JComponent {
-        val textField = CustomJTextField(param.value)
-        textField.addCaretListener { updateParam(character, script, param, textField.text) }
-        return textField
-    }
-
-    private fun updateParam(
-        character: DofusCharacter,
-        script: DofusBotScript,
-        param: DofusBotScriptParameter,
-        value: Any
-    ) {
-        param.value = value.toString()
+    private fun updateParam(character: DofusCharacter, script: DofusBotScript, param: DofusBotParameter, value: Any) {
         CharacterManager.updateParamValue(character, script, param)
         updateDescription()
     }

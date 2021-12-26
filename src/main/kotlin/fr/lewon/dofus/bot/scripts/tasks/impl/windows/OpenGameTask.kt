@@ -3,7 +3,6 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.windows
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
@@ -159,8 +158,7 @@ class OpenGameTask : DofusBotTask<DofusConnection>() {
     }
 
     override fun onStarted(): String {
-        val currentCharacter = CharacterManager.getCurrentCharacter() ?: error("No character selected")
-        return "Opening game for character [${currentCharacter.pseudo}] ..."
+        return "Opening game ..."
     }
 
 }

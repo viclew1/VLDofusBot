@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import java.util.*
 import kotlin.math.abs
 
-class DofusBoard {
+class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
 
     companion object {
         private const val HEIGHT_RATIO = 0.885f
@@ -27,12 +27,12 @@ class DofusBoard {
         val initialY = TILE_HEIGHT / 4f
 
         cells = ArrayList()
-        for (xMultiplier in 0 until MAP_WIDTH * 2) {
+        for (xMultiplier in 0 until width * 2) {
             val x = initialX + (xMultiplier.toFloat() / 2f) * TILE_WIDTH
-            for (yMultiplier in 0 until MAP_HEIGHT) {
+            for (yMultiplier in 0 until height) {
                 val row = -xMultiplier / 2 + yMultiplier
                 val col = xMultiplier / 2 + xMultiplier % 2 + yMultiplier
-                val cellId = xMultiplier / 2 + yMultiplier * 2 * MAP_WIDTH + xMultiplier % 2 * MAP_WIDTH
+                val cellId = xMultiplier / 2 + yMultiplier * 2 * width + xMultiplier % 2 * width
                 val y = initialY + yMultiplier * TILE_HEIGHT + (xMultiplier % 2) * TILE_HEIGHT / 2f
                 val boundsX = x - TILE_WIDTH / 4f
                 val boundsW = TILE_WIDTH / 2f
@@ -66,6 +66,12 @@ class DofusBoard {
         return from.row == to.row || from.col == to.col
     }
 
+    fun isOnSameDiagonal(fromCellId: Int, toCellId: Int): Boolean {
+        val from = getCell(fromCellId)
+        val to = getCell(toCellId)
+        return abs(from.col - to.col) == abs(from.row - to.row)
+    }
+
     fun getCell(cellId: Int): DofusCell {
         return cellsByCellId[cellId] ?: error("No cell with id $cellId")
     }
@@ -89,7 +95,7 @@ class DofusBoard {
         return getPath(fromCell, toCell)?.size
     }
 
-    fun getDist(fromCell: DofusCell, toCell: DofusCell): Int? {
+    fun getDist(fromCell: DofusCell, toCell: DofusCell): Int {
         return abs(fromCell.col - toCell.col) + abs(fromCell.row - toCell.row)
     }
 

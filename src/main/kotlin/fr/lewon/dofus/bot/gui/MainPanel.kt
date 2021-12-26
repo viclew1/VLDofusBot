@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.gui
 import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
 import fr.lewon.dofus.bot.gui.about.AboutPanel
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
+import fr.lewon.dofus.bot.gui.panes.character.card.edit.GlobalCharacterFormPanel
 import fr.lewon.dofus.bot.gui.panes.config.ConfigPanel
 import fr.lewon.dofus.bot.gui.panes.script.GlobalScriptPanel
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
@@ -31,14 +32,23 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
         add(leftPanel, "w $CHARACTERS_WIDTH:$CHARACTERS_WIDTH:$CHARACTERS_WIDTH, h max")
         add(mainTabbedPane, "w max, h max")
 
+        mainTabbedPane.addChangeListener {
+            val selectedComponent = mainTabbedPane.selectedComponent
+            if (selectedComponent is GlobalScriptPanel) {
+                CharacterSelectionPanel.cardList.getCard(selectedComponent.character)?.let {
+                    CharacterSelectionPanel.cardList.selectItem(it)
+                }
+            } else {
+                CharacterSelectionPanel.cardList.selectItem(null)
+            }
+        }
+
         CharacterSelectionPanel.border = BorderFactory.createEtchedBorder()
         leftTabbedPane.border = BorderFactory.createEtchedBorder()
         mainTabbedPane.border = BorderFactory.createEtchedBorder()
-
-        CharacterManager.getCurrentCharacter()?.let { addCharacterScriptTab(it) }
     }
 
-    private fun addTab(title: String, buildIfMissingFunction: () -> JComponent) {
+    private fun addTab(title: String, buildIfMissingFunction: () -> JComponent): JComponent {
         var tab = tabByTitle[title]
         if (tab == null) {
             tab = buildIfMissingFunction()
@@ -46,10 +56,27 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
             mainTabbedPane.addTab(title, tab)
         }
         mainTabbedPane.selectedComponent = tab
+        return tab
     }
 
-    fun addCharacterScriptTab(character: DofusCharacter) {
-        addTab("${character.pseudo} - Scripts") { GlobalScriptPanel(character) }
+    fun addCharacterScriptTab(character: DofusCharacter): JComponent {
+        return addTab("${character.pseudo} - Scripts") { GlobalScriptPanel(character) }
+    }
+
+    fun addCharacterEditTab(character: DofusCharacter?, onSaveAction: (DofusCharacter) -> Unit) {
+        var tab: JComponent? = null
+        val onSaveActionWithClose: (DofusCharacter) -> Unit = {
+            onSaveAction(it)
+            val index = mainTabbedPane.indexOfComponent(tab)
+            val title = mainTabbedPane.getTitleAt(index)
+            mainTabbedPane.remove(index)
+            tabByTitle.remove(title)
+        }
+        tab = if (character == null) {
+            addTab("New character") { GlobalCharacterFormPanel(DofusCharacter(), onSaveActionWithClose) }
+        } else {
+            addTab("${character.pseudo} - Edit") { GlobalCharacterFormPanel(character, onSaveActionWithClose) }
+        }
     }
 
 }

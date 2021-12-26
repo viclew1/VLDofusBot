@@ -104,6 +104,7 @@ class FightTask(
         WaitUtil.waitUntil(
             { fightBoard.getPlayerFighter() != null && fightBoard.getEnemyFighters().isNotEmpty() }
         )
+        WaitUtil.sleep(1500)
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
 
@@ -121,12 +122,6 @@ class FightTask(
         gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java)
-
-        playerFighter.maxHp += FighterCharacteristic.HP.getFighterCharacteristicValue(playerFighter) +
-                FighterCharacteristic.VITALITY.getFighterCharacteristicValue(playerFighter)
-        playerFighter.hp += playerFighter.maxHp +
-                FighterCharacteristic.CUR_LIFE.getFighterCharacteristicValue(playerFighter)
-        println("${playerFighter.hp} / ${playerFighter.maxHp}")
 
         while (!isFightEnded(gameInfo)) {
             MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)

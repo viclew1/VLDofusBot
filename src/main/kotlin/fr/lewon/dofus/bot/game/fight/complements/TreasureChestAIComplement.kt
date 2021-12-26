@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 class TreasureChestAIComplement : AIComplement() {
 
     override fun canAttack(playerFighter: Fighter): Boolean {
-        return playerFighter.maxHp / 5 > playerFighter.hp
+        return playerFighter.maxHp / 6 < playerFighter.hp
     }
 
     override fun canMove(playerFighter: Fighter): Boolean {
@@ -20,6 +20,10 @@ class TreasureChestAIComplement : AIComplement() {
 
     override fun getIdealDistance(playerFighter: Fighter, spells: List<SpellCombination>, playerRange: Int): Int {
         return 0
+    }
+
+    override fun shouldAvoidUsingMp(): Boolean {
+        return false
     }
 
 }

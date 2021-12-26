@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 abstract class DofusBotScript(val name: String) {
 
-    abstract fun getParameters(): List<DofusBotScriptParameter>
+    abstract fun getParameters(): List<DofusBotParameter>
 
     abstract fun getStats(): List<DofusBotScriptStat>
 

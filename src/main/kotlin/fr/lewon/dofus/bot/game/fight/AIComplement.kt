@@ -8,5 +8,6 @@ abstract class AIComplement {
     abstract fun canMove(playerFighter: Fighter): Boolean
     abstract fun mustUseAllMP(playerFighter: Fighter): Boolean
     abstract fun getIdealDistance(playerFighter: Fighter, spells: List<SpellCombination>, playerRange: Int): Int
+    abstract fun shouldAvoidUsingMp(): Boolean
 
 }

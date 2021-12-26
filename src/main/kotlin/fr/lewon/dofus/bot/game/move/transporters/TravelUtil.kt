@@ -1,9 +1,7 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
 import fr.lewon.dofus.bot.core.manager.DofusMapManager
 import fr.lewon.dofus.bot.core.manager.WaypointsManager
-import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.manager.world.Transition
 import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
@@ -70,16 +68,4 @@ object TravelUtil {
         return WorldGraphUtil.getPath(fromMap, fromZone, destMaps)
     }
 
-}
-
-fun main() {
-    VLDofusBotCoreUtil.initAll()
-    val waypoints = D2OUtil.getObjects("Waypoints")
-    waypoints.forEach {
-        println(
-            "${it["activated"]} - ${
-                DofusMapManager.getDofusMap(it["mapId"].toString().toDouble())
-            }"
-        )
-    }
 }

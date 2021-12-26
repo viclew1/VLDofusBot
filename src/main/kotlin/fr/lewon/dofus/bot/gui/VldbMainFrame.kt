@@ -23,8 +23,8 @@ import kotlin.system.exitProcess
 
 object VldbMainFrame : JFrame("VL Dofus Bot") {
 
-    private const val MIN_WIDTH = 900
-    private const val MIN_HEIGHT = 600
+    private const val MIN_WIDTH = 1024
+    private const val MIN_HEIGHT = 680
     private const val DEFAULT_WIDTH = 1024
     private const val DEFAULT_HEIGHT = 768
     private const val HEADER_HEIGHT = 60

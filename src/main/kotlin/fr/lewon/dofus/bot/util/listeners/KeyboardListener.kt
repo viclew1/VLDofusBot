@@ -6,7 +6,7 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper
-import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.util.logging.Level
@@ -47,7 +47,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
     private fun toggleOverlay() {
         val newDisplayedOverlay = keysByOverlay.entries.firstOrNull { shouldDisplayOverlay(it.value) }?.key
         if (newDisplayedOverlay != null && newDisplayedOverlay != displayedOverlay) {
-            val character = CharacterManager.getCurrentCharacter()
+            val character = CharacterSelectionPanel.cardList.selectedItem
             if (character != null) {
                 val connection = GameSnifferUtil.getConnection(character)
                 if (connection != null) {

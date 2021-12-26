@@ -2,19 +2,19 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
+import fr.lewon.dofus.bot.scripts.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ReadD2OFileScript : DofusBotScript("Read D2O file") {
 
-    private val nameParameter = DofusBotScriptParameter(
-        "name", "D2O File name", "", DofusBotScriptParameterType.STRING
+    private val nameParameter = DofusBotParameter(
+        "name", "D2O File name", "", DofusBotParameterType.STRING
     )
 
-    override fun getParameters(): List<DofusBotScriptParameter> {
+    override fun getParameters(): List<DofusBotParameter> {
         return listOf(nameParameter)
     }
 

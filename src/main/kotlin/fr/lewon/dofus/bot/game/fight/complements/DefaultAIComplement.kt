@@ -41,4 +41,7 @@ class DefaultAIComplement(
         } else spell.maxRange
     }
 
+    override fun shouldAvoidUsingMp(): Boolean {
+        return true
+    }
 }

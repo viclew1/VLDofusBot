@@ -6,7 +6,7 @@ import net.miginfocom.swing.MigLayout
 import javax.swing.BorderFactory
 import javax.swing.JPanel
 
-class GlobalScriptPanel(character: DofusCharacter) : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
+class GlobalScriptPanel(val character: DofusCharacter) : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
 
     init {
         val scriptPanel = CharacterScriptPanel(character)

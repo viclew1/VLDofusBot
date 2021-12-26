@@ -9,8 +9,8 @@ import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
-import fr.lewon.dofus.bot.scripts.DofusBotScriptParameter
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
@@ -39,22 +39,10 @@ object CharacterManager : VldbManager {
         }
     }
 
-    fun setCurrentCharacter(character: DofusCharacter) {
-        if (characterStore.currentCharacterLogin != character.login || characterStore.currentCharacterPseudo != character.pseudo) {
-            characterStore.currentCharacterLogin = character.login
-            characterStore.currentCharacterPseudo = character.pseudo
-            saveUserData()
-        }
-    }
-
-    fun getCurrentCharacter(): DofusCharacter? {
-        val login = characterStore.currentCharacterLogin ?: return null
-        val pseudo = characterStore.currentCharacterPseudo ?: return null
-        return getCharacter(login, pseudo)
-    }
-
     fun getCharacter(login: String, pseudo: String): DofusCharacter? {
-        return characterStore.characters.firstOrNull { it.login == login && it.pseudo == pseudo }
+        return characterStore.characters.firstOrNull {
+            it.login.lowercase() == login.lowercase() && it.pseudo.lowercase() == pseudo.lowercase()
+        }
     }
 
     fun getCharacterByName(pseudo: String): DofusCharacter? {
@@ -78,19 +66,12 @@ object CharacterManager : VldbManager {
         }
         val character = DofusCharacter(login, password, pseudo, dofusClass, spells = ArrayList(spells))
         characterStore.characters.add(character)
-        if (getCurrentCharacter() == null) {
-            setCurrentCharacter(character)
-        }
         saveUserData()
         return character
     }
 
     fun removeCharacter(character: DofusCharacter) {
         characterStore.characters.remove(character)
-        if (getCurrentCharacter() == character) {
-            characterStore.currentCharacterLogin = null
-            characterStore.currentCharacterPseudo = null
-        }
         saveUserData()
     }
 
@@ -106,10 +87,6 @@ object CharacterManager : VldbManager {
         if (existingCharacter != null && existingCharacter != character) {
             error("Character already registered : [$login, $pseudo]")
         }
-        if (getCurrentCharacter() == character) {
-            characterStore.currentCharacterLogin = login
-            characterStore.currentCharacterPseudo = pseudo
-        }
         character.login = login
         character.password = password
         character.pseudo = pseudo
@@ -118,12 +95,12 @@ object CharacterManager : VldbManager {
         saveUserData()
     }
 
-    fun updateParamValue(character: DofusCharacter, script: DofusBotScript, param: DofusBotScriptParameter) {
+    fun updateParamValue(character: DofusCharacter, script: DofusBotScript, param: DofusBotParameter) {
         character.scriptValues.updateParamValue(script.name, param.key, param.value)
         saveUserData()
     }
 
-    fun getParamValue(character: DofusCharacter, script: DofusBotScript, param: DofusBotScriptParameter): String? {
+    fun getParamValue(character: DofusCharacter, script: DofusBotScript, param: DofusBotParameter): String? {
         return character.scriptValues.getParamValue(script.name, param.key)
     }
 
