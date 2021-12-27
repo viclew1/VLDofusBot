@@ -6,9 +6,6 @@ enum class FighterCharacteristic(val keyword: String) {
 
     MP("movementPoints"),
     AP("actionPoints"),
-    HP("lifePoints"),
-    CUR_LIFE("curLife"),
-    VITALITY("vitality"),
     RANGE("range");
 
     fun getFighterCharacteristicValue(fighter: Fighter): Int {

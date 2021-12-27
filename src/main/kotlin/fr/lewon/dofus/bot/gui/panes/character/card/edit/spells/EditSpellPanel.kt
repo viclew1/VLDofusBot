@@ -135,8 +135,8 @@ class EditSpellPanel : JPanel(MigLayout()) {
 
     private fun getMpBuffSpecificSpellParameters(spell: SpellCombination): List<SpellParameterWithOnUpdate> {
         return listOf(
-            SpellParameterWithOnUpdate("Amount", "Amount of MP given by the buff", spell.apCost.toString(), INTEGER) {
-                spell.apCost = it.toString().toInt()
+            SpellParameterWithOnUpdate("Amount", "Amount of MP given by the buff", spell.amount.toString(), INTEGER) {
+                spell.amount = it.toString().toInt()
             }
         )
     }

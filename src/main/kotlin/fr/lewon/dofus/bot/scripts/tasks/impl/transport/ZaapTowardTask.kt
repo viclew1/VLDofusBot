@@ -67,9 +67,8 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         val uniqueIdentifier = getUniqueIdentifier(zaapDestination, zaapDestinations).lowercase()
         KeyboardUtil.writeKeyboard(gameInfo, uniqueIdentifier, 100)
         restoreChatSize(gameInfo, uniqueIdentifier)
-        KeyboardUtil.enter(gameInfo)
-
         gameInfo.eventStore.clear()
+        KeyboardUtil.enter(gameInfo)
         MoveUtil.waitForMapChange(gameInfo)
         return true
     }

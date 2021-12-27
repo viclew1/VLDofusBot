@@ -61,8 +61,6 @@ class FightAI(
     }
 
     fun getNextOperation(): FightOperation? {
-        playerFighter.maxHp = FighterCharacteristic.HP.getFighterCharacteristicValue(playerFighter) +
-                FighterCharacteristic.VITALITY.getFighterCharacteristicValue(playerFighter)
         val playerAp = FighterCharacteristic.AP.getFighterCharacteristicValue(playerFighter)
         val playerMP = FighterCharacteristic.MP.getFighterCharacteristicValue(playerFighter)
         val enemies = getEnemyPlayers(fightBoard)
@@ -122,9 +120,8 @@ class FightAI(
     }
 
     private fun shouldUseMpBuff(playerAp: Int, playerMovePoints: Int): Boolean {
-        val currentAp = initialPlayerAp - mpBuffCombination.apCost
         val canCastSpell = canCastSpell(
-            mpBuffCombination, 0, true, true, true, currentAp, playerFighter, usesStore, cdBySpellKey
+            mpBuffCombination, 0, true, true, true, playerAp, playerFighter, usesStore, cdBySpellKey
         )
 
         if (!canCastSpell) {

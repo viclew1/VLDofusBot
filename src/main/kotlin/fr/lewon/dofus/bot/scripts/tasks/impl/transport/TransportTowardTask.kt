@@ -14,7 +14,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class TransportTowardTask(private val transporter: ITransporter) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        val closestZaap = TravelUtil.getClosestZaap(listOf(transporter.getMap()))
+        val closestZaap = TravelUtil.getClosestZaap(listOf(transporter.getTransporterMap()))
             ?: error("No zaap found near transporter")
         ZaapTowardTask(closestZaap.first).run(logItem, gameInfo)
         TravelTask(listOf(transporter.getTransporterMap())).run(logItem, gameInfo)

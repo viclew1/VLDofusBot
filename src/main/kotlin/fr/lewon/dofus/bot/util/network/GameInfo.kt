@@ -15,6 +15,8 @@ import java.util.concurrent.locks.ReentrantLock
 
 class GameInfo(val character: DofusCharacter) {
 
+    var hp = 0
+    var maxHp = 0
     private val lock = ReentrantLock(true)
 
     val logger = character.executionLogger

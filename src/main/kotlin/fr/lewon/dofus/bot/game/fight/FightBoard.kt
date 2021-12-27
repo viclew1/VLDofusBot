@@ -73,6 +73,10 @@ class FightBoard(private val gameInfo: GameInfo) {
             val fighter = fightersById.computeIfAbsent(fighterId) {
                 Fighter(cell, fighterId, !dofusBoard.startCells.contains(cell), false)
             }
+            if (fighterId == gameInfo.playerId) {
+                fighter.maxHp = gameInfo.maxHp
+                fighter.baseHp = gameInfo.hp
+            }
             move(fighter, cell)
         } finally {
             lock.unlock()

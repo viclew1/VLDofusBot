@@ -114,9 +114,12 @@ class FightTask(
         val fightAI = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 1, spells, aiComplement)
 
         fightAI.selectStartCell()?.takeIf { it != playerFighter.cell }?.let {
+            WaitUtil.sleep(800)
             MouseUtil.leftClick(gameInfo, it.getCenter())
-            WaitUtil.sleep(500)
+            WaitUtil.sleep(800)
         }
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
+        WaitUtil.sleep(500)
 
         gameInfo.eventStore.clear(MapComplementaryInformationsDataMessage::class.java)
         gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)

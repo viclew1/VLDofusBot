@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.gui.sound
 
+import java.io.BufferedInputStream
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.Clip
 
@@ -12,7 +13,9 @@ enum class SoundType(soundFileName: String) {
     private val clip: Clip
 
     init {
-        val ais = AudioSystem.getAudioInputStream(javaClass.getResourceAsStream("/sounds/$soundFileName"))
+        val ais = AudioSystem.getAudioInputStream(
+            BufferedInputStream(javaClass.getResourceAsStream("/sounds/$soundFileName") ?: error("Sound IS not found"))
+        )
         clip = AudioSystem.getClip()
         clip.open(ais)
     }

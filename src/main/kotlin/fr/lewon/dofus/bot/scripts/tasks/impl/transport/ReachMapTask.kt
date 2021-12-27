@@ -20,7 +20,7 @@ open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBot
         val zaapWithDist = TravelUtil.getClosestZaap(dofusMaps)
         val transporterWithDist = TravelUtil.getClosestTransporter(transporters, dofusMaps)
         val transporterToZaapDist = transporterWithDist?.first?.let {
-            TravelUtil.getPath(transporterWithDist.first.getMap(), 1, zaaps)?.size
+            TravelUtil.getPath(transporterWithDist.first.getTransporterMap(), 1, zaaps)?.size
         } ?: Int.MAX_VALUE
         val path = TravelUtil.getPath(gameInfo, dofusMaps)
 

@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 class TreasureChestAIComplement : AIComplement() {
 
     override fun canAttack(playerFighter: Fighter): Boolean {
-        return playerFighter.maxHp / 6 < playerFighter.hp
+        return playerFighter.maxHp / 6 < playerFighter.getCurrentHp()
     }
 
     override fun canMove(playerFighter: Fighter): Boolean {
