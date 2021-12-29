@@ -8,6 +8,7 @@ import javax.sound.sampled.Clip
 enum class SoundType(soundFileName: String) {
 
     RARE_MONSTER_FOUND("rare_monster_found.wav"),
+    OBJECT_CRAFT("craft.mp3"),
     FAILED("failed.wav");
 
     private val clip: Clip

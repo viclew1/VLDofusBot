@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.CharacteristicManager
 import fr.lewon.dofus.bot.core.manager.ItemManager
 import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
+import fr.lewon.dofus.bot.gui.sound.SoundType
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
@@ -15,7 +16,6 @@ import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicType
 import fr.lewon.dofus.bot.scripts.smithmagic.strategies.DrakeHeadStrategy
 import fr.lewon.dofus.bot.sniffer.model.messages.exchange.ExchangeObjectAddedMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.exchange.ExchangeStartOkCraftWithInformationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.smithmagic.ObjectModifiedMessage
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.ObjectItem
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.effect.ObjectEffectInteger
@@ -79,6 +79,7 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
             val smithMagicLogItem = gameInfo.logger.addSubLog("Item selected ! Starting smithing ...", logItem)
             applyStrategyOnItem(gameInfo, currentObjectItem, strategy)
             gameInfo.logger.closeLog("OK", smithMagicLogItem)
+            SoundType.OBJECT_CRAFT.playSound()
         }
     }
 
@@ -88,6 +89,7 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
             .toMutableMap()
         var currentObjectItem = objectItem
         updateSmithMagicLinesValues(currentObjectItem, linesByKeyword)
+        var previousSearchedCharacteristic: SmithMagicCharacteristics? = null
         while (!strategy.checkEnd(linesByKeyword)) {
             val runeToPass = strategy.getRuneToPass(linesByKeyword)
             val correspondingLine = linesByKeyword[runeToPass.second.keyWord]
@@ -95,19 +97,28 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
             if (correspondingLine != null) {
                 useRuneOnLine(gameInfo, linesByKeyword, correspondingLine, runeToPass.first)
             } else {
-                useRuneInInventory(gameInfo, runeToPass.second, runeToPass.first)
+                useRuneInInventory(gameInfo, runeToPass.second, runeToPass.first, previousSearchedCharacteristic)
+                previousSearchedCharacteristic = runeToPass.second
             }
             currentObjectItem = waitForObjectModified(gameInfo) ?: currentObjectItem
             updateSmithMagicLinesValues(currentObjectItem, linesByKeyword)
         }
     }
 
-    private fun useRuneInInventory(gameInfo: GameInfo, characteristic: SmithMagicCharacteristics, runeSize: Int) {
-        MouseUtil.leftClick(gameInfo, CLEAR_SEARCH_POSITION)
-        MouseUtil.leftClick(gameInfo, SEARCH_POSITION)
-        KeyboardUtil.writeKeyboard(gameInfo, "Rune ga pa", 500)
-        MouseUtil.doubleLeftClick(gameInfo, FIRST_ITEM_POSITION, 800)
+    private fun useRuneInInventory(
+        gameInfo: GameInfo,
+        characteristic: SmithMagicCharacteristics,
+        runeSize: Int,
+        previousSearchedCharacteristic: SmithMagicCharacteristics? = null
+    ) {
+        if (characteristic != previousSearchedCharacteristic) {
+            MouseUtil.leftClick(gameInfo, CLEAR_SEARCH_POSITION)
+            MouseUtil.leftClick(gameInfo, SEARCH_POSITION, 500)
+            KeyboardUtil.writeKeyboard(gameInfo, "Rune ga pa", 500)
+        }
+        MouseUtil.doubleLeftClick(gameInfo, FIRST_ITEM_POSITION, 1000)
         MouseUtil.leftClick(gameInfo, MERGE_BUTTON_POSITION)
+        WaitUtil.sleep(1000)
     }
 
     private fun useRuneOnLine(
@@ -124,9 +135,7 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
     private fun waitForObjectModified(gameInfo: GameInfo): ObjectItem? {
         WaitUtil.waitUntil({ gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java) != null }, 10000)
         gameInfo.eventStore.clearUntilLast(ObjectModifiedMessage::class.java)
-        val objectItem = gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java)?.objectItem
-        WaitUtil.waitUntil({ gameInfo.eventStore.getLastEvent(BasicNoOperationMessage::class.java) != null }, 5000)
-        return objectItem
+        return gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java)?.objectItem
     }
 
     private fun getRuneClickPosition(lineIndex: Int, runeSize: Int): PointRelative {
