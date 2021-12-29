@@ -113,7 +113,7 @@ class FightTask(
         val spells = gameInfo.character.spells
         val fightAI = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 1, spells, aiComplement)
 
-        fightAI.selectStartCell()?.takeIf { it != playerFighter.cell }?.let {
+        fightAI.selectStartCell()?.let {
             WaitUtil.sleep(800)
             MouseUtil.leftClick(gameInfo, it.getCenter())
             WaitUtil.sleep(800)
@@ -131,7 +131,7 @@ class FightTask(
 
             fightAI.onNewTurn()
             lateinit var nextOperation: FightOperation
-            while (fightAI.getNextOperation()?.also { nextOperation = it } != null) {
+            while (!isFightEnded(gameInfo) && fightAI.getNextOperation()?.also { nextOperation = it } != null) {
                 val target = gameInfo.dofusBoard.getCell(nextOperation.targetCellId)
                 if (nextOperation.type == FightOperationType.MOVE) {
                     processMove(gameInfo, target)

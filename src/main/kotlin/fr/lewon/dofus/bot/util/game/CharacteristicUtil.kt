@@ -21,8 +21,10 @@ object CharacteristicUtil {
         characsById: Map<Int, CharacterCharacteristic>
     ): Int? {
         val keyword = fighterCharacteristic.keyword
-        val characId = CharacteristicManager.getCharacteristicId(keyword)
-        val charac = characsById[characId] ?: return null
+        val characId = CharacteristicManager.getCharacteristic(keyword)?.id?.toInt()
+            ?: return null
+        val charac = characsById[characId]
+            ?: return null
         return getCharacteristicValue(charac)
     }
 

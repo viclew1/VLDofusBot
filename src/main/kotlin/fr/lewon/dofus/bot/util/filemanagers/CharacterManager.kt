@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.core.manager.VldbManager
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
@@ -16,12 +15,12 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
-object CharacterManager : VldbManager {
+object CharacterManager {
 
     private lateinit var characterStore: CharacterStore
     private lateinit var dataStoreFile: File
 
-    override fun initManager() {
+    fun initManager() {
         dataStoreFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/user_data")
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         if (dataStoreFile.exists()) {

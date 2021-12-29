@@ -7,6 +7,8 @@ import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import net.miginfocom.swing.MigLayout
 import org.reflections.Reflections
 import java.awt.Color
@@ -20,7 +22,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
     private val initTasks = listOf(
         buildInitTask("Dofus decompiled") { DofusMessageReceiverUtil.prepareNetworkManagers() },
         buildInitTask("VLDofusBotCore") { VLDofusBotCoreUtil.initAll() },
-        buildInitTask("File managers") { VLDofusBotCoreUtil.initVldbManagers(CharacterManager::class.java.packageName) },
+        buildInitTask("File managers") { initFileManagers() },
         buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
     )
 
@@ -106,6 +108,12 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         initTask.progressBar.isIndeterminate = false
         initTask.progressBar.maximum = 1
         initTask.progressBar.value = 1
+    }
+
+    private fun initFileManagers() {
+        CharacterManager.initManager()
+        ConfigManager.initManager()
+        HintManager.initManager()
     }
 
     private fun initEventStoreHandlers() {

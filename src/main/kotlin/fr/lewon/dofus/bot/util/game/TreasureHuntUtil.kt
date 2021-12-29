@@ -90,7 +90,6 @@ object TreasureHuntUtil {
         val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
         gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, tickPoint)
-        WaitUtil.waitUntilMessageArrives(gameInfo, TreasureHuntMessage::class.java)
         waitForTreasureHuntUpdate(gameInfo)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
     }

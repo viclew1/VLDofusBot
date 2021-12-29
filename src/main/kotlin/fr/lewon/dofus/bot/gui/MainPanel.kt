@@ -8,6 +8,8 @@ import fr.lewon.dofus.bot.gui.panes.config.ConfigPanel
 import fr.lewon.dofus.bot.gui.panes.script.GlobalScriptPanel
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import net.miginfocom.swing.MigLayout
 import javax.swing.BorderFactory
 import javax.swing.JComponent
@@ -83,6 +85,8 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
 
 fun main() {
     VLDofusBotCoreUtil.initAll()
-    VLDofusBotCoreUtil.initVldbManagers(CharacterManager::class.java.packageName)
+    CharacterManager.initManager()
+    ConfigManager.initManager()
+    HintManager.initManager()
     VldbMainFrame.isVisible = true
 }

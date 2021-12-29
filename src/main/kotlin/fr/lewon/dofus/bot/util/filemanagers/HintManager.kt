@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
-import fr.lewon.dofus.bot.core.manager.VldbManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.model.hint.Hint
@@ -9,12 +8,12 @@ import fr.lewon.dofus.bot.model.maps.DofusMapWithDirection
 import fr.lewon.dofus.bot.util.RequestProcessor
 import fr.lewon.dofus.bot.util.math.LevenshteinDistanceUtil
 
-object HintManager : VldbManager {
+object HintManager {
 
     private lateinit var hints: HashMap<DofusMapWithDirection, ArrayList<Hint>>
     private lateinit var hintsIdsByName: Map<String, Int>
 
-    override fun initManager() {
+    fun initManager() {
         hints = HashMap()
         hintsIdsByName = RequestProcessor.getAllHintIdsByName()
     }
