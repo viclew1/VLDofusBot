@@ -112,6 +112,8 @@ class FightAI(
 
     private fun selectBestGapCloser(playerAp: Int): SpellUsage? {
         val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
+        val enemies = getEnemyPlayers(fightBoard)
+        val playerPositionScore = evaluateMove(playerPosition, enemies, playerPosition to 0, playerAp)
         return gapCloserCombinations
             .filter { canCastSpell(it, usesStore, cdBySpellKey, playerAp) }
             .map { gapCloser ->
@@ -124,10 +126,11 @@ class FightAI(
                     getRealGapCloserDest(gapCloser, playerPosition, it.first) to it.first
                 }
                 val realCells = targetCellByRealCell.keys.map { it to 0 }
-                val moveAction = selectBestCell(playerPosition, realCells, playerAp) { it + 30 }
+                val moveAction = selectBestCell(playerPosition, realCells, playerAp - gapCloser.apCost) { it + 30 }
                 val targetCell = targetCellByRealCell[moveAction.target] ?: error("Invalid cell")
                 SpellUsage(gapCloser, targetCell, moveAction.value) to moveAction.target
             }.maxByOrNull { it.first.value }
+            ?.takeIf { playerPositionScore < it.first.value }
             ?.takeIf { it.second.cellId != playerPosition.cellId }
             ?.first
     }
