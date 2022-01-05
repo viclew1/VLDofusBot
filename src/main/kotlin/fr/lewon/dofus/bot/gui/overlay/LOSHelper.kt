@@ -125,8 +125,8 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
 
         private fun drawAccessibleCell(g: Graphics, cell: DofusCell) {
             val fighter = gameInfo.fightBoard.getFighter(cell)
-            val isCellEnemy = fighter?.enemy == true
-            val isCellAlly = fighter?.enemy == false
+            val isCellEnemy = fighter?.let { gameInfo.fightBoard.isFighterEnemy(it) } == true
+            val isCellAlly = fighter?.let { gameInfo.fightBoard.isFighterEnemy(it) } == false
             val color = when {
                 hoveredCell == cell -> Color.CYAN
                 losOkCells.contains(cell) -> Color.BLUE

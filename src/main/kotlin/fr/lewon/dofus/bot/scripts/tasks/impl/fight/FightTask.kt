@@ -11,10 +11,7 @@ import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameEntitiesDispositionMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightTurnEndMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightTurnStartPlayingMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.SequenceEndMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.fight.*
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
@@ -26,7 +23,6 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
 import fr.lewon.dofus.bot.util.network.GameInfo
-import java.awt.Color
 import java.awt.event.KeyEvent
 
 class FightTask(
@@ -40,13 +36,13 @@ class FightTask(
         private val REF_TOP_LEFT_POINT = PointRelative(0.4016129f, 0.88508064f)
 
         private val REF_CREATURE_MODE_BUTTON_BOUNDS = RectangleRelative.build(
-            PointRelative(0.90645164f, 0.86693543f),
-            PointRelative(0.9145161f, 0.88306457f)
+            PointRelative(0.8946648f, 0.96410257f),
+            PointRelative(0.90834475f, 0.982906f)
         )
 
         private val REF_BLOCK_HELP_BUTTON_BOUNDS = RectangleRelative.build(
-            PointRelative(0.89032257f, 0.9657258f),
-            PointRelative(0.90806454f, 0.9858871f)
+            PointRelative(0.90697676f, 0.8666667f),
+            PointRelative(0.9138167f, 0.88376063f)
         )
 
         private val REF_RESTRICT_TO_TEAM_BUTTON_BOUNDS = RectangleRelative.build(
@@ -70,9 +66,6 @@ class FightTask(
         private val MAX_COLOR_CROSS = DofusColors.UI_BANNER_BLACK_COLOR_MAX
         private val MIN_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MIN
         private val MAX_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MAX
-        private val MIN_COLOR_OPTION_OFF = Color(125, 125, 125)
-        private val MAX_COLOR_OPTION_OFF = Color(145, 145, 145)
-
     }
 
     private fun getCloseButtonLocation(gameInfo: GameInfo): RectangleRelative? {
@@ -101,19 +94,15 @@ class FightTask(
         val fightBoard = gameInfo.fightBoard
         val dofusBoard = gameInfo.dofusBoard
         initFight(gameInfo)
-        WaitUtil.waitUntil(
-            { fightBoard.getPlayerFighter() != null && fightBoard.getEnemyFighters().isNotEmpty() }
-        )
-        WaitUtil.sleep(1500)
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
 
         playerFighter.statsById.putAll(gameInfo.playerBaseCharacteristics)
         val baseRange = FighterCharacteristic.RANGE.getFighterCharacteristicValue(playerFighter)
         val spells = gameInfo.character.spells
-        val fightAI = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 1, spells, aiComplement)
+        val fightAI = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 0, spells, aiComplement)
 
-        fightAI.selectStartCell()?.let {
+        fightAI.selectStartCell()?.takeIf { it != playerFighter.cell }?.let {
             WaitUtil.sleep(800)
             MouseUtil.leftClick(gameInfo, it.getCenter())
             WaitUtil.sleep(800)
@@ -155,8 +144,9 @@ class FightTask(
             MouseUtil.leftClick(gameInfo, LVL_UP_OK_BUTTON_POINT)
             WaitUtil.waitUntil({ !isLvlUp(gameInfo) })
         }
+        WaitUtil.sleep(800)
         if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null })) {
-            return false
+            error("Close button not found")
         }
         val bounds = getCloseButtonLocation(gameInfo) ?: error("Close battle button not found")
         MouseUtil.leftClick(gameInfo, bounds.getCenter())
@@ -186,13 +176,13 @@ class FightTask(
     private fun castSpell(gameInfo: GameInfo, key: Char, target: DofusCell): Boolean {
         gameInfo.eventStore.clear(SequenceEndMessage::class.java)
         gameInfo.eventStore.clear(BasicNoOperationMessage::class.java)
-        KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 300)
-        RetryUtil.tryUntilSuccess(
-            { MouseUtil.tripleLeftClick(gameInfo, target.getCenter()) },
-            { waitForSequenceCompleteEnd(gameInfo, 2000) },
-            20
+        return RetryUtil.tryUntilSuccess(
+            {
+                KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 300)
+                MouseUtil.tripleLeftClick(gameInfo, target.getCenter())
+                waitForSequenceCompleteEnd(gameInfo, 4000)
+            }, 4
         )
-        return waitForSequenceCompleteEnd(gameInfo, 8000)
     }
 
     private fun waitForSequenceCompleteEnd(gameInfo: GameInfo, waitTime: Int): Boolean {
@@ -229,32 +219,56 @@ class FightTask(
         val blockHelpBounds = REF_BLOCK_HELP_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
         val restrictToTeamBounds = REF_RESTRICT_TO_TEAM_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
 
+        val fightOptionsReceived = WaitUtil.waitUntil(
+            { getBlockHelpOptionValue(gameInfo) != null && getRestrictToTeamOptionValue(gameInfo) != null }
+        )
+        if (!fightOptionsReceived) {
+            error("Fight option values not received")
+        }
+
         WaitUtil.waitForEvent(gameInfo, GameEntitiesDispositionMessage::class.java)
-        gameInfo.eventStore.clearUntilLast(GameEntitiesDispositionMessage::class.java)
-        WaitUtil.waitForEvent(gameInfo, BasicNoOperationMessage::class.java)
 
-        WaitUtil.waitUntil({ isFightInterfaceShown(gameInfo, creatureModeBounds) })
+        val fightersDisplayed = WaitUtil.waitUntil(
+            { gameInfo.fightBoard.getPlayerFighter() != null && gameInfo.fightBoard.getEnemyFighters().isNotEmpty() }
+        )
+        if (!fightersDisplayed) {
+            error("No fighters found in fight")
+        }
+        WaitUtil.sleep(1500)
 
-        val blockHelpButtonChecked = ScreenUtil.colorCount(gameInfo, blockHelpBounds, MIN_COLOR, MAX_COLOR) > 0
-        if (!teamFight && !blockHelpButtonChecked) {
-            MouseUtil.leftClick(gameInfo, blockHelpBounds.getCenter())
-        } else if (teamFight && blockHelpButtonChecked) {
+        if (getBlockHelpOptionValue(gameInfo) == teamFight) {
             MouseUtil.leftClick(gameInfo, blockHelpBounds.getCenter())
         }
-        if (teamFight && ScreenUtil.colorCount(gameInfo, restrictToTeamBounds, MIN_COLOR, MAX_COLOR) == 0) {
+        if (teamFight && getRestrictToTeamOptionValue(gameInfo) == true) {
             MouseUtil.leftClick(gameInfo, restrictToTeamBounds.getCenter())
         }
-        if (ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR, MAX_COLOR) == 0) {
-            MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter())
+        if (!gameInfo.isCreatureModeToggled) {
+            if (!WaitUtil.waitUntil({ isCreatureModeActive(gameInfo, creatureModeBounds) }, 1000)) {
+                MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter())
+            }
+            gameInfo.isCreatureModeToggled = true
         }
+
+        gameInfo.eventStore.clearUntilLast(GameEntitiesDispositionMessage::class.java)
     }
 
-    private fun isFightInterfaceShown(gameInfo: GameInfo, creatureModeBounds: RectangleRelative): Boolean {
-        return ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR_CROSS, MAX_COLOR_CROSS) > 0
-                && (ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR, MAX_COLOR) > 0
-                || ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR_OPTION_OFF, MAX_COLOR_OPTION_OFF) > 0)
+    private fun isCreatureModeActive(gameInfo: GameInfo, creatureModeBounds: RectangleRelative): Boolean {
+        return ScreenUtil.colorCount(gameInfo, creatureModeBounds, MIN_COLOR, MAX_COLOR) > 0
     }
 
+    private fun getBlockHelpOptionValue(gameInfo: GameInfo): Boolean? {
+        return getFightOptionValue(gameInfo, 2)
+    }
+
+    private fun getRestrictToTeamOptionValue(gameInfo: GameInfo): Boolean? {
+        return getFightOptionValue(gameInfo, 1)
+    }
+
+    private fun getFightOptionValue(gameInfo: GameInfo, option: Int): Boolean? {
+        return gameInfo.eventStore.getLastEvent(
+            GameFightOptionStateUpdateMessage::class.java
+        ) { it.option == option }?.state
+    }
 
     override fun onStarted(): String {
         return "Fight started"

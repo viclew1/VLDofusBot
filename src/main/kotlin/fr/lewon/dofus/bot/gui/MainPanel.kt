@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.gui
 
-import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
+import fr.lewon.dofus.bot.core.VldbCoreInitializer
 import fr.lewon.dofus.bot.gui.about.AboutPanel
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.GlobalCharacterFormPanel
@@ -84,7 +84,7 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
 }
 
 fun main() {
-    VLDofusBotCoreUtil.initAll()
+    VldbCoreInitializer.initAll()
     CharacterManager.initManager()
     ConfigManager.initManager()
     HintManager.initManager()

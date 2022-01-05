@@ -20,7 +20,7 @@ abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : 
         gameInfo.eventStore.clear()
         KeyboardUtil.sendKey(gameInfo, 'H', 0)
         if (!WaitUtil.waitUntil({ isToggleHavenBagFinished(gameInfo) })) {
-            error("No message arrived in time. Events in store : ${gameInfo.eventStore.getStoredEventsStr()}")
+            error("No message arrived in time.")
         }
         if (isToggleHavenBagFail(gameInfo)) {
             gameInfo.logger.addSubLog("Can't reach haven bag on this map.", logItem)

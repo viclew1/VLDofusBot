@@ -28,6 +28,7 @@ class GameInfo(val character: DofusCharacter) {
     var shouldInitBoard = true
     val dofusBoard = DofusBoard()
     val fightBoard = FightBoard(this)
+    var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
     var entityPositionsOnMapByEntityId = HashMap<Double, Int>()

@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.game.fight.operations.UsesStore
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.characters.spells.SpellType
 import kotlin.math.abs
+import kotlin.math.sign
 
 class FightAI(
     private val dofusBoard: DofusBoard,
@@ -19,12 +20,10 @@ class FightAI(
     private val aiComplement: AIComplement
 ) {
 
-    private val mpBuffCombination = spells.firstOrNull { it.type == SpellType.MP_BUFF }
-        ?: SpellCombination(SpellType.MP_BUFF)
+    private val mpBuffCombinations = spells.filter { it.type == SpellType.MP_BUFF }
     private val attackSpellCombinations = spells.filter { it.type == SpellType.ATTACK }
         .sortedByDescending { it.aiWeight }
-    private val gapCloserCombination = spells.firstOrNull { it.type == SpellType.GAP_CLOSER }
-        ?: SpellCombination(SpellType.GAP_CLOSER)
+    private val gapCloserCombinations = spells.filter { it.type == SpellType.GAP_CLOSER }
 
     private val usesStore = UsesStore()
     private val cdBySpellKey = HashMap<String, Int>()
@@ -35,7 +34,9 @@ class FightAI(
         val tempFightBoard = fightBoard.clone()
         val idealDist = aiComplement.getIdealDistance(playerFighter, attackSpellCombinations, playerRange)
         return dofusBoard.startCells.map {
-            tempFightBoard.move(playerFighter, it)
+            val tempPlayerFighter = tempFightBoard.getPlayerFighter()
+                ?: error("Player fighter not found")
+            tempFightBoard.move(tempPlayerFighter, it)
             val closestEnemy = tempFightBoard.getClosestEnemy() ?: error("Closest enemy not found")
             it to (dofusBoard.getPathLength(it, closestEnemy.cell)
                 ?: dofusBoard.getDist(it, closestEnemy.cell))
@@ -65,24 +66,30 @@ class FightAI(
         val playerMP = FighterCharacteristic.MP.getFighterCharacteristicValue(playerFighter)
         val enemies = getEnemyPlayers(fightBoard)
 
-        selectBestMoveDest(playerAp, playerMP).takeIf { it.cellId != playerFighter.cell.cellId }?.let {
-            return FightOperation(FightOperationType.MOVE, it.cellId)
+        val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
+        val accessibleCells = fightBoard.getMoveCellsWithMpUsed(playerMP, playerPosition)
+        val bestMoveDest = selectBestMoveDest(playerAp, playerPosition, accessibleCells)
+        val bestMoveDestScore = bestMoveDest?.value ?: 0
+
+        selectBestMpBuff(playerAp, accessibleCells.map { it.first }, bestMoveDestScore)?.let {
+            useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, playerFighter.cell)
+            return FightOperation(FightOperationType.SPELL, playerFighter.cell.cellId, it.spell.keys)
         }
-        selectBestTpDest(playerAp).takeIf { it.cellId != playerFighter.cell.cellId }?.let {
-            return FightOperation(FightOperationType.SPELL, it.cellId, gapCloserCombination.keys)
+        bestMoveDest?.takeIf { it.target.cellId != playerFighter.cell.cellId }?.let {
+            return FightOperation(FightOperationType.MOVE, it.target.cellId)
         }
-        getBestSpell(fightBoard, playerFighter.cell, enemies, playerAp, usesStore, cdBySpellKey)?.let {
-            useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, it.target.cell)
-            return FightOperation(FightOperationType.SPELL, it.target.cell.cellId, it.spell.keys)
+        selectBestGapCloser(playerAp)?.takeIf { it.target.cellId != playerFighter.cell.cellId }?.let {
+            useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, it.target)
+            return FightOperation(FightOperationType.SPELL, it.target.cellId, it.spell.keys)
         }
-        if (shouldUseMpBuff(playerAp, playerMP)) {
-            useSpell(fightBoard, mpBuffCombination, usesStore, cdBySpellKey, playerFighter.cell)
-            return FightOperation(FightOperationType.SPELL, playerFighter.cell.cellId, mpBuffCombination.keys)
+        selectBestSpell(fightBoard, playerFighter.cell, enemies, playerAp, usesStore, cdBySpellKey)?.let {
+            useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, it.target)
+            return FightOperation(FightOperationType.SPELL, it.target.cellId, it.spell.keys)
         }
         if (aiComplement.mustUseAllMP(playerFighter)) {
-            selectBestMoveDest(playerAp, playerMP).takeIf { it.cellId != playerFighter.cell.cellId }?.let {
-                return FightOperation(FightOperationType.MOVE, it.cellId)
-            }
+            selectBestMoveDest(playerAp, playerPosition, accessibleCells, -Short.MAX_VALUE.toInt())
+                ?.takeIf { it.target.cellId != playerFighter.cell.cellId }
+                ?.let { return FightOperation(FightOperationType.MOVE, it.target.cellId) }
         }
         return null
     }
@@ -94,66 +101,154 @@ class FightAI(
         cdBySpellKey: HashMap<String, Int>,
         targetCell: DofusCell
     ) {
-        val target = fightBoard.getFighter(targetCell) ?: error("No fighter on cell : ${targetCell.cellId}")
-        val usesThisTurn = usesStore.computeIfAbsent(spellCombination.keys) { HashMap() }
-        val usesOnThisTarget = usesThisTurn.computeIfAbsent(target.id) { 0 }
-        usesThisTurn[target.id] = usesOnThisTarget + 1
+        val target = fightBoard.getFighter(targetCell)
+        if (target != null) {
+            val usesThisTurn = usesStore.computeIfAbsent(spellCombination.keys) { HashMap() }
+            val usesOnThisTarget = usesThisTurn.computeIfAbsent(target.id) { 0 }
+            usesThisTurn[target.id] = usesOnThisTarget + 1
+        }
         cdBySpellKey[spellCombination.keys] = spellCombination.cooldown
     }
 
-    private fun selectBestTpDest(playerAp: Int): DofusCell {
-        val minRange = gapCloserCombination.minRange
-        val maxRange = getSpellMaxRange(gapCloserCombination)
+    private fun selectBestGapCloser(playerAp: Int): SpellUsage? {
         val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
-        val cellsAtRange = dofusBoard.cellsAtRange(minRange, maxRange, playerPosition)
-            .filter { it.first.isAccessible() && !fightBoard.isFighterHere(it.first) }
-        return selectBestCell(playerPosition, cellsAtRange, playerAp)
+        return gapCloserCombinations
+            .filter { canCastSpell(it, usesStore, cdBySpellKey, playerAp) }
+            .map { gapCloser ->
+                val minRange = gapCloser.minRange
+                val maxRange = getSpellMaxRange(gapCloser)
+                val cellsAtRange = dofusBoard.cellsAtRange(minRange, maxRange, playerPosition)
+                    .filter { it.first.isAccessible() && isGapCloserTargetValid(gapCloser, it.first, it.second) }
+                    .map { it.first to 0 }
+                val targetCellByRealCell = cellsAtRange.associate {
+                    getRealGapCloserDest(gapCloser, playerPosition, it.first) to it.first
+                }
+                val realCells = targetCellByRealCell.keys.map { it to 0 }
+                val moveAction = selectBestCell(playerPosition, realCells, playerAp) { it + 30 }
+                val targetCell = targetCellByRealCell[moveAction.target] ?: error("Invalid cell")
+                SpellUsage(gapCloser, targetCell, moveAction.value) to moveAction.target
+            }.maxByOrNull { it.first.value }
+            ?.takeIf { it.second.cellId != playerPosition.cellId }
+            ?.first
     }
 
-    private fun selectBestMoveDest(playerAp: Int, playerMovePoints: Int): DofusCell {
-        if (getNeighborEnemies(fightBoard, playerFighter.cell).isNotEmpty()) {
-            return playerFighter.cell
+    private fun getRealGapCloserDest(spell: SpellCombination, fromCell: DofusCell, toCell: DofusCell): DofusCell {
+        if (!spell.dashToward) {
+            return toCell
         }
-        val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
-        val accessibleCells = fightBoard.getMoveCellsWithMpUsed(playerMovePoints, playerPosition)
-        return selectBestCell(playerPosition, accessibleCells, playerAp)
+        val dCol = toCell.col - fromCell.col
+        val dRow = toCell.row - fromCell.row
+        val sDCol = dCol.sign
+        val sDRow = dRow.sign
+        val absDCol = abs(dCol)
+        val absDRow = abs(dRow)
+        var destCell = fromCell
+        for (i in 0 until spell.dashLength) {
+            if (destCell.cellId == toCell.cellId) {
+                break
+            }
+            val newDestCell = if (absDCol > absDRow) {
+                dofusBoard.getCell(destCell.col + sDCol, destCell.row)
+            } else if (absDCol < absDRow) {
+                dofusBoard.getCell(destCell.col, destCell.row + sDRow)
+            } else {
+                val alignedCell1 =
+                    dofusBoard.getCell(destCell.col + sDCol, destCell.row)
+                val alignedCell2 =
+                    dofusBoard.getCell(destCell.col, destCell.row + sDRow)
+                if (alignedCell1 != null && alignedCell2 != null
+                    && alignedCell1.isAccessible() && alignedCell2.isAccessible()
+                    && !fightBoard.isFighterHere(alignedCell1) && !fightBoard.isFighterHere(alignedCell2)
+                ) {
+                    dofusBoard.getCell(destCell.col + sDCol, destCell.row + sDRow)
+                } else {
+                    null
+                }
+            }
+            destCell = newDestCell?.takeIf { it.isAccessible() && !fightBoard.isFighterHere(it) }
+                ?.takeIf { spell.canReachCell || it.cellId != toCell.cellId }
+                ?: break
+        }
+        return destCell
     }
 
-    private fun shouldUseMpBuff(playerAp: Int, playerMovePoints: Int): Boolean {
-        val canCastSpell = canCastSpell(
-            mpBuffCombination, 0, true, true, true, playerAp, playerFighter, usesStore, cdBySpellKey
-        )
-
-        if (!canCastSpell) {
+    private fun isGapCloserTargetValid(spell: SpellCombination, target: DofusCell, dist: Int): Boolean {
+        if (target.cellId == playerFighter.cell.cellId) {
             return false
         }
-        val currentPlayerAp = playerAp - mpBuffCombination.apCost
+        val targetFighter = fightBoard.getFighter(target.cellId)
         val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
-        val accessibleCells = fightBoard.getMoveCellsWithMpUsed(
-            playerMovePoints + mpBuffCombination.amount, playerPosition
-        )
-        return selectBestCell(playerPosition, accessibleCells, currentPlayerAp, 500).cellId != playerPosition.cellId
+        val los = fightBoard.lineOfSight(playerPosition, target)
+        val onSameLine = dofusBoard.isOnSameLine(playerPosition.cellId, target.cellId)
+        val onSameDiagonal = dofusBoard.isOnSameDiagonal(playerPosition.cellId, target.cellId)
+        return if (spell.canHit && targetFighter != null) {
+            canCastSpellOnTarget(spell, dist, los, onSameLine, onSameDiagonal, targetFighter, usesStore)
+        } else if (targetFighter == null && spell.canTargetEmpty) {
+            canCastSpell(spell, dist, los, onSameLine, onSameDiagonal)
+        } else {
+            false
+        }
+    }
+
+    private fun selectBestMoveDest(
+        playerAp: Int,
+        playerPosition: DofusCell,
+        accessibleCellsWithMpUsed: List<Pair<DofusCell, Int>>,
+        stayOnCellScoreModifier: Int = 0,
+    ): MoveAction? {
+        if (getNeighborEnemies(fightBoard, playerFighter.cell).isNotEmpty()) {
+            return null
+        }
+        return selectBestCell(playerPosition, accessibleCellsWithMpUsed, playerAp) { it + stayOnCellScoreModifier }
+    }
+
+    private fun selectBestMpBuff(
+        playerAp: Int,
+        alreadyExploredCells: List<DofusCell>,
+        bestScoreWithoutBuff: Int
+    ): SpellUsage? {
+        var actionPoints = playerAp
+        val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
+        val exploredCells = ArrayList(alreadyExploredCells)
+        for (mpBuffCombination in mpBuffCombinations.sortedBy { it.amount }) {
+            val canCastSpell = canCastSpell(mpBuffCombination, usesStore, cdBySpellKey, actionPoints)
+                    && canCastSpellOnTarget(mpBuffCombination, 0, true, true, true, playerFighter, usesStore)
+
+            if (canCastSpell) {
+                actionPoints -= mpBuffCombination.apCost
+                val accessibleCells = fightBoard.getMoveCellsWithMpUsed(mpBuffCombination.amount, exploredCells)
+                exploredCells.addAll(accessibleCells.map { it.first })
+                val moveCell = selectBestCell(playerPosition, accessibleCells, actionPoints) {
+                    bestScoreWithoutBuff + 500
+                }
+                if (moveCell.target.cellId != playerPosition.cellId) {
+                    return SpellUsage(mpBuffCombination, playerPosition, 0)
+                }
+            }
+        }
+        return null
     }
 
     private fun selectBestCell(
         playerPosition: DofusCell,
         accessibleCellsWithDist: List<Pair<DofusCell, Int>>,
         playerAp: Int,
-        stayOnCellScoreModifier: Int = 0
-    ): DofusCell {
+        stayOnCellScoreModifier: (Int) -> Int
+    ): MoveAction {
         var chosenCell = playerPosition
         val enemies = getEnemyPlayers(fightBoard)
-        var best = evaluateMove(playerPosition, enemies, playerPosition to 0, playerAp) + stayOnCellScoreModifier
+        var best = stayOnCellScoreModifier(evaluateMove(playerPosition, enemies, playerPosition to 0, playerAp))
 
         if (aiComplement.canMove(playerFighter)) {
             for (move in accessibleCellsWithDist) {
-                evaluateMove(playerPosition, enemies, move, playerAp).takeIf { it > best }?.let {
+                val moveScore = evaluateMove(playerPosition, enemies, move, playerAp)
+                if (moveScore > best) {
                     chosenCell = move.first
-                    best = it
+                    best = moveScore
                 }
             }
         }
-        return chosenCell
+        return MoveAction(chosenCell, best)
     }
 
     private fun evaluateMove(
@@ -184,14 +279,16 @@ class FightAI(
         state.playerPosition = move.first
         state.mpUsed += move.second
         var ap = playerAp
-        getBestSpell(state.fb, move.first, enemies, ap, usesStore, cdBySpellKey)?.let {
-            useSpell(state.fb, it.spell, usesStore, cdBySpellKey, it.target.cell)
-            state.attacksDone += it.value * aiWeightMultiplier
-            ap -= it.spell.apCost
+        while (true) {
+            selectBestSpell(state.fb, move.first, enemies, ap, usesStore, cdBySpellKey)?.let {
+                useSpell(state.fb, it.spell, usesStore, cdBySpellKey, it.target)
+                state.attacksDone += it.value * aiWeightMultiplier
+                ap -= it.spell.apCost
+            } ?: break
         }
     }
 
-    private fun getBestSpell(
+    private fun selectBestSpell(
         fightBoard: FightBoard,
         playerPosition: DofusCell,
         enemies: List<Fighter>,
@@ -200,15 +297,16 @@ class FightAI(
         cdBySpellKey: Map<String, Int>
     ): SpellUsage? {
         val spells = ArrayList<SpellUsage>()
+        val usableSpells = attackSpellCombinations.filter { canCastSpell(it, usesStore, cdBySpellKey, ap) }
         for (enemy in enemies) {
             val enemyPosition = enemy.cell
             val dist = dofusBoard.getDist(playerPosition, enemyPosition)
             val los = fightBoard.lineOfSight(playerPosition, enemyPosition)
             val onSameLine = dofusBoard.isOnSameLine(playerPosition.cellId, enemyPosition.cellId)
             val onSameDiagonal = dofusBoard.isOnSameDiagonal(playerPosition.cellId, enemyPosition.cellId)
-            val spellsOnEnemy = attackSpellCombinations
-                .filter { canCastSpell(it, dist, los, onSameLine, onSameDiagonal, ap, enemy, usesStore, cdBySpellKey) }
-                .map { SpellUsage(it, enemy, getHitValue(enemies, it, playerPosition, enemy.cell)) }
+            val spellsOnEnemy = usableSpells
+                .filter { canCastSpellOnTarget(it, dist, los, onSameLine, onSameDiagonal, enemy, usesStore) }
+                .map { SpellUsage(it, enemy.cell, getHitValue(enemies, it, playerPosition, enemy.cell)) }
             spells.addAll(spellsOnEnemy)
         }
         return spells.maxByOrNull { it.value }
@@ -225,30 +323,46 @@ class FightAI(
             .sumOf { (if (it.isSummon) 1 else 10).toInt() } * spell.aiWeight
     }
 
+    private fun canCastSpellOnTarget(
+        spell: SpellCombination,
+        dist: Int,
+        los: Boolean,
+        onSameLine: Boolean,
+        onSameDiagonal: Boolean,
+        target: Fighter,
+        usesStore: UsesStore,
+    ): Boolean {
+        val usesThisTurnOnTarget = usesStore[spell.keys]?.get(target.id) ?: 0
+        return usesThisTurnOnTarget < spell.usesPerTurnPerTarget
+                && canCastSpell(spell, dist, los, onSameLine, onSameDiagonal)
+    }
+
     private fun canCastSpell(
         spell: SpellCombination,
         dist: Int,
         los: Boolean,
         onSameLine: Boolean,
         onSameDiagonal: Boolean,
-        ap: Int,
-        target: Fighter,
-        usesStore: UsesStore,
-        cdBySpellKey: Map<String, Int>
     ): Boolean {
-        val usesThisTurn = usesStore[spell.keys]?.values?.sum() ?: 0
-        val usesThisTurnOnTarget = usesStore[spell.keys]?.get(target.id) ?: 0
         return spell.keys.isNotEmpty()
                 && (spell.type != SpellType.ATTACK || aiComplement.canAttack(playerFighter))
-                && usesThisTurn < spell.usesPerTurn
-                && usesThisTurnOnTarget < spell.usesPerTurnPerTarget
-                && cdBySpellKey[spell.keys]?.takeIf { it > 0 } == null
                 && (!spell.castInLine && !spell.castInDiagonal
                 || spell.castInLine && onSameLine
                 || spell.castInDiagonal && onSameDiagonal)
-                && ap >= spell.apCost
                 && (!spell.needsLos || los)
                 && dist in spell.minRange..getSpellMaxRange(spell)
+    }
+
+    private fun canCastSpell(
+        spell: SpellCombination,
+        usesStore: UsesStore,
+        cdBySpellKey: Map<String, Int>,
+        playerAp: Int
+    ): Boolean {
+        val usesThisTurn = usesStore[spell.keys]?.values?.sum() ?: 0
+        return usesThisTurn < spell.usesPerTurn
+                && cdBySpellKey[spell.keys]?.takeIf { it > 0 } == null
+                && playerAp >= spell.apCost
     }
 
     private fun getSpellMaxRange(spellCombination: SpellCombination): Int {
@@ -323,7 +437,9 @@ class FightAI(
         return enemies.filter { playerPosition.neighbors.contains(it.cell) }
     }
 
-    private class SpellUsage(val spell: SpellCombination, val target: Fighter, val value: Int)
+    private class MoveAction(val target: DofusCell, val value: Int)
+
+    private class SpellUsage(val spell: SpellCombination, val target: DofusCell, val value: Int)
 
     private class FightState(
         var attacksDone: Int,

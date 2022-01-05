@@ -12,7 +12,8 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
         val fighterId = socketResult.informations.contextualId
         val cellId = socketResult.informations.spawnInfo.informations.disposition.cellId
         val characteristics = socketResult.informations.stats.characteristics.characteristics
-        gameInfo.fightBoard.createOrUpdateFighter(fighterId, cellId)
+        val teamId = socketResult.informations.spawnInfo.teamId
+        gameInfo.fightBoard.createOrUpdateFighter(fighterId, cellId, teamId)
         gameInfo.fightBoard.updateFighterCharacteristics(fighterId, characteristics)
         gameInfo.logger.debug("Fighter [$fighterId] characteristics and position updated : cell $cellId")
     }

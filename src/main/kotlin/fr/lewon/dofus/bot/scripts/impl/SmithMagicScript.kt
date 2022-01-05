@@ -1,9 +1,8 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.CharacteristicManager
+import fr.lewon.dofus.bot.core.manager.EffectManager
 import fr.lewon.dofus.bot.core.manager.ItemManager
-import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
 import fr.lewon.dofus.bot.gui.sound.SoundType
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
@@ -163,16 +162,12 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
         linesByKeyword.values.forEach { it.current = 0 }
         for (effect in item.effects) {
             if (effect is ObjectEffectInteger) {
-                val genericEffect = D2OUtil.getObject("Effects", effect.actionId.toDouble())
-                val characteristicId = genericEffect?.get("characteristic")?.toString()?.toDouble()
-                if (characteristicId != null) {
-                    val characteristic = CharacteristicManager.getCharacteristic(characteristicId)
-                    if (characteristic != null) {
-                        val line = linesByKeyword.computeIfAbsent(characteristic.keyWord) {
-                            SmithMagicLine(0, 1000, it)
-                        }
-                        line.current = effect.value
+                val characteristic = EffectManager.getCharacteristicByEffectId(effect.actionId.toDouble())
+                if (characteristic != null) {
+                    val line = linesByKeyword.computeIfAbsent(characteristic.keyWord) {
+                        SmithMagicLine(0, 1000, it)
                     }
+                    line.current = effect.value
                 }
             }
         }

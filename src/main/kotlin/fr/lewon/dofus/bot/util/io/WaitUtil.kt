@@ -33,7 +33,7 @@ object WaitUtil {
     ): T {
         waitUntil({ gameInfo.eventStore.getFirstEvent(messageClass) != null }, timeout)
         return gameInfo.eventStore.getFirstEvent(messageClass)
-            ?: error(getErrorMessage(gameInfo, messageClass))
+            ?: error(getErrorMessage(messageClass))
     }
 
     fun waitForEvents(
@@ -42,7 +42,7 @@ object WaitUtil {
         timeout: Int = DEFAULT_TIMEOUT_MILLIS,
     ) {
         if (!waitUntil({ gameInfo.eventStore.isAllEventsPresent(*messageClasses) }, timeout)) {
-            error(getErrorMessage(gameInfo, *messageClasses))
+            error(getErrorMessage(*messageClasses))
         }
     }
 
@@ -52,7 +52,7 @@ object WaitUtil {
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
     ) {
         if (!gameInfo.eventStore.waitUntilMessagesArrives(messageClass, timeout)) {
-            error(getErrorMessage(gameInfo, messageClass))
+            error(getErrorMessage(messageClass))
         }
     }
 
@@ -62,7 +62,7 @@ object WaitUtil {
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
     ) {
         if (!gameInfo.eventStore.waitUntilMultipleMessagesArrive(messageClasses, timeout)) {
-            error(getErrorMessage(gameInfo, *messageClasses))
+            error(getErrorMessage(*messageClasses))
         }
     }
 
@@ -72,17 +72,17 @@ object WaitUtil {
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
     ) {
         if (!gameInfo.eventStore.waitUntilOrderedMessagesArrive(messageClasses, timeout)) {
-            error(getErrorMessage(gameInfo, *messageClasses))
+            error(getErrorMessage(*messageClasses))
         }
     }
 
-    private fun getErrorMessage(gameInfo: GameInfo, vararg messageClasses: Class<out INetworkMessage>): String {
+    private fun getErrorMessage(vararg messageClasses: Class<out INetworkMessage>): String {
         val messageClassesStr = messageClasses.joinToString(", ") { it.simpleName }
-        return "Not all messages [$messageClassesStr] arrived in time. ${gameInfo.eventStore.getStoredEventsStr()}"
+        return "Not all messages [$messageClassesStr] arrived in time."
     }
 
-    private fun getErrorMessage(gameInfo: GameInfo, messageClass: Class<out INetworkMessage>): String {
-        return "No message [${messageClass.typeName}] arrived in time. ${gameInfo.eventStore.getStoredEventsStr()}"
+    private fun getErrorMessage(messageClass: Class<out INetworkMessage>): String {
+        return "No message [${messageClass.typeName}] arrived in time."
     }
 
 }

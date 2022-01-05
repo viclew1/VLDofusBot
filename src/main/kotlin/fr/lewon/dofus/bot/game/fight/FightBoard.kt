@@ -66,13 +66,14 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun createOrUpdateFighter(fighterId: Double, cellId: Int) {
+    fun createOrUpdateFighter(fighterId: Double, cellId: Int, teamId: Int? = null) {
         try {
             lock.lockInterruptibly()
             val cell = dofusBoard.getCell(cellId)
             val fighter = fightersById.computeIfAbsent(fighterId) {
-                Fighter(cell, fighterId, !dofusBoard.startCells.contains(cell), false)
+                Fighter(cell, fighterId, false)
             }
+            teamId?.let { fighter.teamId = teamId }
             if (fighterId == gameInfo.playerId) {
                 fighter.maxHp = gameInfo.maxHp
                 fighter.baseHp = gameInfo.hp
@@ -83,13 +84,14 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun summonFighter(fighterId: Double, cellId: Int) {
+    fun summonFighter(fighterId: Double, cellId: Int, teamId: Int) {
         try {
             lock.lockInterruptibly()
             val cell = dofusBoard.getCell(cellId)
             val fighter = fightersById.computeIfAbsent(fighterId) {
-                Fighter(cell, fighterId, true, true)
+                Fighter(cell, fighterId, true)
             }
+            fighter.teamId = teamId
             move(fighter, cell)
         } finally {
             lock.unlock()
@@ -117,7 +119,7 @@ class FightBoard(private val gameInfo: GameInfo) {
     fun getPlayerFighter(): Fighter? {
         try {
             lock.lockInterruptibly()
-            return getAlliedFighters().firstOrNull { it.id == gameInfo.playerId }
+            return fightersById[gameInfo.playerId]
         } finally {
             lock.unlock()
         }
@@ -156,7 +158,13 @@ class FightBoard(private val gameInfo: GameInfo) {
     }
 
     private fun getFighters(enemy: Boolean): List<Fighter> {
-        return fightersById.values.filter { it.enemy == enemy }
+        return fightersById.values.filter { isFighterEnemy(it) == enemy }
+    }
+
+    fun isFighterEnemy(fighter: Fighter): Boolean {
+        return getPlayerFighter()?.let {
+            it.teamId != fighter.teamId
+        } ?: true
     }
 
     fun isFighterHere(cell: DofusCell): Boolean {
@@ -267,9 +275,22 @@ class FightBoard(private val gameInfo: GameInfo) {
             lock.lockInterruptibly()
             val cellsWithMpUsed = ArrayList<Pair<DofusCell, Int>>()
             cellsWithMpUsed.add(fromCell to 0)
+            val accessibleCells = getMoveCellsWithMpUsed(range, listOf(fromCell))
+            cellsWithMpUsed.addAll(accessibleCells)
+            return cellsWithMpUsed
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    fun getMoveCellsWithMpUsed(range: Int, initialFrontier: List<DofusCell>): List<Pair<DofusCell, Int>> {
+        try {
+            lock.lockInterruptibly()
+            val cellsWithMpUsed = ArrayList<Pair<DofusCell, Int>>()
             val explored = ArrayList<Int>()
+            explored.addAll(initialFrontier.map { it.cellId })
             var frontier = ArrayList<DofusCell>()
-            frontier.add(fromCell)
+            frontier.addAll(initialFrontier)
             var dist = 1
             for (i in 0 until range) {
                 val newFrontier = ArrayList<DofusCell>()

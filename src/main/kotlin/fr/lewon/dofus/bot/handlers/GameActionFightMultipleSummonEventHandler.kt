@@ -12,7 +12,8 @@ object GameActionFightMultipleSummonEventHandler : EventHandler<GameActionFightM
             it.summons.forEach { basicSpawnInfo ->
                 val fighterId = basicSpawnInfo.informations.contextualId
                 val cellId = basicSpawnInfo.informations.disposition.cellId
-                gameInfo.fightBoard.summonFighter(fighterId, cellId)
+                val teamId = basicSpawnInfo.teamId
+                gameInfo.fightBoard.summonFighter(fighterId, cellId, teamId)
                 gameInfo.logger.debug("New summon : [$fighterId]")
             }
         }

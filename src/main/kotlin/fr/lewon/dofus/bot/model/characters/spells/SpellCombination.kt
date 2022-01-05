@@ -17,5 +17,10 @@ data class SpellCombination(
     var aiWeight: Int = 0,
     var areaType: AreaType = AreaType.CIRCLE,
     var areaSize: Int = 0,
-    var areaNeedsHit: Boolean = true,
+    var needsHit: Boolean = true,
+    var canHit: Boolean = true,
+    var dashToward: Boolean = false,
+    var dashLength: Int = 0,
+    var canReachCell: Boolean = true,
+    var canTargetEmpty: Boolean = true
 )

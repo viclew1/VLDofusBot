@@ -122,15 +122,53 @@ class EditSpellPanel : JPanel(MigLayout()) {
                 spell.areaType = AreaType.valueOf(it.toString())
             },
             SpellParameterWithOnUpdate(
-                "AOE needs hit", "AOE needs to be casted on a target", spell.areaNeedsHit.toString(), BOOLEAN
+                "AOE needs hit", "AOE needs to be casted on a target", spell.needsHit.toString(), BOOLEAN
             ) {
-                spell.areaNeedsHit = it.toString().toBoolean()
+                spell.needsHit = it.toString().toBoolean()
             },
         )
     }
 
     private fun getGapCloserSpecificSpellParameters(spell: SpellCombination): List<SpellParameterWithOnUpdate> {
-        return listOf()
+        return listOf(
+            SpellParameterWithOnUpdate(
+                "Dash toward",
+                "Set to true if the spell is a dash, to false if it is a teleportation",
+                spell.dashToward.toString(),
+                BOOLEAN
+            ) {
+                spell.dashToward = it.toString().toBoolean()
+            },
+            SpellParameterWithOnUpdate(
+                "Dash length",
+                "Amount of cells traveled using the dash (only used if dash toward is set to true)",
+                spell.dashLength.toString(),
+                INTEGER
+            ) {
+                spell.dashLength = it.toString().toInt()
+            },
+            SpellParameterWithOnUpdate(
+                "Can reach cell",
+                "Set to true if the gap closer gets you to the target cell, to false if it is the cell just before",
+                spell.canReachCell.toString(),
+                BOOLEAN
+            ) {
+                spell.canReachCell = it.toString().toBoolean()
+            },
+            SpellParameterWithOnUpdate(
+                "Can hit", "Gap closer can be casted on a target", spell.canHit.toString(), BOOLEAN
+            ) {
+                spell.canHit = it.toString().toBoolean()
+            },
+            SpellParameterWithOnUpdate(
+                "Can target empty",
+                "Gap closer can be casted on an empty cell",
+                spell.canTargetEmpty.toString(),
+                BOOLEAN
+            ) {
+                spell.canTargetEmpty = it.toString().toBoolean()
+            },
+        )
     }
 
     private fun getMpBuffSpecificSpellParameters(spell: SpellCombination): List<SpellParameterWithOnUpdate> {

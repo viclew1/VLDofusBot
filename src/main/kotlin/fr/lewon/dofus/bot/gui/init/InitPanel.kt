@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.gui.init
 
 import fr.lewon.dofus.bot.VLDofusBot
-import fr.lewon.dofus.bot.core.VLDofusBotCoreUtil
+import fr.lewon.dofus.bot.core.VldbCoreInitializer
 import fr.lewon.dofus.bot.gui.InitFrame
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
@@ -21,7 +21,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
 
     private val initTasks = listOf(
         buildInitTask("Dofus decompiled") { DofusMessageReceiverUtil.prepareNetworkManagers() },
-        buildInitTask("VLDofusBotCore") { VLDofusBotCoreUtil.initAll() },
+        buildInitTask("VLDofusBotCore") { VldbCoreInitializer.initAll() },
         buildInitTask("File managers") { initFileManagers() },
         buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
     )

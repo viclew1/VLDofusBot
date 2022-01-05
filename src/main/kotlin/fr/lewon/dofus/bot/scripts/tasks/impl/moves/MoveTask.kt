@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
+import fr.lewon.dofus.bot.core.manager.SkillsManager
 import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.model.move.Direction
@@ -63,8 +63,8 @@ abstract class MoveTask(
 
     private fun getMoveElementId(gameInfo: GameInfo): Int? {
         val skillsByElements = gameInfo.interactiveElements
-            .associateWith { it.enabledSkills.mapNotNull { s -> D2OUtil.getObject("Skills", s.skillId.toDouble()) } }
-        return skillsByElements.entries.firstOrNull { it.value.firstOrNull { s -> s["elementActionId"] == 16 } != null }
+            .associateWith { it.enabledSkills.mapNotNull { s -> SkillsManager.getSkill(s.skillId.toDouble()) } }
+        return skillsByElements.entries.firstOrNull { it.value.firstOrNull { s -> s.elementActionId == 16 } != null }
             ?.key?.elementId
     }
 
