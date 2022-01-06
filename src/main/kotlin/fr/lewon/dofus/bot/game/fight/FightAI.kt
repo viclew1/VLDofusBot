@@ -116,7 +116,7 @@ class FightAI(
         val playerPositionScore = evaluateMove(playerPosition, enemies, playerPosition to 0, playerAp)
         return gapCloserCombinations
             .filter { canCastSpell(it, usesStore, cdBySpellKey, playerAp) }
-            .map { gapCloser ->
+            .mapNotNull { gapCloser ->
                 val minRange = gapCloser.minRange
                 val maxRange = getSpellMaxRange(gapCloser)
                 val cellsAtRange = dofusBoard.cellsAtRange(minRange, maxRange, playerPosition)
@@ -127,8 +127,9 @@ class FightAI(
                 }
                 val realCells = targetCellByRealCell.keys.map { it to 0 }
                 val moveAction = selectBestCell(playerPosition, realCells, playerAp - gapCloser.apCost) { it + 30 }
-                val targetCell = targetCellByRealCell[moveAction.target] ?: error("Invalid cell")
-                SpellUsage(gapCloser, targetCell, moveAction.value) to moveAction.target
+                targetCellByRealCell[moveAction.target]?.let {
+                    SpellUsage(gapCloser, it, moveAction.value) to moveAction.target
+                }
             }.maxByOrNull { it.first.value }
             ?.takeIf { playerPositionScore < it.first.value }
             ?.takeIf { it.second.cellId != playerPosition.cellId }
