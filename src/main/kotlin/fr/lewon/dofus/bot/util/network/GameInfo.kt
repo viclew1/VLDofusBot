@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
+import fr.lewon.dofus.bot.game.move.MoveHistory
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
@@ -28,6 +29,7 @@ class GameInfo(val character: DofusCharacter) {
     var shouldInitBoard = true
     val dofusBoard = DofusBoard()
     val fightBoard = FightBoard(this)
+    val moveHistory = MoveHistory()
     var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()

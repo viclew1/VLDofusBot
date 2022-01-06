@@ -10,10 +10,10 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class ExecuteHuntTask : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        if (!TreasureHuntUtil.isHuntPresent(gameInfo)) {
+        if (gameInfo.treasureHunt == null) {
             return false
         }
-        while (TreasureHuntUtil.isHuntPresent(gameInfo)) {
+        while (gameInfo.treasureHunt != null) {
             val currentStep = TreasureHuntUtil.getTreasureHunt(gameInfo).huntSteps.last()
             if (!TreasureHuntUtil.executeStep(gameInfo, currentStep, logItem)) {
                 return false

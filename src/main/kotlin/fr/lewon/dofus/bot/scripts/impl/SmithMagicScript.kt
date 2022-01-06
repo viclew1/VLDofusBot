@@ -77,7 +77,7 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
                 ?: error("Missing message in store")
             val smithMagicLogItem = gameInfo.logger.addSubLog("Item selected ! Starting smithing ...", logItem)
             applyStrategyOnItem(gameInfo, currentObjectItem, strategy)
-            gameInfo.logger.closeLog("OK", smithMagicLogItem)
+            gameInfo.logger.closeLog("OK", smithMagicLogItem, true)
             SoundType.OBJECT_CRAFT.playSound()
         }
     }

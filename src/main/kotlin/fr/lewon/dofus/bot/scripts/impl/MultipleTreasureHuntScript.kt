@@ -70,15 +70,10 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         var successCount = 0
         var cleanCacheCount = cleanCacheParameter.value.toInt()
 
-        if (TreasureHuntUtil.isFightStep(gameInfo)) {
-            TreasureHuntUtil.fight(logItem, gameInfo)
-        }
-
         for (i in 0 until huntCountParameter.value.toInt()) {
             nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             val fetchStartTimeStamp = System.currentTimeMillis()
-            val isHuntPresent = TreasureHuntUtil.isHuntPresent(gameInfo)
-            if (!isHuntPresent && !FetchHuntTask().run(logItem, gameInfo)) {
+            if (gameInfo.treasureHunt == null && !FetchHuntTask().run(logItem, gameInfo)) {
                 error("Couldn't fetch a new hunt")
             }
             val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp
@@ -94,10 +89,12 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
             WaitUtil.sleep(300)
 
             val huntDuration = System.currentTimeMillis() - huntStartTimeStamp
-            huntDurations.add(huntDuration)
-            averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
 
-            if (success) successCount++
+            if (success) {
+                successCount++
+                huntDurations.add(huntDuration)
+                averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
+            }
             cleanCacheCount--
             successRateStat.value = "$successCount / ${i + 1}"
             nextRestartInStat.value = "$cleanCacheCount hunt(s)"
@@ -108,7 +105,7 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
             if (!success) {
                 SoundType.FAILED.playSound()
                 WaitUtil.sleep(600 * 1000 - huntDuration)
-                if (TreasureHuntUtil.isHuntPresent(gameInfo)) {
+                if (gameInfo.treasureHunt != null) {
                     TreasureHuntUtil.giveUpHunt(gameInfo)
                 }
             }

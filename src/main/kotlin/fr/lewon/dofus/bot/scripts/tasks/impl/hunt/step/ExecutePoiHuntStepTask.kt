@@ -2,7 +2,6 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MultimapMoveTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
@@ -16,12 +15,12 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
         val dToHint = hint?.d ?: 1
         val hunt = TreasureHuntUtil.getTreasureHunt(gameInfo)
 
-        if (!MultimapMoveTask(huntStep.direction, dToHint).run(logItem, gameInfo)) {
+        if (!MoveUtil.buildDirectionalMoveTask(gameInfo, huntStep.direction, dToHint).run(logItem, gameInfo)) {
             return false
         }
         while (hunt.startMap == gameInfo.currentMap || hunt.huntFlags.firstOrNull { it.map == gameInfo.currentMap } != null) {
             gameInfo.logger.addSubLog("Invalid map, a flag has already been put here.", logItem)
-            if (!MoveUtil.buildMoveTask(huntStep.direction).run(logItem, gameInfo)) {
+            if (!MoveUtil.buildDirectionalMoveTask(gameInfo, huntStep.direction).run(logItem, gameInfo)) {
                 return false
             }
         }
@@ -35,7 +34,7 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
     }
 
     override fun onStarted(): String {
-        return "Executing hunt step : looking for [${huntStep.label}]"
+        return "Hunt step : looking for [${huntStep.label}] toward [${huntStep.direction}] ..."
     }
 
 }

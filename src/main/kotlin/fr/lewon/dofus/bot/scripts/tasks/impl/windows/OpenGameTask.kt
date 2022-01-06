@@ -46,19 +46,19 @@ class OpenGameTask : DofusBotTask<DofusConnection>() {
 
         val openGameLogs = gameInfo.logger.addSubLog("Opening game ...", logItem)
         openGame(gameInfo)
-        gameInfo.logger.closeLog("OK", openGameLogs)
+        gameInfo.logger.closeLog("OK", openGameLogs, true)
 
         val loginAreaLogs = gameInfo.logger.addSubLog("Waiting for login area ...", logItem)
         waitForLoginArea(gameInfo)
-        gameInfo.logger.closeLog("OK", loginAreaLogs)
+        gameInfo.logger.closeLog("OK", loginAreaLogs, true)
 
         val enterLoginLogs = gameInfo.logger.addSubLog("Found login area, entering login and password ...", logItem)
         enterLoginAndPassword(gameInfo, character.login, character.password)
-        gameInfo.logger.closeLog("OK", enterLoginLogs)
+        gameInfo.logger.closeLog("OK", enterLoginLogs, true)
 
         val enterGameLogs = gameInfo.logger.addSubLog("Trying to enter game ... ", logItem)
         val connection = enterGame(enterGameLogs, gameInfo)
-        enterGameLogs.closeLog("OK")
+        gameInfo.logger.closeLog("OK", enterGameLogs, true)
 
         return connection
     }

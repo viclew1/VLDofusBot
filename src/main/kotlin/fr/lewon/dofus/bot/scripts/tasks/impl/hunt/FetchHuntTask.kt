@@ -26,9 +26,6 @@ class FetchHuntTask : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         gameInfo.treasureHunt = null
-        if (TreasureHuntUtil.isHuntPresent(gameInfo)) {
-            return true
-        }
         val outsideMap = DofusMapManager.getDofusMap(HUNT_MALL_OUTSIDE_MAP_ID)
         val insideMap = DofusMapManager.getDofusMap(HUNT_MALL_INSIDE_MAP_ID)
         if (!ReachMapTask(listOf(outsideMap)).run(logItem, gameInfo)) {

@@ -10,10 +10,10 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class RefreshHuntTask : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        if (!ReachHavenBagTask().run(logItem, gameInfo)) {
+            return false
+        }
         if (TreasureHuntUtil.isSearchStep(gameInfo)) {
-            if (!ReachHavenBagTask().run(logItem, gameInfo)) {
-                return false
-            }
             val lastNonTickedIndex = TreasureHuntUtil.getLastNonTickedFlagIndex(gameInfo)
             if (lastNonTickedIndex != null) {
                 TreasureHuntUtil.tickFlag(gameInfo, lastNonTickedIndex)
@@ -22,11 +22,10 @@ class RefreshHuntTask : BooleanDofusBotTask() {
                 val flagIndex = TreasureHuntUtil.getFlagsCount(gameInfo) - 1
                 TreasureHuntUtil.tickFlag(gameInfo, flagIndex)
             }
-            return LeaveHavenBagTask().run(logItem, gameInfo)
         } else if (TreasureHuntUtil.isFightStep(gameInfo)) {
-            return LeaveHavenBagTask().run(logItem, gameInfo)
+            TreasureHuntUtil.clickFightForUpdate(gameInfo)
         }
-        return false
+        return LeaveHavenBagTask().run(logItem, gameInfo)
     }
 
     override fun onStarted(): String {

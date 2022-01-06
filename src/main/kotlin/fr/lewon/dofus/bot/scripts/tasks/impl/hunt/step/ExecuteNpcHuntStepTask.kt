@@ -12,7 +12,7 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToHint) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        val moveTask = MoveUtil.buildMoveTask(huntStep.direction)
+        val moveTask = MoveUtil.buildDirectionalMoveTask(gameInfo, huntStep.direction)
         for (i in 0 until 10) {
             if (!moveTask.run(logItem, gameInfo)) {
                 return false
@@ -28,7 +28,7 @@ class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
     }
 
     override fun onStarted(): String {
-        return "Executing hunt step : looking for drheller"
+        return "Hunt step : looking for drheller toward [${huntStep.direction}] ..."
     }
 
 }

@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.core.model.move.Move
 import java.util.concurrent.LinkedBlockingDeque
 
-object MoveHistory {
+class MoveHistory {
 
     private val lastMoves = LinkedBlockingDeque<Move>(10)
 

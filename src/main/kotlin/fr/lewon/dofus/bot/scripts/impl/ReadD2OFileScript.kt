@@ -31,7 +31,7 @@ class ReadD2OFileScript : DofusBotScript("Read D2O file") {
         val d2oContent = D2OUtil.getObjects(name)
         val subLogItem = gameInfo.logger.addSubLog("D20 File [$name] content : ", logItem, d2oContent.size)
         d2oContent.forEach { gameInfo.logger.addSubLog(it.toString(), subLogItem) }
-        subLogItem.closeLog("End")
+        gameInfo.logger.closeLog("End", subLogItem)
     }
 
 }

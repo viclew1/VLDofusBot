@@ -21,7 +21,7 @@ abstract class DofusBotTask<T> {
         val logItem = gameInfo.logger.addSubLog(onStarted(), parentLogItem)
         try {
             val result = execute(logItem, gameInfo)
-            gameInfo.logger.closeLog(onSucceeded(result), logItem)
+            gameInfo.logger.closeLog(onSucceeded(result), logItem, true)
             return result
         } catch (e: Throwable) {
             gameInfo.logger.closeLog(onFailed(e), logItem)

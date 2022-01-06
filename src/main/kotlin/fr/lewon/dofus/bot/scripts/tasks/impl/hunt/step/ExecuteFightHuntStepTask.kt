@@ -12,7 +12,7 @@ class ExecuteFightHuntStepTask : BooleanDofusBotTask() {
     }
 
     override fun onStarted(): String {
-        return "Executing hunt fight step ..."
+        return "Hunt step : fight ..."
     }
 
 }

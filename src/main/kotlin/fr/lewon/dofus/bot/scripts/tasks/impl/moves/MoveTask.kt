@@ -4,11 +4,13 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.SkillsManager
 import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
+import fr.lewon.dofus.bot.core.manager.world.Transition
+import fr.lewon.dofus.bot.core.manager.world.TransitionType
 import fr.lewon.dofus.bot.core.model.move.Direction
+import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.game.move.MoveHistory
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.custom.InteractiveMoveTask
+import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -16,49 +18,82 @@ import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import kotlin.math.abs
 
-abstract class MoveTask(
-    private val direction: Direction,
-    private val linkedZoneCellId: Int? = null
-) : BooleanDofusBotTask() {
+class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask() {
 
     override fun onStarted(): String {
-        return "Moving toward [$direction] ..."
+        return "Moving [${transitions.size}] cell(s) ..."
     }
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        val fromMap = gameInfo.currentMap
-        val moveCellId = getMoveCellId(gameInfo)
-        var moveDone = false
-        if (moveCellId != null) {
-            val clickLoc = getStandardClickLoc(gameInfo, moveCellId)
-            if (!MoveUtil.processMove(gameInfo, clickLoc)) {
-                error("Failed to move to [$direction]")
-            }
-            moveDone = true
-        }
-        if (!moveDone) {
-            val elementId = getMoveElementId(gameInfo)
-            if (elementId != null) {
-                if (!InteractiveMoveTask(elementId).run(logItem, gameInfo)) {
-                    return false
-                }
-                moveDone = true
+        for ((i, transition) in transitions.withIndex()) {
+            gameInfo.logger.closeLog("[${getTransitionDescription(transition)}] $i/${transitions.size}", logItem, true)
+            if (!processTransition(gameInfo, transition)) {
+                return false
             }
         }
-        if (!moveDone) {
-            return false
-        }
-
-        MoveHistory.addMove(direction, fromMap, gameInfo.currentMap)
         return true
     }
 
-    private fun getStandardClickLoc(gameInfo: GameInfo, destCellId: Int): PointRelative {
+    private fun getTransitionDescription(transition: Transition): String {
+        return when (transition.type) {
+            TransitionType.SCROLL, TransitionType.SCROLL_ACTION -> Direction.fromInt(transition.direction).toString()
+            TransitionType.MAP_ACTION -> "Cell ${transition.cellId}"
+            TransitionType.INTERACTIVE -> "Element ${transition.id.toInt()}"
+            else -> error("Transition not implemented yet : ${transition.type}")
+        }
+    }
+
+    private fun processTransition(gameInfo: GameInfo, transition: Transition): Boolean {
+        return when (transition.type) {
+            TransitionType.SCROLL, TransitionType.SCROLL_ACTION ->
+                processDefaultMove(gameInfo, Direction.fromInt(transition.direction), transition.cellId)
+            TransitionType.MAP_ACTION ->
+                processCellMove(gameInfo, transition.cellId)
+            TransitionType.INTERACTIVE ->
+                processInteractiveMove(gameInfo, transition.id.toInt())
+            else -> error("Transition not implemented yet : ${transition.type}")
+        }
+    }
+
+    private fun processInteractiveMove(gameInfo: GameInfo, elementId: Int): Boolean {
+        return MoveUtil.processMove(gameInfo, InteractiveUtil.getElementClickPosition(gameInfo, elementId))
+    }
+
+    private fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean {
+        val cellBounds = gameInfo.dofusBoard.getCell(cellId).bounds
+        val cellCenter = cellBounds.getCenter()
+
+        val dxMultiplier = if (cellCenter.x > 0.5) 1 else -1
+        val clickLocation = PointRelative(
+            cellCenter.x + dxMultiplier * cellBounds.width * 0.8f,
+            cellCenter.y
+        )
+        return MoveUtil.processMove(gameInfo, clickLocation)
+    }
+
+    private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {
+        val fromMap = gameInfo.currentMap
+        val moveCellId = getMoveCellId(gameInfo, direction, linkedZoneCellId)
+            ?: return false
+
+        val clickLoc = getStandardClickLoc(gameInfo, direction, moveCellId)
+        if (!MoveUtil.processMove(gameInfo, clickLoc)) {
+            error("Failed to move toward [$direction]")
+        }
+
+        gameInfo.moveHistory.addMove(direction, fromMap, gameInfo.currentMap)
+        return true
+    }
+
+    private fun getStandardClickLoc(gameInfo: GameInfo, direction: Direction, destCellId: Int): PointRelative {
         val destCell = gameInfo.dofusBoard.getCell(destCellId)
         val destCellCenter = destCell.getCenter()
-        val floor = if (destCellId == getDefaultMoveCell()) 0 else destCell.cellData.floor
+        val floor = if (destCellId == getDefaultMoveCell(direction)) 0 else destCell.cellData.floor
         val dFloor = ConverterUtil.toPointRelative(UIPoint(y = floor.toFloat()))
-        return PointRelative(getOverrideX() ?: destCellCenter.x, getOverrideY() ?: (destCellCenter.y - dFloor.y))
+        return PointRelative(
+            getOverrideX(direction) ?: destCellCenter.x,
+            getOverrideY(direction) ?: (destCellCenter.y - dFloor.y)
+        )
     }
 
     private fun getMoveElementId(gameInfo: GameInfo): Int? {
@@ -68,14 +103,14 @@ abstract class MoveTask(
             ?.key?.elementId
     }
 
-    private fun getMoveCellId(gameInfo: GameInfo): Int? {
+    private fun getMoveCellId(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Int? {
         var playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
         if (playerCellId == null) {
             WaitUtil.waitUntil({ gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] != null })
             playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
                 ?: error("No registered position for player : ${gameInfo.playerId}")
         }
-        val moveCells = getMoveCellIds(gameInfo)
+        val moveCells = getMoveCellIds(gameInfo, direction, linkedZoneCellId)
         if (moveCells.isEmpty()) {
             return null
         }
@@ -85,10 +120,10 @@ abstract class MoveTask(
         val validMoveCells = moveCells
             .filter { !invalidMoveCells.contains(it) }
         if (validMoveCells.isEmpty()) {
-            return getDefaultMoveCell()
+            return getDefaultMoveCell(direction)
         }
         return getClosestCellId(gameInfo, playerCellId, validMoveCells)
-            ?: getDefaultMoveCell()
+            ?: getDefaultMoveCell(direction)
     }
 
     private fun getInvalidCellsNearEntity(gameInfo: GameInfo, entityCellId: Int): List<DofusCell> {
@@ -106,10 +141,7 @@ abstract class MoveTask(
         return invalidCells
     }
 
-    private fun getMoveCellIds(gameInfo: GameInfo): List<Int> {
-        if (linkedZoneCellId == null) {
-            return gameInfo.dofusBoard.cells.filter { isCellOk(it.cellData) }.map { it.cellId }
-        }
+    private fun getMoveCellIds(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): List<Int> {
         val fromCell = gameInfo.dofusBoard.getCell(linkedZoneCellId)
         val explored = mutableListOf(fromCell.cellId)
         var frontier = listOf(fromCell)
@@ -117,7 +149,7 @@ abstract class MoveTask(
             val newFrontier = ArrayList<DofusCell>()
             for (cell in frontier) {
                 for (neighbor in getAccessibleCellsAround(gameInfo, cell)) {
-                    if (!explored.contains(neighbor.cellId) && isCellOk(neighbor.cellData)
+                    if (!explored.contains(neighbor.cellId) && isCellOk(direction, neighbor.cellData)
                     ) {
                         explored.add(neighbor.cellId)
                         newFrontier.add(neighbor)
@@ -187,12 +219,46 @@ abstract class MoveTask(
                 && abs(cell.cellData.floor - neighbor.cellData.floor) <= 50
     }
 
-    protected abstract fun getDefaultMoveCell(): Int
+    private fun getDefaultMoveCell(direction: Direction): Int {
+        return when (direction) {
+            Direction.BOTTOM -> 545
+            Direction.LEFT -> 0
+            Direction.RIGHT -> DofusBoard.MAP_CELLS_COUNT - 1
+            Direction.TOP -> 14
+        }
+    }
 
-    protected abstract fun getOverrideX(): Float?
+    private fun getOverrideX(direction: Direction): Float? {
+        return when (direction) {
+            Direction.LEFT -> -0.004379562f
+            Direction.RIGHT -> 0.99708027f
+            else -> null
+        }
+    }
 
-    protected abstract fun getOverrideY(): Float?
+    private fun getOverrideY(direction: Direction): Float? {
+        return when (direction) {
+            Direction.BOTTOM -> 0.8740876f
+            Direction.TOP -> 0.0054744524f
+            else -> null
+        }
+    }
 
-    protected abstract fun isCellOk(cellData: CellData): Boolean
+    private fun isCellOk(direction: Direction, cellData: CellData): Boolean {
+        val mapChangeData = cellData.mapChangeData
+        return when (direction) {
+            Direction.BOTTOM -> cellData.cellId >= DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2
+                    && (mapChangeData and 2 != 0 || mapChangeData and 4 != 0)
+                    && cellData.cellId != 532 && cellData.cellId != 559
+            Direction.LEFT -> mapChangeData and 16 != 0
+                    || cellData.cellId >= DofusBoard.MAP_WIDTH * 2 && mapChangeData and 32 != 0
+                    || cellData.cellId < DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2 && mapChangeData and 8 != 0
+            Direction.RIGHT -> mapChangeData and 1 != 0
+                    || cellData.cellId < DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2 && mapChangeData and 2 != 0
+            Direction.TOP -> cellData.cellId < DofusBoard.MAP_WIDTH * 2
+                    && (mapChangeData and 32 != 0 || mapChangeData and 64 != 0 || mapChangeData and 128 != 0)
+                    && cellData.cellId != 0 && cellData.cellId != 27
+        }
+    }
 
 }

@@ -66,7 +66,7 @@ object ScriptRunner {
         if (connection == null) {
             connection = RestartGameTask().run(connectionLog, GameInfo(character))
         }
-        character.executionLogger.closeLog("OK", connectionLog)
+        character.executionLogger.closeLog("OK", connectionLog, true)
         return connection
     }
 

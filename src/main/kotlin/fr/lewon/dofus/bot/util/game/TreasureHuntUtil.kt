@@ -175,6 +175,13 @@ object TreasureHuntUtil {
         return false
     }
 
+    fun clickFightForUpdate(gameInfo: GameInfo) {
+        gameInfo.eventStore.clear()
+        MouseUtil.leftClick(gameInfo, getFightPoint())
+        waitForTreasureHuntUpdate(gameInfo)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
+    }
+
     fun waitForTreasureHuntUpdate(gameInfo: GameInfo) {
         WaitUtil.waitForEvents(
             gameInfo,
@@ -182,7 +189,7 @@ object TreasureHuntUtil {
             BasicNoOperationMessage::class.java
         )
         if (!WaitUtil.waitUntil({ isHuntPresent(gameInfo) })) {
-            error("No treasure hunt update arrived in time.")
+            error("Can't find treasure hunt frame. Hunt most likely failed.")
         }
     }
 
