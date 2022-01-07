@@ -12,8 +12,8 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToHint) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        val moveTask = MoveUtil.buildDirectionalMoveTask(gameInfo, huntStep.direction)
         for (i in 0 until 10) {
+            val moveTask = MoveUtil.buildDirectionalMoveTask(gameInfo, huntStep.direction)
             if (!moveTask.run(logItem, gameInfo)) {
                 return false
             }

@@ -34,9 +34,8 @@ object InteractiveUtil {
         }
         val delta = UIPoint(
             dElementData.x + graphicalElement.pixelOffset.x,
-            dElementData.y + graphicalElement.pixelOffset.y - graphicalElement.altitude * 10 - destCellCompleteData.cellData.floor
+            dElementData.y + graphicalElement.pixelOffset.y - graphicalElement.altitude * 10
         )
-
         val dRelativePoint = ConverterUtil.toPointRelative(delta)
         val destCellId = destCellCompleteData.cellId
         val destCell = gameInfo.dofusBoard.getCell(destCellId)
