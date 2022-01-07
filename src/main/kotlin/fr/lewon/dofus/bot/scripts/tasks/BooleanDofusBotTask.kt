@@ -7,6 +7,10 @@ abstract class BooleanDofusBotTask : DofusBotTask<Boolean>() {
 
     private var error: Throwable? = null
 
+    override fun shouldClearSubLogItems(result: Boolean): Boolean {
+        return result
+    }
+
     override fun execute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         error = null
         return try {

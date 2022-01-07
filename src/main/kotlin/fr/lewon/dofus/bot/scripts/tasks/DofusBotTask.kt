@@ -15,13 +15,17 @@ abstract class DofusBotTask<T> {
         return "OK"
     }
 
+    protected open fun shouldClearSubLogItems(result: T): Boolean {
+        return true
+    }
+
     protected abstract fun onStarted(): String
 
     fun run(parentLogItem: LogItem, gameInfo: GameInfo): T {
         val logItem = gameInfo.logger.addSubLog(onStarted(), parentLogItem)
         try {
             val result = execute(logItem, gameInfo)
-            gameInfo.logger.closeLog(onSucceeded(result), logItem, true)
+            gameInfo.logger.closeLog(onSucceeded(result), logItem, shouldClearSubLogItems(result))
             return result
         } catch (e: Throwable) {
             gameInfo.logger.closeLog(onFailed(e), logItem)
