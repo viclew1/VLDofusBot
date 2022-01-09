@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.scripts.impl
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.EffectManager
 import fr.lewon.dofus.bot.core.manager.ItemManager
-import fr.lewon.dofus.bot.gui.sound.SoundType
+import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript

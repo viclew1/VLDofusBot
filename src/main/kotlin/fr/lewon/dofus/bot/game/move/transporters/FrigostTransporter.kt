@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.core.manager.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 
@@ -11,8 +11,8 @@ enum class FrigostTransporter(idMap: Double, private val optionPointRelative: Po
     LARMES_OURONIGRIDE(54168407.0, PointRelative(0.375f, 0.689f)),
     CREVASSE_PERGE(54173010.0, PointRelative(0.375f, 0.714f));
 
-    private val map = DofusMapManager.getDofusMap(idMap)
-    private val transporterMap = DofusMapManager.getDofusMap(60035079.0)
+    private val map = MapManager.getDofusMap(idMap)
+    private val transporterMap = MapManager.getDofusMap(60035079.0)
 
     override fun getTransporterMap(): DofusMap {
         return transporterMap

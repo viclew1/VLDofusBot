@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.core.manager.MapManager
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
@@ -25,9 +25,8 @@ class FetchHuntTask : BooleanDofusBotTask() {
     }
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        gameInfo.treasureHunt = null
-        val outsideMap = DofusMapManager.getDofusMap(HUNT_MALL_OUTSIDE_MAP_ID)
-        val insideMap = DofusMapManager.getDofusMap(HUNT_MALL_INSIDE_MAP_ID)
+        val outsideMap = MapManager.getDofusMap(HUNT_MALL_OUTSIDE_MAP_ID)
+        val insideMap = MapManager.getDofusMap(HUNT_MALL_INSIDE_MAP_ID)
         if (!ReachMapTask(listOf(outsideMap)).run(logItem, gameInfo)) {
             return false
         }

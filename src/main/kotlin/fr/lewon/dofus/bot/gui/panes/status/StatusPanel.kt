@@ -18,6 +18,10 @@ object StatusPanel : JPanel(MigLayout("insets 0")) {
         add(statusLabel, "h max")
     }
 
+    fun changeText(text: String) {
+        statusLabel.text = text
+    }
+
     fun startLoading(loadingStr: String) {
         progressCircle.isVisible = true
         statusLabel.text = loadingStr

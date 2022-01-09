@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.script
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.gui.sound.SoundType
+import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask

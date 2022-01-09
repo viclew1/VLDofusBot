@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.SkillsManager
 import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.core.manager.ui.UIPoint
 import fr.lewon.dofus.bot.core.manager.world.Transition
@@ -60,13 +59,16 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     }
 
     private fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean {
-        val cellBounds = gameInfo.dofusBoard.getCell(cellId).bounds
+        val cell = gameInfo.dofusBoard.getCell(cellId)
+        val cellBounds = cell.bounds
         val cellCenter = cellBounds.getCenter()
 
-        val dxMultiplier = if (cellCenter.x > 0.5) 1 else -1
+        val floor = cell.cellData.floor
+        val dxMultiplier = if (floor != 0) 0 else if (cellCenter.x > 0.5) 1 else -1
+        val dFloor = ConverterUtil.toPointRelative(UIPoint(y = floor.toFloat()))
         val clickLocation = PointRelative(
             cellCenter.x + dxMultiplier * cellBounds.width * 0.8f,
-            cellCenter.y
+            cellCenter.y - dFloor.y
         )
         return MoveUtil.processMove(gameInfo, clickLocation)
     }
@@ -94,13 +96,6 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             getOverrideX(direction) ?: destCellCenter.x,
             getOverrideY(direction) ?: (destCellCenter.y - dFloor.y)
         )
-    }
-
-    private fun getMoveElementId(gameInfo: GameInfo): Int? {
-        val skillsByElements = gameInfo.interactiveElements
-            .associateWith { it.enabledSkills.mapNotNull { s -> SkillsManager.getSkill(s.skillId.toDouble()) } }
-        return skillsByElements.entries.firstOrNull { it.value.firstOrNull { s -> s.elementActionId == 16 } != null }
-            ?.key?.elementId
     }
 
     private fun getMoveCellId(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Int? {
@@ -230,8 +225,8 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
 
     private fun getOverrideX(direction: Direction): Float? {
         return when (direction) {
-            Direction.LEFT -> -0.004379562f
-            Direction.RIGHT -> 0.99708027f
+            Direction.LEFT -> 0.014948859f
+            Direction.RIGHT -> 0.9826908f
             else -> null
         }
     }

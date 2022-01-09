@@ -28,7 +28,7 @@ class ExecuteNpcHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
     }
 
     override fun onStarted(): String {
-        return "Hunt step : looking for drheller toward [${huntStep.direction}] ..."
+        return "Hunt step : [${huntStep.direction}] - Drheller ..."
     }
 
 }

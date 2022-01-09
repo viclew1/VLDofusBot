@@ -51,3 +51,7 @@ object RequestProcessor {
         return objectMapper.readValue(responseBody)
     }
 }
+
+fun main() {
+
+}

@@ -168,11 +168,7 @@ object TreasureHuntUtil {
     fun fight(logItem: LogItem, gameInfo: GameInfo): Boolean {
         gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getFightPoint())
-        if (FightTask(TreasureChestAIComplement()).run(logItem, gameInfo)) {
-            gameInfo.treasureHunt = null
-            return true
-        }
-        return false
+        return FightTask(TreasureChestAIComplement()).run(logItem, gameInfo)
     }
 
     fun clickFightForUpdate(gameInfo: GameInfo) {

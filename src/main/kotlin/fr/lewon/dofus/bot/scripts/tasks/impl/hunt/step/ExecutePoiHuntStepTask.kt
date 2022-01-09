@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.manager.PointOfInterestManager
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
@@ -10,8 +11,10 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToPOI) : BooleanDofusBotTask() {
 
+    private val label = PointOfInterestManager.getPoi(huntStep.poiLabelId.toDouble())?.label ?: "???"
+
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        val hint = HintManager.getHint(gameInfo.currentMap, huntStep.direction, huntStep.label)
+        val hint = HintManager.getHint(gameInfo.currentMap, huntStep.direction, label)
         val dToHint = hint?.d ?: 1
         val hunt = TreasureHuntUtil.getTreasureHunt(gameInfo)
 
@@ -34,7 +37,7 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
     }
 
     override fun onStarted(): String {
-        return "Hunt step : looking for [${huntStep.label}] toward [${huntStep.direction}] ..."
+        return "Hunt step : [${huntStep.direction}] - [$label] ..."
     }
 
 }

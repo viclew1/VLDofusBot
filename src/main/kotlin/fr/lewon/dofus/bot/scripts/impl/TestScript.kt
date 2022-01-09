@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.model.move.Direction
+import fr.lewon.dofus.bot.core.manager.MapManager
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
-import fr.lewon.dofus.bot.util.game.MoveUtil
+import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class TestScript : DofusBotScript("Test") {
@@ -27,8 +27,7 @@ class TestScript : DofusBotScript("Test") {
         val cellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] ?: return
         val cell = gameInfo.dofusBoard.getCell(cellId)
         println(cell)
-        MoveUtil.buildDirectionalMoveTask(gameInfo, Direction.RIGHT, 5).run(logItem, gameInfo)
-        MoveUtil.buildDirectionalMoveTask(gameInfo, Direction.LEFT, 5).run(logItem, gameInfo)
+        ReachMapTask(listOf(MapManager.getDofusMap(25691654.0))).run(logItem, gameInfo)
     }
 
 }

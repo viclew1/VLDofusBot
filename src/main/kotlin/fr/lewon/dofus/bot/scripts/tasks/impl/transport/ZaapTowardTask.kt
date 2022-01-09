@@ -89,13 +89,13 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     }
 
     private fun getUniqueIdentifier(destMap: DofusMap, destinations: List<DofusMap>): String {
-        val destSubAreaLabel = destMap.getSubAreaLabel()
-        val destinationsMatchingSubAreaLabel = destinations.filter { it.getSubAreaLabel() == destSubAreaLabel }
-        if (destinationsMatchingSubAreaLabel.size == 1) return destSubAreaLabel
+        val destSubAreaName = destMap.subArea.name
+        val destinationsMatchingSubAreaLabel = destinations.filter { it.subArea.name == destSubAreaName }
+        if (destinationsMatchingSubAreaLabel.size == 1) return destSubAreaName
 
-        val destAreaLabel = destMap.getAreaLabel()
-        val destinationsMatchingAreaLabel = destinations.filter { it.getAreaLabel() == destAreaLabel }
-        if (destinationsMatchingAreaLabel.size == 1) return destAreaLabel
+        val destAreaName = destMap.subArea.area.name
+        val destinationsMatchingAreaLabel = destinations.filter { it.subArea.area.name == destAreaName }
+        if (destinationsMatchingAreaLabel.size == 1) return destAreaName
 
         val coordinates = destMap.getCoordinates()
         error("No unique identifier for destination [${coordinates.x}, ${coordinates.y}]")

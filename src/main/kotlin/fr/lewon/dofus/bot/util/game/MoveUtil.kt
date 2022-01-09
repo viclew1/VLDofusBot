@@ -61,7 +61,7 @@ object MoveUtil {
             Direction.RIGHT -> edgeWithTransitionList.maxByOrNull { getTransitionLocation(gameInfo, it.second).x }
             Direction.TOP -> edgeWithTransitionList.minByOrNull { getTransitionLocation(gameInfo, it.second).y }
             Direction.BOTTOM -> edgeWithTransitionList.maxByOrNull { getTransitionLocation(gameInfo, it.second).y }
-        } ?: error("No transition found")
+        } ?: error("No path found")
     }
 
     private fun getTransitionLocation(gameInfo: GameInfo, transition: Transition): PointRelative {

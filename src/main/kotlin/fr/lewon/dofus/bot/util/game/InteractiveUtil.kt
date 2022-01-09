@@ -27,7 +27,7 @@ object InteractiveUtil {
         val dElementData = if (elementData is NormalGraphicalElementData) {
             UIPoint(
                 -elementData.origin.x + elementData.size.x / 2f,
-                -elementData.origin.y + elementData.size.y * 0.3f
+                -elementData.origin.y + elementData.size.y * 0.25f
             )
         } else {
             UIPoint(0f, 0f)

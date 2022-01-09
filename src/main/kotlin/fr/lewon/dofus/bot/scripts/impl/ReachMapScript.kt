@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.core.manager.MapManager
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
@@ -37,7 +37,7 @@ class ReachMapScript : DofusBotScript("Reach map") {
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val x = xParameter.value.toInt()
         val y = yParameter.value.toInt()
-        val maps = DofusMapManager.getDofusMaps(x, y).filter { it.worldMap == gameInfo.currentMap.worldMap }
+        val maps = MapManager.getDofusMaps(x, y).filter { it.worldMap == gameInfo.currentMap.worldMap }
         val travelOk = ReachMapTask(maps).run(logItem, gameInfo)
         if (!travelOk) {
             error("Failed to reach destination")

@@ -5,6 +5,6 @@ import fr.lewon.dofus.bot.core.model.move.Direction
 
 
 data class DofusMapWithDirection(
-    var dofusMap: DofusMap = DofusMap(),
-    var direction: Direction = Direction.values()[0]
+    var dofusMap: DofusMap,
+    var direction: Direction
 )

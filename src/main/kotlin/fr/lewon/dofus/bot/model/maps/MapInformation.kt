@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.model.maps
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.core.manager.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 
 data class MapInformation(
@@ -10,6 +10,6 @@ data class MapInformation(
 ) {
     @JsonIgnore
     fun getMap(): DofusMap {
-        return DofusMapManager.getDofusMap(mapId)
+        return MapManager.getDofusMap(mapId)
     }
 }

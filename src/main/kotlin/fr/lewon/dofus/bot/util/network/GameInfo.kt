@@ -37,7 +37,7 @@ class GameInfo(val character: DofusCharacter) {
 
     var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
     var playerId = -1.0
-    var currentMap = DofusMap()
+    lateinit var currentMap: DofusMap
     var treasureHunt: TreasureHuntMessage? = null
     var drhellerOnMap = false
 

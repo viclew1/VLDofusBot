@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui.sound
+package fr.lewon.dofus.bot.gui.alert
 
 import java.io.BufferedInputStream
 import javax.sound.sampled.AudioSystem

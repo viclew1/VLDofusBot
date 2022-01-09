@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.manager.DofusMapManager
+import fr.lewon.dofus.bot.core.manager.MapManager
 import fr.lewon.dofus.bot.core.manager.WaypointsManager
 import fr.lewon.dofus.bot.core.manager.world.Transition
 import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
@@ -53,7 +53,7 @@ object TravelUtil {
     }
 
     fun getPath(gameInfo: GameInfo, destCoordinates: DofusCoordinates): List<Transition>? {
-        return getPath(gameInfo, DofusMapManager.getDofusMaps(destCoordinates.x, destCoordinates.y))
+        return getPath(gameInfo, MapManager.getDofusMaps(destCoordinates.x, destCoordinates.y))
     }
 
     fun getPath(gameInfo: GameInfo, destMaps: List<DofusMap>): List<Transition>? {
