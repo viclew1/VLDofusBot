@@ -9,8 +9,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExploreAreaScript : DofusBotScript("Explore area") {
@@ -45,17 +44,7 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val subAreaParameterValue = subAreaParameter.value
         val subArea = SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
-        val toExploreMaps = getMapsInSubArea(subArea).toMutableList()
-        if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
-            error("Couldn't reach area")
-        }
-        toExploreMaps.remove(gameInfo.currentMap)
-        while (toExploreMaps.isNotEmpty()) {
-            if (!TravelTask(toExploreMaps).run(logItem, gameInfo)) {
-                error("Failed to move")
-            }
-            toExploreMaps.remove(gameInfo.currentMap)
-        }
+        ExploreSubAreaTask(subArea, 1).run(logItem, gameInfo)
     }
 
 }

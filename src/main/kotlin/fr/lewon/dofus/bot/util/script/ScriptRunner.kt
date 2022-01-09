@@ -89,6 +89,7 @@ object ScriptRunner {
 
     private fun onScriptOk(character: DofusCharacter, logItem: LogItem) {
         character.executionLogger.closeLog("Execution OK", logItem)
+        SoundType.SUCCEEDED.playSound()
         onScriptEnd(character, DofusBotScriptEndType.SUCCESS)
     }
 

@@ -6,6 +6,7 @@ enum class DofusBotScripts(val buildScriptFun: () -> DofusBotScript) {
 
     TREASURE_HUNT_EXECUTE({ MultipleTreasureHuntScript() }),
     SMITH_MAGIC({ SmithMagicScript() }),
+    EXPLORE_CURRENT_AREA({ ExploreCurrentAreaScript() }),
     EXPLORE_AREA({ ExploreAreaScript() }),
     REACH_MAP({ ReachMapScript() }),
     TRAVEL({ TravelScript() }),

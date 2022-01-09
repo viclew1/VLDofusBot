@@ -9,7 +9,8 @@ enum class SoundType(soundFileName: String) {
 
     RARE_MONSTER_FOUND("rare_monster_found.wav"),
     OBJECT_CRAFT("craft.wav"),
-    FAILED("failed.wav");
+    FAILED("failed.wav"),
+    SUCCEEDED("success.wav");
 
     private val clip: Clip
 
