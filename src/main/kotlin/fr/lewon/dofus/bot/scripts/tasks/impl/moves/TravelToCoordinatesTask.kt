@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
-import fr.lewon.dofus.bot.core.manager.MapManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 
 class TravelToCoordinatesTask(private val dofusCoordinates: DofusCoordinates) :

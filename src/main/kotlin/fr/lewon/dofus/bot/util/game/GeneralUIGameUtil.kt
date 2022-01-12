@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.manager.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.manager.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil

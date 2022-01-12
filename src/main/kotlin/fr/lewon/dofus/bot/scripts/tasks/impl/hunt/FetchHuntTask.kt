@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.MapManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil

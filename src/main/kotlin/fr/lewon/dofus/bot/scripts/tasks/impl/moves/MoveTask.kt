@@ -74,16 +74,15 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     }
 
     private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {
-        val fromMap = gameInfo.currentMap
         val moveCellId = getMoveCellId(gameInfo, direction, linkedZoneCellId)
             ?: return false
 
+        val previousMapId = gameInfo.currentMap.id
         val clickLoc = getStandardClickLoc(gameInfo, direction, moveCellId)
         if (!MoveUtil.processMove(gameInfo, clickLoc)) {
             error("Failed to move toward [$direction]")
         }
-
-        gameInfo.moveHistory.addMove(direction, fromMap, gameInfo.currentMap)
+        gameInfo.moveHistory.addMap(previousMapId)
         return true
     }
 

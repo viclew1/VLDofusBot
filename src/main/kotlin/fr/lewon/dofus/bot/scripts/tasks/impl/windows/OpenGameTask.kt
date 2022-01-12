@@ -6,6 +6,7 @@ import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
+import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
@@ -95,9 +96,13 @@ class OpenGameTask : DofusBotTask<DofusConnection>() {
 
     private fun waitForLoginArea(gameInfo: GameInfo) {
         if (ScreenUtil.colorCount(gameInfo, LOGO_BOUNDS, LOGO_SHADOWED_COLOR, LOGO_SHADOWED_COLOR) > 0) {
-            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE, 500)
             val colorOkFunc = { ScreenUtil.colorCount(gameInfo, LOGO_BOUNDS, LOGO_COLOR, LOGO_COLOR) > 0 }
-            if (!WaitUtil.waitUntil(colorOkFunc)) {
+            val colorOk = RetryUtil.tryUntilSuccess(
+                { KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE, 500) },
+                { WaitUtil.waitUntil(colorOkFunc, 3000) },
+                5
+            ) != null
+            if (!colorOk) {
                 error("Couldn't close warning window")
             }
         }

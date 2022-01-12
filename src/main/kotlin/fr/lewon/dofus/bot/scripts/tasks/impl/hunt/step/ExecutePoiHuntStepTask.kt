@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.PointOfInterestManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.PointOfInterestManager
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.filemanagers.HintManager

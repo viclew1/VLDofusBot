@@ -44,7 +44,7 @@ object MouseUtil {
 
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
-        val wParam = WinDef.WPARAM(0)
+        val wParam = makeWParam(0, 0)
         doPostMouseMessages(handle, WM_LBUTTONDOWN, WM_LBUTTONUP, wParam = wParam, lParam = lParam)
     }
 
@@ -73,12 +73,20 @@ object MouseUtil {
 
     private fun doMove(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
-        val wParam = WinDef.WPARAM(0)
+        val wParam = makeWParam(0, 0)
         doPostMouseMessages(handle, WM_MOUSEMOVE, wParam = wParam, lParam = lParam)
     }
 
-    private fun makeLParam(x: Int, y: Int): WinDef.LPARAM {
-        return WinDef.LPARAM(((y shl 16) or (x and 0xFFFF)).toLong())
+    private fun makeLParam(low: Int, high: Int): WinDef.LPARAM {
+        return WinDef.LPARAM(makeParamValue(low, high))
+    }
+
+    private fun makeWParam(low: Int, high: Int): WinDef.WPARAM {
+        return WinDef.WPARAM(makeParamValue(low, high))
+    }
+
+    private fun makeParamValue(low: Int, high: Int): Long {
+        return ((high shl 16) or (low and 0xFFFF)).toLong()
     }
 
     fun leftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100, moveBeforeClick: Boolean = true) {

@@ -17,10 +17,6 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
-    private val resumeHuntParameter = DofusBotParameter(
-        "resume_hunt", "Set to true if you wish to resume an ongoing hunt", "false", DofusBotParameterType.BOOLEAN
-    )
-
     private val huntCountParameter = DofusBotParameter(
         "hunt_count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
     )
@@ -31,7 +27,6 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
-            resumeHuntParameter,
             huntCountParameter,
             cleanCacheParameter
         )
@@ -54,11 +49,10 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
     }
 
     override fun getDescription(): String {
-        val resumeHunt = resumeHuntParameter.value.toBoolean()
         val huntCount = huntCountParameter.value.toInt()
         val cleanCacheEvery = cleanCacheParameter.value.toInt()
         var description = "Executes $huntCount hunt(s) starting with the current treasure hunt by : \n"
-        if (!resumeHunt) description += " - Reaching treasure hunt start location \n"
+        description += " - Reaching treasure hunt start location \n"
         description += " - Finding hints and resolving treasure hunt steps \n"
         description += " - Fighting the chest at the end \n"
         description += "Dofus cache will be cleaned every $cleanCacheEvery hunt(s)"

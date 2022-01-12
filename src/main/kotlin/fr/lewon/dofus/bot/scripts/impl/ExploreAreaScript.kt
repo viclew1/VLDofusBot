@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.MapManager
-import fr.lewon.dofus.bot.core.manager.SubAreaManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.SubAreaManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
@@ -28,6 +28,7 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
     private val subAreaParameter = DofusBotParameter(
         "sub_area", "Dofus sub area", "", DofusBotParameterType.CHOICE, SUB_AREA_LABELS
     )
+
 
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(subAreaParameter)

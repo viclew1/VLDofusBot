@@ -23,8 +23,10 @@ enum class SoundType(soundFileName: String) {
     }
 
     fun playSound() {
-        clip.microsecondPosition = 0
-        clip.start()
+        Thread {
+            clip.microsecondPosition = 0
+            clip.start()
+        }.start()
     }
 
 }

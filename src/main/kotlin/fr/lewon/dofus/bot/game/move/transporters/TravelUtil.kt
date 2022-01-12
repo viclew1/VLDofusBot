@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.manager.MapManager
-import fr.lewon.dofus.bot.core.manager.WaypointsManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.WaypointsManager
 import fr.lewon.dofus.bot.core.manager.world.Transition
 import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates

@@ -1,13 +1,16 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.MapManager
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class ExploreSubAreaTask(private val subArea: DofusSubArea, private val worldMap: Int) : BooleanDofusBotTask() {
+class ExploreSubAreaTask(
+    private val subArea: DofusSubArea,
+    private val worldMap: Int,
+) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val toExploreMaps = MapManager.getDofusMaps(subArea)

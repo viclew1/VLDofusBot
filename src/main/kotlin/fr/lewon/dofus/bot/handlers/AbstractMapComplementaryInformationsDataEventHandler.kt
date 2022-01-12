@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.handlers
 
-import fr.lewon.dofus.bot.core.manager.d2o.D2OUtil
-import fr.lewon.dofus.bot.core.manager.i18n.I18NUtil
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MonstersManager
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper
 import fr.lewon.dofus.bot.gui.panes.status.StatusPanel
@@ -26,26 +26,21 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         socketResult.actors.forEach {
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
+        gameInfo.mainMonstersByGroupOnMap = socketResult.actors
+            .filterIsInstance<GameRolePlayGroupMonsterInformations>()
+            .associateWith { MonstersManager.getMonster(it.staticInfos.mainCreatureLightInfos.genericId.toDouble()) }
         gameInfo.interactiveElements = socketResult.interactiveElements
-        Thread { beepIfArchMonsterHere(gameInfo, socketResult) }.start()
+        beepIfArchMonsterHere(gameInfo, socketResult.map)
         LOSHelper.updateOverlay(gameInfo)
     }
 
-    private fun beepIfArchMonsterHere(gameInfo: GameInfo, socketResult: MapComplementaryInformationsDataMessage) {
-        socketResult.actors
-            .filterIsInstance<GameRolePlayGroupMonsterInformations>()
-            .map { it.staticInfos.mainCreatureLightInfos }
-            .mapNotNull { D2OUtil.getObject("Monsters", it.genericId.toDouble()) }
-            .firstOrNull { it["isMiniBoss"]?.toString()?.toBoolean() ?: false }
-            ?.let {
-                val nameId = it["nameId"].toString().toInt()
-                val name = I18NUtil.getLabel(nameId)
-                SoundType.RARE_MONSTER_FOUND.playSound()
-                val characterName = gameInfo.character.pseudo
-                val mapStr = "(${socketResult.map.posX}, ${socketResult.map.posY})"
-                val statusText = "$characterName found arch monster [$name] on map $mapStr"
-                StatusPanel.changeText(statusText)
-            }
+    private fun beepIfArchMonsterHere(gameInfo: GameInfo, map: DofusMap) {
+        gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isMiniBoss }?.let {
+            SoundType.RARE_MONSTER_FOUND.playSound()
+            val mapStr = "(${map.posX}, ${map.posY})"
+            val statusText = "${gameInfo.character.pseudo} found arch monster [${it.value.name}] on map $mapStr"
+            StatusPanel.changeText(statusText)
+        }
     }
 
 }
