@@ -30,4 +30,7 @@ class CharacterCardList(cardWidth: Int, characterSelectionPanel: CharacterSelect
         }
     }
 
+    override fun onItemMoved(item: DofusCharacter) {
+        CharacterManager.updateCharacterStore(items)
+    }
 }

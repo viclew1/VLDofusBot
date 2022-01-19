@@ -121,8 +121,7 @@ object TreasureHuntUtil {
         gameInfo: GameInfo,
         step: TreasureHuntStep,
         logItem: LogItem,
-
-        ): Boolean {
+    ): Boolean {
         return when (step) {
             is TreasureHuntStepFollowDirectionToPOI ->
                 ExecutePoiHuntStepTask(step).run(logItem, gameInfo)

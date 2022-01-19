@@ -71,14 +71,11 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
             .firstOrNull { it.getCoordinates() == zaap.getCoordinates() }
             ?: error("Could not find zaap destination [${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]. Did you explore it with this character ?")
 
-        focusZaap(gameInfo, zaapDestination, zaapDestinations)
-        gameInfo.eventStore.clear()
-        KeyboardUtil.enter(gameInfo)
-        MoveUtil.waitForMapChange(gameInfo)
+        zaapToDestination(gameInfo, zaapDestination, zaapDestinations)
         return true
     }
 
-    private fun focusZaap(gameInfo: GameInfo, zaapDestination: DofusMap, zaapDestinations: List<DofusMap>) {
+    private fun zaapToDestination(gameInfo: GameInfo, zaapDestination: DofusMap, zaapDestinations: List<DofusMap>) {
         val sortingMode = TransportSortingUtil.getZaapSortingMode()
         val regionButtonLocation = getHeaderRegionButtonLocation()
         if (sortingMode.sortCriteria != "areaName") {
@@ -87,6 +84,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         if (sortingMode.descendingSort) {
             MouseUtil.leftClick(gameInfo, regionButtonLocation, 500)
         }
+        WaitUtil.sleep(1000)
         val orderedZaaps = getOrderedZaapDestinations(zaapDestinations)
         val zaapDestinationIndex = orderedZaaps.indexOf(zaapDestination)
         val firstElementLocation = getFirstElementLocation()
@@ -99,7 +97,9 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
             skippedCount += minOf(10, zaapDestinations.size - 10 - skippedCount)
         }
         val zaapLocation = firstElementLocation.also { it.y += DELTA_ELEMENT * (zaapDestinationIndex - skippedCount) }
-        MouseUtil.leftClick(gameInfo, zaapLocation)
+        gameInfo.eventStore.clear()
+        MouseUtil.doubleLeftClick(gameInfo, zaapLocation)
+        MoveUtil.waitForMapChange(gameInfo)
     }
 
     private fun getOrderedZaapDestinations(zaapDestinations: List<DofusMap>): List<DofusMap> {
@@ -109,7 +109,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     }
 
     private fun removeAccents(str: String): String {
-        val temp = Normalizer.normalize(str, Normalizer.Form.NFD)
+        val temp = Normalizer.normalize(str.lowercase(), Normalizer.Form.NFD)
         val regex = "\\p{InCombiningDiacriticalMarks}+".toRegex()
         return regex.replace(temp, "")
     }

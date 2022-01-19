@@ -22,9 +22,7 @@ object TravelUtil {
     }
 
     fun getClosestZaap(maps: List<DofusMap>): Pair<DofusMap, Int>? {
-        val worldMaps = maps.map { it.worldMap }
         val zaaps = WaypointsManager.getAllZaapMaps()
-            .filter { worldMaps.contains(it.worldMap) }
             .sortedBy { minDistance(it, maps) }
         val zaapsSubList = zaaps.takeIf { it.size > 3 }?.subList(0, 3) ?: zaaps
         return getClosest(zaapsSubList, maps) { it }
@@ -35,9 +33,6 @@ object TravelUtil {
     }
 
     private fun getDistance(fromMap: DofusMap, toMap: DofusMap): Int {
-        if (fromMap.worldMap != toMap.worldMap) {
-            return Int.MAX_VALUE
-        }
         return toMap.getCoordinates().distanceTo(fromMap.getCoordinates())
     }
 

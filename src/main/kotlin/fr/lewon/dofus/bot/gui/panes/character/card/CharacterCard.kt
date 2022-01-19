@@ -4,6 +4,8 @@ import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.gui.custom.list.Card
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.model.characters.DofusClass
+import fr.lewon.dofus.bot.util.filemanagers.DofusClassManager
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -38,7 +40,7 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
     private val loginLabel = OutlineJLabel()
     private val pseudoLabel = OutlineJLabel()
 
-    private var dofusClass = character.dofusClass
+    private var dofusClassId = character.dofusClassId
     private lateinit var bgImg: BufferedImage
     private lateinit var blurredImg: BufferedImage
 
@@ -69,16 +71,13 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
         add(pseudoLabel)
         add(iconLabel)
         add(backgroundLabel)
-        
-        val iconImg =
-            ImageUtil.getScaledImageKeepHeight(item.dofusClass.iconData, (height * ICON_HEIGHT_RATIO).toInt())
+
         iconLabel.setBounds(
             (-height * ICON_DELTA_HEIGHT_RATIO).toInt(),
             (-height * ICON_DELTA_HEIGHT_RATIO).toInt(),
             (height * ICON_HEIGHT_RATIO).toInt(),
             (height * ICON_HEIGHT_RATIO).toInt()
         )
-        iconLabel.icon = ImageIcon(iconImg)
         backgroundLabel.setBounds(
             (-width * BANNER_DELTA_WIDTH_RATIO).toInt(),
             -5,
@@ -100,8 +99,9 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
             (height * LABEL_HEIGHT_RATIO).toInt()
         )
 
-        updateBgImg()
-        updateBlurredImg(selected)
+        val dofusClass = DofusClassManager.getClass(dofusClassId)
+        updateBgImg(dofusClass)
+        updateIconImg(dofusClass)
         updateCard(selected)
     }
 
@@ -116,9 +116,11 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
     }
 
     override fun updateCard(selected: Boolean) {
-        if (item.dofusClass != dofusClass) {
-            dofusClass = item.dofusClass
-            updateBgImg()
+        if (item.dofusClassId != dofusClassId) {
+            dofusClassId = item.dofusClassId
+            val dofusClass = DofusClassManager.getClass(dofusClassId)
+            updateBgImg(dofusClass)
+            updateIconImg(dofusClass)
         }
         updateBlurredImg(selected)
 
@@ -126,8 +128,14 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
         pseudoLabel.text = item.pseudo
     }
 
-    private fun updateBgImg() {
+    private fun updateBgImg(dofusClass: DofusClass) {
         bgImg = ImageUtil.getScaledImage(dofusClass.bannerData, (width * BANNER_WIDTH_RATIO).toInt())
+    }
+
+    private fun updateIconImg(dofusClass: DofusClass) {
+        val iconImg =
+            ImageUtil.getScaledImageKeepHeight(dofusClass.iconData, (height * ICON_HEIGHT_RATIO).toInt())
+        iconLabel.icon = ImageIcon(iconImg)
     }
 
     private fun updateBlurredImg(selected: Boolean) {

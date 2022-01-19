@@ -2,14 +2,13 @@ package fr.lewon.dofus.bot.game.move.transporters
 
 import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.util.geometry.PointRelative
 
-enum class FrigostTransporter(idMap: Double, private val optionPointRelative: PointRelative) : ITransporter {
+enum class FrigostTransporter(idMap: Double, private val optionIndex: Int) : ITransporter {
 
-    CHAMPS_DE_GLACE(54167842.0, PointRelative(0.375f, 0.642f)),
-    BERCEAU_ALMA(54161738.0, PointRelative(0.375f, 0.665f)),
-    LARMES_OURONIGRIDE(54168407.0, PointRelative(0.375f, 0.689f)),
-    CREVASSE_PERGE(54173010.0, PointRelative(0.375f, 0.714f));
+    CHAMPS_DE_GLACE(54167842.0, 4),
+    BERCEAU_ALMA(54161738.0, 3),
+    LARMES_OURONIGRIDE(54168407.0, 2),
+    CREVASSE_PERGE(54173010.0, 1);
 
     private val map = MapManager.getDofusMap(idMap)
     private val transporterMap = MapManager.getDofusMap(60035079.0)
@@ -22,12 +21,12 @@ enum class FrigostTransporter(idMap: Double, private val optionPointRelative: Po
         return map
     }
 
-    override fun getNpcPointRelative(): PointRelative {
-        return PointRelative(0.370f, 0.683f)
+    override fun getNpcId(): Int {
+        return 1286
     }
 
-    override fun getOptionPointRelative(): PointRelative {
-        return optionPointRelative
+    override fun getOptionIndex(): Int {
+        return optionIndex
     }
 
 }

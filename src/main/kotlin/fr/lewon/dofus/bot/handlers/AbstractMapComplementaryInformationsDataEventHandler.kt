@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTreasureHintInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc.GameRolePlayNpcInformations
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
@@ -23,7 +24,11 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         gameInfo.dofusBoard.updateStartCells(socketResult.fightStartPositions.positionsForChallenger)
         gameInfo.fightBoard.resetFighters()
         gameInfo.entityPositionsOnMapByEntityId.clear()
+        gameInfo.entityIdByNpcId.clear()
         socketResult.actors.forEach {
+            if (it is GameRolePlayNpcInformations) {
+                gameInfo.entityIdByNpcId[it.npcId] = it.contextualId
+            }
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.mainMonstersByGroupOnMap = socketResult.actors

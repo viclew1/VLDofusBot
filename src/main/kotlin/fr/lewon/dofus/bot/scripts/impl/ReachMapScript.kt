@@ -37,7 +37,10 @@ class ReachMapScript : DofusBotScript("Reach map") {
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val x = xParameter.value.toInt()
         val y = yParameter.value.toInt()
-        val maps = MapManager.getDofusMaps(x, y).filter { it.worldMap == gameInfo.currentMap.worldMap }
+        val mapsWithCoords = MapManager.getDofusMaps(x, y)
+        val maps = mapsWithCoords.filter { it.worldMap == gameInfo.currentMap.worldMap }
+            .takeIf { it.isNotEmpty() }
+            ?: mapsWithCoords
         val travelOk = ReachMapTask(maps).run(logItem, gameInfo)
         if (!travelOk) {
             error("Failed to reach destination")

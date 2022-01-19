@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.DofusClassManager
 import java.awt.Color
 import java.awt.Font
 import javax.swing.*
@@ -40,7 +41,7 @@ class EditCharacterConnectionInfoPanel(
         it.addCaretListener { updateSaveButton() }
     }
     private val classLabel = OutlineJLabel("Class")
-    private val classComboBox = TextImageComboBox(25, DofusClass.values()).also {
+    private val classComboBox = TextImageComboBox(25, DofusClassManager.getAllClasses().toTypedArray()).also {
         it.addItemListener { updateSaveButton() }
     }
     private val backgroundLabel = JLabel()
@@ -56,7 +57,7 @@ class EditCharacterConnectionInfoPanel(
     init {
         layout = null
         setSize(GlobalCharacterFormPanel.CONNECTION_INFO_WIDTH, GlobalCharacterFormPanel.CONNECTION_INFO_HEIGHT)
-        classComboBox.selectedItem = character.dofusClass
+        classComboBox.selectedItem = DofusClassManager.getClass(character.dofusClassId)
         classComboBox.addItemListener { updateBackground() }
         saveButton.addActionListener { saveCharacter(character, spells, onSaveAction) }
 
@@ -126,7 +127,7 @@ class EditCharacterConnectionInfoPanel(
             character.pseudo = getPseudo()
             character.password = getPassword()
             character.login = getLogin()
-            character.dofusClass = getDofusClass()
+            character.dofusClassId = getDofusClass().breed.id
             character.spells = ArrayList(spells)
             onSaveAction(character)
         } else {

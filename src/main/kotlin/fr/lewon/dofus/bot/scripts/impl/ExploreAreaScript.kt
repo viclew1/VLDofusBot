@@ -3,7 +3,6 @@ package fr.lewon.dofus.bot.scripts.impl
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.manager.d2o.managers.SubAreaManager
-import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
@@ -16,12 +15,15 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
 
     companion object {
         private val SUB_AREAS = SubAreaManager.getAllSubAreas()
-            .filter { getMapsInSubArea(it).isNotEmpty() }
+            .filter { MapManager.getDofusMaps(it).isNotEmpty() }
         private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { "${it.area.name} (${it.name})" }
         private val SUB_AREA_LABELS = SUB_AREA_BY_LABEL.keys.sorted()
 
-        private fun getMapsInSubArea(subArea: DofusSubArea): List<DofusMap> {
-            return MapManager.getDofusMaps(subArea).filter { it.worldMap == 1 }
+        private fun getSubAreaWorldMap(subArea: DofusSubArea): Int {
+            return MapManager.getDofusMaps(subArea).groupBy { it.worldMap }
+                .maxByOrNull { it.value.size }
+                ?.key
+                ?: 1
         }
     }
 
@@ -45,7 +47,7 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val subAreaParameterValue = subAreaParameter.value
         val subArea = SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
-        ExploreSubAreaTask(subArea, 1).run(logItem, gameInfo)
+        ExploreSubAreaTask(subArea, getSubAreaWorldMap(subArea)).run(logItem, gameInfo)
     }
 
 }

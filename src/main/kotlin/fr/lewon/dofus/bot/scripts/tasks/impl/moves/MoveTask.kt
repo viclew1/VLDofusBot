@@ -16,6 +16,8 @@ import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask() {
 
@@ -89,11 +91,14 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     private fun getStandardClickLoc(gameInfo: GameInfo, direction: Direction, destCellId: Int): PointRelative {
         val destCell = gameInfo.dofusBoard.getCell(destCellId)
         val destCellCenter = destCell.getCenter()
-        val floor = if (destCellId == getDefaultMoveCell(direction)) 0 else destCell.cellData.floor
-        val dFloor = ConverterUtil.toPointRelative(UIPoint(y = floor.toFloat()))
+        val dFloor = ConverterUtil.toPointRelative(UIPoint(y = destCell.cellData.floor.toFloat()))
+        val cellClickLoc = PointRelative(
+            max(0.001f, min(destCellCenter.x, 0.99f)),
+            max(0.001f, min(destCellCenter.y - dFloor.y, 0.99f))
+        )
         return PointRelative(
-            getOverrideX(direction) ?: destCellCenter.x,
-            getOverrideY(direction) ?: (destCellCenter.y - dFloor.y)
+            getOverrideX(direction) ?: cellClickLoc.x,
+            getOverrideY(direction) ?: cellClickLoc.y
         )
     }
 
@@ -113,11 +118,32 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             .map { it.cellId }
         val validMoveCells = moveCells
             .filter { !invalidMoveCells.contains(it) }
-        if (validMoveCells.isEmpty()) {
-            return getDefaultMoveCell(direction)
+        if (validMoveCells.isNotEmpty()) {
+            getClosestCellId(gameInfo, playerCellId, validMoveCells)?.let {
+                return it
+            }
         }
-        return getClosestCellId(gameInfo, playerCellId, validMoveCells)
-            ?: getDefaultMoveCell(direction)
+        val nextCellIdDelta = getNextCellIdDelta(direction)
+        var nextCell = moveCells.maxOrNull() ?: Short.MAX_VALUE.toInt()
+        var previousCell = moveCells.minOrNull() ?: -1
+        while (nextCell < DofusBoard.MAP_CELLS_COUNT || previousCell >= 0) {
+            nextCell += nextCellIdDelta
+            previousCell -= nextCellIdDelta
+            if (!invalidMoveCells.contains(nextCell)) {
+                return nextCell
+            }
+            if (!invalidMoveCells.contains(previousCell)) {
+                return previousCell
+            }
+        }
+        return null
+    }
+
+    private fun getNextCellIdDelta(direction: Direction): Int {
+        return when (direction) {
+            Direction.BOTTOM, Direction.TOP -> 1
+            Direction.LEFT, Direction.RIGHT -> 28
+        }
     }
 
     private fun getInvalidCellsNearEntity(gameInfo: GameInfo, entityCellId: Int): List<DofusCell> {
@@ -211,15 +237,6 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
                 && neighbor.cellData.mov
                 && neighbor.cellData.linkedZone != 0
                 && abs(cell.cellData.floor - neighbor.cellData.floor) <= 50
-    }
-
-    private fun getDefaultMoveCell(direction: Direction): Int {
-        return when (direction) {
-            Direction.BOTTOM -> 545
-            Direction.LEFT -> 0
-            Direction.RIGHT -> DofusBoard.MAP_CELLS_COUNT - 1
-            Direction.TOP -> 14
-        }
     }
 
     private fun getOverrideX(direction: Direction): Float? {

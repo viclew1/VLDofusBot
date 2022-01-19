@@ -37,6 +37,8 @@ abstract class CardList<T>(
 
     abstract fun onItemRemove(item: T)
 
+    abstract fun onItemMoved(item: T)
+
     abstract fun onCardSelect(card: Card<T>?)
 
     fun addItem(item: T): Card<T> {
@@ -83,13 +85,17 @@ abstract class CardList<T>(
     }
 
     fun moveElement(fromCard: Card<T>, toCard: Card<T>) {
+        val fromIndex = cards.indexOf(fromCard)
         val toIndex = cards.indexOf(toCard)
-        if (cards.indexOf(fromCard) != toIndex) {
+        if (fromIndex != toIndex) {
             cards.remove(fromCard)
-            remove(fromCard)
             cards.add(toIndex, fromCard)
+            items.removeAt(fromIndex)
+            items.add(toIndex, fromCard.item)
+            remove(fromCard)
             insertCard(fromCard, toIndex)
             updateUI()
+            onItemMoved(fromCard.item)
         }
     }
 

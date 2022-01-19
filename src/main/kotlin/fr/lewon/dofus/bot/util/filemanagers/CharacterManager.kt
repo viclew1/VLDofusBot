@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
@@ -56,14 +55,19 @@ object CharacterManager {
         return characterStore.characters.toList()
     }
 
+    fun updateCharacterStore(characters: List<DofusCharacter>) {
+        characterStore.characters.clear()
+        characterStore.characters.addAll(characters)
+        saveUserData()
+    }
+
     fun addCharacter(
-        login: String, password: String, pseudo: String,
-        dofusClass: DofusClass, spells: List<SpellCombination>
+        login: String, password: String, pseudo: String, dofusClassId: Int, spells: List<SpellCombination>
     ): DofusCharacter {
         getCharacter(login, pseudo)?.let {
             error("Character already registered : [$login, $pseudo]")
         }
-        val character = DofusCharacter(login, password, pseudo, dofusClass, spells = ArrayList(spells))
+        val character = DofusCharacter(login, password, pseudo, dofusClassId, spells = ArrayList(spells))
         characterStore.characters.add(character)
         saveUserData()
         return character
@@ -79,7 +83,7 @@ object CharacterManager {
         login: String = character.login,
         password: String = character.password,
         pseudo: String = character.pseudo,
-        dofusClass: DofusClass = character.dofusClass,
+        dofusClassId: Int = character.dofusClassId,
         spells: List<SpellCombination> = character.spells
     ) {
         val existingCharacter = getCharacter(login, pseudo)
@@ -89,7 +93,7 @@ object CharacterManager {
         character.login = login
         character.password = password
         character.pseudo = pseudo
-        character.dofusClass = dofusClass
+        character.dofusClassId = dofusClassId
         character.spells = ArrayList(spells)
         saveUserData()
     }

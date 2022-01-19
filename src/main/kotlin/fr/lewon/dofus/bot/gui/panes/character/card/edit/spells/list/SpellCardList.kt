@@ -25,4 +25,7 @@ class SpellCardList(
         spellSelectionPanel.updateSpellPanels(card)
     }
 
+    override fun onItemMoved(item: SpellCombination) {
+        // Nothing
+    }
 }

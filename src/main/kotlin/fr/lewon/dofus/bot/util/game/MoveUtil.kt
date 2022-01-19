@@ -1,11 +1,13 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.manager.world.Edge
+import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.manager.world.Transition
 import fr.lewon.dofus.bot.core.manager.world.TransitionType
+import fr.lewon.dofus.bot.core.manager.world.Vertex
 import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
+import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.move.Direction
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.CurrentMapMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
@@ -17,58 +19,87 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 object MoveUtil {
 
-    fun buildDirectionalMoveTask(gameInfo: GameInfo, direction: Direction, amount: Int = 1): MoveTask {
+    fun buildDirectionalPath(gameInfo: GameInfo, direction: Direction, amount: Int): List<Transition>? {
+        return buildDirectionalPath(gameInfo, direction, { _, count -> count == amount }, amount)
+    }
+
+    fun buildDirectionalPath(
+        gameInfo: GameInfo, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int
+    ): List<Transition>? {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Can't find player cell id")
         val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
             ?: error("Can't find player cell data")
-
-        val path = ArrayList<Transition>()
-        var currentVertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
+        val startVertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
             ?: error("No vertex found")
-        for (i in 0 until amount) {
-            val edges = WorldGraphUtil.getOutgoingEdges(currentVertex)
-            val transitionsByEdge = edges.associateWith { it.transitions }
-            val edgeWithTransition = chooseEdgeWithTransition(gameInfo, transitionsByEdge, direction)
-            currentVertex = edgeWithTransition.first.to
-            path.add(edgeWithTransition.second)
-        }
-        return MoveTask(path)
+        return buildDirectionalPath(startVertex, direction, stopFunc, limit)
     }
 
-    private fun chooseEdgeWithTransition(
-        gameInfo: GameInfo,
-        transitionsByEdge: Map<Edge, List<Transition>>,
-        direction: Direction
-    ): Pair<Edge, Transition> {
-        for (edgeWithTransitions in transitionsByEdge.entries) {
-            val edge = edgeWithTransitions.key
-            val transitions = edgeWithTransitions.value
-            val validTransition = transitions.firstOrNull { it.direction == direction.directionInt }
-            if (validTransition != null) {
-                return edge to validTransition
+    fun buildDirectionalPath(
+        startVertex: Vertex, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int
+    ): List<Transition>? {
+        val path = ArrayList<Transition>()
+        var currentVertex = startVertex
+        while (path.size < limit) {
+            val transition = getDirectionalTransition(currentVertex, direction)
+            currentVertex = transition.edge.to
+            path.add(transition)
+            if (stopFunc(MapManager.getDofusMap(currentVertex.mapId), path.size)) {
+                return path
             }
         }
-        val edgeWithTransitionList = transitionsByEdge.entries.flatMap { e ->
-            val edge = e.key
-            val transitions = e.value
-            transitions
-                .filter { it.type == TransitionType.INTERACTIVE || it.type == TransitionType.MAP_ACTION }
-                .map { edge to it }
-        }
-        return when (direction) {
-            Direction.LEFT -> edgeWithTransitionList.minByOrNull { getTransitionLocation(gameInfo, it.second).x }
-            Direction.RIGHT -> edgeWithTransitionList.maxByOrNull { getTransitionLocation(gameInfo, it.second).x }
-            Direction.TOP -> edgeWithTransitionList.minByOrNull { getTransitionLocation(gameInfo, it.second).y }
-            Direction.BOTTOM -> edgeWithTransitionList.maxByOrNull { getTransitionLocation(gameInfo, it.second).y }
-        } ?: error("No path found")
+        return null
     }
 
-    private fun getTransitionLocation(gameInfo: GameInfo, transition: Transition): PointRelative {
-        return when (transition.type) {
-            TransitionType.MAP_ACTION -> gameInfo.dofusBoard.getCell(transition.cellId).bounds.getCenter()
-            TransitionType.INTERACTIVE -> InteractiveUtil.getElementClickPosition(gameInfo, transition.id.toInt())
-            else -> error("Transition not supported : ${transition.type}")
+    private fun getDirectionalTransition(fromVertex: Vertex, direction: Direction): Transition {
+        val fromMap = MapManager.getDofusMap(fromVertex.mapId)
+        val edges = WorldGraphUtil.getOutgoingEdges(fromVertex)
+        val transitions = edges.flatMap { it.transitions }
+        for (transition in transitions) {
+            val validTransition = transitions.firstOrNull { it.direction == direction.directionInt }
+            if (validTransition != null) {
+                return validTransition
+            }
+        }
+        val specialTransitions = transitions
+            .filter { it.type == TransitionType.INTERACTIVE || it.type == TransitionType.MAP_ACTION }
+
+        val potentialTransitions = getPotentialTransitions(direction, specialTransitions, fromMap)
+        val idealDestination = getIdealDestination(direction, fromMap)
+        return getClosestTransition(potentialTransitions, idealDestination.x, idealDestination.y)
+            ?: error("No path found")
+    }
+
+    private fun getIdealDestination(direction: Direction, fromMap: DofusMap): DofusCoordinates {
+        return when (direction) {
+            Direction.LEFT -> DofusCoordinates(fromMap.posX - 1, fromMap.posY)
+            Direction.RIGHT -> DofusCoordinates(fromMap.posX + 1, fromMap.posY)
+            Direction.TOP -> DofusCoordinates(fromMap.posX, fromMap.posY - 1)
+            Direction.BOTTOM -> DofusCoordinates(fromMap.posX, fromMap.posY + 1)
+        }
+    }
+
+    private fun getPotentialTransitions(
+        direction: Direction,
+        transitions: List<Transition>,
+        fromMap: DofusMap
+    ): List<Transition> {
+        val fromMapCoordinates = fromMap.getCoordinates()
+        return transitions.filter {
+            val destMapCoordinates = MapManager.getDofusMap(it.edge.to.mapId).getCoordinates()
+            when (direction) {
+                Direction.LEFT -> destMapCoordinates.x < fromMapCoordinates.x
+                Direction.RIGHT -> destMapCoordinates.x > fromMapCoordinates.x
+                Direction.TOP -> destMapCoordinates.y < fromMapCoordinates.y
+                Direction.BOTTOM -> destMapCoordinates.y > fromMapCoordinates.y
+            }
+        }
+    }
+
+    private fun getClosestTransition(transitions: List<Transition>, x: Int, y: Int): Transition? {
+        val targetCoordinates = DofusCoordinates(x, y)
+        return transitions.minByOrNull {
+            MapManager.getDofusMap(it.edge.to.mapId).getCoordinates().distanceTo(targetCoordinates)
         }
     }
 

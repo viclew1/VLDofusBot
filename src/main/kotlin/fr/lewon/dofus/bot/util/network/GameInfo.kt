@@ -35,6 +35,7 @@ class GameInfo(val character: DofusCharacter) {
     var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
+    var entityIdByNpcId = HashMap<Int, Double>()
     var entityPositionsOnMapByEntityId = HashMap<Double, Int>()
     var mainMonstersByGroupOnMap: Map<GameRolePlayGroupMonsterInformations, DofusMonster> = HashMap()
 

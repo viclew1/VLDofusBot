@@ -45,4 +45,16 @@ object InteractiveUtil {
         return destPointRelative
     }
 
+    fun getNpcClickPosition(gameInfo: GameInfo, npcId: Int): PointRelative {
+        val npcEntityId = gameInfo.entityIdByNpcId[npcId] ?: error("NPC $npcId not on current map")
+        val npcCellId = gameInfo.entityPositionsOnMapByEntityId[npcEntityId] ?: error("entity $npcEntityId not found")
+        val cell = gameInfo.dofusBoard.getCell(npcCellId)
+        val delta = UIPoint(0f, -cell.cellData.floor.toFloat())
+        val dRelativePoint = ConverterUtil.toPointRelative(delta)
+        val destPointRelative = cell.getCenter().getSum(dRelativePoint)
+        destPointRelative.x = max(0.001f, min(destPointRelative.x, 0.99f))
+        destPointRelative.y = max(0.001f, min(destPointRelative.y, 0.99f))
+        return destPointRelative
+    }
+
 }
