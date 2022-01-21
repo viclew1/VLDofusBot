@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.io
 
-import fr.lewon.dofus.bot.core.manager.ui.UIBounds
-import fr.lewon.dofus.bot.core.manager.ui.UIPoint
+import fr.lewon.dofus.bot.core.ui.UIBounds
+import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute

@@ -1,13 +1,13 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
-import fr.lewon.dofus.bot.core.manager.world.Transition
-import fr.lewon.dofus.bot.core.manager.world.TransitionType
-import fr.lewon.dofus.bot.core.manager.world.Vertex
-import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
+import fr.lewon.dofus.bot.core.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.move.Direction
+import fr.lewon.dofus.bot.core.world.Transition
+import fr.lewon.dofus.bot.core.world.TransitionType
+import fr.lewon.dofus.bot.core.world.Vertex
+import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.CurrentMapMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
@@ -103,17 +103,29 @@ object MoveUtil {
         }
     }
 
+    fun processInteractiveMove(gameInfo: GameInfo, elementId: Int, skillId: Int): Boolean {
+        gameInfo.eventStore.clear()
+        InteractiveUtil.useInteractive(gameInfo, elementId, skillId)
+        waitUntilMoveClickProcessed(gameInfo)
+        waitForMapChange(gameInfo)
+        return true
+    }
+
     fun processMove(gameInfo: GameInfo, clickLocation: PointRelative): Boolean {
         gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, clickLocation)
+        waitUntilMoveClickProcessed(gameInfo)
+        waitForMapChange(gameInfo)
+        return true
+    }
+
+    private fun waitUntilMoveClickProcessed(gameInfo: GameInfo) {
         WaitUtil.waitUntilMultipleMessagesArrive(
             gameInfo,
             CurrentMapMessage::class.java,
             MapComplementaryInformationsDataMessage::class.java,
             SetCharacterRestrictionsMessage::class.java
         )
-        waitForMapChange(gameInfo)
-        return true
     }
 
     fun isMapChanged(

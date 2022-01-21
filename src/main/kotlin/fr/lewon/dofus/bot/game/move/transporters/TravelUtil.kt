@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
-import fr.lewon.dofus.bot.core.manager.d2o.managers.WaypointsManager
-import fr.lewon.dofus.bot.core.manager.world.Transition
-import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
+import fr.lewon.dofus.bot.core.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.WaypointsManager
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.world.Transition
+import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 object TravelUtil {
@@ -17,15 +17,19 @@ object TravelUtil {
         )
     }
 
-    fun getClosestTransporter(transporters: List<ITransporter>, maps: List<DofusMap>): Pair<ITransporter, Int>? {
-        return getClosest(transporters, maps) { it.getMap() }
+    fun getClosestTransporter(
+        gameInfo: GameInfo,
+        transporters: List<ITransporter>,
+        maps: List<DofusMap>
+    ): Pair<ITransporter, Int>? {
+        return getClosest(gameInfo, transporters, maps) { it.getMap() }
     }
 
-    fun getClosestZaap(maps: List<DofusMap>): Pair<DofusMap, Int>? {
+    fun getClosestZaap(gameInfo: GameInfo, maps: List<DofusMap>): Pair<DofusMap, Int>? {
         val zaaps = WaypointsManager.getAllZaapMaps()
             .sortedBy { minDistance(it, maps) }
         val zaapsSubList = zaaps.takeIf { it.size > 3 }?.subList(0, 3) ?: zaaps
-        return getClosest(zaapsSubList, maps) { it }
+        return getClosest(gameInfo, zaapsSubList, maps) { it }
     }
 
     private fun minDistance(fromMap: DofusMap, toMaps: List<DofusMap>): Int {
@@ -36,8 +40,13 @@ object TravelUtil {
         return toMap.getCoordinates().distanceTo(fromMap.getCoordinates())
     }
 
-    private fun <T> getClosest(items: List<T>, toMaps: List<DofusMap>, mapGetter: (T) -> DofusMap): Pair<T, Int>? {
-        return items.map { it to getPath(mapGetter(it), 1, toMaps) }
+    private fun <T> getClosest(
+        gameInfo: GameInfo,
+        items: List<T>,
+        toMaps: List<DofusMap>,
+        mapGetter: (T) -> DofusMap
+    ): Pair<T, Int>? {
+        return items.map { it to getPath(mapGetter(it), 1, toMaps, gameInfo) }
             .filter { it.second != null }
             .map { it.first to (it.second?.size ?: Int.MAX_VALUE) }
             .minByOrNull { it.second }
@@ -56,11 +65,16 @@ object TravelUtil {
             ?: return null
         val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
             ?: return null
-        return WorldGraphUtil.getPath(gameInfo.currentMap, cellData.getLinkedZoneRP(), destMaps)
+        return WorldGraphUtil.getPath(
+            gameInfo.currentMap,
+            cellData.getLinkedZoneRP(),
+            destMaps,
+            gameInfo.buildCharacterBasicInfo()
+        )
     }
 
-    fun getPath(fromMap: DofusMap, fromZone: Int, destMaps: List<DofusMap>): List<Transition>? {
-        return WorldGraphUtil.getPath(fromMap, fromZone, destMaps)
+    fun getPath(fromMap: DofusMap, fromZone: Int, destMaps: List<DofusMap>, gameInfo: GameInfo): List<Transition>? {
+        return WorldGraphUtil.getPath(fromMap, fromZone, destMaps, gameInfo.buildCharacterBasicInfo())
     }
 
 }

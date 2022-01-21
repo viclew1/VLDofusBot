@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.handlers
 
-import fr.lewon.dofus.bot.core.manager.d2o.managers.MonstersManager
+import fr.lewon.dofus.bot.core.d2o.managers.MonstersManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper

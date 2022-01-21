@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.manager.ui.UIPoint
+import fr.lewon.dofus.bot.core.ui.UIPoint
 
 object DefaultUIPositions {
 

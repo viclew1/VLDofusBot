@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 
 enum class OtomaiTransporter(idMap: Double, private val optionIndex: Int) : ITransporter {

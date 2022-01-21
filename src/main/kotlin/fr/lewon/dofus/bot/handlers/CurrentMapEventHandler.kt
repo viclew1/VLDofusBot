@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.handlers
 
-import fr.lewon.dofus.bot.core.manager.d2p.maps.D2PMapsAdapter
+import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.CurrentMapMessage
 import fr.lewon.dofus.bot.sniffer.store.EventHandler

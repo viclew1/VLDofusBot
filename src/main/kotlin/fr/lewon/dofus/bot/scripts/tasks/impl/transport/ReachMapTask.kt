@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.d2o.managers.WaypointsManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.d2o.managers.WaypointsManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
@@ -17,10 +17,10 @@ open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBot
         val zaaps = WaypointsManager.getAllZaapMaps()
         val transporters = TravelUtil.getTransporters()
 
-        val zaapWithDist = TravelUtil.getClosestZaap(dofusMaps)
-        val transporterWithDist = TravelUtil.getClosestTransporter(transporters, dofusMaps)
+        val zaapWithDist = TravelUtil.getClosestZaap(gameInfo, dofusMaps)
+        val transporterWithDist = TravelUtil.getClosestTransporter(gameInfo, transporters, dofusMaps)
         val transporterToZaapDist = transporterWithDist?.first?.let {
-            TravelUtil.getPath(transporterWithDist.first.getTransporterMap(), 1, zaaps)?.size
+            TravelUtil.getPath(transporterWithDist.first.getTransporterMap(), 1, zaaps, gameInfo)?.size
         } ?: Int.MAX_VALUE
         val path = TravelUtil.getPath(gameInfo, dofusMaps)
 

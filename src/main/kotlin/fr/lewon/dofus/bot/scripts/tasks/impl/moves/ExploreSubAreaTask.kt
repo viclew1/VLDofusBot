@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask

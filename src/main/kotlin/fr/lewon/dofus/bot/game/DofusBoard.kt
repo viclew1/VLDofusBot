@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.game
 
-import fr.lewon.dofus.bot.core.manager.d2p.maps.D2PMapsAdapter
-import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
+import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
+import fr.lewon.dofus.bot.core.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import java.util.*
 import kotlin.math.abs

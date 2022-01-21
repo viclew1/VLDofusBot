@@ -8,7 +8,7 @@ data class DofusCharacter(
     var login: String = "",
     var password: String = "",
     var pseudo: String = "",
-    var dofusClassId: Int = 0,
+    var dofusClassId: Int = 1,
     var scriptValues: VldbScriptValues = VldbScriptValues(),
     var spells: ArrayList<SpellCombination> = ArrayList()
 ) {

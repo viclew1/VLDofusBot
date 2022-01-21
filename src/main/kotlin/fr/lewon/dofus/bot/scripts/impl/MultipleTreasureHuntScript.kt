@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.alert.SoundType
+import fr.lewon.dofus.bot.model.hunt.HuntLevel
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
@@ -17,6 +18,10 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
+    private val huntLevelParameter = DofusBotParameter(
+        "hunt_level", "Hunt level", "200", DofusBotParameterType.CHOICE, HuntLevel.values().map { it.label }
+    )
+
     private val huntCountParameter = DofusBotParameter(
         "hunt_count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
     )
@@ -27,6 +32,7 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
+            huntLevelParameter,
             huntCountParameter,
             cleanCacheParameter
         )
@@ -63,11 +69,13 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         clearStats()
         var successCount = 0
         var cleanCacheCount = cleanCacheParameter.value.toInt()
+        val huntLevel = HuntLevel.fromLabel(huntLevelParameter.value)
+            ?: error("Invalid hunt level")
 
         for (i in 0 until huntCountParameter.value.toInt()) {
             nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             val fetchStartTimeStamp = System.currentTimeMillis()
-            if (gameInfo.treasureHunt == null && !FetchHuntTask().run(logItem, gameInfo)) {
+            if (gameInfo.treasureHunt == null && !FetchHuntTask(huntLevel).run(logItem, gameInfo)) {
                 error("Couldn't fetch a new hunt")
             }
             val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp

@@ -54,7 +54,7 @@ object MouseUtil {
         wParam: WinDef.WPARAM,
         lParam: WinDef.LPARAM
     ) {
-        messages.forEach { User32.INSTANCE.PostMessage(handle, it, wParam, lParam) }
+        messages.forEach { User32.INSTANCE.SendMessage(handle, it, wParam, lParam) }
     }
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {

@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.util.network
 
-import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CompleteCellData
+import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
+import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.DofusBoard
@@ -44,6 +45,21 @@ class GameInfo(val character: DofusCharacter) {
     lateinit var currentMap: DofusMap
     var treasureHunt: TreasureHuntMessage? = null
     var drhellerOnMap = false
+
+    var finishedQuestIds: List<Int> = ArrayList()
+    var activeQuestIds: List<Int> = ArrayList()
+    var finishedObjectiveIds: List<Int> = ArrayList()
+    var activeObjectiveIds: List<Int> = ArrayList()
+
+    fun buildCharacterBasicInfo(): DofusCharacterBasicInfo {
+        return DofusCharacterBasicInfo(
+            character.dofusClassId,
+            finishedQuestIds,
+            activeQuestIds,
+            finishedObjectiveIds,
+            activeObjectiveIds
+        )
+    }
 
     fun executeThreadedSyncOperation(operation: () -> Unit) {
         try {

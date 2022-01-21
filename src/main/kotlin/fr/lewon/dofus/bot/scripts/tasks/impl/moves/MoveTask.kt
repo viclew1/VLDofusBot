@@ -1,15 +1,14 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
+import fr.lewon.dofus.bot.core.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.d2p.maps.cell.CellData
-import fr.lewon.dofus.bot.core.manager.ui.UIPoint
-import fr.lewon.dofus.bot.core.manager.world.Transition
-import fr.lewon.dofus.bot.core.manager.world.TransitionType
 import fr.lewon.dofus.bot.core.model.move.Direction
+import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.core.world.Transition
+import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -51,13 +50,9 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             TransitionType.MAP_ACTION ->
                 processCellMove(gameInfo, transition.cellId)
             TransitionType.INTERACTIVE ->
-                processInteractiveMove(gameInfo, transition.id.toInt())
+                MoveUtil.processInteractiveMove(gameInfo, transition.id.toInt(), transition.skillId)
             else -> error("Transition not implemented yet : ${transition.type}")
         }
-    }
-
-    private fun processInteractiveMove(gameInfo: GameInfo, elementId: Int): Boolean {
-        return MoveUtil.processMove(gameInfo, InteractiveUtil.getElementClickPosition(gameInfo, elementId))
     }
 
     private fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean {
@@ -129,10 +124,10 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
         while (nextCell < DofusBoard.MAP_CELLS_COUNT || previousCell >= 0) {
             nextCell += nextCellIdDelta
             previousCell -= nextCellIdDelta
-            if (!invalidMoveCells.contains(nextCell)) {
+            if (nextCell in 0 until DofusBoard.MAP_CELLS_COUNT && !invalidMoveCells.contains(nextCell)) {
                 return nextCell
             }
-            if (!invalidMoveCells.contains(previousCell)) {
+            if (previousCell in 0 until DofusBoard.MAP_CELLS_COUNT && !invalidMoveCells.contains(previousCell)) {
                 return previousCell
             }
         }

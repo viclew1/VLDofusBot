@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.d2o.managers.EffectManager
+import fr.lewon.dofus.bot.core.d2o.managers.ItemManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.d2o.managers.EffectManager
-import fr.lewon.dofus.bot.core.manager.d2o.managers.ItemManager
 import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
@@ -178,8 +178,7 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
         val element = gameInfo.interactiveElements.firstOrNull {
             it.enabledSkills.map { enabledSkill -> enabledSkill.skillId }.contains(skillId)
         } ?: error("Couldn't find a workshop for type : $smithMagicType")
-        val clickPosition = InteractiveUtil.getElementClickPosition(gameInfo, element.elementId)
-        MouseUtil.leftClick(gameInfo, clickPosition)
+        InteractiveUtil.useInteractive(gameInfo, element.elementId, skillId)
         WaitUtil.waitUntilMessageArrives(gameInfo, ExchangeStartOkCraftWithInformationMessage::class.java)
     }
 

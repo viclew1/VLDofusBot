@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.manager.dat.managers.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.AIComplement
 import fr.lewon.dofus.bot.game.fight.FightAI

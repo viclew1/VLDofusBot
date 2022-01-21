@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.VLDofusBot
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.core.manager.d2o.managers.PointOfInterestManager
-import fr.lewon.dofus.bot.core.manager.world.WorldGraphUtil
+import fr.lewon.dofus.bot.core.d2o.managers.PointOfInterestManager
+import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.core.model.hunt.DofusPointOfInterest
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.model.hint.HintSet
