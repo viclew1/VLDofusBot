@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.util.network
 
-import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
@@ -29,11 +28,10 @@ object GameSnifferUtil {
 
     private val connectionByCharacterName = HashMap<String, DofusConnection>()
     private val gameInfoByConnection = HashMap<DofusConnection, GameInfo>()
-    private var currentInterfaceName = ConfigManager.config.networkInterfaceName;
+    private var currentInterfaceName = ConfigManager.config.networkInterfaceName
     private var messageReceiver = DofusMessageReceiver(currentInterfaceName)
 
-    fun changeNetworkInterface(networkInterfaceName: String)
-    {
+    fun changeNetworkInterface(networkInterfaceName: String) {
         val runningConnections = getRunningConnections()
         val connectionByCharacterNameOld = connectionByCharacterName.toMap() // backup current characters connection
 
