@@ -18,8 +18,9 @@ object ConfigPanel : JPanel(MigLayout()) {
     private val logLevelComboBox = JComboBox(LogLevel.values())
     private val locateCursorLabel = JLabel("Locate cursor")
     private val locateCursorButton = JButton("Locate")
-    private val networkInterfaceSelectionLabel = JLabel("Select a network interface")
-    private val networkInterfaceSelectionComboBox = JComboBox(DofusMessageReceiverUtil.getNetworkInterfaceNames().toTypedArray())
+    private val networkInterfaceSelectionLabel = JLabel("Network interface")
+    private val networkInterfaceSelectionComboBox =
+        JComboBox(DofusMessageReceiverUtil.getNetworkInterfaceNames().toTypedArray())
 
     init {
         val logLevel = LogLevel.valueOf(ConfigManager.config.logLevel)
@@ -34,15 +35,14 @@ object ConfigPanel : JPanel(MigLayout()) {
 
         // Network Interface GUI
         val savedNetworkInterfaceName = ConfigManager.config.networkInterfaceName
+            ?: networkInterfaceSelectionComboBox.getItemAt(0).also { updateNetworkInterface(it) }
         networkInterfaceSelectionComboBox.selectedItem = savedNetworkInterfaceName
 
         addLine(networkInterfaceSelectionLabel, networkInterfaceSelectionComboBox)
         networkInterfaceSelectionComboBox.addItemListener { evt ->
-            if(evt.getStateChange() == ItemEvent.SELECTED) {
+            if (evt.stateChange == ItemEvent.SELECTED) {
                 val networkInterfaceName = evt.item as String
-
-                ConfigManager.editConfig { it.networkInterfaceName = networkInterfaceName }
-                GameSnifferUtil.changeNetworkInterface(networkInterfaceName)
+                updateNetworkInterface(networkInterfaceName)
             }
         }
     }
@@ -72,9 +72,14 @@ object ConfigPanel : JPanel(MigLayout()) {
         ConfigManager.editConfig { it.logLevel = logLevel.name }
     }
 
+    private fun updateNetworkInterface(networkInterfaceName: String) {
+        ConfigManager.editConfig { it.networkInterfaceName = networkInterfaceName }
+        GameSnifferUtil.changeNetworkInterface(networkInterfaceName)
+    }
+
     private fun addLine(leftComponent: JComponent, rightComponent: JComponent, separator: Boolean = true) {
         add(leftComponent)
-        add(rightComponent, "width 80, al left, wrap")
+        add(rightComponent, "width 80:80:80, al right, wrap")
         if (separator) addSeparator()
     }
 
