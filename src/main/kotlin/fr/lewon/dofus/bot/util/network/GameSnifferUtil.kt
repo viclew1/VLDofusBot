@@ -1,14 +1,17 @@
 package fr.lewon.dofus.bot.util.network
 
+import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.locks.ReentrantLock
+
 
 object GameSnifferUtil {
 
@@ -26,7 +29,40 @@ object GameSnifferUtil {
 
     private val connectionByCharacterName = HashMap<String, DofusConnection>()
     private val gameInfoByConnection = HashMap<DofusConnection, GameInfo>()
-    private val messageReceiver = DofusMessageReceiver()
+    private var currentInterfaceName = ConfigManager.config.networkInterfaceName;
+    private var messageReceiver = DofusMessageReceiver(currentInterfaceName)
+
+    fun changeNetworkInterface(networkInterfaceName: String)
+    {
+        val runningConnections = getRunningConnections()
+        val connectionByCharacterNameOld = connectionByCharacterName.toMap() // backup current characters connection
+
+        try {
+            lock.lockInterruptibly()
+
+            // remove connections
+            if (runningConnections.isNotEmpty() && connectionByCharacterNameOld.isNotEmpty()) {
+                stopListeningToDeadConnections(runningConnections)
+            }
+
+            // stop capture
+            messageReceiver.interrupt()
+            messageReceiver.join()
+
+            // recreate thread
+            messageReceiver = DofusMessageReceiver(networkInterfaceName)
+            messageReceiver.start()
+
+            currentInterfaceName = networkInterfaceName
+
+            // restore connections
+            if (runningConnections.isNotEmpty() && connectionByCharacterNameOld.isNotEmpty()) {
+                listenToConnections(runningConnections.filter { connectionByCharacterNameOld.values.contains(it) })
+            }
+        } finally {
+            lock.unlock()
+        }
+    }
 
     fun updateNetwork() {
         try {
@@ -78,7 +114,7 @@ object GameSnifferUtil {
             messageReceiver.stopListening(connection.hostPort)
             connectionByCharacterName.remove(characterName)
             gameInfoByConnection.remove(connection)
-            println("stop listening : $characterName ($connection)")
+            println("stop listening ($currentInterfaceName): $characterName ($connection)")
         }
     }
 
@@ -95,7 +131,7 @@ object GameSnifferUtil {
         messageReceiver.startListening(connection, gameInfo.eventStore, character.snifferLogger)
         connectionByCharacterName[character.pseudo] = connection
         gameInfoByConnection[connection] = gameInfo
-        println("start listening : ${character.pseudo} ($connection)")
+        println("start listening ($currentInterfaceName) : ${character.pseudo} ($connection)")
     }
 
     private fun getCharacterNameFromFrame(pid: Long): String? {
