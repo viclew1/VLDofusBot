@@ -2,12 +2,14 @@ package fr.lewon.dofus.bot.gui.panes.config
 
 import fr.lewon.dofus.bot.core.logs.LogLevel
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
+import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import net.miginfocom.swing.MigLayout
+import java.awt.event.ItemEvent
 import javax.swing.*
 
 object ConfigPanel : JPanel(MigLayout()) {
@@ -16,6 +18,8 @@ object ConfigPanel : JPanel(MigLayout()) {
     private val logLevelComboBox = JComboBox(LogLevel.values())
     private val locateCursorLabel = JLabel("Locate cursor")
     private val locateCursorButton = JButton("Locate")
+    private val networkInterfaceSelectionLabel = JLabel("Select a network interface")
+    private val networkInterfaceSelectionComboBox = JComboBox(DofusMessageReceiverUtil.getNetworkInterfaceNames().toTypedArray())
 
     init {
         val logLevel = LogLevel.valueOf(ConfigManager.config.logLevel)
@@ -27,6 +31,20 @@ object ConfigPanel : JPanel(MigLayout()) {
         locateCursorButton.addActionListener { locatePoint() }
 
         addLine(locateCursorLabel, locateCursorButton)
+
+        // Network Interface GUI
+        val savedNetworkInterfaceName = ConfigManager.config.networkInterfaceName
+        networkInterfaceSelectionComboBox.selectedItem = savedNetworkInterfaceName
+
+        addLine(networkInterfaceSelectionLabel, networkInterfaceSelectionComboBox)
+        networkInterfaceSelectionComboBox.addItemListener { evt ->
+            if(evt.getStateChange() == ItemEvent.SELECTED) {
+                val networkInterfaceName = evt.item as String
+
+                ConfigManager.editConfig { it.networkInterfaceName = networkInterfaceName }
+                GameSnifferUtil.changeNetworkInterface(networkInterfaceName)
+            }
+        }
     }
 
     private fun locatePoint() {
@@ -56,7 +74,7 @@ object ConfigPanel : JPanel(MigLayout()) {
 
     private fun addLine(leftComponent: JComponent, rightComponent: JComponent, separator: Boolean = true) {
         add(leftComponent)
-        add(rightComponent, "width 80, al right, wrap")
+        add(rightComponent, "width 80, al left, wrap")
         if (separator) addSeparator()
     }
 
