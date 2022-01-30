@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.gui.panes.config
 
-import fr.lewon.dofus.bot.core.logs.LogLevel
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
@@ -14,30 +13,30 @@ import javax.swing.*
 
 object ConfigPanel : JPanel(MigLayout()) {
 
-    private val logLevelLabel = JLabel("Log Level")
-    private val logLevelComboBox = JComboBox(LogLevel.values())
     private val locateCursorLabel = JLabel("Locate cursor")
     private val locateCursorButton = JButton("Locate")
+    private val archMonsterSoundLabel = JLabel("Arch monster sound")
+    private val archMonsterSoundCheckBox = JCheckBox()
     private val networkInterfaceSelectionLabel = JLabel("Network interface")
     private val networkInterfaceSelectionComboBox =
         JComboBox(DofusMessageReceiverUtil.getNetworkInterfaceNames().toTypedArray())
 
     init {
-        val logLevel = LogLevel.valueOf(ConfigManager.config.logLevel)
-        updateLogLevel(logLevel)
-        logLevelComboBox.selectedItem = logLevel
-        addLine(logLevelLabel, logLevelComboBox)
-        logLevelComboBox.addItemListener { updateLogLevel(logLevelComboBox.selectedItem as LogLevel) }
-
+        // Cursor locator
         locateCursorButton.addActionListener { locatePoint() }
-
         addLine(locateCursorLabel, locateCursorButton)
+
+        // Arch monster sound
+        archMonsterSoundCheckBox.isSelected = ConfigManager.config.playArchMonsterSound
+        addLine(archMonsterSoundLabel, archMonsterSoundCheckBox)
+        archMonsterSoundCheckBox.addItemListener {
+            updateArchMonsterSound(archMonsterSoundCheckBox.isSelected)
+        }
 
         // Network Interface GUI
         val savedNetworkInterfaceName = ConfigManager.config.networkInterfaceName
             ?: networkInterfaceSelectionComboBox.getItemAt(0).also { updateNetworkInterface(it) }
         networkInterfaceSelectionComboBox.selectedItem = savedNetworkInterfaceName
-
         addLine(networkInterfaceSelectionLabel, networkInterfaceSelectionComboBox)
         networkInterfaceSelectionComboBox.addItemListener { evt ->
             if (evt.stateChange == ItemEvent.SELECTED) {
@@ -68,8 +67,8 @@ object ConfigPanel : JPanel(MigLayout()) {
         locatorFrame.isVisible = true
     }
 
-    private fun updateLogLevel(logLevel: LogLevel) {
-        ConfigManager.editConfig { it.logLevel = logLevel.name }
+    private fun updateArchMonsterSound(playArchMonsterSound: Boolean) {
+        ConfigManager.editConfig { it.playArchMonsterSound = playArchMonsterSound }
     }
 
     private fun updateNetworkInterface(networkInterfaceName: String) {

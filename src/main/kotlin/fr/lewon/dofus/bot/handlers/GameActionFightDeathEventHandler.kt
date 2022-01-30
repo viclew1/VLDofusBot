@@ -10,7 +10,6 @@ object GameActionFightDeathEventHandler : EventHandler<GameActionFightDeathMessa
     override fun onEventReceived(socketResult: GameActionFightDeathMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.fightBoard.killFighter(socketResult.targetId)
-        gameInfo.logger.debug("Fighter [${socketResult.targetId}] has been killed by fighter [${socketResult.sourceId}]")
     }
 
 }

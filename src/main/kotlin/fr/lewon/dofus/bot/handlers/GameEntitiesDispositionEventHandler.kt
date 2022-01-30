@@ -10,7 +10,6 @@ object GameEntitiesDispositionEventHandler : EventHandler<GameEntitiesDispositio
     override fun onEventReceived(socketResult: GameEntitiesDispositionMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         for (disposition in socketResult.dispositions) {
-            gameInfo.logger.debug("Fighter ${disposition.id} position updated : ${disposition.cellId}")
             gameInfo.fightBoard.createOrUpdateFighter(disposition.id, disposition.cellId)
         }
     }

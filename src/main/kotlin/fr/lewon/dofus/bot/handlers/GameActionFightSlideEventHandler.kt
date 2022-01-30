@@ -12,7 +12,6 @@ object GameActionFightSlideEventHandler : EventHandler<GameActionFightSlideMessa
         val fighterId = socketResult.targetId
         val cellId = socketResult.endCellId
         gameInfo.fightBoard.move(fighterId, cellId)
-        gameInfo.logger.debug("Fighter [$fighterId] slided to cell [$cellId]")
     }
 
 }

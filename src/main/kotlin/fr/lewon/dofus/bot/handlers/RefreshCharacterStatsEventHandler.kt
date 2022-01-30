@@ -12,6 +12,5 @@ object RefreshCharacterStatsEventHandler : EventHandler<RefreshCharacterStatsMes
         val fighterId = socketResult.fighterId
         val characteristics = socketResult.stats.characteristics.characteristics
         gameInfo.fightBoard.updateFighterCharacteristics(fighterId, characteristics)
-        gameInfo.logger.debug("Fighter [$fighterId] characteristics updated")
     }
 }
