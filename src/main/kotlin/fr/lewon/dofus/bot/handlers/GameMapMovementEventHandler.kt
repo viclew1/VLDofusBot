@@ -15,7 +15,7 @@ object GameMapMovementEventHandler : EventHandler<GameMapMovementMessage> {
         if (fighter != null) {
             gameInfo.fightBoard.move(fighter, toCellId)
             gameInfo.logger.debug("Fighter [${socketResult.actorId}] moved from cell [$fromCellId] to cell [$toCellId]")
-        } else if (gameInfo.playerId == socketResult.actorId) {
+        } else {
             gameInfo.entityPositionsOnMapByEntityId[socketResult.actorId] = toCellId
             gameInfo.logger.debug("Entity [${socketResult.actorId}] moved from cell [$fromCellId] to cell [$toCellId]")
         }

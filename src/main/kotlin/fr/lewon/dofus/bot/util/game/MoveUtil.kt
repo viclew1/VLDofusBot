@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.move.Direction
@@ -101,6 +101,10 @@ object MoveUtil {
         return transitions.minByOrNull {
             MapManager.getDofusMap(it.edge.to.mapId).getCoordinates().distanceTo(targetCoordinates)
         }
+    }
+
+    fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean {
+        return processMove(gameInfo, InteractiveUtil.getCellClickPosition(gameInfo, cellId))
     }
 
     fun processInteractiveMove(gameInfo: GameInfo, elementId: Int, skillId: Int): Boolean {

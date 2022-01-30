@@ -95,6 +95,10 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
         return getPath(fromCell, toCell)?.size
     }
 
+    fun getDist(fromCell: Int, toCell: Int): Int {
+        return getDist(getCell(fromCell), getCell(toCell))
+    }
+
     fun getDist(fromCell: DofusCell, toCell: DofusCell): Int {
         return abs(fromCell.col - toCell.col) + abs(fromCell.row - toCell.row)
     }

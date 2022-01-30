@@ -1,14 +1,12 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.util.io.WaitUtil
-
 object RetryUtil {
 
     fun <T> tryUntilSuccess(
         function: () -> T?,
         successChecker: (T?) -> Boolean,
         tryCount: Int,
-        millisBetweenTries: Int = 0
+        toCallAfterFail: () -> Unit = {}
     ): T? {
         var currentTryCount = 0
         while (currentTryCount++ < tryCount) {
@@ -16,7 +14,7 @@ object RetryUtil {
             if (successChecker(result)) {
                 return result
             }
-            WaitUtil.sleep(millisBetweenTries)
+            toCallAfterFail()
         }
         return null
     }
@@ -24,14 +22,14 @@ object RetryUtil {
     fun tryUntilSuccess(
         function: () -> Boolean,
         tryCount: Int,
-        millisBetweenTries: Int = 0
+        toCallAfterFail: () -> Unit = {}
     ): Boolean {
         var currentTryCount = 0
         while (currentTryCount++ < tryCount) {
             if (function()) {
                 return true
             }
-            WaitUtil.sleep(millisBetweenTries)
+            toCallAfterFail()
         }
         return false
     }

@@ -1,11 +1,10 @@
 package fr.lewon.dofus.bot.game.fight.mcts
 
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
-import fr.lewon.dofus.bot.game.fight.FighterCharacteristic
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.characters.spells.SpellType
-import fr.lewon.dofus.bot.util.game.CharacteristicUtil
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -71,7 +70,7 @@ class MCTSAi(
         val fightBoard = fromState.fightBoard
         val fighter = fightBoard.getFighterById(fromState.fighterId)
             ?: error("No fighter with id : $${fromState.fighterId}")
-        val mp = CharacteristicUtil.getCharacteristicValue(FighterCharacteristic.MP, fighter.statsById) ?: 0
+        val mp = DofusCharacteristics.MOVEMENT_POINTS.getValue(fighter)
         return fromState.fightBoard.getMoveCellsWithMpUsed(mp, fighter.cell).map { moveCell ->
             fromState.clone().also {
                 it.fighterId = getOpponentId(fromState.fighterId)

@@ -1,10 +1,10 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
-import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.game.fight.complements.TreasureChestAIComplement
+import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.game.fight.ai.complements.TreasureChestAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask

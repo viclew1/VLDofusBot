@@ -17,8 +17,15 @@ class ExploreCurrentAreaScript : DofusBotScript("Explore current area") {
         DofusBotParameterType.BOOLEAN
     )
 
+    private val killEverythingParameter = DofusBotParameter(
+        "kill_everything",
+        "Fight every group of monsters present on the maps",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
     override fun getParameters(): List<DofusBotParameter> {
-        return listOf(runForeverParameter)
+        return listOf(runForeverParameter, killEverythingParameter)
     }
 
     override fun getStats(): List<DofusBotScriptStat> {
@@ -31,11 +38,13 @@ class ExploreCurrentAreaScript : DofusBotScript("Explore current area") {
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val runForever = runForeverParameter.value.toBoolean()
+        val killEverything = killEverythingParameter.value.toBoolean()
         val subArea = gameInfo.currentMap.subArea
         val worldMap = gameInfo.currentMap.worldMap
+        var success: Boolean
         do {
-            ExploreSubAreaTask(subArea, worldMap).run(logItem, gameInfo)
-        } while (runForever)
+            success = ExploreSubAreaTask(subArea, worldMap, killEverything).run(logItem, gameInfo)
+        } while (success && runForever)
     }
 
 }

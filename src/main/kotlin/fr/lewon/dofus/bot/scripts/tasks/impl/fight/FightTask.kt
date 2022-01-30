@@ -1,13 +1,13 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
-import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.game.fight.AIComplement
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightAI
-import fr.lewon.dofus.bot.game.fight.FighterCharacteristic
-import fr.lewon.dofus.bot.game.fight.complements.DefaultAIComplement
-import fr.lewon.dofus.bot.game.fight.operations.FightOperation
+import fr.lewon.dofus.bot.game.fight.Fighter
+import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
+import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
@@ -94,15 +94,17 @@ class FightTask(
         val fightBoard = gameInfo.fightBoard
         val dofusBoard = gameInfo.dofusBoard
         initFight(gameInfo)
+        WaitUtil.sleep(1500)
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
-
-        playerFighter.statsById.putAll(gameInfo.playerBaseCharacteristics)
-        val baseRange = FighterCharacteristic.RANGE.getFighterCharacteristicValue(playerFighter)
+        setFighterBaseCharacteristics(gameInfo, playerFighter)
+        val baseRange = DofusCharacteristics.RANGE.getValue(playerFighter)
         val spells = gameInfo.character.spells
-        val fightAI = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 0, spells, aiComplement)
 
-        fightAI.selectStartCell()?.takeIf { it != playerFighter.cell }?.let {
+
+        val ai = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 0, spells, aiComplement)
+
+        ai.selectStartCell()?.takeIf { it != playerFighter.cell }?.let {
             WaitUtil.sleep(800)
             MouseUtil.leftClick(gameInfo, it.getCenter())
             WaitUtil.sleep(800)
@@ -118,9 +120,9 @@ class FightTask(
         while (!isFightEnded(gameInfo)) {
             MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)
 
-            fightAI.onNewTurn()
-            lateinit var nextOperation: FightOperation
-            while (!isFightEnded(gameInfo) && fightAI.getNextOperation()?.also { nextOperation = it } != null) {
+            ai.onNewTurn()
+            lateinit var nextOperation: FightAI.FightOperationOLD
+            while (!isFightEnded(gameInfo) && ai.getNextOperation()?.also { nextOperation = it } != null) {
                 val target = gameInfo.dofusBoard.getCell(nextOperation.targetCellId)
                 if (nextOperation.type == FightOperationType.MOVE) {
                     processMove(gameInfo, target)
@@ -148,9 +150,15 @@ class FightTask(
         if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null })) {
             error("Close button not found")
         }
-        val bounds = getCloseButtonLocation(gameInfo) ?: error("Close battle button not found")
-        MouseUtil.leftClick(gameInfo, bounds.getCenter())
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
+        KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
         return true
+    }
+
+    private fun setFighterBaseCharacteristics(gameInfo: GameInfo, playerFighter: Fighter) {
+        playerFighter.statsById.putAll(gameInfo.playerBaseCharacteristics)
+        playerFighter.maxHp = gameInfo.maxHp
+        playerFighter.baseHp = gameInfo.hp
     }
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell) {

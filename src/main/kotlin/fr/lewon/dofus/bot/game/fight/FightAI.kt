@@ -2,9 +2,8 @@ package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.game.fight.operations.FightOperation
+import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
-import fr.lewon.dofus.bot.game.fight.operations.UsesStore
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 import fr.lewon.dofus.bot.model.characters.spells.SpellType
 import kotlin.math.abs
@@ -31,8 +30,8 @@ class FightAI(
     private var initialPlayerAp = 0
 
     fun selectStartCell(): DofusCell? {
-        val tempFightBoard = fightBoard.clone()
-        val idealDist = aiComplement.getIdealDistance(playerFighter, attackSpellCombinations, playerRange)
+        val tempFightBoard = fightBoard.deepCopy()
+        val idealDist = aiComplement.getIdealDistanceOLD(playerFighter, attackSpellCombinations, playerRange)
         return dofusBoard.startCells.map {
             val tempPlayerFighter = tempFightBoard.getPlayerFighter()
                 ?: error("Player fighter not found")
@@ -45,9 +44,9 @@ class FightAI(
 
     fun onNewTurn() {
         fightBoard.getAllFighters().forEach {
-            mpByFighterId[it.id] = FighterCharacteristic.MP.getFighterCharacteristicValue(it)
+            mpByFighterId[it.id] = DofusCharacteristics.MOVEMENT_POINTS.getValue(it)
         }
-        initialPlayerAp = FighterCharacteristic.AP.getFighterCharacteristicValue(playerFighter)
+        initialPlayerAp = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter)
         usesStore.clear()
         val toRemove = ArrayList<String>()
         cdBySpellKey.entries.forEach {
@@ -61,9 +60,9 @@ class FightAI(
         toRemove.forEach { cdBySpellKey.remove(it) }
     }
 
-    fun getNextOperation(): FightOperation? {
-        val playerAp = FighterCharacteristic.AP.getFighterCharacteristicValue(playerFighter)
-        val playerMP = FighterCharacteristic.MP.getFighterCharacteristicValue(playerFighter)
+    fun getNextOperation(): FightOperationOLD? {
+        val playerAp = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter)
+        val playerMP = DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)
         val enemies = getEnemyPlayers(fightBoard)
 
         val playerPosition = fightBoard.getPlayerFighter()?.cell ?: error("Player not found")
@@ -73,23 +72,23 @@ class FightAI(
 
         selectBestMpBuff(playerAp, accessibleCells.map { it.first }, bestMoveDestScore)?.let {
             useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, playerFighter.cell)
-            return FightOperation(FightOperationType.SPELL, playerFighter.cell.cellId, it.spell.keys)
+            return FightOperationOLD(FightOperationType.SPELL, playerFighter.cell.cellId, it.spell.keys)
         }
         bestMoveDest?.takeIf { it.target.cellId != playerFighter.cell.cellId }?.let {
-            return FightOperation(FightOperationType.MOVE, it.target.cellId)
+            return FightOperationOLD(FightOperationType.MOVE, it.target.cellId)
         }
         selectBestGapCloser(playerAp)?.takeIf { it.target.cellId != playerFighter.cell.cellId }?.let {
             useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, it.target)
-            return FightOperation(FightOperationType.SPELL, it.target.cellId, it.spell.keys)
+            return FightOperationOLD(FightOperationType.SPELL, it.target.cellId, it.spell.keys)
         }
         selectBestSpell(fightBoard, playerFighter.cell, enemies, playerAp, usesStore, cdBySpellKey)?.let {
             useSpell(fightBoard, it.spell, usesStore, cdBySpellKey, it.target)
-            return FightOperation(FightOperationType.SPELL, it.target.cellId, it.spell.keys)
+            return FightOperationOLD(FightOperationType.SPELL, it.target.cellId, it.spell.keys)
         }
         if (aiComplement.mustUseAllMP(playerFighter)) {
             selectBestMoveDest(playerAp, playerPosition, accessibleCells, -Short.MAX_VALUE.toInt())
                 ?.takeIf { it.target.cellId != playerFighter.cell.cellId }
-                ?.let { return FightOperation(FightOperationType.MOVE, it.target.cellId) }
+                ?.let { return FightOperationOLD(FightOperationType.MOVE, it.target.cellId) }
         }
         return null
     }
@@ -261,7 +260,7 @@ class FightAI(
         moveDone: Pair<DofusCell, Int>,
         playerAp: Int
     ): Int {
-        val state = FightState(0, 0, fightBoard.clone(), moveDone.first)
+        val state = FightState(0, 0, fightBoard.deepCopy(), moveDone.first)
         playPlayerMove(
             state, initialPlayerPosition, moveDone, enemies, playerAp,
             usesStore.deepCopy(), HashMap(cdBySpellKey), 100
@@ -420,7 +419,7 @@ class FightAI(
     private fun evaluateState(state: FightState, closestEnemy: Fighter): Int {
         val dist = dofusBoard.getPathLength(state.playerPosition, closestEnemy.cell)
             ?: Short.MAX_VALUE.toInt()
-        val idealDist = aiComplement.getIdealDistance(playerFighter, attackSpellCombinations, playerRange)
+        val idealDist = aiComplement.getIdealDistanceOLD(playerFighter, attackSpellCombinations, playerRange)
         var score = state.attacksDone
         val shouldAvoidUsingMp = aiComplement.shouldAvoidUsingMp()
         if (shouldAvoidUsingMp) {
@@ -452,8 +451,30 @@ class FightAI(
         var playerPosition: DofusCell
     ) {
         fun clone(): FightState {
-            return FightState(attacksDone, mpUsed, fb.clone(), playerPosition)
+            return FightState(attacksDone, mpUsed, fb.deepCopy(), playerPosition)
         }
+    }
+
+    class FightOperationOLD(val type: FightOperationType, val targetCellId: Int, val keys: String = "")
+
+    private class UsesStore : HashMap<String, HashMap<Double, Int>>() {
+
+        fun getTotalUses(spellKey: String): Int {
+            return this[spellKey]?.values?.sum() ?: 0
+        }
+
+        fun getUsesOnTarget(spellKey: String, targetId: Double): Int {
+            return this[spellKey]?.get(targetId) ?: 0
+        }
+
+        fun deepCopy(): UsesStore {
+            val copy = UsesStore()
+            for (e in entries) {
+                copy[e.key] = HashMap(e.value)
+            }
+            return copy
+        }
+
     }
 
 }

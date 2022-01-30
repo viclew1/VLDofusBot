@@ -1,3 +1,9 @@
 package fr.lewon.dofus.bot.game.fight.operations
 
-data class FightOperation(val type: FightOperationType, val targetCellId: Int, val keys: String = "")
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+
+data class FightOperation(
+    val type: FightOperationType,
+    val targetCellId: Int,
+    val spell: DofusSpellLevel? = null
+)

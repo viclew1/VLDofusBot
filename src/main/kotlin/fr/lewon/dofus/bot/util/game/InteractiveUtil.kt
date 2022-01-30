@@ -124,4 +124,18 @@ object InteractiveUtil {
         return destPointRelative
     }
 
+    fun getCellClickPosition(gameInfo: GameInfo, cellId: Int, avoidCenter: Boolean = true): PointRelative {
+        val cell = gameInfo.dofusBoard.getCell(cellId)
+        val cellBounds = cell.bounds
+        val cellCenter = cellBounds.getCenter()
+
+        val floor = cell.cellData.floor
+        val dxMultiplier = if (floor != 0 || !avoidCenter) 0 else if (cellCenter.x > 0.5) 1 else -1
+        val dFloor = ConverterUtil.toPointRelative(UIPoint(y = floor.toFloat()))
+        return PointRelative(
+            cellCenter.x + dxMultiplier * cellBounds.width * 0.8f,
+            cellCenter.y - dFloor.y
+        )
+    }
+
 }

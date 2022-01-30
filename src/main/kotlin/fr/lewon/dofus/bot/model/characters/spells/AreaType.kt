@@ -42,6 +42,18 @@ enum class AreaType(private val areaCellsGetter: (DofusCell, DofusCell, Int, Dof
         }
         cells
     }),
+    DIAGONAL_CROSS({ _, toCell, areaSize, board ->
+        val row = toCell.row
+        val col = toCell.col
+        val cells = ArrayList<DofusCell>()
+        for (i in 0..areaSize) {
+            board.getCell(col - i, row - i)?.let { cells.add(it) }
+            board.getCell(col - i, row + i)?.let { cells.add(it) }
+            board.getCell(col + i, row - i)?.let { cells.add(it) }
+            board.getCell(col + i, row + i)?.let { cells.add(it) }
+        }
+        cells
+    }),
     LINE({ fromCell, toCell, areaSize, board ->
         val cells = ArrayList<DofusCell>()
         val dCol = toCell.col - fromCell.col

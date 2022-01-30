@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.d2o.managers.MapManager
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.util.network.GameInfo

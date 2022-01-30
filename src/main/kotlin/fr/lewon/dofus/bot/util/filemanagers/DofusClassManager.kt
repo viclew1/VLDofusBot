@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers
 
-import fr.lewon.dofus.bot.core.d2o.managers.BreedManager
+import fr.lewon.dofus.bot.core.d2o.managers.characteristic.BreedManager
 import fr.lewon.dofus.bot.model.characters.DofusClass
 
 object DofusClassManager {

@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.impl
 
-import fr.lewon.dofus.bot.core.d2o.managers.EffectManager
-import fr.lewon.dofus.bot.core.d2o.managers.ItemManager
+import fr.lewon.dofus.bot.core.d2o.managers.item.EffectManager
+import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.scripts.DofusBotParameter

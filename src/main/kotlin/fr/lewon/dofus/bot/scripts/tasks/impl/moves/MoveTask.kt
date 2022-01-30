@@ -48,26 +48,11 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             TransitionType.SCROLL, TransitionType.SCROLL_ACTION ->
                 processDefaultMove(gameInfo, Direction.fromInt(transition.direction), transition.cellId)
             TransitionType.MAP_ACTION ->
-                processCellMove(gameInfo, transition.cellId)
+                MoveUtil.processCellMove(gameInfo, transition.cellId)
             TransitionType.INTERACTIVE ->
                 MoveUtil.processInteractiveMove(gameInfo, transition.id.toInt(), transition.skillId)
             else -> error("Transition not implemented yet : ${transition.type}")
         }
-    }
-
-    private fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean {
-        val cell = gameInfo.dofusBoard.getCell(cellId)
-        val cellBounds = cell.bounds
-        val cellCenter = cellBounds.getCenter()
-
-        val floor = cell.cellData.floor
-        val dxMultiplier = if (floor != 0) 0 else if (cellCenter.x > 0.5) 1 else -1
-        val dFloor = ConverterUtil.toPointRelative(UIPoint(y = floor.toFloat()))
-        val clickLocation = PointRelative(
-            cellCenter.x + dxMultiplier * cellBounds.width * 0.8f,
-            cellCenter.y - dFloor.y
-        )
-        return MoveUtil.processMove(gameInfo, clickLocation)
     }
 
     private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {

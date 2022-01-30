@@ -37,8 +37,9 @@ class GameInfo(val character: DofusCharacter) {
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
     var entityIdByNpcId = HashMap<Int, Double>()
+    var monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()
     var entityPositionsOnMapByEntityId = HashMap<Double, Int>()
-    var mainMonstersByGroupOnMap: Map<GameRolePlayGroupMonsterInformations, DofusMonster> = HashMap()
+    var mainMonstersByGroupOnMap = HashMap<GameRolePlayGroupMonsterInformations, DofusMonster>()
 
     var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
     var playerId = -1.0

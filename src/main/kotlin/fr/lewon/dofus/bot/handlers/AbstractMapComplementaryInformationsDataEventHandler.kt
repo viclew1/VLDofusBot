@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.handlers
 
-import fr.lewon.dofus.bot.core.d2o.managers.MonstersManager
+import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper
@@ -25,15 +25,19 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         gameInfo.fightBoard.resetFighters()
         gameInfo.entityPositionsOnMapByEntityId.clear()
         gameInfo.entityIdByNpcId.clear()
+        gameInfo.monsterInfoByEntityId.clear()
+        gameInfo.mainMonstersByGroupOnMap.clear()
         socketResult.actors.forEach {
             if (it is GameRolePlayNpcInformations) {
                 gameInfo.entityIdByNpcId[it.npcId] = it.contextualId
+            } else if (it is GameRolePlayGroupMonsterInformations) {
+                gameInfo.monsterInfoByEntityId[it.contextualId] = it
+                gameInfo.mainMonstersByGroupOnMap[it] = MonsterManager.getMonster(
+                    it.staticInfos.mainCreatureLightInfos.genericId.toDouble()
+                )
             }
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
-        gameInfo.mainMonstersByGroupOnMap = socketResult.actors
-            .filterIsInstance<GameRolePlayGroupMonsterInformations>()
-            .associateWith { MonstersManager.getMonster(it.staticInfos.mainCreatureLightInfos.genericId.toDouble()) }
         gameInfo.interactiveElements = socketResult.interactiveElements
         beepIfArchMonsterHere(gameInfo, socketResult.map)
         LOSHelper.updateOverlay(gameInfo)

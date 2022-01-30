@@ -1,14 +1,14 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
-import fr.lewon.dofus.bot.core.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 
 enum class FrigostTransporter(idMap: Double, private val optionIndex: Int) : ITransporter {
 
-    CHAMPS_DE_GLACE(54167842.0, 4),
-    BERCEAU_ALMA(54161738.0, 3),
+    CHAMPS_DE_GLACE(54167842.0, 0),
+    BERCEAU_ALMA(54161738.0, 1),
     LARMES_OURONIGRIDE(54168407.0, 2),
-    CREVASSE_PERGE(54173010.0, 1);
+    CREVASSE_PERGE(54173010.0, 3);
 
     private val map = MapManager.getDofusMap(idMap)
     private val transporterMap = MapManager.getDofusMap(60035079.0)

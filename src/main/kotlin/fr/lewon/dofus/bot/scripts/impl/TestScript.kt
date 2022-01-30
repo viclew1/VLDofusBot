@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.scripts.impl
 
-import fr.lewon.dofus.bot.core.criterion.DofusCriterionParser
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.world.WorldGraphUtil
+import fr.lewon.dofus.bot.model.dungeon.Dungeons
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightDungeonTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class TestScript : DofusBotScript("Test") {
@@ -24,24 +24,10 @@ class TestScript : DofusBotScript("Test") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
-        val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("Can't find player cell id")
-        val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
-            ?: error("Can't find player cell data")
-        val vertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
-            ?: error("No vertex found")
-
-        WorldGraphUtil.getOutgoingEdges(vertex).flatMap { it.transitions }
-            .map { it to it.criterion }
-            .filter { it.second.isNotEmpty() }
-            .distinct()
-            .forEach {
-                println(
-                    "${it.first} - ${
-                        DofusCriterionParser.parse(it.second).check(gameInfo.buildCharacterBasicInfo())
-                    }"
-                )
-            }
+        var cpt = 0
+        while (FightDungeonTask(Dungeons.DRAEGNERYS_DUNGEON).run(logItem, gameInfo)) {
+            println(cpt++)
+        }
     }
 
 }

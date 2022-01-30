@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.handlers
 
-import fr.lewon.dofus.bot.core.d2o.managers.QuestManager
+import fr.lewon.dofus.bot.core.d2o.managers.quest.QuestManager
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.quest.QuestListMessage
 import fr.lewon.dofus.bot.sniffer.model.types.quest.QuestActiveDetailedInformations

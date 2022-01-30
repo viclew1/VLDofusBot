@@ -14,7 +14,7 @@ class TransportTowardTask(private val transporter: ITransporter) : BooleanDofusB
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         ReachMapTask(listOf(transporter.getTransporterMap())).run(logItem, gameInfo)
         WaitUtil.sleep(2000)
-        NpcSpeakTask(transporter.getNpcId(), transporter.getOptionIndex()).run(logItem, gameInfo)
+        NpcSpeakTask(transporter.getNpcId(), listOf(transporter.getOptionIndex())).run(logItem, gameInfo)
         MoveUtil.waitForMapChange(gameInfo)
         return WaitUtil.waitUntil({ GeneralUIGameUtil.isGameReadyToUse(gameInfo) })
     }

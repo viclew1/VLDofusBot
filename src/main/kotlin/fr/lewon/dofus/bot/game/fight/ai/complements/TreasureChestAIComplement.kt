@@ -1,6 +1,6 @@
-package fr.lewon.dofus.bot.game.fight.complements
+package fr.lewon.dofus.bot.game.fight.ai.complements
 
-import fr.lewon.dofus.bot.game.fight.AIComplement
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 
@@ -18,7 +18,11 @@ class TreasureChestAIComplement : AIComplement() {
         return false
     }
 
-    override fun getIdealDistance(playerFighter: Fighter, spells: List<SpellCombination>, playerRange: Int): Int {
+    override fun getIdealDistance(playerFighter: Fighter, spells: List<DofusSpellLevel>, playerRange: Int): Int {
+        return 0
+    }
+
+    override fun getIdealDistanceOLD(playerFighter: Fighter, spells: List<SpellCombination>, playerRange: Int): Int {
         return 0
     }
 

@@ -74,10 +74,6 @@ class FightBoard(private val gameInfo: GameInfo) {
                 Fighter(cell, fighterId, false)
             }
             teamId?.let { fighter.teamId = teamId }
-            if (fighterId == gameInfo.playerId) {
-                fighter.maxHp = gameInfo.maxHp
-                fighter.baseHp = gameInfo.hp
-            }
             move(fighter, cell)
         } finally {
             lock.unlock()
@@ -203,6 +199,10 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
+    fun lineOfSight(fromCell: Int, toCell: Int): Boolean {
+        return lineOfSight(dofusBoard.getCell(fromCell), dofusBoard.getCell(toCell))
+    }
+
     fun lineOfSight(fromCell: DofusCell, toCell: DofusCell): Boolean {
         try {
             lock.lockInterruptibly()
@@ -312,7 +312,7 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun clone(): FightBoard {
+    fun deepCopy(): FightBoard {
         try {
             lock.lockInterruptibly()
             return FightBoard(gameInfo)

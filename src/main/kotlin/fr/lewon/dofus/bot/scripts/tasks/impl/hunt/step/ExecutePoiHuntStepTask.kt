@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 
+import fr.lewon.dofus.bot.core.d2o.managers.hunt.PointOfInterestManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.d2o.managers.PointOfInterestManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask

@@ -11,9 +11,9 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
+import kotlin.math.min
 
-class NpcSpeakTask(private val npcId: Int, private vararg val optionIndexes: Int) :
-    DofusBotTask<Boolean>() {
+class NpcSpeakTask(private val npcId: Int, private val optionIndexes: List<Int>) : DofusBotTask<Boolean>() {
 
     companion object {
         private val FIRST_OPTION_LOCATION = PointRelative(0.36847493f, 0.7442455f)
@@ -29,7 +29,11 @@ class NpcSpeakTask(private val npcId: Int, private vararg val optionIndexes: Int
         for (optionIndex in optionIndexes) {
             WaitUtil.waitForEvents(gameInfo, NpcDialogQuestionMessage::class.java, BasicNoOperationMessage::class.java)
             WaitUtil.sleep(300)
-            val optionLocation = FIRST_OPTION_LOCATION.getSum(PointRelative(0f, -optionIndex * DELTA_OPTION))
+            val dialogQuestionMessage = gameInfo.eventStore.getLastEvent(NpcDialogQuestionMessage::class.java)
+                ?: error("Missing dialog question message")
+            val optionCount = min(5, dialogQuestionMessage.visibleReplies.size)
+            val optionLocation = FIRST_OPTION_LOCATION
+                .getSum(PointRelative(0f, (optionIndex - optionCount + 1) * DELTA_OPTION))
             MouseUtil.leftClick(gameInfo, optionLocation)
             gameInfo.eventStore.clear()
         }

@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
-import fr.lewon.dofus.bot.core.d2o.managers.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.model.hunt.HuntLevel
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
