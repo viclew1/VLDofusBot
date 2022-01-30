@@ -12,7 +12,6 @@ object GameActionFightTeleportOnSameMapEventHandler : EventHandler<GameActionFig
         val fighterId = socketResult.targetId
         val cellId = socketResult.cellId
         gameInfo.fightBoard.move(fighterId, cellId)
-        gameInfo.logger.debug("Fighter [$fighterId] teleported to cell [$cellId]")
     }
 
 }

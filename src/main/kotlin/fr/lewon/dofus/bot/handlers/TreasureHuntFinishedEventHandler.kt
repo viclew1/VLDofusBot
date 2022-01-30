@@ -10,6 +10,5 @@ object TreasureHuntFinishedEventHandler : EventHandler<TreasureHuntFinishedMessa
     override fun onEventReceived(socketResult: TreasureHuntFinishedMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.treasureHunt = null
-        gameInfo.logger.debug("Treasure hunt finished")
     }
 }

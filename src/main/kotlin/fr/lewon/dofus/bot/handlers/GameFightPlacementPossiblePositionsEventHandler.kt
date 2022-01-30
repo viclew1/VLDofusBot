@@ -13,7 +13,6 @@ object GameFightPlacementPossiblePositionsEventHandler : EventHandler<GameFightP
     ) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.dofusBoard.updateStartCells(socketResult.positionsForChallengers)
-        gameInfo.logger.debug("Fight start cells updated")
     }
 
 }

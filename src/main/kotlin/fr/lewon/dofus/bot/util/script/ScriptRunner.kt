@@ -28,7 +28,7 @@ object ScriptRunner {
         }
         val logger = character.executionLogger
         listenersByCharacterName[character.pseudo]?.forEach { it.onScriptStart(dofusScript) }
-        val logItem = logger.info("Executing Dofus script : [${dofusScript.name}]")
+        val logItem = logger.log("Executing Dofus script : [${dofusScript.name}]")
         val thread = Thread {
             try {
                 val gameInfo = prepareScriptExecution(character, logItem)

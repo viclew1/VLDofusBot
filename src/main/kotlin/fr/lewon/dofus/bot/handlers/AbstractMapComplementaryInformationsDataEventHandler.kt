@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTr
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc.GameRolePlayNpcInformations
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
@@ -39,7 +40,9 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
-        beepIfArchMonsterHere(gameInfo, socketResult.map)
+        if (ConfigManager.config.playArchMonsterSound) {
+            beepIfArchMonsterHere(gameInfo, socketResult.map)
+        }
         LOSHelper.updateOverlay(gameInfo)
     }
 
