@@ -3,9 +3,9 @@ package fr.lewon.dofus.bot.gui.panes.character.card
 import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.gui.custom.list.Card
 import fr.lewon.dofus.bot.gui.util.ImageUtil
+import fr.lewon.dofus.bot.model.characters.DofusBreedAssets
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.DofusClass
-import fr.lewon.dofus.bot.util.filemanagers.DofusClassManager
+import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -99,7 +99,7 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
             (height * LABEL_HEIGHT_RATIO).toInt()
         )
 
-        val dofusClass = DofusClassManager.getClass(dofusClassId)
+        val dofusClass = BreedAssetManager.getAssets(dofusClassId)
         updateBgImg(dofusClass)
         updateIconImg(dofusClass)
         updateCard(selected)
@@ -118,7 +118,7 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
     override fun updateCard(selected: Boolean) {
         if (item.dofusClassId != dofusClassId) {
             dofusClassId = item.dofusClassId
-            val dofusClass = DofusClassManager.getClass(dofusClassId)
+            val dofusClass = BreedAssetManager.getAssets(dofusClassId)
             updateBgImg(dofusClass)
             updateIconImg(dofusClass)
         }
@@ -128,13 +128,13 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
         pseudoLabel.text = item.pseudo
     }
 
-    private fun updateBgImg(dofusClass: DofusClass) {
-        bgImg = ImageUtil.getScaledImage(dofusClass.bannerData, (width * BANNER_WIDTH_RATIO).toInt())
+    private fun updateBgImg(dofusBreedAssets: DofusBreedAssets) {
+        bgImg = ImageUtil.getScaledImage(dofusBreedAssets.bannerData, (width * BANNER_WIDTH_RATIO).toInt())
     }
 
-    private fun updateIconImg(dofusClass: DofusClass) {
+    private fun updateIconImg(dofusBreedAssets: DofusBreedAssets) {
         val iconImg =
-            ImageUtil.getScaledImageKeepHeight(dofusClass.iconData, (height * ICON_HEIGHT_RATIO).toInt())
+            ImageUtil.getScaledImageKeepHeight(dofusBreedAssets.iconData, (height * ICON_HEIGHT_RATIO).toInt())
         iconLabel.icon = ImageIcon(iconImg)
     }
 

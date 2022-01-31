@@ -6,9 +6,9 @@ import fr.lewon.dofus.bot.gui.InitFrame
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
+import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
-import fr.lewon.dofus.bot.util.filemanagers.DofusClassManager
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import net.miginfocom.swing.MigLayout
 import org.reflections.Reflections
@@ -112,7 +112,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
     }
 
     private fun initFileManagers() {
-        DofusClassManager.initManager()
+        BreedAssetManager.initManager()
         CharacterManager.initManager()
         ConfigManager.initManager()
         HintManager.initManager()

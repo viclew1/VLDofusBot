@@ -11,7 +11,7 @@ enum class SpellType(private val label: String, iconFileName: String) : TextImag
     private val iconData = javaClass.getResourceAsStream(basePath + iconFileName)?.readAllBytes()
         ?: error("Couldn't find icon [$iconFileName]")
 
-    override fun getListImageIcon(): ByteArray {
+    override fun getListImageIconData(): ByteArray {
         return iconData
     }
 

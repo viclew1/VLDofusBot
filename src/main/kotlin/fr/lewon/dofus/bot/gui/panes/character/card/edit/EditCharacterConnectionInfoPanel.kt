@@ -4,11 +4,11 @@ import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.gui.custom.listrenderer.TextImageComboBox
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.gui.util.ImageUtil
+import fr.lewon.dofus.bot.model.characters.DofusBreedAssets
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.DofusClass
 import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.DofusClassManager
 import java.awt.Color
 import java.awt.Font
 import javax.swing.*
@@ -41,7 +41,7 @@ class EditCharacterConnectionInfoPanel(
         it.addCaretListener { updateSaveButton() }
     }
     private val classLabel = OutlineJLabel("Class")
-    private val classComboBox = TextImageComboBox(25, DofusClassManager.getAllClasses().toTypedArray()).also {
+    private val classComboBox = TextImageComboBox(25, BreedAssetManager.getAllAssets().toTypedArray()).also {
         it.addItemListener { updateSaveButton() }
     }
     private val backgroundLabel = JLabel()
@@ -57,7 +57,7 @@ class EditCharacterConnectionInfoPanel(
     init {
         layout = null
         setSize(GlobalCharacterFormPanel.CONNECTION_INFO_WIDTH, GlobalCharacterFormPanel.CONNECTION_INFO_HEIGHT)
-        classComboBox.selectedItem = DofusClassManager.getClass(character.dofusClassId)
+        classComboBox.selectedItem = BreedAssetManager.getAssets(character.dofusClassId)
         classComboBox.addItemListener { updateBackground() }
         saveButton.addActionListener { saveCharacter(character, spells, onSaveAction) }
 
@@ -143,7 +143,7 @@ class EditCharacterConnectionInfoPanel(
 
     private fun updateBackground() {
         SwingUtilities.invokeLater {
-            val dofusClass = classComboBox.selectedItem as DofusClass
+            val dofusClass = classComboBox.selectedItem as DofusBreedAssets
             val bgImg = ImageUtil.getScaledImageKeepHeight(dofusClass.bannerData, height)
             val blurredImg = ImageUtil.blurImage(bgImg, 0.85f)
             backgroundLabel.icon = ImageIcon(blurredImg)
@@ -164,8 +164,8 @@ class EditCharacterConnectionInfoPanel(
         return pseudoTextField.text
     }
 
-    private fun getDofusClass(): DofusClass {
-        return classComboBox.selectedItem as DofusClass
+    private fun getDofusClass(): DofusBreedAssets {
+        return classComboBox.selectedItem as DofusBreedAssets
     }
 
 }

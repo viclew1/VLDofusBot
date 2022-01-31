@@ -7,9 +7,9 @@ import fr.lewon.dofus.bot.gui.panes.character.card.edit.GlobalCharacterFormPanel
 import fr.lewon.dofus.bot.gui.panes.config.ConfigPanel
 import fr.lewon.dofus.bot.gui.panes.script.GlobalScriptPanel
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
-import fr.lewon.dofus.bot.util.filemanagers.DofusClassManager
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import net.miginfocom.swing.MigLayout
 import javax.swing.BorderFactory
@@ -87,7 +87,7 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
 fun main() {
     VldbCoreInitializer.initAll()
     CharacterManager.initManager()
-    DofusClassManager.initManager()
+    BreedAssetManager.initManager()
     ConfigManager.initManager()
     HintManager.initManager()
     VldbMainFrame.isVisible = true

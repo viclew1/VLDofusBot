@@ -11,7 +11,7 @@ class TextImageListCellRenderer<T : TextImageListItem>(
     imageSize: Int, values: Array<T>
 ) : JLabel(), ListCellRenderer<T> {
 
-    private val images = values.map { ImageUtil.getScaledImage(it.getListImageIcon(), imageSize, imageSize) }
+    private val images = values.map { ImageUtil.getScaledImage(it.getListImageIconData(), imageSize, imageSize) }
     private val texts = values.map { it.getLabel() }
 
     init {

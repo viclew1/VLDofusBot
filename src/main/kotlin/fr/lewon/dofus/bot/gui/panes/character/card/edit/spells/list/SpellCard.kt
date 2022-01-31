@@ -92,7 +92,7 @@ class SpellCard(
 
     private fun refreshIcon() {
         val iconImg = ImageUtil.getScaledImageKeepHeight(
-            item.type.getListImageIcon(), (height * ICON_HEIGHT_RATIO).toInt()
+            item.type.getListImageIconData(), (height * ICON_HEIGHT_RATIO).toInt()
         )
         iconLabel.icon = ImageIcon(iconImg)
     }
