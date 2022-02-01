@@ -6,7 +6,7 @@ import javax.swing.JTabbedPane
 class CharacterLogsPanel(character: DofusCharacter) : JTabbedPane() {
 
     private val executionLogsScrollPane = LogsPanel(character.executionLogger)
-    private val snifferLogsScrollPane = LogsPanel(character.snifferLogger)
+    private val snifferLogsScrollPane = LogsPanel(character.snifferLogger, true)
 
     init {
         addTab("Execution logs", executionLogsScrollPane)

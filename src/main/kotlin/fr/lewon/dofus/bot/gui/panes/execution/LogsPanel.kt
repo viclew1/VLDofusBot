@@ -4,20 +4,21 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.logs.VldbLoggerListener
 import fr.lewon.dofus.bot.gui.custom.ext.CollapsiblePanel
+import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.gui.util.UiResource
 import net.miginfocom.swing.MigLayout
-import java.awt.BorderLayout
-import java.awt.Component
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
+import java.awt.*
 import javax.swing.*
+import javax.swing.plaf.metal.MetalToggleButtonUI
 
 
-class LogsPanel(private val logger: VldbLogger) : JPanel(MigLayout()), VldbLoggerListener {
+class LogsPanel(
+    private val logger: VldbLogger, canPauseLogsReception: Boolean = false
+) : JPanel(MigLayout()), VldbLoggerListener {
 
     companion object {
-        private const val BUTTON_SZ = 25
+        private const val BUTTON_SZ = 36
     }
 
     private val storedLogItemWithComponentById = HashMap<Long, Pair<LogItem, Component>>()
@@ -25,21 +26,30 @@ class LogsPanel(private val logger: VldbLogger) : JPanel(MigLayout()), VldbLogge
     private val logItemsPanel = JPanel(GridBagLayout())
     private val logsScrollPane = JScrollPane(holder)
 
-    private val autoScrollButton = createHeaderToggleButton("Auto scroll down", UiResource.AUTO_SCROLL)
-    private val clearLogsButton = createHeaderButton("Clear logs", UiResource.BROOM)
-
     private var autoScroll = true
+    private var pauseLogs = false
 
     init {
         holder.add(logItemsPanel, BorderLayout.PAGE_START)
         val headerPanel = JPanel(MigLayout())
         val headerButtonConstraints = "w $BUTTON_SZ:$BUTTON_SZ:$BUTTON_SZ, h $BUTTON_SZ:$BUTTON_SZ:$BUTTON_SZ"
+
+        val autoScrollButton = createHeaderToggleButton("Auto scroll down", UiResource.AUTO_SCROLL)
         autoScrollButton.isSelected = true
         autoScrollButton.addActionListener { autoScroll = autoScrollButton.isSelected }
         headerPanel.add(autoScrollButton, headerButtonConstraints)
 
+        if (canPauseLogsReception) {
+            val pauseLogsButton = createHeaderToggleButton("Pause log reception", UiResource.PAUSE)
+            pauseLogsButton.isSelected = false
+            pauseLogsButton.addActionListener { pauseLogs = pauseLogsButton.isSelected }
+            headerPanel.add(pauseLogsButton, headerButtonConstraints)
+        }
+
+        val clearLogsButton = createHeaderButton("Clear logs", UiResource.ERASE)
         clearLogsButton.addActionListener { clearLogs() }
         headerPanel.add(clearLogsButton, headerButtonConstraints)
+
         add(headerPanel, "w max, wrap")
 
         logsScrollPane.verticalScrollBar.unitIncrement *= 5
@@ -56,6 +66,11 @@ class LogsPanel(private val logger: VldbLogger) : JPanel(MigLayout()), VldbLogge
         val filledImageData = uiResource.filledImageData
         button.icon = ImageIcon(ImageUtil.getScaledImage(imageData, BUTTON_SZ, BUTTON_SZ))
         button.selectedIcon = ImageIcon(ImageUtil.getScaledImage(filledImageData, BUTTON_SZ, BUTTON_SZ))
+        button.setUI(object : MetalToggleButtonUI() {
+            override fun getSelectColor(): Color {
+                return AppColors.DEFAULT_UI_COLOR
+            }
+        })
         return button
     }
 
@@ -80,21 +95,23 @@ class LogsPanel(private val logger: VldbLogger) : JPanel(MigLayout()), VldbLogge
     }
 
     override fun onLogsChange(logs: List<LogItem>) {
-        SwingUtilities.invokeLater {
-            val oldScrollValue = logsScrollPane.verticalScrollBar.value
-            for (logItem in logs) {
-                if (!storedLogItemWithComponentById.containsKey(logItem.id)) {
-                    addLogItem(logItem)
-                }
-            }
-            storedLogItemWithComponentById.maxByOrNull { it.key }?.let {
-                updateLogItemComponent(it.value.second, it.value.first)
-            }
+        if (!pauseLogs) {
             SwingUtilities.invokeLater {
-                logsScrollPane.verticalScrollBar.value = if (!autoScroll) {
-                    oldScrollValue
-                } else {
-                    logsScrollPane.verticalScrollBar.maximum
+                val oldScrollValue = logsScrollPane.verticalScrollBar.value
+                for (logItem in logs) {
+                    if (!storedLogItemWithComponentById.containsKey(logItem.id)) {
+                        addLogItem(logItem)
+                    }
+                }
+                storedLogItemWithComponentById.maxByOrNull { it.key }?.let {
+                    updateLogItemComponent(it.value.second, it.value.first)
+                }
+                SwingUtilities.invokeLater {
+                    logsScrollPane.verticalScrollBar.value = if (!autoScroll) {
+                        oldScrollValue
+                    } else {
+                        logsScrollPane.verticalScrollBar.maximum
+                    }
                 }
             }
         }

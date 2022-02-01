@@ -13,7 +13,7 @@ import javax.swing.JPanel
 abstract class Card<T>(private val cardList: CardList<T>, val item: T) : JPanel() {
 
     companion object {
-        private const val BUTTON_HEIGHT_RATIO = 1f / 3f
+        private const val BUTTON_HEIGHT_RATIO = 1f / 2f
         private const val BUTTON_DELTA_X_HEIGHT_RATIO = 1f / 4f
         private const val BUTTON_DELTA_Y_HEIGHT_RATIO = 1f / 10f
     }
@@ -38,7 +38,7 @@ abstract class Card<T>(private val cardList: CardList<T>, val item: T) : JPanel(
             })
         }
         if (hasEditButton()) {
-            buttonInfoList.add(CardButtonInfo("Update", UiResource.EDIT) {
+            buttonInfoList.add(CardButtonInfo("Configure character", UiResource.CONFIGURE_CHARACTER) {
                 cardList.cardSelectionPanel.processUpdateItemButton(this)
             })
         }
