@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import java.io.File
@@ -62,12 +62,12 @@ object CharacterManager {
     }
 
     fun addCharacter(
-        login: String, password: String, pseudo: String, dofusClassId: Int, spells: List<SpellCombination>
+        login: String, password: String, pseudo: String, dofusClassId: Int, spells: List<CharacterSpell>
     ): DofusCharacter {
         getCharacter(login, pseudo)?.let {
             error("Character already registered : [$login, $pseudo]")
         }
-        val character = DofusCharacter(login, password, pseudo, dofusClassId, spells = ArrayList(spells))
+        val character = DofusCharacter(login, password, pseudo, dofusClassId, characterSpells = ArrayList(spells))
         characterStore.characters.add(character)
         saveUserData()
         return character
@@ -84,7 +84,7 @@ object CharacterManager {
         password: String = character.password,
         pseudo: String = character.pseudo,
         dofusClassId: Int = character.dofusClassId,
-        spells: List<SpellCombination> = character.spells
+        spells: List<CharacterSpell> = character.characterSpells
     ) {
         val existingCharacter = getCharacter(login, pseudo)
         if (existingCharacter != null && existingCharacter != character) {
@@ -94,7 +94,7 @@ object CharacterManager {
         character.password = password
         character.pseudo = pseudo
         character.dofusClassId = dofusClassId
-        character.spells = ArrayList(spells)
+        character.characterSpells = ArrayList(spells)
         saveUserData()
     }
 

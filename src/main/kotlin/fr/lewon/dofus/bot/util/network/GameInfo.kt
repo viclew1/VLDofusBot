@@ -52,6 +52,15 @@ class GameInfo(val character: DofusCharacter) {
     var finishedObjectiveIds: List<Int> = ArrayList()
     var activeObjectiveIds: List<Int> = ArrayList()
 
+    fun updatePlayerFighter() {
+        val fighter = fightBoard.getPlayerFighter()
+        if (fighter != null) {
+            fighter.baseStatsById.putAll(playerBaseCharacteristics)
+            fighter.maxHp = maxHp
+            fighter.baseHp = hp
+        }
+    }
+
     fun buildCharacterBasicInfo(): DofusCharacterBasicInfo {
         return DofusCharacterBasicInfo(
             character.dofusClassId,

@@ -1,11 +1,10 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.dungeon.Dungeons
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
-import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightDungeonTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class TestScript : DofusBotScript("Test") {
@@ -24,10 +23,15 @@ class TestScript : DofusBotScript("Test") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
-        var cpt = 0
-        while (FightDungeonTask(Dungeons.DRAEGNERYS_DUNGEON).run(logItem, gameInfo)) {
-            println(cpt++)
-        }
+        val playerFighter = gameInfo.fightBoard.getPlayerFighter() ?: error("No fighter for player")
+        gameInfo.logger.addSubLog("HP : ${playerFighter.getCurrentHp()}", logItem)
+        gameInfo.logger.addSubLog("MAX HP : ${playerFighter.maxHp}", logItem)
+        val mp = DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)
+        gameInfo.logger.addSubLog("MP : $mp", logItem)
+        val ap = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter)
+        gameInfo.logger.addSubLog("AP : $ap", logItem)
+        val range = DofusCharacteristics.RANGE.getValue(playerFighter)
+        gameInfo.logger.addSubLog("RANGE : $range", logItem)
     }
 
 }

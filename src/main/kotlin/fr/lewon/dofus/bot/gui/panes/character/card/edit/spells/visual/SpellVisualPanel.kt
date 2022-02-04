@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.visual
 
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.core.model.spell.DofusSpell
 import net.miginfocom.swing.MigLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -29,19 +29,20 @@ class SpellVisualPanel : JPanel(MigLayout()) {
         }
     }
 
-    fun visualizeSpell(spell: SpellCombination?) {
+    fun visualizeSpell(spell: DofusSpell?) {
         val visible = spell != null
         rangeLabel.isVisible = visible
         aoeLabel.isVisible = visible
         areaVisualPanel.isVisible = visible
-        if (spell != null) {
-            rangeLabel.text = "Range : ${spell.minRange} to ${spell.maxRange}"
-            if (spell.modifiableRange) {
+        val spellLevel = spell?.levels?.lastOrNull()
+        val spellZone = spellLevel?.effects?.lastOrNull()?.rawZone
+        if (spellLevel != null && spellZone != null) {
+            rangeLabel.text = "Range : ${spellLevel.minRange} to ${spellLevel.maxRange}"
+            if (spellLevel.rangeCanBeBoosted) {
                 rangeLabel.text += " (Modifiable)"
             }
-            val areaSize = spell.areaSize
-            aoeLabel.text = "Area : $areaSize (${spell.areaType})"
-            areaVisualPanel.spellCombination = spell
+            aoeLabel.text = "Area : ${spellZone.effectZoneType.name} (${spellZone.size})"
+            areaVisualPanel.spell = spellLevel
         }
     }
 

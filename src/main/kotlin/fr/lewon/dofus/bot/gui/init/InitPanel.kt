@@ -71,7 +71,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         val errors = ArrayList<String>()
         toInitTasks.forEach { prepareInit(it) }
         toInitTasks.forEach { startInit(it, errors) }
-        val success = initTasks.none { !it.success }
+        val success = initTasks.all { it.success }
         errorOnInit = false
         resultLabel.isVisible = true
         if (success) {

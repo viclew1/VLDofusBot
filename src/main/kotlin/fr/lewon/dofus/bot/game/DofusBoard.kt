@@ -139,12 +139,18 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
     }
 
     fun cellsAtRange(minRange: Int, maxRange: Int, fromCell: DofusCell): List<Pair<DofusCell, Int>> {
+        return cellsAtRange(minRange, maxRange, listOf(fromCell))
+    }
+
+    fun cellsAtRange(minRange: Int, maxRange: Int, fromCells: List<DofusCell>): List<Pair<DofusCell, Int>> {
         val cellsAtRange = ArrayList<Pair<DofusCell, Int>>()
-        val explored = mutableListOf(fromCell)
-        var frontier = listOf(fromCell)
+        val explored = fromCells.toMutableList()
+        var frontier = fromCells.toList()
 
         if (minRange == 0) {
-            cellsAtRange.add(fromCell to 0)
+            fromCells.forEach {
+                cellsAtRange.add(it to 0)
+            }
         }
 
         for (i in 1..maxRange) {

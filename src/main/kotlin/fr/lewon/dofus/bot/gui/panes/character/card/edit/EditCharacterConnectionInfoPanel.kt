@@ -1,12 +1,13 @@
 package fr.lewon.dofus.bot.gui.panes.character.card.edit
 
+import fr.lewon.dofus.bot.core.model.charac.DofusBreed
 import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.gui.custom.listrenderer.TextImageComboBox
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.model.characters.DofusBreedAssets
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import java.awt.Color
@@ -15,8 +16,9 @@ import javax.swing.*
 
 class EditCharacterConnectionInfoPanel(
     character: DofusCharacter,
-    spells: List<SpellCombination>,
-    onSaveAction: (DofusCharacter) -> Unit
+    spells: List<CharacterSpell>,
+    onSaveAction: (DofusCharacter) -> Unit,
+    private val onBreedChange: (DofusBreed) -> Unit
 ) : JPanel() {
 
     companion object {
@@ -58,7 +60,11 @@ class EditCharacterConnectionInfoPanel(
         layout = null
         setSize(GlobalCharacterFormPanel.CONNECTION_INFO_WIDTH, GlobalCharacterFormPanel.CONNECTION_INFO_HEIGHT)
         classComboBox.selectedItem = BreedAssetManager.getAssets(character.dofusClassId)
-        classComboBox.addItemListener { updateBackground() }
+        classComboBox.addItemListener {
+            val dofusBreedAssets = classComboBox.selectedItem as DofusBreedAssets
+            updateClass(dofusBreedAssets)
+            onBreedChange(dofusBreedAssets.breed)
+        }
         saveButton.addActionListener { saveCharacter(character, spells, onSaveAction) }
 
         val labelsInputsPairs = listOf(
@@ -101,12 +107,12 @@ class EditCharacterConnectionInfoPanel(
 
         add(backgroundLabel)
         backgroundLabel.verticalAlignment = SwingConstants.TOP
-        updateBackground()
+        updateClass(classComboBox.selectedItem as DofusBreedAssets)
         updateSaveButton()
     }
 
     private fun saveCharacter(
-        character: DofusCharacter, spells: List<SpellCombination>, onSaveAction: (DofusCharacter) -> Unit
+        character: DofusCharacter, spells: List<CharacterSpell>, onSaveAction: (DofusCharacter) -> Unit
     ) {
         errorArea.text = ""
         errorArea.isOpaque = false
@@ -128,7 +134,7 @@ class EditCharacterConnectionInfoPanel(
             character.password = getPassword()
             character.login = getLogin()
             character.dofusClassId = getDofusClass().breed.id
-            character.spells = ArrayList(spells)
+            character.characterSpells = ArrayList(spells)
             onSaveAction(character)
         } else {
             errorArea.isOpaque = true
@@ -141,10 +147,9 @@ class EditCharacterConnectionInfoPanel(
                 && getPseudo().isNotBlank()
     }
 
-    private fun updateBackground() {
+    private fun updateClass(dofusBreedAssets: DofusBreedAssets) {
         SwingUtilities.invokeLater {
-            val dofusClass = classComboBox.selectedItem as DofusBreedAssets
-            val bgImg = ImageUtil.getScaledImageKeepHeight(dofusClass.bannerData, height)
+            val bgImg = ImageUtil.getScaledImageKeepHeight(dofusBreedAssets.bannerData, height)
             val blurredImg = ImageUtil.blurImage(bgImg, 0.85f)
             backgroundLabel.icon = ImageIcon(blurredImg)
             backgroundLabel.setBounds(width / 2 - bgImg.width / 2, 0, bgImg.width, height)

@@ -11,6 +11,7 @@ object CharacterStatsListEventHandler : EventHandler<CharacterStatsListMessage> 
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         val characteristics = socketResult.stats.characteristics
         gameInfo.playerBaseCharacteristics = characteristics.associateBy { it.characteristicId }
+        gameInfo.updatePlayerFighter()
     }
 
 }

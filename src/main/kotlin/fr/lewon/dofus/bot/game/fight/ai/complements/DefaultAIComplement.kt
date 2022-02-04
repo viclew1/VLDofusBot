@@ -1,8 +1,12 @@
 package fr.lewon.dofus.bot.game.fight.ai.complements
 
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.game.DofusBoard
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
+import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.game.fight.ai.DamageCalculator
+import kotlin.math.max
 
 class DefaultAIComplement(
     private val canAttack: Boolean = true,
@@ -10,7 +14,7 @@ class DefaultAIComplement(
     private val shouldUseAllMP: Boolean = false,
 ) : AIComplement() {
 
-    var spellMaxRange: Int? = null
+    private var spellMaxRange: Int? = null
 
     override fun canAttack(playerFighter: Fighter): Boolean {
         return canAttack
@@ -24,23 +28,8 @@ class DefaultAIComplement(
         return shouldUseAllMP
     }
 
-    override fun getIdealDistanceOLD(playerFighter: Fighter, spells: List<SpellCombination>, playerRange: Int): Int {
-        val maxRangeFunc: (SpellCombination) -> Int = { spell ->
-            if (spell.modifiableRange) {
-                spell.maxRange + playerRange
-            } else spell.maxRange
-        }
-        if (spellMaxRange == null) {
-            spellMaxRange = spells.map { maxRangeFunc(it) }.maxOrNull()
-        }
-        return spellMaxRange ?: 0
-    }
-
     override fun getIdealDistance(playerFighter: Fighter, spells: List<DofusSpellLevel>, playerRange: Int): Int {
-        if (spellMaxRange == null) {
-            spellMaxRange = getSpellMaxRange(spells, playerRange)
-        }
-        return spellMaxRange ?: 0
+        return 5
     }
 
     private fun getSpellMaxRange(spells: List<DofusSpellLevel>, playerRange: Int): Int? {
@@ -55,5 +44,41 @@ class DefaultAIComplement(
 
     override fun shouldAvoidUsingMp(): Boolean {
         return true
+    }
+
+    override fun buildDangerByCell(dofusBoard: DofusBoard, fightBoard: FightBoard): Map<Int, Int> {
+        val dangerByCell = HashMap<Int, Int>()
+        val playerFighter = fightBoard.getPlayerFighter()
+            ?: error("Player fighter not found")
+        fightBoard.getAlliedFighters().forEach { fightBoard.killFighter(it.id) }
+        val damageCalculator = DamageCalculator()
+        for (enemy in fightBoard.getEnemyFighters()) {
+            computeEnemyDangerCells(dofusBoard, fightBoard, enemy, playerFighter, damageCalculator, dangerByCell)
+        }
+        return dangerByCell
+    }
+
+    private fun computeEnemyDangerCells(
+        dofusBoard: DofusBoard,
+        fightBoard: FightBoard,
+        enemy: Fighter,
+        playerFighter: Fighter,
+        damageCalculator: DamageCalculator,
+        dangerByCell: HashMap<Int, Int>
+    ) {
+        val mp = max(10, DofusCharacteristics.MOVEMENT_POINTS.getValue(enemy))
+        val accessibleCells = fightBoard.getMoveCellsWithMpUsed(mp, enemy.cell)
+            .map { it.first }
+        val maxRange = enemy.spells.maxOfOrNull { it.maxRange } ?: 0
+        val cellsWithLos = dofusBoard.cellsAtRange(1, maxRange, accessibleCells)
+            .filter { accessibleCells.any { ac -> fightBoard.lineOfSight(it.first, ac) } }
+            .map { it.first }
+        for (spell in enemy.spells) {
+            val realDamage = damageCalculator.getRealDamage(spell, enemy, playerFighter)
+            for (cell in cellsWithLos) {
+                val currentDanger = dangerByCell[cell.cellId] ?: 0
+                dangerByCell[cell.cellId] = currentDanger + realDamage
+            }
+        }
     }
 }

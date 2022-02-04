@@ -1,8 +1,9 @@
 package fr.lewon.dofus.bot.game.fight.ai.complements
 
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.game.DofusBoard
+import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
 
 class TreasureChestAIComplement : AIComplement() {
 
@@ -22,12 +23,12 @@ class TreasureChestAIComplement : AIComplement() {
         return 0
     }
 
-    override fun getIdealDistanceOLD(playerFighter: Fighter, spells: List<SpellCombination>, playerRange: Int): Int {
-        return 0
-    }
-
     override fun shouldAvoidUsingMp(): Boolean {
         return false
+    }
+
+    override fun buildDangerByCell(dofusBoard: DofusBoard, fightBoard: FightBoard): Map<Int, Int> {
+        return HashMap()
     }
 
 }
