@@ -1,10 +1,11 @@
 package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.core.d2o.managers.characteristic.CharacteristicManager
+import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicDetailed
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
 
-enum class DofusCharacteristics(id: Int) {
+enum class DofusCharacteristics(val id: Int) {
 
     LIFE_POINTS(0),
     ACTION_POINTS(1),
@@ -126,7 +127,12 @@ enum class DofusCharacteristics(id: Int) {
 
     fun getValue(fighter: Fighter): Int {
         val charac = fighter.statsById[dofusCharacteristic.id]
-            ?: return 0
+            ?: fighter.baseStatsById[dofusCharacteristic.id]
+        return getCharacValue(charac)
+    }
+
+    private fun getCharacValue(charac: CharacterCharacteristic?): Int {
+        charac ?: return 0
         return when (charac) {
             is CharacterCharacteristicDetailed -> charac.base + charac.additional + charac.contextModif + charac.objectsAndMountBonus + charac.alignGiftBonus
             is CharacterCharacteristicValue -> charac.total

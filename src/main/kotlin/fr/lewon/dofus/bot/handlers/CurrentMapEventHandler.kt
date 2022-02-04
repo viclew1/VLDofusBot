@@ -10,7 +10,7 @@ object CurrentMapEventHandler : EventHandler<CurrentMapMessage> {
     override fun onEventReceived(socketResult: CurrentMapMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         val completeCellDataByCellId =
-            D2PMapsAdapter.getCompleteCellDataByCellId(socketResult.map.id, socketResult.mapKey)
+            D2PMapsAdapter.getCompleteCellDataByCellId(socketResult.mapId, socketResult.mapKey)
         gameInfo.dofusBoard.updateCells(completeCellDataByCellId.values.map { it.cellData })
         gameInfo.completeCellDataByCellId = completeCellDataByCellId
     }

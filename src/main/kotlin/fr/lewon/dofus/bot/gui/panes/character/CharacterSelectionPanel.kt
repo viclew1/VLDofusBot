@@ -17,7 +17,7 @@ object CharacterSelectionPanel : CardSelectionPanel<DofusCharacter>("Characters"
     override fun processAddItemButton() {
         MainPanel.addCharacterEditTab(null) {
             val createdCharacter = CharacterManager.addCharacter(
-                it.login, it.password, it.pseudo, it.dofusClassId, it.spells
+                it.login, it.password, it.pseudo, it.dofusClassId, it.characterSpells
             )
             cardList.addItem(createdCharacter)
         }
@@ -26,7 +26,7 @@ object CharacterSelectionPanel : CardSelectionPanel<DofusCharacter>("Characters"
     override fun processUpdateItemButton(card: Card<DofusCharacter>) {
         MainPanel.addCharacterEditTab(card.item) {
             CharacterManager.updateCharacter(
-                card.item, it.login, it.password, it.pseudo, it.dofusClassId, it.spells
+                card.item, it.login, it.password, it.pseudo, it.dofusClassId, it.characterSpells
             )
             card.updateCard(card.item === cardList.selectedItem)
         }

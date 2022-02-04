@@ -1,9 +1,11 @@
 package fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.visual
 
+import fr.lewon.dofus.bot.core.model.spell.DofusEffectZone
+import fr.lewon.dofus.bot.core.model.spell.DofusEffectZoneType
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
-import fr.lewon.dofus.bot.model.characters.spells.SpellType
+import fr.lewon.dofus.bot.game.fight.ai.EffectZoneCalculator
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.event.MouseAdapter
@@ -15,7 +17,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel() {
+class AreaVisualPanel(var spell: DofusSpellLevel? = null) : JPanel() {
 
     companion object {
         private val BOARD = DofusBoard(50, 50)
@@ -29,6 +31,7 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
             ?: error("Cell should be present in board")
     }
 
+    private val effectZoneCalculator = EffectZoneCalculator(BOARD)
     private var hoveredRow = Short.MAX_VALUE.toInt()
     private var hoveredCol = Short.MAX_VALUE.toInt()
     private val hoveredCells = ArrayList<DofusCell>()
@@ -45,14 +48,19 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
             override fun mouseMoved(e: MouseEvent) {
                 try {
                     hoverLock.lock()
-                    hoveredCol = spellCombination?.let { getIndex(it, e.x) } ?: Short.MAX_VALUE.toInt()
-                    hoveredRow = spellCombination?.let { getIndex(it, e.y) } ?: Short.MAX_VALUE.toInt()
-                    val areaSize = spellCombination?.areaSize ?: 0
-                    spellCombination?.areaType?.let {
+                    hoveredCol = spell?.let { getIndex(it, e.x) } ?: Short.MAX_VALUE.toInt()
+                    hoveredRow = spell?.let { getIndex(it, e.y) } ?: Short.MAX_VALUE.toInt()
+                    val effectZone = spell?.effects?.lastOrNull()?.rawZone
+                        ?: DofusEffectZone(DofusEffectZoneType.POINT, 1)
+                    effectZone.let {
                         val toCell = BOARD.getCell(BOARD_CENTER_COL + hoveredCol, BOARD_CENTER_ROW + hoveredRow)
                         hoveredCells.clear()
                         if (toCell != null) {
-                            hoveredCells.addAll(it.getAreaCells(BOARD, ORIGIN_CELL, toCell, areaSize))
+                            val affectedCellIds = effectZoneCalculator.getAffectedCells(
+                                ORIGIN_CELL.cellId, toCell.cellId, effectZone
+                            )
+                            val affectedCells = affectedCellIds.map { BOARD.getCell(it) }
+                            hoveredCells.addAll(affectedCells)
                         }
                     }
                 } finally {
@@ -64,7 +72,7 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
 
     override fun paintComponent(g: Graphics) {
         super.updateUI()
-        val spell = spellCombination ?: return
+        val spell = spell ?: return
         val maxIndex = getMaxIndex(spell)
         val cellWidth = width / (maxIndex * 2 + 1)
         val cellHeight = height / (maxIndex * 2 + 1)
@@ -84,7 +92,7 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
         g.color = oldColor
     }
 
-    private fun getMaxIndex(spell: SpellCombination): Int {
+    private fun getMaxIndex(spell: DofusSpellLevel): Int {
         return min(15, max(3, spell.maxRange + 2))
     }
 
@@ -92,7 +100,7 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
         return ((maxIndex + index) * width) / (maxIndex * 2 + 1)
     }
 
-    private fun getIndex(spell: SpellCombination, visualIndex: Int): Int? {
+    private fun getIndex(spell: DofusSpellLevel, visualIndex: Int): Int? {
         val maxIndex = getMaxIndex(spell)
         val index = visualIndex * (maxIndex * 2 + 1) / width - maxIndex
         return index.takeIf { it in -maxIndex..maxIndex }
@@ -100,7 +108,7 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
 
     private fun paintRow(
         g: Graphics,
-        spell: SpellCombination,
+        spell: DofusSpellLevel,
         row: Int,
         maxIndex: Int,
         cellWidth: Int,
@@ -118,32 +126,29 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
         }
     }
 
-    private fun getCellColor(spell: SpellCombination, row: Int, col: Int): Color {
+    private fun getCellColor(spell: DofusSpellLevel, row: Int, col: Int): Color {
         if (col == 0 && row == 0) {
             return Color.BLUE
         }
         if (isSpellLineValid(spell, col, row)) {
             if (isCellInRange(spell, col, row)) {
                 return Color.DARK_GRAY
-            } else if (spell.modifiableRange && isCellInExtendedRange(spell, col, row)) {
+            } else if (spell.rangeCanBeBoosted && isCellInExtendedRange(spell, col, row)) {
                 return Color.GRAY
             }
         }
         return Color.LIGHT_GRAY
     }
 
-    private fun isCellInRange(spell: SpellCombination, col: Int, row: Int): Boolean {
+    private fun isCellInRange(spell: DofusSpellLevel, col: Int, row: Int): Boolean {
         return abs(row) + abs(col) in spell.minRange..spell.maxRange
     }
 
-    private fun isCellInExtendedRange(spell: SpellCombination, col: Int, row: Int): Boolean {
+    private fun isCellInExtendedRange(spell: DofusSpellLevel, col: Int, row: Int): Boolean {
         return abs(row) + abs(col) in spell.maxRange + 1..spell.maxRange + 3
     }
 
-    private fun isCellInAOE(spell: SpellCombination, col: Int, row: Int): Boolean {
-        if (spell.type != SpellType.ATTACK) {
-            return canTargetHoveredCell(spell) && col == hoveredCol && row == hoveredRow
-        }
+    private fun isCellInAOE(spell: DofusSpellLevel, col: Int, row: Int): Boolean {
         if (!canTargetHoveredCell(spell)) {
             return false
         }
@@ -155,13 +160,13 @@ class AreaVisualPanel(var spellCombination: SpellCombination? = null) : JPanel()
         }
     }
 
-    private fun canTargetHoveredCell(spell: SpellCombination): Boolean {
+    private fun canTargetHoveredCell(spell: DofusSpellLevel): Boolean {
         return (isCellInRange(spell, hoveredCol, hoveredRow)
-                || spell.modifiableRange && isCellInExtendedRange(spell, hoveredCol, hoveredRow))
+                || spell.rangeCanBeBoosted && isCellInExtendedRange(spell, hoveredCol, hoveredRow))
                 && isSpellLineValid(spell, hoveredCol, hoveredRow)
     }
 
-    private fun isSpellLineValid(spell: SpellCombination, col: Int, row: Int): Boolean {
+    private fun isSpellLineValid(spell: DofusSpellLevel, col: Int, row: Int): Boolean {
         return !spell.castInLine && !spell.castInDiagonal
                 || spell.castInLine && isCellInLine(col, row)
                 || spell.castInDiagonal && isCellInDiagonal(col, row)

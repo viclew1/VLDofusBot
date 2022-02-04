@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.game.fight
 
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
 import fr.lewon.dofus.bot.util.network.GameInfo
@@ -66,13 +67,16 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun createOrUpdateFighter(fighterId: Double, cellId: Int, teamId: Int? = null) {
+    fun createOrUpdateFighter(
+        fighterId: Double, cellId: Int, spells: List<DofusSpellLevel>? = null, teamId: Int? = null
+    ) {
         try {
             lock.lockInterruptibly()
             val cell = dofusBoard.getCell(cellId)
             val fighter = fightersById.computeIfAbsent(fighterId) {
                 Fighter(cell, fighterId, false)
             }
+            spells?.let { fighter.spells = it }
             teamId?.let { fighter.teamId = teamId }
             move(fighter, cell)
         } finally {
@@ -80,13 +84,14 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun summonFighter(fighterId: Double, cellId: Int, teamId: Int) {
+    fun summonFighter(fighterId: Double, cellId: Int, spells: List<DofusSpellLevel>, teamId: Int) {
         try {
             lock.lockInterruptibly()
             val cell = dofusBoard.getCell(cellId)
             val fighter = fightersById.computeIfAbsent(fighterId) {
                 Fighter(cell, fighterId, true)
             }
+            fighter.spells = spells
             fighter.teamId = teamId
             move(fighter, cell)
         } finally {
@@ -144,10 +149,10 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun getAllFighters(): List<Fighter> {
+    fun getAllFighters(withSummons: Boolean = true): List<Fighter> {
         try {
             lock.lockInterruptibly()
-            return fightersById.values.toList()
+            return fightersById.values.toList().filter { withSummons || !it.isSummon }
         } finally {
             lock.unlock()
         }
@@ -316,7 +321,7 @@ class FightBoard(private val gameInfo: GameInfo) {
         try {
             lock.lockInterruptibly()
             return FightBoard(gameInfo)
-                .also { it.fightersById.putAll(fightersById.entries.map { e -> e.key to e.value.clone() }) }
+                .also { it.fightersById.putAll(fightersById.entries.map { e -> e.key to e.value.deepCopy() }) }
         } finally {
             lock.unlock()
         }

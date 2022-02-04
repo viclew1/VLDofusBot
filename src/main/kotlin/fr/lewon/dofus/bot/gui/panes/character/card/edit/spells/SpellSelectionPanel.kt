@@ -6,36 +6,46 @@ import fr.lewon.dofus.bot.gui.custom.list.CardSelectionPanel
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.GlobalCharacterFormPanel
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.list.SpellCardList
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.visual.SpellVisualPanel
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 
 class SpellSelectionPanel(
-    private val spells: ArrayList<SpellCombination>,
+    private val spells: ArrayList<CharacterSpell>,
     private val editSpellPanel: EditSpellPanel,
     private val spellVisualPanel: SpellVisualPanel
-) : CardSelectionPanel<SpellCombination>("Spells") {
+) : CardSelectionPanel<CharacterSpell>("Spells") {
 
-    override fun buildCardList(): CardList<SpellCombination> {
+    override fun buildCardList(): CardList<CharacterSpell> {
         return SpellCardList(GlobalCharacterFormPanel.SPELL_LIST_WIDTH, this, spells)
     }
 
     override fun processAddItemButton() {
-        val card = cardList.addItem(SpellCombination())
+        val card = cardList.addItem(CharacterSpell())
         cardList.selectItem(card)
-        editSpellPanel.updateSpellCombination(card.item) { onSpellUpdate(card) }
-        spellVisualPanel.visualizeSpell(card.item)
+        editSpellPanel.updateCharacterSpell(card.item) { onSpellUpdate(card) }
+        spellVisualPanel.visualizeSpell(card.item.spell)
     }
 
-    override fun processUpdateItemButton(card: Card<SpellCombination>) {
+    override fun processUpdateItemButton(card: Card<CharacterSpell>) {
         updateSpellPanels(card)
     }
 
-    fun updateSpellPanels(card: Card<SpellCombination>?) {
-        editSpellPanel.updateSpellCombination(card?.item) { onSpellUpdate(card) }
-        spellVisualPanel.visualizeSpell(card?.item)
+    fun updateSpellPanels(card: Card<CharacterSpell>?) {
+        editSpellPanel.updateCharacterSpell(card?.item) { onSpellUpdate(card) }
+        spellVisualPanel.visualizeSpell(card?.item?.spell)
     }
 
-    private fun onSpellUpdate(card: Card<SpellCombination>?) {
+    fun forceUpdateSpell() {
+        val selectedItem = cardList.selectedItem
+            ?: return
+        val card = cardList.getCard(selectedItem)
+        editSpellPanel.updateCharacterSpell(card?.item) { onSpellUpdate(card) }
+        for (item in cardList.items) {
+            onSpellUpdate(cardList.getCard(item))
+        }
+    }
+
+    private fun onSpellUpdate(card: Card<CharacterSpell>?) {
         card?.updateCard(card.item === cardList.selectedItem)
-        spellVisualPanel.visualizeSpell(card?.item)
+        spellVisualPanel.visualizeSpell(card?.item?.spell)
     }
 }

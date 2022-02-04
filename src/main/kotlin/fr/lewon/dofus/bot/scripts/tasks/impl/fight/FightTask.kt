@@ -2,12 +2,12 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
-import fr.lewon.dofus.bot.game.fight.FightAI
-import fr.lewon.dofus.bot.game.fight.Fighter
+import fr.lewon.dofus.bot.game.fight.ai.FightAIV4
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
+import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
@@ -94,42 +94,52 @@ class FightTask(
         val fightBoard = gameInfo.fightBoard
         val dofusBoard = gameInfo.dofusBoard
         initFight(gameInfo)
-        WaitUtil.sleep(1500)
+        WaitUtil.sleep(500)
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
-        setFighterBaseCharacteristics(gameInfo, playerFighter)
-        val baseRange = DofusCharacteristics.RANGE.getValue(playerFighter)
-        val spells = gameInfo.character.spells
+        val spells = gameInfo.character.characterSpells
+        val keyBySpellLevel = HashMap<DofusSpellLevel, String>()
+        for (characterSpell in spells) {
+            val spell = characterSpell.spell
+            for (level in spell.levels) {
+                keyBySpellLevel[level] = characterSpell.key
+            }
+        }
 
-
-        val ai = FightAI(dofusBoard, fightBoard, playerFighter, baseRange, 0, spells, aiComplement)
-
-        ai.selectStartCell()?.takeIf { it != playerFighter.cell }?.let {
+        val ai = FightAIV4(dofusBoard, aiComplement)
+        ai.selectStartCell(fightBoard)?.takeIf { it != playerFighter.cell }?.let {
             WaitUtil.sleep(800)
             MouseUtil.leftClick(gameInfo, it.getCenter())
-            WaitUtil.sleep(800)
         }
-        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
         WaitUtil.sleep(500)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         gameInfo.eventStore.clear(MapComplementaryInformationsDataMessage::class.java)
         gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java)
 
+        ai.onFightStart(fightBoard)
         while (!isFightEnded(gameInfo)) {
             MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)
 
             ai.onNewTurn()
-            lateinit var nextOperation: FightAI.FightOperationOLD
-            while (!isFightEnded(gameInfo) && ai.getNextOperation()?.also { nextOperation = it } != null) {
-                val target = gameInfo.dofusBoard.getCell(nextOperation.targetCellId)
+            var nextOperation: FightOperation = ai.getNextOperation(fightBoard, null)
+            while (!isFightEnded(gameInfo) && nextOperation.type != FightOperationType.PASS_TURN) {
+                val targetCellId = nextOperation.targetCellId ?: error("Target cell id can't be null")
+                val target = gameInfo.dofusBoard.getCell(targetCellId)
                 if (nextOperation.type == FightOperationType.MOVE) {
                     processMove(gameInfo, target)
                 } else if (nextOperation.type == FightOperationType.SPELL) {
-                    castSpells(gameInfo, nextOperation.keys, target)
+                    val spell = nextOperation.spell ?: error("Spell can't be null")
+                    val key = keyBySpellLevel[spell] ?: error("No key found for spell level : ${spell.id}")
+                    castSpells(gameInfo, key, target)
                 }
                 WaitUtil.sleep(500)
+                if (fightBoard.getEnemyFighters().isEmpty()) {
+                    break
+                }
+                nextOperation = ai.getNextOperation(fightBoard, nextOperation)
             }
             KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
             waitForMessage(gameInfo, GameFightTurnEndMessage::class.java)
@@ -153,12 +163,6 @@ class FightTask(
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
         return true
-    }
-
-    private fun setFighterBaseCharacteristics(gameInfo: GameInfo, playerFighter: Fighter) {
-        playerFighter.statsById.putAll(gameInfo.playerBaseCharacteristics)
-        playerFighter.maxHp = gameInfo.maxHp
-        playerFighter.baseHp = gameInfo.hp
     }
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell) {

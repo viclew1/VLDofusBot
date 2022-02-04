@@ -3,7 +3,8 @@ package fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.list
 import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.gui.custom.list.Card
 import fr.lewon.dofus.bot.gui.util.ImageUtil
-import fr.lewon.dofus.bot.model.characters.spells.SpellCombination
+import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
+import fr.lewon.dofus.bot.model.characters.spells.SpellType
 import java.awt.Color
 import java.awt.Font
 import javax.swing.BorderFactory
@@ -14,8 +15,8 @@ import javax.swing.border.EmptyBorder
 
 class SpellCard(
     spellCardList: SpellCardList,
-    spellCombination: SpellCombination
-) : Card<SpellCombination>(spellCardList, spellCombination) {
+    spell: CharacterSpell
+) : Card<CharacterSpell>(spellCardList, spell) {
 
     companion object {
         private const val ICON_DELTA_HEIGHT_RATIO = -1f / 4f
@@ -98,10 +99,16 @@ class SpellCard(
     }
 
     private fun refreshLabels() {
-        rangeLabel.text = "Range : ${item.minRange} to ${item.maxRange}"
-        if (item.modifiableRange) {
-            rangeLabel.text += " (Modifiable)"
+        if (item.type == SpellType.NAMED_SPELL) {
+            rangeLabel.text = item.spell.name
+        } else {
+            item.spell.levels.lastOrNull()?.let {
+                rangeLabel.text = "Range : ${it.minRange} to ${it.maxRange}"
+                if (it.rangeCanBeBoosted) {
+                    rangeLabel.text += " (Modifiable)"
+                }
+            }
         }
-        keyLabel.text = "Keys : ${item.keys}"
+        keyLabel.text = "Keys : ${item.key}"
     }
 }

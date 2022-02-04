@@ -10,5 +10,6 @@ object LifePointsRegenEndEventHandler : EventHandler<LifePointsRegenEndMessage> 
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.hp = socketResult.lifePoints
         gameInfo.maxHp = socketResult.maxLifePoints
+        gameInfo.updatePlayerFighter()
     }
 }
