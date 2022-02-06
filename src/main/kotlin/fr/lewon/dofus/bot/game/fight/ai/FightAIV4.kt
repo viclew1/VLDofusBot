@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.game.fight.ai.mcts.MctsMove
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
+import fr.lewon.dofus.bot.gui.overlay.LOSHelper
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -62,27 +63,25 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
     fun getNextOperation(fightBoard: FightBoard, lastOperation: FightOperation?): FightOperation {
         fightBoard.getPlayerFighter() ?: error("No player fighter found")
         val initialState = FightState(
-            fightBoard.deepCopy(), cooldownState.deepCopy(), aiComplement, dofusBoard, lastOperation = lastOperation
+            fightBoard.deepCopy(), cooldownState, aiComplement, dofusBoard, lastOperation = lastOperation
         )
 
         val dangerByCell = aiComplement.buildDangerByCell(dofusBoard, fightBoard.deepCopy())
-        val initialScore = evaluate(initialState, emptyList(), dangerByCell)
+        LOSHelper.updateDangerByCell(dangerByCell)
+        val initialScore = evaluate(initialState, dangerByCell)
         val initialNode = EZNode(initialState, ArrayList(), initialScore)
 
         var bestNode = initialNode
         val frontier = mutableListOf(initialNode)
         val startTime = System.currentTimeMillis()
 
-        var depth = 0
         while (frontier.isNotEmpty() && System.currentTimeMillis() - startTime < 1500) {
-            val nodesToExplore = selectNodesToExplore(frontier, 50)
-            println("SELECTION $depth - ${nodesToExplore.size} / ${frontier.size}")
-            depth++
+            val nodesToExplore = if (frontier.size < 200) frontier else selectNodesToExplore(frontier, 200)
             for (node in nodesToExplore) {
                 frontier.remove(node)
                 if (System.currentTimeMillis() - startTime > 1500) {
                     return selectOperation(bestNode).also {
-                        bestNode.state.makeMove(it)
+                        initialState.makeMove(it)
                     }
                 }
                 for (move in node.state.moves) {
@@ -90,24 +89,29 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
                     childState.makeMove(move)
                     val operations = ArrayList(node.operations).also { it.add(move) }
                     val isPassTurn = (move as FightOperation).type == FightOperationType.PASS_TURN
-                    val childNodeScore = if (isPassTurn) node.score else evaluate(childState, operations, dangerByCell)
+                    val childNodeScore = if (isPassTurn) node.score else evaluate(childState, dangerByCell)
                     val childNode = EZNode(childState, operations, childNodeScore)
                     if (!isPassTurn) {
                         frontier.add(childNode)
                     }
                     if (bestNode.score < childNodeScore) {
                         bestNode = childNode
+                        if (bestNode.score == Int.MAX_VALUE.toDouble()) {
+                            return selectOperation(bestNode).also {
+                                initialState.makeMove(it)
+                            }
+                        }
                     }
                 }
             }
         }
         return selectOperation(bestNode).also {
-            bestNode.state.makeMove(it)
+            initialState.makeMove(it)
         }
     }
 
-    private fun evaluate(state: MctsBoard, operations: List<MctsMove>, dangerByCell: Map<Int, Int>): Double {
-        return (state as FightState).evaluate(dangerByCell, operations)
+    private fun evaluate(state: MctsBoard, dangerByCell: Map<Int, Int>): Double {
+        return (state as FightState).evaluate(dangerByCell)
     }
 
     private fun selectOperation(node: EZNode): FightOperation {
@@ -118,7 +122,7 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
     private fun selectNodesToExplore(frontierNodes: List<EZNode>, newPopulationSize: Int): List<EZNode> {
         val minScore = frontierNodes.minOfOrNull { it.score }
             ?: return emptyList()
-        val relativeFitnessByIndividual = frontierNodes.associateWith { getAdaptedScore(it.score, minScore - 1500) }
+        val relativeFitnessByIndividual = frontierNodes.associateWith { getAdaptedScore(it.score, minScore - 3000) }
         val fitnessSum = relativeFitnessByIndividual.values.sum()
         val nodesToExplore = ArrayList<EZNode>()
         for (i in 0 until newPopulationSize) {

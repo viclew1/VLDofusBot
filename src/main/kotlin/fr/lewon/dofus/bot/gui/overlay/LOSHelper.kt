@@ -17,6 +17,7 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
 
     private var hitBoxByCell: Map<DofusCell, Polygon> = HashMap()
     private lateinit var gameInfo: GameInfo
+    private var dangerByCell: Map<Int, Int> = HashMap()
 
     override fun updateOverlay(gameInfo: GameInfo) {
         this.gameInfo = gameInfo
@@ -26,6 +27,10 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
         bounds = Rectangle(gameBounds.x + windowPos.x, gameBounds.y + windowPos.y, gameBounds.width, gameBounds.height)
         contentPane.size = Dimension(gameInfo.gameBounds.width, gameInfo.gameBounds.height)
         hitBoxByCell = gameInfo.dofusBoard.cells.associateWith { buildCellHitBox(it) }
+    }
+
+    fun updateDangerByCell(dangerByCell: Map<Int, Int>) {
+        this.dangerByCell = dangerByCell
     }
 
     private object LOSHelperPanel : JPanel() {
@@ -150,6 +155,12 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
                 g.color = if (isCellAlly) Color.GREEN else Color.RED
                 g.fillPolygon(halfCellPolygon)
             }
+            g.color = Color.BLACK
+            val danger = dangerByCell[cell.cellId] ?: 0
+            val origin = PointAbsolute(gameInfo.gameBounds.x, gameInfo.gameBounds.y)
+            val textLocRelative = PointRelative(cell.getCenter().x - cell.bounds.width / 2, cell.getCenter().y)
+            val absCenter = ConverterUtil.toPointAbsolute(gameInfo, textLocRelative).getDifference(origin)
+            (g as Graphics2D).drawString("$danger", absCenter.x, absCenter.y + g.fontMetrics.height / 3)
             g.color = Color.WHITE
             g.drawPolygon(polygon)
             g.color = oldColor

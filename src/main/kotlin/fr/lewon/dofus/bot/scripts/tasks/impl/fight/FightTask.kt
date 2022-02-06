@@ -94,7 +94,6 @@ class FightTask(
         val fightBoard = gameInfo.fightBoard
         val dofusBoard = gameInfo.dofusBoard
         initFight(gameInfo)
-        WaitUtil.sleep(500)
 
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
         val spells = gameInfo.character.characterSpells
@@ -108,7 +107,7 @@ class FightTask(
 
         val ai = FightAIV4(dofusBoard, aiComplement)
         ai.selectStartCell(fightBoard)?.takeIf { it != playerFighter.cell }?.let {
-            WaitUtil.sleep(800)
+            WaitUtil.sleep(500)
             MouseUtil.leftClick(gameInfo, it.getCenter())
         }
         WaitUtil.sleep(500)
@@ -217,8 +216,7 @@ class FightTask(
     ): Boolean {
         gameInfo.eventStore.clear(eventClass)
         return WaitUtil.waitUntil(
-            { isFightEnded(gameInfo) || gameInfo.eventStore.getLastEvent(eventClass) != null },
-            timeOutMillis
+            { isFightEnded(gameInfo) || gameInfo.eventStore.getLastEvent(eventClass) != null }, timeOutMillis
         )
     }
 
@@ -246,7 +244,7 @@ class FightTask(
         if (!fightersDisplayed) {
             error("No fighters found in fight")
         }
-        WaitUtil.sleep(1500)
+        WaitUtil.sleep(800)
 
         if (getBlockHelpOptionValue(gameInfo) == teamFight) {
             MouseUtil.leftClick(gameInfo, blockHelpBounds.getCenter())
