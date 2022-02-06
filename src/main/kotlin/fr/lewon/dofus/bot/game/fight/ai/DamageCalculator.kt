@@ -9,21 +9,33 @@ import fr.lewon.dofus.bot.game.fight.Fighter
 
 class DamageCalculator {
 
-    private val cachedDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellLevel>, Int>>()
+    private val cachedSpellDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellLevel>, Int>>()
+    private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellEffect>, Int>>()
 
-    fun getRealDamage(spellLevel: DofusSpellLevel, caster: Fighter, target: Fighter): Int {
-        val cachedDamages = cachedDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
+    fun getRealDamage(
+        spellLevel: DofusSpellLevel,
+        caster: Fighter,
+        target: Fighter,
+        criticalHit: Boolean = false,
+        upperBound: Boolean = false
+    ): Int {
+        val cachedDamages = cachedSpellDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
         return cachedDamages.computeIfAbsent(target.id to spellLevel) {
-            computeRealDamage(spellLevel, caster, target)
+            computeRealDamage(spellLevel, caster, target, criticalHit, upperBound)
         }
     }
 
-    private fun computeRealDamage(spellLevel: DofusSpellLevel, caster: Fighter, target: Fighter): Int {
-        val criticalChance = spellLevel.criticalHitProbability + DofusCharacteristics.CRITICAL_HIT.getValue(caster)
-        return if (criticalChance < 60) {
-            computeDamage(spellLevel.effects, caster, target, false)
+    private fun computeRealDamage(
+        spellLevel: DofusSpellLevel,
+        caster: Fighter,
+        target: Fighter,
+        criticalHit: Boolean,
+        upperBound: Boolean
+    ): Int {
+        return if (criticalHit) {
+            computeDamage(spellLevel.effects, caster, target, false, upperBound)
         } else {
-            computeDamage(spellLevel.criticalEffects, caster, target, true)
+            computeDamage(spellLevel.criticalEffects, caster, target, true, upperBound)
         }
     }
 
@@ -31,16 +43,31 @@ class DamageCalculator {
         spellEffects: List<DofusSpellEffect>,
         caster: Fighter,
         target: Fighter,
-        criticalHit: Boolean
+        criticalHit: Boolean,
+        upperBound: Boolean
     ): Int {
-        return spellEffects.sumOf { computeDamage(it, caster, target, criticalHit) }
+        return spellEffects.sumOf { getRealEffectDamage(it, caster, target, criticalHit, upperBound) }
     }
 
-    private fun computeDamage(
+    fun getRealEffectDamage(
         spellEffect: DofusSpellEffect,
         caster: Fighter,
         target: Fighter,
-        criticalHit: Boolean
+        criticalHit: Boolean,
+        upperBound: Boolean
+    ): Int {
+        val cachedDamages = cachedEffectDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
+        return cachedDamages.computeIfAbsent(target.id to spellEffect) {
+            computeEffectDamage(spellEffect, caster, target, criticalHit, upperBound)
+        }
+    }
+
+    private fun computeEffectDamage(
+        spellEffect: DofusSpellEffect,
+        caster: Fighter,
+        target: Fighter,
+        criticalHit: Boolean,
+        upperBound: Boolean
     ): Int {
         if (!effectCanHitTarget(spellEffect.target, caster, target)) {
             return 0
@@ -82,8 +109,9 @@ class DamageCalculator {
             }
             else -> return 0
         }
+        val baseDamage = if (upperBound) spellEffect.max else spellEffect.min
         return computeDamage(
-            spellEffect.min, caster, target, elementCharac, elementDamages, elementResistPer, elementResist, criticalHit
+            baseDamage, caster, target, elementCharac, elementDamages, elementResistPer, elementResist, criticalHit
         )
     }
 

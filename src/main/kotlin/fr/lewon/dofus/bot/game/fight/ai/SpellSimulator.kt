@@ -17,13 +17,20 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
     private val effectZoneCalculator = EffectZoneCalculator(dofusBoard)
 
     fun simulateSpell(fightBoard: FightBoard, caster: Fighter, spell: DofusSpellLevel, targetCellId: Int) {
-        spell.effects.forEach {
-            simulateEffect(fightBoard, caster, spell, it, targetCellId)
+        val criticalChance = spell.criticalHitProbability + DofusCharacteristics.CRITICAL_HIT.getValue(caster)
+        val criticalHit = criticalChance > 80
+        val effects = if (criticalHit) spell.criticalEffects else spell.effects
+        effects.forEach {
+            simulateEffect(fightBoard, caster, it, targetCellId, criticalHit)
         }
     }
 
     private fun simulateEffect(
-        fightBoard: FightBoard, caster: Fighter, spell: DofusSpellLevel, effect: DofusSpellEffect, targetCellId: Int
+        fightBoard: FightBoard,
+        caster: Fighter,
+        effect: DofusSpellEffect,
+        targetCellId: Int,
+        criticalHit: Boolean
     ) {
         val casterCellId = caster.cell.cellId
         val targetCell = dofusBoard.getCell(targetCellId)
@@ -31,6 +38,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         val affectedCells = effectZoneCalculator.getAffectedCells(casterCellId, targetCellId, zone)
         val fightersInAOE = affectedCells.mapNotNull { fightBoard.getFighter(it) }
             .filter { effectAffects(effect.target, caster, it) }
+            .distinct()
         when (effect.effectType) {
             DofusSpellEffectType.MP_BUFF ->
                 simulateMpBuff(fightersInAOE, effect.min)
@@ -45,9 +53,9 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
             DofusSpellEffectType.SWITCH_POSITIONS ->
                 simulateSwitchPositions(fightBoard, caster, targetCellId)
             DofusSpellEffectType.AIR_DAMAGE, DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.FIRE_DAMAGE, DofusSpellEffectType.NEUTRAL_DAMAGE, DofusSpellEffectType.WATER_DAMAGE ->
-                simulateDamages(caster, fightersInAOE, spell)
+                simulateDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
             DofusSpellEffectType.AIR_LIFE_STEAL, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.FIRE_LIFE_STEAL, DofusSpellEffectType.NEUTRAL_LIFE_STEAL, DofusSpellEffectType.WATER_LIFE_STEAL ->
-                simulateLifeSteal(caster, fightersInAOE, spell)
+                simulateLifeSteal(caster, targetCell, fightersInAOE, effect, criticalHit)
         }
     }
 
@@ -59,10 +67,19 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         }
     }
 
-    private fun simulateLifeSteal(caster: Fighter, fightersInAOE: List<Fighter>, spell: DofusSpellLevel) {
+    private fun simulateLifeSteal(
+        caster: Fighter,
+        aoeCenter: DofusCell,
+        fightersInAOE: List<Fighter>,
+        effect: DofusSpellEffect,
+        criticalHit: Boolean
+    ) {
         var dealtDamagesTotal = 0
         for (fighter in fightersInAOE) {
-            val realDamage = damageCalculator.getRealDamage(spell, caster, fighter)
+            val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
+            val realDamage = (damageCalculator.getRealEffectDamage(
+                effect, caster, fighter, criticalHit, false
+            ).toFloat() * (1f - 0.1f * distToCenter)).toInt()
             fighter.hpLost += realDamage
             dealtDamagesTotal += realDamage
         }
@@ -71,9 +88,18 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         caster.hpHealed += heal
     }
 
-    private fun simulateDamages(caster: Fighter, fightersInAOE: List<Fighter>, spell: DofusSpellLevel) {
+    private fun simulateDamages(
+        caster: Fighter,
+        aoeCenter: DofusCell,
+        fightersInAOE: List<Fighter>,
+        effect: DofusSpellEffect,
+        criticalHit: Boolean
+    ) {
         for (fighter in fightersInAOE) {
-            val realDamage = damageCalculator.getRealDamage(spell, caster, fighter)
+            val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
+            val realDamage = (damageCalculator.getRealEffectDamage(
+                effect, caster, fighter, criticalHit, false
+            ).toFloat() * (1f - 0.1f * distToCenter)).toInt()
             fighter.hpLost += realDamage
         }
     }

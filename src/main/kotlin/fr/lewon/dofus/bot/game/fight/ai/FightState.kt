@@ -15,6 +15,8 @@ import fr.lewon.dofus.bot.game.fight.ai.mcts.MctsMove
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
+import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
+import kotlin.math.abs
 import kotlin.math.max
 
 class FightState(
@@ -146,12 +148,18 @@ class FightState(
     private fun isSpellReady(
         currentFighter: Fighter, spell: DofusSpellLevel, cooldownState: CooldownState, currentFighterAp: Int
     ): Boolean {
-        val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnSpellUseStore(currentFighter.id)
         val cooldownSpellStore = cooldownState.globalCooldownSpellStore.getCooldownSpellStore(currentFighter.id)
-        val usesThisTurn = turnUseSpellStore.getTotalUses(spell)
-        return (spell.maxCastPerTurn <= 0 || usesThisTurn < spell.maxCastPerTurn)
-                && cooldownSpellStore[spell]?.takeIf { it > 0 } == null
-                && currentFighterAp >= spell.apCost
+        val currentCooldown = cooldownSpellStore[spell] ?: 0
+        if (currentCooldown > 0) {
+            return false
+        }
+        if (spell.maxCastPerTurn > 0) {
+            val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnSpellUseStore(currentFighter.id)
+            if (turnUseSpellStore.getTotalUses(spell) >= spell.maxCastPerTurn) {
+                return false
+            }
+        }
+        return currentFighterAp >= spell.apCost
     }
 
     private fun getSpellMaxRange(spell: DofusSpellLevel, currentFighter: Fighter): Int {
@@ -196,6 +204,9 @@ class FightState(
         when (operation.type) {
             FightOperationType.MOVE -> {
                 val targetCellId = operation.targetCellId ?: error("Target cell id mandatory")
+                val currentMp = DofusCharacteristics.MOVEMENT_POINTS.getValue(currentFighter)
+                currentFighter.statsById[DofusCharacteristics.MOVEMENT_POINTS.id] = CharacterCharacteristicValue()
+                    .also { it.total = currentMp - (operation.dist ?: 0) }
                 fb.move(currentFighter.id, targetCellId)
             }
             FightOperationType.SPELL -> {
@@ -204,9 +215,9 @@ class FightState(
                 useSpell(currentFighter, spell, targetCellId)
             }
             FightOperationType.PASS_TURN -> {
-                decreaseCds(currentFighter)
-                resetUsesThisTurn(currentFighter)
-                setNextPlayer()
+                //decreaseCds(currentFighter)
+                //resetUsesThisTurn(currentFighter)
+                //setNextPlayer()
             }
         }
         fb.getAllFighters().filter { it.getCurrentHp() <= 0 }.forEach {
@@ -252,6 +263,10 @@ class FightState(
         val usesOnThisTarget = usesThisTurn.computeIfAbsent(targetId) { 0 }
         usesThisTurn[targetId] = usesOnThisTarget + 1
         cooldownSpellStore[spell] = spell.minCastInterval
+        val currentAp = DofusCharacteristics.ACTION_POINTS.getValue(currentFighter)
+        currentFighter.statsById[DofusCharacteristics.ACTION_POINTS.id] = CharacterCharacteristicValue().also {
+            it.total = currentAp - spell.apCost
+        }
         spellSimulator.simulateSpell(fb, currentFighter, spell, targetCellId)
     }
 
@@ -275,7 +290,7 @@ class FightState(
         }.toDoubleArray()
     }
 
-    fun evaluate(dangerByCell: Map<Int, Int>, operations: List<MctsMove>): Double {
+    fun evaluate(dangerByCell: Map<Int, Int>): Double {
         val allies = fb.getAlliedFighters()
         val realAlliesCount = allies.filter { !it.isSummon }.size
         if (realAlliesCount == 0) {
@@ -287,18 +302,33 @@ class FightState(
             return Int.MAX_VALUE.toDouble()
         }
         val alliesHp = allies.sumOf {
-            it.getCurrentHp() * (if (it.isSummon) 1 else 10)
+            (it.getCurrentHp() * (if (it.isSummon) 0.1f else 1f)).toInt()
         }
         val enemiesHp = enemies.sumOf {
-            it.getCurrentHp() * (if (it.isSummon) 1 else 10)
+            (it.getCurrentHp() * (if (it.isSummon) 0.1f else 1f)).toInt()
         }
         val danger = allies.filter { !it.isSummon }
             .sumOf { dangerByCell[it.cell.cellId] ?: 0 }
+
+        var distScore = 0
+        var apScore = 0
+        var mpScore = 0
+        val playerFighter = fb.getPlayerFighter()
+        if (playerFighter != null) {
+            val closestEnemy = fb.getClosestEnemy()
+            apScore = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter) * 8
+            mpScore = DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)
+            if (closestEnemy != null) {
+                distScore = abs(dofusBoard.getDist(playerFighter.cell, closestEnemy.cell)) * 2
+            }
+        }
         return (realAlliesCount * 2500
                 - realEnemiesCount * 10000
-                + alliesHp * 5
+                + alliesHp * 2
                 - enemiesHp
                 - danger
-                - operations.size).toDouble()
+                - distScore
+                - mpScore
+                - apScore).toDouble()
     }
 }

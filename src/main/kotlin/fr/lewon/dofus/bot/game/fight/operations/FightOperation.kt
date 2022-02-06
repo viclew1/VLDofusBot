@@ -10,6 +10,17 @@ data class FightOperation(
     val dist: Int? = null
 ) : MctsMove {
     override fun compareTo(other: MctsMove?): Int {
-        error("UnsupportedOperationException")
+        error("Non supported")
+    }
+
+    override fun toString(): String {
+        var str = "[$type] - targetCellId : $targetCellId"
+        if (dist != null) {
+            str += " - dist : $dist"
+        }
+        if (spell != null) {
+            str += " - spell : $spell"
+        }
+        return str
     }
 }

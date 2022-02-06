@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.game.fight.ai.DamageCalculator
-import kotlin.math.max
+import kotlin.math.min
 
 class DefaultAIComplement(
     private val canAttack: Boolean = true,
@@ -66,15 +66,14 @@ class DefaultAIComplement(
         damageCalculator: DamageCalculator,
         dangerByCell: HashMap<Int, Int>
     ) {
-        val mp = max(10, DofusCharacteristics.MOVEMENT_POINTS.getValue(enemy))
+        val mp = min(10, DofusCharacteristics.MOVEMENT_POINTS.getValue(enemy))
         val accessibleCells = fightBoard.getMoveCellsWithMpUsed(mp, enemy.cell)
             .map { it.first }
-        val maxRange = enemy.spells.maxOfOrNull { it.maxRange } ?: 0
-        val cellsWithLos = dofusBoard.cellsAtRange(1, maxRange, accessibleCells)
-            .filter { accessibleCells.any { ac -> fightBoard.lineOfSight(it.first, ac) } }
-            .map { it.first }
         for (spell in enemy.spells) {
-            val realDamage = damageCalculator.getRealDamage(spell, enemy, playerFighter)
+            val realDamage = damageCalculator.getRealDamage(spell, enemy, playerFighter, upperBound = true)
+            val cellsWithLos = dofusBoard.cellsAtRange(spell.minRange, spell.maxRange, accessibleCells)
+                .filter { accessibleCells.any { ac -> fightBoard.lineOfSight(it.first, ac) } }
+                .map { it.first }
             for (cell in cellsWithLos) {
                 val currentDanger = dangerByCell[cell.cellId] ?: 0
                 dangerByCell[cell.cellId] = currentDanger + realDamage
