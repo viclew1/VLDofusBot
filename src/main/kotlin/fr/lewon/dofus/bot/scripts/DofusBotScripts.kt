@@ -4,8 +4,8 @@ import fr.lewon.dofus.bot.scripts.impl.*
 
 enum class DofusBotScripts(val buildScriptFun: () -> DofusBotScript) {
 
-    FIGHT_DUNGEON({ FightDungeonScript() }),
     TREASURE_HUNT_EXECUTE({ MultipleTreasureHuntScript() }),
+    FIGHT_DUNGEON({ FightDungeonScript() }),
     SMITH_MAGIC({ SmithMagicScript() }),
     EXPLORE_CURRENT_AREA({ ExploreCurrentAreaScript() }),
     EXPLORE_AREA({ ExploreAreaScript() }),

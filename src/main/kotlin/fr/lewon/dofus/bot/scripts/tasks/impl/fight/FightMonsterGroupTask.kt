@@ -16,6 +16,7 @@ class FightMonsterGroupTask(
 ) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        gameInfo.eventStore.clear()
         val couldStartFight = RetryUtil.tryUntilSuccess({ tryToStartFight(gameInfo) }, 20, {
             if (stopIfNoMonsterPresent && gameInfo.monsterInfoByEntityId.isEmpty()) {
                 error("No monster on map")
@@ -35,18 +36,17 @@ class FightMonsterGroupTask(
         val monsterCellId = gameInfo.entityPositionsOnMapByEntityId[monsterEntityId]
             ?: return false
         val clickPosition = InteractiveUtil.getCellClickPosition(gameInfo, monsterCellId, false)
-        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)
-        gameInfo.eventStore.clear()
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
         MouseUtil.leftClick(gameInfo, clickPosition)
         WaitUtil.waitUntil(
             {
                 gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
                         || gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId
-            }, 8000
+            }, 300
         )
         return if (gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId) {
             WaitUtil.waitUntil(
-                { gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null }, 8000
+                { gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null }, 300
             )
         } else {
             gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
