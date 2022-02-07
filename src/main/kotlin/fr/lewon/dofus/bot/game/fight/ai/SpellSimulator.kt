@@ -1,6 +1,9 @@
 package fr.lewon.dofus.bot.game.fight.ai
 
-import fr.lewon.dofus.bot.core.model.spell.*
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffect
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectType
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellTarget
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
@@ -47,9 +50,9 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
             DofusSpellEffectType.TELEPORT ->
                 simulateTeleport(fightBoard, caster, targetCellId)
             DofusSpellEffectType.PUSH ->
-                simulatePush(fightBoard, casterCellId, targetCellId, fightersInAOE, zone.effectZoneType, effect.min)
+                simulatePush(fightBoard, caster, targetCellId, fightersInAOE, effect.min)
             DofusSpellEffectType.PULL ->
-                simulatePull(fightBoard, casterCellId, targetCellId, fightersInAOE, zone.effectZoneType, effect.min)
+                simulatePull(fightBoard, casterCellId, targetCellId, fightersInAOE, effect.min)
             DofusSpellEffectType.SWITCH_POSITIONS ->
                 simulateSwitchPositions(fightBoard, caster, targetCellId)
             DofusSpellEffectType.AIR_DAMAGE, DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.FIRE_DAMAGE, DofusSpellEffectType.NEUTRAL_DAMAGE, DofusSpellEffectType.WATER_DAMAGE ->
@@ -80,8 +83,8 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
             val realDamage = (damageCalculator.getRealEffectDamage(
                 effect, caster, fighter, criticalHit, false
             ).toFloat() * (1f - 0.1f * distToCenter)).toInt()
+            dealtDamagesTotal += minOf(fighter.getCurrentHp(), realDamage)
             fighter.hpLost += realDamage
-            dealtDamagesTotal += realDamage
         }
         val maxHeal = caster.maxHp - caster.getCurrentHp()
         val heal = max(maxHeal, dealtDamagesTotal / 2)
@@ -120,12 +123,11 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         casterCellId: Int,
         targetCellId: Int,
         fightersInAOE: List<Fighter>,
-        zoneType: DofusEffectZoneType,
         amount: Int
     ) {
-        val pullTowardCellId = if (zoneType == DofusEffectZoneType.CROSS_FROM_TARGET) targetCellId else casterCellId
-        val pullTowardCell = dofusBoard.getCell(pullTowardCellId)
         for (fighter in fightersInAOE) {
+            val pullTowardCellId = if (targetCellId == fighter.cell.cellId) casterCellId else targetCellId
+            val pullTowardCell = dofusBoard.getCell(pullTowardCellId)
             val pullDest = getRealDashDest(fightBoard, amount, fighter.cell, pullTowardCell)
             fightBoard.move(fighter, pullDest)
         }
@@ -133,17 +135,26 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
 
     private fun simulatePush(
         fightBoard: FightBoard,
-        casterCellId: Int,
+        caster: Fighter,
         targetCellId: Int,
         fightersInAOE: List<Fighter>,
-        zoneType: DofusEffectZoneType,
         amount: Int
     ) {
-        val pullTowardCellId = if (zoneType == DofusEffectZoneType.CROSS_FROM_TARGET) targetCellId else casterCellId
-        val pullTowardCell = dofusBoard.getCell(pullTowardCellId)
         for (fighter in fightersInAOE) {
-            val pullDest = getRealDashDest(fightBoard, amount, fighter.cell, pullTowardCell, true)
-            fightBoard.move(fighter, pullDest)
+            val pushFromCellId = if (targetCellId == fighter.cell.cellId) caster.cell.cellId else targetCellId
+            val pushFromCell = dofusBoard.getCell(pushFromCellId)
+            val pushDest = getRealDashDest(fightBoard, amount, fighter.cell, pushFromCell, true)
+            val oldLoc = fighter.cell
+            fightBoard.move(fighter, pushDest)
+            val pushedDist = dofusBoard.getDist(oldLoc, pushFromCell)
+            val doPouAmount = max(0, amount - pushedDist)
+            if (doPouAmount > 0) {
+                val level = DofusCharacteristics.LEVEL.getValue(caster).toFloat()
+                val doPou = DofusCharacteristics.PUSH_DAMAGE_BONUS.getValue(caster).toFloat()
+                val rePou = DofusCharacteristics.PUSH_DAMAGE_REDUCTION.getValue(fighter).toFloat()
+                val pushDamage = ((level / 2f + doPou - rePou + 32f * doPouAmount.toFloat()) / 4f).toInt()
+                fighter.hpLost += pushDamage
+            }
         }
     }
 
@@ -176,7 +187,8 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         val absDCol = abs(dCol)
         val absDRow = abs(dRow)
         var destCell = fromCell
-        for (i in 0 until amount) {
+        val realAmount = if (absDCol == absDRow) amount / 2 else amount
+        for (i in 0 until realAmount) {
             if (destCell.cellId == toCell.cellId) {
                 break
             }

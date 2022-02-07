@@ -1,9 +1,6 @@
 package fr.lewon.dofus.bot.game.fight.ai
 
-import fr.lewon.dofus.bot.core.model.spell.DofusEffectZoneType
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectGlobalType
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectType
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.core.model.spell.*
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
@@ -24,6 +21,7 @@ class FightState(
     private val cooldownState: CooldownState,
     private val aiComplement: AIComplement,
     private val dofusBoard: DofusBoard,
+    private val dangerMap: DangerMap,
     private val spellSimulator: SpellSimulator = SpellSimulator(dofusBoard),
     private val effectZoneCalculator: EffectZoneCalculator = EffectZoneCalculator(dofusBoard),
     private val playerFighter: Fighter = getPlayerFighter(fb),
@@ -54,6 +52,7 @@ class FightState(
             cooldownState.deepCopy(),
             aiComplement,
             dofusBoard,
+            dangerMap.deepCopy(),
             spellSimulator,
             effectZoneCalculator,
             playerFighter,
@@ -177,7 +176,8 @@ class FightState(
     }
 
     private fun getPossibleTargetCellIds(currentFighterPosition: DofusCell, spell: DofusSpellLevel): List<Int> {
-        val fighterCells = fb.getAllFighters().map { it.cell.cellId }
+        val targets = spell.effects.map { it.target }
+        val fighterCells = getAffectedFighters(targets).map { it.cell.cellId }
         if (spell.needTakenCell || spell.effects.all { it.rawZone.effectZoneType == DofusEffectZoneType.POINT }) {
             return fighterCells
         }
@@ -186,6 +186,7 @@ class FightState(
                 || effectTypes.contains(DofusSpellEffectType.DASH)
         if (isMoveSpell) {
             return dofusBoard.cellsAtRange(spell.minRange, spell.maxRange, currentFighterPosition)
+                .filter { it.first.isAccessible() }
                 .map { it.first.cellId }
         }
         val effectZones = spell.effects.map { it.rawZone }
@@ -198,9 +199,21 @@ class FightState(
         return allCells
     }
 
+    private fun getAffectedFighters(spellTargets: List<DofusSpellTarget>): List<Fighter> {
+        return when {
+            spellTargets.contains(DofusSpellTarget.EVERYBODY)
+                    || spellTargets.contains(DofusSpellTarget.ALLIES_ONLY)
+                    && spellTargets.contains(DofusSpellTarget.ENEMIES_ONLY) -> fb.getAllFighters()
+            spellTargets.contains(DofusSpellTarget.ALLIES_ONLY) -> fb.getAlliedFighters()
+            spellTargets.contains(DofusSpellTarget.ENEMIES_ONLY) -> fb.getEnemyFighters()
+            else -> emptyList()
+        }
+    }
+
     override fun makeMove(m: MctsMove) {
         val operation = m as FightOperation
         val currentFighter = getCurrentFighter() ?: error("Couldn't find current fighter : $player")
+        val previousEnemyPositions = fb.getEnemyFighters().associateWith { it.cell.cellId }
         when (operation.type) {
             FightOperationType.MOVE -> {
                 val targetCellId = operation.targetCellId ?: error("Target cell id mandatory")
@@ -215,43 +228,18 @@ class FightState(
                 useSpell(currentFighter, spell, targetCellId)
             }
             FightOperationType.PASS_TURN -> {
-                //decreaseCds(currentFighter)
-                //resetUsesThisTurn(currentFighter)
-                //setNextPlayer()
             }
         }
         fb.getAllFighters().filter { it.getCurrentHp() <= 0 }.forEach {
             fb.killFighter(it.id)
+            dangerMap.remove(it.id)
         }
-        lastOperation = operation
-    }
-
-    private fun decreaseCds(currentFighter: Fighter) {
-        val toRemove = ArrayList<DofusSpellLevel>()
-        val cooldownSpellStore = cooldownState.globalCooldownSpellStore.getCooldownSpellStore(currentFighter.id)
-        cooldownSpellStore.entries.forEach {
-            val newValue = it.value - 1
-            if (newValue > 0) {
-                cooldownSpellStore[it.key] = newValue
-            } else {
-                toRemove.add(it.key)
+        fb.getEnemyFighters().forEach {
+            if (previousEnemyPositions[it] != it.cell.cellId) {
+                dangerMap.recalculateDanger(dofusBoard, fb, playerFighter, it)
             }
         }
-        toRemove.forEach { spell -> cooldownSpellStore.remove(spell) }
-    }
-
-    private fun resetUsesThisTurn(currentFighter: Fighter) {
-        cooldownState.globalTurnUseSpellStore.getTurnSpellUseStore(currentFighter.id).clear()
-    }
-
-    private fun setNextPlayer() {
-        player++
-        if (player == fighterByPlayer.size) {
-            player = 0
-        }
-        if (getCurrentFighter() == null) {
-            setNextPlayer()
-        }
+        lastOperation = operation
     }
 
     private fun useSpell(currentFighter: Fighter, spell: DofusSpellLevel, targetCellId: Int) {
@@ -290,7 +278,7 @@ class FightState(
         }.toDoubleArray()
     }
 
-    fun evaluate(dangerByCell: Map<Int, Int>): Double {
+    fun evaluate(): Double {
         val allies = fb.getAlliedFighters()
         val realAlliesCount = allies.filter { !it.isSummon }.size
         if (realAlliesCount == 0) {
@@ -308,7 +296,7 @@ class FightState(
             (it.getCurrentHp() * (if (it.isSummon) 0.1f else 1f)).toInt()
         }
         val danger = allies.filter { !it.isSummon }
-            .sumOf { dangerByCell[it.cell.cellId] ?: 0 }
+            .sumOf { dangerMap.getCellDanger(it.cell.cellId) }
 
         var distScore = 0
         var apScore = 0
@@ -316,10 +304,10 @@ class FightState(
         val playerFighter = fb.getPlayerFighter()
         if (playerFighter != null) {
             val closestEnemy = fb.getClosestEnemy()
-            apScore = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter) * 8
+            apScore = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter) * 5
             mpScore = DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)
             if (closestEnemy != null) {
-                distScore = abs(dofusBoard.getDist(playerFighter.cell, closestEnemy.cell)) * 2
+                distScore = abs(dofusBoard.getDist(playerFighter.cell, closestEnemy.cell)) * 10
             }
         }
         return (realAlliesCount * 2500

@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.gui.overlay
 
 import fr.lewon.dofus.bot.game.DofusCell
+import fr.lewon.dofus.bot.game.fight.ai.DangerMap
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -17,7 +18,7 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
 
     private var hitBoxByCell: Map<DofusCell, Polygon> = HashMap()
     private lateinit var gameInfo: GameInfo
-    private var dangerByCell: Map<Int, Int> = HashMap()
+    private var dangerByCell: HashMap<Int, Int> = HashMap()
 
     override fun updateOverlay(gameInfo: GameInfo) {
         this.gameInfo = gameInfo
@@ -29,8 +30,13 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
         hitBoxByCell = gameInfo.dofusBoard.cells.associateWith { buildCellHitBox(it) }
     }
 
-    fun updateDangerByCell(dangerByCell: Map<Int, Int>) {
-        this.dangerByCell = dangerByCell
+    fun updateDangerMap(dangerMap: DangerMap) {
+        this.dangerByCell = HashMap()
+        dangerMap.values.flatMap { it.entries }.forEach {
+            val currentDanger = dangerByCell[it.key] ?: 0
+            val addedDanger = it.value
+            dangerByCell[it.key] = currentDanger + addedDanger
+        }
     }
 
     private object LOSHelperPanel : JPanel() {
