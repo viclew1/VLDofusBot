@@ -7,19 +7,23 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.gui.overlay.LOSHelper
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
+import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
+import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Level
 import java.util.logging.LogManager
 import java.util.logging.Logger
 
 object KeyboardListener : Thread(), NativeKeyListener {
 
-    private val keysPressed = HashMap<Int, Boolean>()
+    private val keysPressed = HashSet<Int>()
+    private var modifierPressed = false
     private val keysByOverlay = mapOf(
-        LOSHelper to listOf(NativeKeyEvent.VC_CONTROL, NativeKeyEvent.VC_X)
+        LOSHelper to listOf(NativeKeyEvent.VC_L)
     ).toMap()
     private var displayedOverlay: AbstractOverlay? = null
+    private val lock = ReentrantLock()
 
     override fun run() {
         LogManager.getLogManager().reset()
@@ -33,44 +37,47 @@ object KeyboardListener : Thread(), NativeKeyListener {
     override fun nativeKeyTyped(e: NativeKeyEvent) {}
 
     override fun nativeKeyPressed(e: NativeKeyEvent) {
-        keysPressed[e.keyCode] = true
-        toggleOverlay()
-        toggleSystemKeyLock(e.modifiers)
+        lock.lockInterruptibly()
+        keysPressed.add(e.keyCode)
+        if (!modifierPressed && e.modifiers != 0) {
+            modifierPressed = true
+            SystemKeyLock.lockInterruptibly()
+        }
+        toggleOverlays()
+        lock.unlock()
     }
 
     override fun nativeKeyReleased(e: NativeKeyEvent) {
-        keysPressed[e.keyCode] = false
-        toggleOverlay()
-        toggleSystemKeyLock(e.modifiers)
-    }
-
-    private fun toggleOverlay() {
-        val newDisplayedOverlay = keysByOverlay.entries.firstOrNull { shouldDisplayOverlay(it.value) }?.key
-        if (newDisplayedOverlay != null && newDisplayedOverlay != displayedOverlay) {
-            val character = CharacterSelectionPanel.cardList.selectedItem
-            if (character != null) {
-                val connection = GameSnifferUtil.getConnection(character)
-                if (connection != null) {
-                    newDisplayedOverlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
-                    displayedOverlay = newDisplayedOverlay
-                }
-            }
-        } else if (newDisplayedOverlay == null) {
-            displayedOverlay = null
-        }
-        keysByOverlay.keys.forEach { it.isVisible = displayedOverlay == it }
-    }
-
-    private fun toggleSystemKeyLock(modifiers: Int) {
-        val sysKeyDown = modifiers != 0
-        if (sysKeyDown && !SystemKeyLock.isHeldByCurrentThread) {
-            SystemKeyLock.lockInterruptibly()
-        } else if (!sysKeyDown && SystemKeyLock.isHeldByCurrentThread) {
+        lock.lockInterruptibly()
+        keysPressed.remove(e.keyCode)
+        if (modifierPressed && e.modifiers == 0) {
+            modifierPressed = false
             SystemKeyLock.unlock()
         }
+        lock.unlock()
     }
 
-    private fun shouldDisplayOverlay(nativeKeyEvents: List<Int>): Boolean {
-        return nativeKeyEvents.map { keysPressed[it] ?: false }.firstOrNull { !it } == null
+    private fun toggleOverlays() {
+        val toToggleOverlay = keysByOverlay.entries.firstOrNull { hotKeyPressed(it.value) }?.key
+        if (toToggleOverlay != null) {
+            if (toToggleOverlay == displayedOverlay) {
+                toToggleOverlay.isVisible = false
+                displayedOverlay = null
+            } else if (ConfigManager.config.displayOverlays) {
+                val character = CharacterSelectionPanel.cardList.selectedItem ?: return
+                val connection = GameSnifferUtil.getConnection(character) ?: return
+                toToggleOverlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
+                displayedOverlay?.isVisible = false
+                toToggleOverlay.isVisible = true
+                displayedOverlay = toToggleOverlay
+            }
+        }
+    }
+
+    private fun hotKeyPressed(nativeKeyEvents: List<Int>): Boolean {
+        if (keysPressed.size != nativeKeyEvents.size) {
+            return false
+        }
+        return nativeKeyEvents.all { keysPressed.contains(it) }
     }
 }

@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.core.model.spell.DofusSpellTarget
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.Fighter
 
-class DamageCalculator {
+class DamageCalculator() {
 
     private val cachedSpellDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellLevel>, Int>>()
     private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellEffect>, Int>>()
@@ -140,11 +140,11 @@ class DamageCalculator {
         }
         val damage = (baseDamage.toFloat() * (100f + characValue.toFloat()) / 100f).toInt() + damagesValue
         var damageMultiplier = if (caster.cell.neighbors.map { it.cellId }.contains(target.cell.cellId)) {
-            DofusCharacteristics.MELEE_DAMAGE_DONE_PERCENT.getValue(caster)
+            DofusCharacteristics.MELEE_DAMAGE_DONE_PERCENT.getValue(caster, 100)
         } else {
-            DofusCharacteristics.RANGED_DAMAGE_DONE_PERCENT.getValue(caster)
+            DofusCharacteristics.RANGED_DAMAGE_DONE_PERCENT.getValue(caster, 100)
         }
-        damageMultiplier += DofusCharacteristics.SPELL_DAMAGE_DONE_PERCENT.getValue(caster) - 100
+        damageMultiplier += DofusCharacteristics.SPELL_DAMAGE_DONE_PERCENT.getValue(caster, 100) - 100
         val multipliedDamages = (damage.toFloat() * (damageMultiplier.toFloat() / 100f)).toInt()
         val enemyResistPercent = elementResistPercent.getValue(target)
         val enemyResist = elementResist.getValue(target)

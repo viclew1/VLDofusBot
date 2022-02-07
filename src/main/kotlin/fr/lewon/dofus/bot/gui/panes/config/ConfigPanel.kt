@@ -15,6 +15,8 @@ object ConfigPanel : JPanel(MigLayout()) {
 
     private val locateCursorLabel = JLabel("Locate cursor")
     private val locateCursorButton = JButton("Locate")
+    private val displayOverlaysLabel = JLabel("Display overlays")
+    private val displayOverlaysCheckBox = JCheckBox()
     private val archMonsterSoundLabel = JLabel("Arch monster sound")
     private val archMonsterSoundCheckBox = JCheckBox()
     private val networkInterfaceSelectionLabel = JLabel("Network interface")
@@ -25,6 +27,13 @@ object ConfigPanel : JPanel(MigLayout()) {
         // Cursor locator
         locateCursorButton.addActionListener { locatePoint() }
         addLine(locateCursorLabel, locateCursorButton)
+
+        // Display overlays
+        displayOverlaysCheckBox.isSelected = ConfigManager.config.displayOverlays
+        addLine(displayOverlaysLabel, displayOverlaysCheckBox)
+        displayOverlaysCheckBox.addItemListener {
+            updateDisplayOverlays(displayOverlaysCheckBox.isSelected)
+        }
 
         // Arch monster sound
         archMonsterSoundCheckBox.isSelected = ConfigManager.config.playArchMonsterSound
@@ -65,6 +74,10 @@ object ConfigPanel : JPanel(MigLayout()) {
             } ?: println("Couldn't find dofus connection information.")
         }
         locatorFrame.isVisible = true
+    }
+
+    private fun updateDisplayOverlays(displayOverlays: Boolean) {
+        ConfigManager.editConfig { it.displayOverlays = displayOverlays }
     }
 
     private fun updateArchMonsterSound(playArchMonsterSound: Boolean) {

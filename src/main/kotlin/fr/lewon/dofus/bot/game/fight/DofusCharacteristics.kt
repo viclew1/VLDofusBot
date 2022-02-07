@@ -125,14 +125,14 @@ enum class DofusCharacteristics(val id: Int) {
     private val dofusCharacteristic = CharacteristicManager.getCharacteristic(id)
         ?: error("No characteristic for id : $id")
 
-    fun getValue(fighter: Fighter): Int {
+    fun getValue(fighter: Fighter, defaultValue: Int = 0): Int {
         val charac = fighter.statsById[dofusCharacteristic.id]
             ?: fighter.baseStatsById[dofusCharacteristic.id]
-        return getCharacValue(charac)
+        return getCharacValue(charac, defaultValue)
     }
 
-    private fun getCharacValue(charac: CharacterCharacteristic?): Int {
-        charac ?: return 0
+    private fun getCharacValue(charac: CharacterCharacteristic?, defaultValue: Int = 0): Int {
+        charac ?: return defaultValue
         return when (charac) {
             is CharacterCharacteristicDetailed -> charac.base + charac.additional + charac.contextModif + charac.objectsAndMountBonus + charac.alignGiftBonus
             is CharacterCharacteristicValue -> charac.total

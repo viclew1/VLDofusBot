@@ -13,7 +13,6 @@ import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
-import kotlin.math.abs
 import kotlin.math.max
 
 class FightState(
@@ -176,18 +175,18 @@ class FightState(
     }
 
     private fun getPossibleTargetCellIds(currentFighterPosition: DofusCell, spell: DofusSpellLevel): List<Int> {
+        val effectTypes = spell.effects.map { it.effectType }
+        val isMovingSpell = (effectTypes.contains(DofusSpellEffectType.TELEPORT)
+                || effectTypes.contains(DofusSpellEffectType.DASH)) && !spell.needTakenCell
+        if (isMovingSpell) {
+            return dofusBoard.cellsAtRange(spell.minRange, spell.maxRange, currentFighterPosition)
+                .filter { it.first.isAccessible() }
+                .map { it.first.cellId }
+        }
         val targets = spell.effects.map { it.target }
         val fighterCells = getAffectedFighters(targets).map { it.cell.cellId }
         if (spell.needTakenCell || spell.effects.all { it.rawZone.effectZoneType == DofusEffectZoneType.POINT }) {
             return fighterCells
-        }
-        val effectTypes = spell.effects.map { it.effectType }
-        val isMoveSpell = effectTypes.contains(DofusSpellEffectType.TELEPORT)
-                || effectTypes.contains(DofusSpellEffectType.DASH)
-        if (isMoveSpell) {
-            return dofusBoard.cellsAtRange(spell.minRange, spell.maxRange, currentFighterPosition)
-                .filter { it.first.isAccessible() }
-                .map { it.first.cellId }
         }
         val effectZones = spell.effects.map { it.rawZone }
         val allCells = fighterCells.flatMap {
@@ -230,13 +229,15 @@ class FightState(
             FightOperationType.PASS_TURN -> {
             }
         }
-        fb.getAllFighters().filter { it.getCurrentHp() <= 0 }.forEach {
+        val deadFighters = fb.getAllFighters().filter { it.getCurrentHp() <= 0 }
+        val refreshAllDanger = deadFighters.isNotEmpty()
+        deadFighters.forEach {
             fb.killFighter(it.id)
             dangerMap.remove(it.id)
         }
         fb.getEnemyFighters().forEach {
-            if (previousEnemyPositions[it] != it.cell.cellId) {
-                dangerMap.recalculateDanger(dofusBoard, fb, playerFighter, it)
+            if (refreshAllDanger || previousEnemyPositions[it] != it.cell.cellId) {
+                dangerMap.recalculateDanger(dofusBoard, fb.deepCopy(), playerFighter, it)
             }
         }
         lastOperation = operation
@@ -307,7 +308,7 @@ class FightState(
             apScore = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter) * 5
             mpScore = DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)
             if (closestEnemy != null) {
-                distScore = abs(dofusBoard.getDist(playerFighter.cell, closestEnemy.cell)) * 10
+                distScore = (dofusBoard.getPathLength(playerFighter.cell, closestEnemy.cell) ?: 1000) * 10
             }
         }
         return (realAlliesCount * 2500

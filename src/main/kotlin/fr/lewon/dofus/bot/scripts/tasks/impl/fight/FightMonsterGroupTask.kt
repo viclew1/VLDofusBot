@@ -30,11 +30,18 @@ class FightMonsterGroupTask(
     }
 
     private fun tryToStartFight(gameInfo: GameInfo): Boolean {
-        val monsterEntityId = preferredEntityId
-            ?: gameInfo.monsterInfoByEntityId.keys.firstOrNull()
-            ?: return false
-        val monsterCellId = gameInfo.entityPositionsOnMapByEntityId[monsterEntityId]
-            ?: return false
+        val monsterEntityIds = preferredEntityId?.let { listOf(it) }
+            ?: gameInfo.monsterInfoByEntityId.keys
+        val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
+            ?: error("Couldn't find player")
+        val distanceByEntityId = HashMap<Double, Int>()
+        for (entityId in monsterEntityIds) {
+            val cellId = gameInfo.entityPositionsOnMapByEntityId[entityId] ?: continue
+            val distance = gameInfo.dofusBoard.getPathLength(playerCellId, cellId) ?: continue
+            distanceByEntityId[entityId] = distance
+        }
+        val monsterEntityId = distanceByEntityId.minByOrNull { it.value }?.key ?: return false
+        val monsterCellId = gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] ?: return false
         val clickPosition = InteractiveUtil.getCellClickPosition(gameInfo, monsterCellId, false)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
         MouseUtil.leftClick(gameInfo, clickPosition)
@@ -42,15 +49,11 @@ class FightMonsterGroupTask(
             {
                 gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
                         || gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId
-            }, 300
+            }, 8000
         )
-        return if (gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId) {
-            WaitUtil.waitUntil(
-                { gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null }, 300
-            )
-        } else {
+        return WaitUtil.waitUntil({
             gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
-        }
+        }, 1200)
     }
 
     override fun onStarted(): String {

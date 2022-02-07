@@ -5,7 +5,9 @@ import fr.lewon.dofus.bot.model.dungeon.Dungeon
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.sniffer.model.messages.misc.GameRolePlayShowActorMessage
 import fr.lewon.dofus.bot.util.game.MoveUtil
+import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
@@ -20,7 +22,12 @@ class FightDungeonTask(private val dungeon: Dungeon, private val shouldExit: Boo
         NpcSpeakTask(dungeon.npcEnterId, dungeon.npcEnterOptions).run(logItem, gameInfo)
         MoveUtil.waitForMapChange(gameInfo)
         while (!gameInfo.entityIdByNpcId.keys.contains(dungeon.npcExitId)) {
-            if (!FightMonsterGroupTask().run(logItem, gameInfo)) {
+            val monsterGroupPassed = RetryUtil.tryUntilSuccess(
+                { FightMonsterGroupTask().run(logItem, gameInfo) },
+                20,
+                { WaitUtil.waitUntil({ gameInfo.eventStore.getLastEvent(GameRolePlayShowActorMessage::class.java) != null }) }
+            )
+            if (!monsterGroupPassed) {
                 return false
             }
         }

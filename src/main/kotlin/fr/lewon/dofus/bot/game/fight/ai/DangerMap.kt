@@ -6,16 +6,16 @@ import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
 import kotlin.math.min
 
-class DangerMap : HashMap<Double, HashMap<Int, Int>>() {
-
-    private val damageCalculator = DamageCalculator()
+class DangerMap(
+    private val damageCalculator: DamageCalculator = DamageCalculator()
+) : HashMap<Double, HashMap<Int, Int>>() {
 
     fun getCellDanger(cellId: Int): Int {
         return values.sumOf { it[cellId] ?: 0 }
     }
 
     fun deepCopy(): DangerMap {
-        val newDangerMap = DangerMap()
+        val newDangerMap = DangerMap(damageCalculator)
         entries.forEach {
             newDangerMap[it.key] = HashMap(it.value)
         }

@@ -41,7 +41,6 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         val affectedCells = effectZoneCalculator.getAffectedCells(casterCellId, targetCellId, zone)
         val fightersInAOE = affectedCells.mapNotNull { fightBoard.getFighter(it) }
             .filter { effectAffects(effect.target, caster, it) }
-            .distinct()
         when (effect.effectType) {
             DofusSpellEffectType.MP_BUFF ->
                 simulateMpBuff(fightersInAOE, effect.min)
@@ -144,9 +143,9 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
             val pushFromCellId = if (targetCellId == fighter.cell.cellId) caster.cell.cellId else targetCellId
             val pushFromCell = dofusBoard.getCell(pushFromCellId)
             val pushDest = getRealDashDest(fightBoard, amount, fighter.cell, pushFromCell, true)
-            val oldLoc = fighter.cell
+            val oldLoc = fighter.cell.cellId
             fightBoard.move(fighter, pushDest)
-            val pushedDist = dofusBoard.getDist(oldLoc, pushFromCell)
+            val pushedDist = dofusBoard.getDist(oldLoc, fighter.cell.cellId)
             val doPouAmount = max(0, amount - pushedDist)
             if (doPouAmount > 0) {
                 val level = DofusCharacteristics.LEVEL.getValue(caster).toFloat()

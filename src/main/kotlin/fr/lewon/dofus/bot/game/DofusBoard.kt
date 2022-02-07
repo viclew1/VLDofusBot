@@ -91,12 +91,16 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
         startCells = positionsForChallengers.map { getCell(it) }
     }
 
+    fun getPathLength(fromCellId: Int, toCellId: Int): Int? {
+        return getPathLength(getCell(fromCellId), getCell(toCellId))
+    }
+
     fun getPathLength(fromCell: DofusCell, toCell: DofusCell): Int? {
         return getPath(fromCell, toCell)?.size
     }
 
-    fun getDist(fromCell: Int, toCell: Int): Int {
-        return getDist(getCell(fromCell), getCell(toCell))
+    fun getDist(fromCellId: Int, toCellId: Int): Int {
+        return getDist(getCell(fromCellId), getCell(toCellId))
     }
 
     fun getDist(fromCell: DofusCell, toCell: DofusCell): Int {

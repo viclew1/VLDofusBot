@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.gui
 
+import com.formdev.flatlaf.ui.FlatTabbedPaneUI
 import fr.lewon.dofus.bot.core.VldbCoreInitializer
 import fr.lewon.dofus.bot.gui.about.AboutPanel
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
@@ -12,10 +13,11 @@ import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
 import net.miginfocom.swing.MigLayout
-import javax.swing.BorderFactory
-import javax.swing.JComponent
-import javax.swing.JPanel
-import javax.swing.JTabbedPane
+import java.awt.Component
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.awt.event.MouseListener
+import javax.swing.*
 
 object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
 
@@ -34,6 +36,14 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
         leftPanel.add(leftTabbedPane, "h $CONFIG_TABS_HEIGHT:$CONFIG_TABS_HEIGHT:$CONFIG_TABS_HEIGHT")
         add(leftPanel, "w $CHARACTERS_WIDTH:$CHARACTERS_WIDTH:$CHARACTERS_WIDTH, h max")
         add(mainTabbedPane, "w max, h max")
+
+        SwingUtilities.invokeLater {
+            mainTabbedPane.setUI(object : FlatTabbedPaneUI() {
+                override fun createMouseListener(): MouseListener {
+                    return buildHeaderListener()
+                }
+            })
+        }
 
         mainTabbedPane.addChangeListener {
             val selectedComponent = mainTabbedPane.selectedComponent
@@ -62,6 +72,32 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
         return tab
     }
 
+    private fun buildHeaderListener(): MouseAdapter {
+        return object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent) {
+                val index = mainTabbedPane.ui.tabForCoordinate(mainTabbedPane, e.x, e.y)
+                if (index >= 0) {
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        if (mainTabbedPane.selectedIndex != index) {
+                            mainTabbedPane.selectedIndex = index
+                        } else if (mainTabbedPane.isRequestFocusEnabled) {
+                            mainTabbedPane.requestFocusInWindow()
+                        }
+                    } else if (SwingUtilities.isMiddleMouseButton(e)) {
+                        removeTab(mainTabbedPane.getComponentAt(index))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun removeTab(tab: Component) {
+        val index = mainTabbedPane.indexOfComponent(tab)
+        val title = mainTabbedPane.getTitleAt(index)
+        mainTabbedPane.remove(index)
+        tabByTitle.remove(title)
+    }
+
     fun addCharacterScriptTab(character: DofusCharacter): JComponent {
         return addTab("${character.pseudo} - Scripts") { GlobalScriptPanel(character) }
     }
@@ -70,10 +106,8 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
         var tab: JComponent? = null
         val onSaveActionWithClose: (DofusCharacter) -> Unit = {
             onSaveAction(it)
-            val index = mainTabbedPane.indexOfComponent(tab)
-            val title = mainTabbedPane.getTitleAt(index)
-            mainTabbedPane.remove(index)
-            tabByTitle.remove(title)
+            tab?.let { t -> removeTab(t) }
+            addCharacterScriptTab(it)
         }
         tab = if (character == null) {
             addTab("New character") { GlobalCharacterFormPanel(DofusCharacter(), onSaveActionWithClose) }

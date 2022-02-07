@@ -32,7 +32,7 @@ class FightTask(
 
     companion object {
 
-        private val LVL_UP_OK_BUTTON_POINT = PointRelative(0.47435898f, 0.6868327f)
+        private val LVL_UP_OK_BUTTON_POINT = PointRelative(0.48057714f, 0.7489598f)
         private val REF_TOP_LEFT_POINT = PointRelative(0.4016129f, 0.88508064f)
 
         private val REF_CREATURE_MODE_BUTTON_BOUNDS = RectangleRelative.build(
@@ -190,7 +190,7 @@ class FightTask(
         return RetryUtil.tryUntilSuccess(
             {
                 KeyboardUtil.sendKey(gameInfo, KeyEvent.getExtendedKeyCodeForChar(key.code), 300)
-                MouseUtil.tripleLeftClick(gameInfo, target.getCenter())
+                MouseUtil.leftClick(gameInfo, target.getCenter())
                 waitForSequenceCompleteEnd(gameInfo, 4000)
             }, 4
         )

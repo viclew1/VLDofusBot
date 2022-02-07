@@ -99,6 +99,6 @@ class EffectZoneCalculator(private val dofusBoard: DofusBoard) {
             }
         }
         return cells.filter { it.isAccessible() }
-            .map { it.cellId }
+            .map { it.cellId }.distinct()
     }
 }
