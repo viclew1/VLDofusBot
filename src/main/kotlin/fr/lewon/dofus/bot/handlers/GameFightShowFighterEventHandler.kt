@@ -61,6 +61,14 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
         }
     }
 
+    private fun getLevel(gameInfo: GameInfo, fighterInfo: GameFightFighterInformations, fighterId: Double): Int {
+        return when {
+            fighterInfo is GameFightMonsterInformations -> fighterInfo.creatureLevel
+            fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> fighterInfo.level
+            else -> 0
+        }
+    }
+
     private fun getSpellLevels(spells: List<DofusSpell>, level: Int): List<DofusSpellLevel> {
         return spells.mapNotNull { getSpellLevel(it, level) }
     }

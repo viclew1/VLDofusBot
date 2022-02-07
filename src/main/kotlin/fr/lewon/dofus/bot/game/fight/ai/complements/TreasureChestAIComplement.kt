@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
+import fr.lewon.dofus.bot.game.fight.ai.DangerMap
 
 class TreasureChestAIComplement : AIComplement() {
 
@@ -27,8 +28,8 @@ class TreasureChestAIComplement : AIComplement() {
         return false
     }
 
-    override fun buildDangerByCell(dofusBoard: DofusBoard, fightBoard: FightBoard): Map<Int, Int> {
-        return HashMap()
+    override fun buildDangerMap(dofusBoard: DofusBoard, fightBoard: FightBoard): DangerMap {
+        return DangerMap()
     }
 
 }

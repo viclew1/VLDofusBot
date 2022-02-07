@@ -62,13 +62,12 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
 
     fun getNextOperation(fightBoard: FightBoard, lastOperation: FightOperation?): FightOperation {
         fightBoard.getPlayerFighter() ?: error("No player fighter found")
+        val dangerMap = aiComplement.buildDangerMap(dofusBoard, fightBoard.deepCopy())
         val initialState = FightState(
-            fightBoard.deepCopy(), cooldownState, aiComplement, dofusBoard, lastOperation = lastOperation
+            fightBoard.deepCopy(), cooldownState, aiComplement, dofusBoard, dangerMap, lastOperation = lastOperation
         )
-
-        val dangerByCell = aiComplement.buildDangerByCell(dofusBoard, fightBoard.deepCopy())
-        LOSHelper.updateDangerByCell(dangerByCell)
-        val initialScore = evaluate(initialState, dangerByCell)
+        LOSHelper.updateDangerMap(dangerMap)
+        val initialScore = evaluate(initialState)
         val initialNode = EZNode(initialState, ArrayList(), initialScore)
 
         var bestNode = initialNode
@@ -76,7 +75,11 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
         val startTime = System.currentTimeMillis()
 
         while (frontier.isNotEmpty() && System.currentTimeMillis() - startTime < 1500) {
-            val nodesToExplore = if (frontier.size < 200) frontier else selectNodesToExplore(frontier, 200)
+            val nodesToExplore = if (frontier.size < 100) {
+                frontier.toList()
+            } else {
+                selectNodesToExplore(frontier, 200)
+            }
             for (node in nodesToExplore) {
                 frontier.remove(node)
                 if (System.currentTimeMillis() - startTime > 1500) {
@@ -89,7 +92,7 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
                     childState.makeMove(move)
                     val operations = ArrayList(node.operations).also { it.add(move) }
                     val isPassTurn = (move as FightOperation).type == FightOperationType.PASS_TURN
-                    val childNodeScore = if (isPassTurn) node.score else evaluate(childState, dangerByCell)
+                    val childNodeScore = if (isPassTurn) node.score else evaluate(childState)
                     val childNode = EZNode(childState, operations, childNodeScore)
                     if (!isPassTurn) {
                         frontier.add(childNode)
@@ -110,8 +113,8 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
         }
     }
 
-    private fun evaluate(state: MctsBoard, dangerByCell: Map<Int, Int>): Double {
-        return (state as FightState).evaluate(dangerByCell)
+    private fun evaluate(state: MctsBoard): Double {
+        return (state as FightState).evaluate()
     }
 
     private fun selectOperation(node: EZNode): FightOperation {
