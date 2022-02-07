@@ -68,7 +68,7 @@ class FightState(
     }
 
     override fun getMoves(): MutableList<out MctsMove> {
-        val currentFighter = getCurrentFighter() ?: error("Couldn't find current fighter : $player")
+        val currentFighter = getCurrentFighter() ?: return ArrayList()
         val currentFighterPosition = currentFighter.cell
 
         val cooldownState = cooldownState
