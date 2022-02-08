@@ -6,8 +6,6 @@ import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
-import fr.lewon.dofus.bot.game.fight.ai.mcts.MctsBoard
-import fr.lewon.dofus.bot.game.fight.ai.mcts.MctsMove
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
@@ -16,7 +14,7 @@ import kotlin.math.abs
 import kotlin.random.Random
 
 
-class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AIComplement) {
+class FightAI(private val dofusBoard: DofusBoard, private val aiComplement: AIComplement) {
 
     private val cooldownState = CooldownState()
 
@@ -67,8 +65,7 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
             fightBoard.deepCopy(), cooldownState, aiComplement, dofusBoard, dangerMap, lastOperation = lastOperation
         )
         LOSHelper.updateDangerMap(dangerMap)
-        val initialScore = evaluate(initialState)
-        val initialNode = EZNode(initialState, ArrayList(), initialScore)
+        val initialNode = Node(initialState, ArrayList(), initialState.evaluate())
 
         var bestNode = initialNode
         val frontier = mutableListOf(initialNode)
@@ -87,13 +84,13 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
                         initialState.makeMove(it)
                     }
                 }
-                for (move in node.state.moves) {
-                    val childState = node.state.duplicate()
+                for (move in node.state.getPossibleOperations()) {
+                    val childState = node.state.deepCopy()
                     childState.makeMove(move)
                     val operations = ArrayList(node.operations).also { it.add(move) }
-                    val isPassTurn = (move as FightOperation).type == FightOperationType.PASS_TURN
-                    val childNodeScore = if (isPassTurn) node.score else evaluate(childState)
-                    val childNode = EZNode(childState, operations, childNodeScore)
+                    val isPassTurn = move.type == FightOperationType.PASS_TURN
+                    val childNodeScore = if (isPassTurn) node.score else childState.evaluate()
+                    val childNode = Node(childState, operations, childNodeScore)
                     if (!isPassTurn) {
                         frontier.add(childNode)
                     }
@@ -113,21 +110,17 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
         }
     }
 
-    private fun evaluate(state: MctsBoard): Double {
-        return (state as FightState).evaluate()
-    }
-
-    private fun selectOperation(node: EZNode): FightOperation {
-        return node.operations.firstOrNull() as FightOperation?
+    private fun selectOperation(node: Node): FightOperation {
+        return node.operations.firstOrNull()
             ?: FightOperation(FightOperationType.PASS_TURN)
     }
 
-    private fun selectNodesToExplore(frontierNodes: List<EZNode>, newPopulationSize: Int): List<EZNode> {
+    private fun selectNodesToExplore(frontierNodes: List<Node>, newPopulationSize: Int): List<Node> {
         val minScore = frontierNodes.minOfOrNull { it.score }
             ?: return emptyList()
         val relativeFitnessByIndividual = frontierNodes.associateWith { getAdaptedScore(it.score, minScore - 3000) }
         val fitnessSum = relativeFitnessByIndividual.values.sum()
-        val nodesToExplore = ArrayList<EZNode>()
+        val nodesToExplore = ArrayList<Node>()
         for (i in 0 until newPopulationSize) {
             val node = selectIndividualRoulette(relativeFitnessByIndividual, fitnessSum)
             if (!nodesToExplore.contains(node)) {
@@ -138,12 +131,12 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
     }
 
     private fun selectIndividualRoulette(
-        adaptedScoreByNode: Map<EZNode, Double>,
+        adaptedScoreByNode: Map<Node, Double>,
         fitnessSum: Double
-    ): EZNode {
+    ): Node {
         var partialFitnessSum = 0.0
         val randomDouble = Random.nextDouble() * fitnessSum
-        val entries = ArrayList<Map.Entry<EZNode, Double>>(adaptedScoreByNode.entries)
+        val entries = ArrayList<Map.Entry<Node, Double>>(adaptedScoreByNode.entries)
         for (i in adaptedScoreByNode.entries.indices.reversed()) {
             partialFitnessSum += entries[i].value
             if (partialFitnessSum >= randomDouble) {
@@ -157,5 +150,5 @@ class FightAIV4(private val dofusBoard: DofusBoard, private val aiComplement: AI
         return score - minScore
     }
 
-    class EZNode(val state: MctsBoard, val operations: List<MctsMove>, val score: Double)
+    private class Node(val state: FightState, val operations: List<FightOperation>, val score: Double)
 }

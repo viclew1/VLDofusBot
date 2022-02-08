@@ -38,7 +38,7 @@ class ExploreSubAreaTask(
 
     private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
         while (gameInfo.monsterInfoByEntityId.isNotEmpty()) {
-            if (!FightMonsterGroupTask().run(logItem, gameInfo)) {
+            if (!FightMonsterGroupTask(stopIfNoMonsterPresent = true).run(logItem, gameInfo)) {
                 return
             }
         }

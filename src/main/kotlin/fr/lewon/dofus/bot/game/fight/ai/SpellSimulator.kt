@@ -1,9 +1,6 @@
 package fr.lewon.dofus.bot.game.fight.ai
 
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffect
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectType
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellTarget
+import fr.lewon.dofus.bot.core.model.spell.*
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
@@ -41,6 +38,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         val affectedCells = effectZoneCalculator.getAffectedCells(casterCellId, targetCellId, zone)
         val fightersInAOE = affectedCells.mapNotNull { fightBoard.getFighter(it) }
             .filter { effectAffects(effect.target, caster, it) }
+        val effectZoneType = effect.rawZone.effectZoneType
         when (effect.effectType) {
             DofusSpellEffectType.MP_BUFF ->
                 simulateMpBuff(fightersInAOE, effect.min)
@@ -49,9 +47,9 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
             DofusSpellEffectType.TELEPORT ->
                 simulateTeleport(fightBoard, caster, targetCellId)
             DofusSpellEffectType.PUSH ->
-                simulatePush(fightBoard, caster, targetCellId, fightersInAOE, effect.min)
+                simulatePush(fightBoard, effectZoneType, caster, targetCellId, fightersInAOE, effect.min)
             DofusSpellEffectType.PULL ->
-                simulatePull(fightBoard, casterCellId, targetCellId, fightersInAOE, effect.min)
+                simulatePull(fightBoard, effectZoneType, casterCellId, targetCellId, fightersInAOE, effect.min)
             DofusSpellEffectType.SWITCH_POSITIONS ->
                 simulateSwitchPositions(fightBoard, caster, targetCellId)
             DofusSpellEffectType.AIR_DAMAGE, DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.FIRE_DAMAGE, DofusSpellEffectType.NEUTRAL_DAMAGE, DofusSpellEffectType.WATER_DAMAGE ->
@@ -119,13 +117,14 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
 
     private fun simulatePull(
         fightBoard: FightBoard,
+        effectZoneType: DofusEffectZoneType,
         casterCellId: Int,
         targetCellId: Int,
         fightersInAOE: List<Fighter>,
         amount: Int
     ) {
         for (fighter in fightersInAOE) {
-            val pullTowardCellId = if (targetCellId == fighter.cell.cellId) casterCellId else targetCellId
+            val pullTowardCellId = getPushOriginCellId(casterCellId, targetCellId, fighter.cell.cellId, effectZoneType)
             val pullTowardCell = dofusBoard.getCell(pullTowardCellId)
             val pullDest = getRealDashDest(fightBoard, amount, fighter.cell, pullTowardCell)
             fightBoard.move(fighter, pullDest)
@@ -134,13 +133,16 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
 
     private fun simulatePush(
         fightBoard: FightBoard,
+        effectZoneType: DofusEffectZoneType,
         caster: Fighter,
         targetCellId: Int,
         fightersInAOE: List<Fighter>,
         amount: Int
     ) {
         for (fighter in fightersInAOE) {
-            val pushFromCellId = if (targetCellId == fighter.cell.cellId) caster.cell.cellId else targetCellId
+            val pushFromCellId = getPushOriginCellId(
+                caster.cell.cellId, targetCellId, fighter.cell.cellId, effectZoneType
+            )
             val pushFromCell = dofusBoard.getCell(pushFromCellId)
             val pushDest = getRealDashDest(fightBoard, amount, fighter.cell, pushFromCell, true)
             val oldLoc = fighter.cell.cellId
@@ -154,6 +156,19 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 val pushDamage = ((level / 2f + doPou - rePou + 32f * doPouAmount.toFloat()) / 4f).toInt()
                 fighter.hpLost += pushDamage
             }
+        }
+    }
+
+    private fun getPushOriginCellId(
+        casterCellId: Int,
+        spellTargetCellId: Int,
+        hitFighterCellId: Int,
+        effectZoneType: DofusEffectZoneType
+    ): Int {
+        return if (effectZoneType != DofusEffectZoneType.CROSS_FROM_TARGET && spellTargetCellId == hitFighterCellId) {
+            casterCellId
+        } else {
+            spellTargetCellId
         }
     }
 

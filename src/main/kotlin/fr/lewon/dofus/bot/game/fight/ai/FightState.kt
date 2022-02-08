@@ -7,8 +7,6 @@ import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
-import fr.lewon.dofus.bot.game.fight.ai.mcts.MctsBoard
-import fr.lewon.dofus.bot.game.fight.ai.mcts.MctsMove
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
@@ -23,29 +21,10 @@ class FightState(
     private val dangerMap: DangerMap,
     private val spellSimulator: SpellSimulator = SpellSimulator(dofusBoard),
     private val effectZoneCalculator: EffectZoneCalculator = EffectZoneCalculator(dofusBoard),
-    private val playerFighter: Fighter = getPlayerFighter(fb),
-    private val fighterByPlayer: Map<Int, Fighter> = buildFighterByPlayer(fb),
-    private var player: Int = getStartingPlayer(fighterByPlayer, playerFighter),
     private var lastOperation: FightOperation? = null
-) : MctsBoard {
+) {
 
-    companion object {
-        private fun buildFighterByPlayer(fightBoard: FightBoard): Map<Int, Fighter> {
-            return fightBoard.getAllFighters(false).sortedByDescending {
-                DofusCharacteristics.INITIATIVE.getValue(it)
-            }.withIndex().associate { it.index to it.value }
-        }
-
-        private fun getStartingPlayer(fighterIdByPlayer: Map<Int, Fighter>, playerFighter: Fighter): Int {
-            return fighterIdByPlayer.entries.indexOfFirst { it.value.id == playerFighter.id }
-        }
-
-        private fun getPlayerFighter(fb: FightBoard): Fighter {
-            return fb.getPlayerFighter() ?: error("Couldn't find player fighter")
-        }
-    }
-
-    override fun duplicate(): MctsBoard {
+    fun deepCopy(): FightState {
         return FightState(
             fb.deepCopy(),
             cooldownState.deepCopy(),
@@ -54,19 +33,15 @@ class FightState(
             dangerMap.deepCopy(),
             spellSimulator,
             effectZoneCalculator,
-            playerFighter,
-            fighterByPlayer,
-            player,
             lastOperation
         )
     }
 
     private fun getCurrentFighter(): Fighter? {
-        val fighterId = fighterByPlayer[player]?.id ?: error("Fighter not found for player : $player")
-        return fb.getFighterById(fighterId)
+        return fb.getPlayerFighter()
     }
 
-    override fun getMoves(): MutableList<out MctsMove> {
+    fun getPossibleOperations(): MutableList<FightOperation> {
         val currentFighter = getCurrentFighter() ?: return ArrayList()
         val currentFighterPosition = currentFighter.cell
 
@@ -209,9 +184,8 @@ class FightState(
         }
     }
 
-    override fun makeMove(m: MctsMove) {
-        val operation = m as FightOperation
-        val currentFighter = getCurrentFighter() ?: error("Couldn't find current fighter : $player")
+    fun makeMove(operation: FightOperation) {
+        val currentFighter = getCurrentFighter() ?: error("Couldn't find current fighter")
         val previousEnemyPositions = fb.getEnemyFighters().associateWith { it.cell.cellId }
         when (operation.type) {
             FightOperationType.MOVE -> {
@@ -237,7 +211,7 @@ class FightState(
         }
         fb.getEnemyFighters().forEach {
             if (refreshAllDanger || previousEnemyPositions[it] != it.cell.cellId) {
-                dangerMap.recalculateDanger(dofusBoard, fb.deepCopy(), playerFighter, it)
+                dangerMap.recalculateDanger(dofusBoard, fb.deepCopy(), currentFighter, it)
             }
         }
         lastOperation = operation
@@ -257,26 +231,6 @@ class FightState(
             it.total = currentAp - spell.apCost
         }
         spellSimulator.simulateSpell(fb, currentFighter, spell, targetCellId)
-    }
-
-    override fun gameOver(): Boolean {
-        return fb.getEnemyFighters().isEmpty() || fb.getAlliedFighters().isEmpty()
-    }
-
-    override fun getCurrentPlayer(): Int {
-        return player
-    }
-
-    override fun getQuantityOfPlayers(): Int {
-        return fighterByPlayer.size
-    }
-
-    override fun getScore(): DoubleArray {
-        val win = fb.getEnemyFighters().isEmpty()
-        return Array(fighterByPlayer.size) {
-            val isAlly = fighterByPlayer[it]?.teamId == playerFighter.teamId
-            if (win && isAlly || !win && !isAlly) 1.0 else 0.0
-        }.toDoubleArray()
     }
 
     fun evaluate(): Double {

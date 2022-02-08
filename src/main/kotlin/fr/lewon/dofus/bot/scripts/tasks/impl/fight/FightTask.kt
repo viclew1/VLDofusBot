@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.game.fight.ai.FightAIV4
+import fr.lewon.dofus.bot.game.fight.ai.FightAI
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
@@ -105,7 +105,7 @@ class FightTask(
             }
         }
 
-        val ai = FightAIV4(dofusBoard, aiComplement)
+        val ai = FightAI(dofusBoard, aiComplement)
         ai.selectStartCell(fightBoard)?.takeIf { it != playerFighter.cell }?.let {
             WaitUtil.sleep(500)
             MouseUtil.leftClick(gameInfo, it.getCenter())
