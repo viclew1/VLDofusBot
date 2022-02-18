@@ -7,10 +7,13 @@ import fr.lewon.dofus.bot.core.model.spell.DofusSpellTarget
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.Fighter
 
-class DamageCalculator() {
+class DamageCalculator {
 
-    private val cachedSpellDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellLevel>, Int>>()
-    private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<Pair<Double, DofusSpellEffect>, Int>>()
+    private val cachedSpellDamagesByFighter = HashMap<Double, HashMap<SpellKey, Int>>()
+    private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<EffectKey, Int>>()
+
+    private data class SpellKey(val targetId: Double, val spellLevel: DofusSpellLevel, val criticalHit: Boolean)
+    private data class EffectKey(val targetId: Double, val spellEffect: DofusSpellEffect, val criticalHit: Boolean)
 
     fun getRealDamage(
         spellLevel: DofusSpellLevel,
@@ -20,7 +23,7 @@ class DamageCalculator() {
         upperBound: Boolean = false
     ): Int {
         val cachedDamages = cachedSpellDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
-        return cachedDamages.computeIfAbsent(target.id to spellLevel) {
+        return cachedDamages.computeIfAbsent(SpellKey(target.id, spellLevel, criticalHit)) {
             computeRealDamage(spellLevel, caster, target, criticalHit, upperBound)
         }
     }
@@ -57,7 +60,7 @@ class DamageCalculator() {
         upperBound: Boolean
     ): Int {
         val cachedDamages = cachedEffectDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
-        return cachedDamages.computeIfAbsent(target.id to spellEffect) {
+        return cachedDamages.computeIfAbsent(EffectKey(target.id, spellEffect, criticalHit)) {
             computeEffectDamage(spellEffect, caster, target, criticalHit, upperBound)
         }
     }

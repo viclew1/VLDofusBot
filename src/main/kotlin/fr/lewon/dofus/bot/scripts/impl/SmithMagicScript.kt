@@ -45,7 +45,7 @@ class SmithMagicScript : DofusBotScript("Smith magic") {
     }
 
     private val strategyParameter = DofusBotParameter(
-        "strategy",
+        "Strategy",
         "Smithing Strategy used to improve the item",
         STRATEGIES.keys.first(),
         DofusBotParameterType.CHOICE,

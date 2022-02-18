@@ -11,21 +11,28 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class ExploreCurrentAreaScript : DofusBotScript("Explore current area") {
 
     private val runForeverParameter = DofusBotParameter(
-        "run_forever",
+        "Run forever",
         "Explore this area until you manually stop",
         "false",
         DofusBotParameterType.BOOLEAN
     )
 
     private val killEverythingParameter = DofusBotParameter(
-        "kill_everything",
+        "Kill everything",
         "Fight every group of monsters present on the maps",
         "false",
         DofusBotParameterType.BOOLEAN
     )
 
+    private val searchedMonsterParameter = DofusBotParameter(
+        "Searched monster",
+        "Monster which will stop exploration when found. Leave empty if you're not seeking a monster",
+        "",
+        DofusBotParameterType.STRING
+    )
+
     override fun getParameters(): List<DofusBotParameter> {
-        return listOf(runForeverParameter, killEverythingParameter)
+        return listOf(runForeverParameter, killEverythingParameter, searchedMonsterParameter)
     }
 
     override fun getStats(): List<DofusBotScriptStat> {
@@ -39,11 +46,12 @@ class ExploreCurrentAreaScript : DofusBotScript("Explore current area") {
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         val runForever = runForeverParameter.value.toBoolean()
         val killEverything = killEverythingParameter.value.toBoolean()
+        val searchedMonsterName = searchedMonsterParameter.value
         val subArea = gameInfo.currentMap.subArea
         val worldMap = gameInfo.currentMap.worldMap
         var success: Boolean
         do {
-            success = ExploreSubAreaTask(subArea, worldMap, killEverything).run(logItem, gameInfo)
+            success = ExploreSubAreaTask(subArea, worldMap, killEverything, searchedMonsterName).run(logItem, gameInfo)
         } while (success && runForever)
     }
 

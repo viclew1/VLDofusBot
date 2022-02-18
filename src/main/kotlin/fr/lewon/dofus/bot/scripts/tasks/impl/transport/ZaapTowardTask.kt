@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
-import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.dat.managers.TransportSortingUtil
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.UIBounds
 import fr.lewon.dofus.bot.core.ui.UIPoint
-import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
@@ -98,7 +98,8 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         }
         val zaapLocation = firstElementLocation.also { it.y += DELTA_ELEMENT * (zaapDestinationIndex - skippedCount) }
         gameInfo.eventStore.clear()
-        MouseUtil.doubleLeftClick(gameInfo, zaapLocation)
+        WaitUtil.sleep(300)
+        MouseUtil.tripleLeftClick(gameInfo, zaapLocation)
         MoveUtil.waitForMapChange(gameInfo)
     }
 

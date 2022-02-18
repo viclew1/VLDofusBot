@@ -1,8 +1,10 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.entity.NpcManager
 import fr.lewon.dofus.bot.core.d2o.managers.interactive.SkillManager
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.entity.DofusNPC
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
@@ -29,6 +31,7 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
         val mapLogItem = gameInfo.logger.addSubLog("Map : ${currentMap.id}", logItem, 1000)
         logInteractiveElements(mapLogItem, gameInfo)
         logEntityNPCs(mapLogItem, gameInfo)
+        logMonsters(mapLogItem, gameInfo)
     }
 
     private fun logInteractiveElements(mapLogItem: LogItem, gameInfo: GameInfo) {
@@ -56,5 +59,17 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
 
     private fun logNPC(npcsLogItem: LogItem, gameInfo: GameInfo, npc: DofusNPC) {
         gameInfo.logger.addSubLog("NPC ${npc.id} : ${npc.name}", npcsLogItem)
+    }
+
+    private fun logMonsters(mapLogItem: LogItem, gameInfo: GameInfo) {
+        val monsterLogItem = gameInfo.logger.addSubLog("Monsters :", mapLogItem, 100)
+        gameInfo.monsterInfoByEntityId.values.forEach {
+            val monsterId = it.staticInfos.mainCreatureLightInfos.genericId.toDouble()
+            logMonster(monsterLogItem, gameInfo, MonsterManager.getMonster(monsterId))
+        }
+    }
+
+    private fun logMonster(monsterLogItem: LogItem, gameInfo: GameInfo, monster: DofusMonster) {
+        gameInfo.logger.addSubLog("Monster ${monster.id} : ${monster.name}", monsterLogItem)
     }
 }

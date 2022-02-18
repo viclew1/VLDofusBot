@@ -110,7 +110,6 @@ class FightTask(
             WaitUtil.sleep(500)
             MouseUtil.leftClick(gameInfo, it.getCenter())
         }
-        WaitUtil.sleep(500)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         gameInfo.eventStore.clear(MapComplementaryInformationsDataMessage::class.java)
@@ -169,8 +168,8 @@ class FightTask(
         gameInfo.eventStore.clear(BasicNoOperationMessage::class.java)
         RetryUtil.tryUntilSuccess(
             { MouseUtil.tripleLeftClick(gameInfo, target.getCenter()) },
-            { waitForSequenceCompleteEnd(gameInfo, 500) },
-            20
+            { waitForSequenceCompleteEnd(gameInfo, 2000) },
+            5
         )
         waitForSequenceCompleteEnd(gameInfo, 5000)
     }

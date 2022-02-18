@@ -24,7 +24,7 @@ class FightDungeonScript : DofusBotScript("Fight dungeon") {
     }
 
     private val dungeonParameter = DofusBotParameter(
-        "dungeon",
+        "Dungeon",
         "The dungeon you want to farm",
         DUNGEON_BY_NAME.keys.first(),
         DofusBotParameterType.CHOICE,

@@ -265,13 +265,13 @@ class FightState(
                 distScore = (dofusBoard.getPathLength(playerFighter.cell, closestEnemy.cell) ?: 1000) * 10
             }
         }
-        return (realAlliesCount * 2500
-                - realEnemiesCount * 10000
-                + alliesHp * 2
+        return (realAlliesCount * 3000
+                - realEnemiesCount * 2000
+                + alliesHp
                 - enemiesHp
                 - danger
                 - distScore
-                - mpScore
-                - apScore).toDouble()
+                + mpScore
+                + apScore).toDouble()
     }
 }

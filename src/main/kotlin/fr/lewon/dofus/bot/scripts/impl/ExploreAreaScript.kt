@@ -28,7 +28,7 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
     }
 
     private val subAreaParameter = DofusBotParameter(
-        "sub_area", "Dofus sub area", "", DofusBotParameterType.CHOICE, SUB_AREA_LABELS
+        "Sub area", "Dofus sub area", "", DofusBotParameterType.CHOICE, SUB_AREA_LABELS
     )
 
 

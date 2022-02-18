@@ -19,15 +19,15 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
     private val huntLevelParameter = DofusBotParameter(
-        "hunt_level", "Hunt level", "200", DofusBotParameterType.CHOICE, HuntLevel.values().map { it.label }
+        "Hunt level", "Hunt level", "200", DofusBotParameterType.CHOICE, HuntLevel.values().map { it.label }
     )
 
     private val huntCountParameter = DofusBotParameter(
-        "hunt_count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
+        "Hunt count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
     )
 
     private val cleanCacheParameter = DofusBotParameter(
-        "clean_cache_every", "Amount of hunt(s) before cleaning Dofus cache", "12", DofusBotParameterType.INTEGER
+        "Clean cache every", "Amount of hunt(s) before cleaning Dofus cache", "12", DofusBotParameterType.INTEGER
     )
 
     override fun getParameters(): List<DofusBotParameter> {

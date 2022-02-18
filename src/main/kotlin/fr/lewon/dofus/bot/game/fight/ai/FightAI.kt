@@ -111,14 +111,13 @@ class FightAI(private val dofusBoard: DofusBoard, private val aiComplement: AICo
     }
 
     private fun selectOperation(node: Node): FightOperation {
-        return node.operations.firstOrNull()
-            ?: FightOperation(FightOperationType.PASS_TURN)
+        return node.operations.firstOrNull() ?: FightOperation(FightOperationType.PASS_TURN)
     }
 
     private fun selectNodesToExplore(frontierNodes: List<Node>, newPopulationSize: Int): List<Node> {
         val minScore = frontierNodes.minOfOrNull { it.score }
             ?: return emptyList()
-        val relativeFitnessByIndividual = frontierNodes.associateWith { getAdaptedScore(it.score, minScore - 3000) }
+        val relativeFitnessByIndividual = frontierNodes.associateWith { it.score + 800 - minScore }
         val fitnessSum = relativeFitnessByIndividual.values.sum()
         val nodesToExplore = ArrayList<Node>()
         for (i in 0 until newPopulationSize) {
@@ -144,10 +143,6 @@ class FightAI(private val dofusBoard: DofusBoard, private val aiComplement: AICo
             }
         }
         error("Failed to select a node")
-    }
-
-    private fun getAdaptedScore(score: Double, minScore: Double): Double {
-        return score - minScore
     }
 
     private class Node(val state: FightState, val operations: List<FightOperation>, val score: Double)

@@ -18,7 +18,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
 
     fun simulateSpell(fightBoard: FightBoard, caster: Fighter, spell: DofusSpellLevel, targetCellId: Int) {
         val criticalChance = spell.criticalHitProbability + DofusCharacteristics.CRITICAL_HIT.getValue(caster)
-        val criticalHit = criticalChance > 80
+        val criticalHit = criticalChance >= 100
         val effects = if (criticalHit) spell.criticalEffects else spell.effects
         effects.forEach {
             simulateEffect(fightBoard, caster, it, targetCellId, criticalHit)
@@ -41,7 +41,9 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         val effectZoneType = effect.rawZone.effectZoneType
         when (effect.effectType) {
             DofusSpellEffectType.MP_BUFF ->
-                simulateMpBuff(fightersInAOE, effect.min)
+                simulateBuff(fightersInAOE, DofusCharacteristics.MOVEMENT_POINTS, effect.min)
+            DofusSpellEffectType.CRITICAL_BUFF ->
+                simulateBuff(fightersInAOE, DofusCharacteristics.CRITICAL_HIT, effect.min)
             DofusSpellEffectType.DASH ->
                 simulateDash(fightBoard, caster, targetCell, effect.min)
             DofusSpellEffectType.TELEPORT ->
@@ -177,11 +179,11 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         fightBoard.move(caster.id, dashDest.cellId)
     }
 
-    private fun simulateMpBuff(affectedFighters: List<Fighter>, amount: Int) {
+    private fun simulateBuff(affectedFighters: List<Fighter>, characteristics: DofusCharacteristics, amount: Int) {
         for (fighter in affectedFighters) {
-            val currentMp = DofusCharacteristics.MOVEMENT_POINTS.getValue(fighter)
-            fighter.statsById[DofusCharacteristics.MOVEMENT_POINTS.id] = CharacterCharacteristicValue().also {
-                it.total = currentMp + amount
+            val current = characteristics.getValue(fighter)
+            fighter.statsById[characteristics.id] = CharacterCharacteristicValue().also {
+                it.total = current + amount
             }
         }
     }
