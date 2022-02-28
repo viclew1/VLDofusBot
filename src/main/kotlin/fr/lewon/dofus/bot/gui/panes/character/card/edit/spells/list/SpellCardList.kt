@@ -25,7 +25,7 @@ class SpellCardList(
         spellSelectionPanel.updateSpellPanels(card)
     }
 
-    override fun onItemMoved(item: CharacterSpell) {
+    override fun onItemMoved(item: CharacterSpell, fromIndex: Int, toIndex: Int) {
         // Nothing
     }
 }

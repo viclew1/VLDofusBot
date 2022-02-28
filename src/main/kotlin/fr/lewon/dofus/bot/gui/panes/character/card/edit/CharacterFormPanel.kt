@@ -12,7 +12,7 @@ import net.miginfocom.swing.MigLayout
 import javax.swing.BorderFactory
 import javax.swing.JPanel
 
-class GlobalCharacterFormPanel(character: DofusCharacter, onSaveAction: (DofusCharacter) -> Unit) :
+class CharacterFormPanel(character: DofusCharacter, onSaveAction: (DofusCharacter) -> Unit) :
     JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
 
     companion object {

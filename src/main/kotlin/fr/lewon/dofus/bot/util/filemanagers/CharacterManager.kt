@@ -9,12 +9,15 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.util.filemanagers.listeners.CharacterManagerListener
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
 object CharacterManager {
+
+    private val listeners = ArrayList<CharacterManagerListener>()
 
     private lateinit var characterStore: CharacterStore
     private lateinit var dataStoreFile: File
@@ -28,6 +31,14 @@ object CharacterManager {
             characterStore = CharacterStore()
             saveUserData()
         }
+    }
+
+    fun addListener(listener: CharacterManagerListener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: CharacterManagerListener) {
+        listeners.remove(listener)
     }
 
     private fun saveUserData() {
@@ -55,10 +66,11 @@ object CharacterManager {
         return characterStore.characters.toList()
     }
 
-    fun updateCharacterStore(characters: List<DofusCharacter>) {
-        characterStore.characters.clear()
-        characterStore.characters.addAll(characters)
+    fun moveCharacter(character: DofusCharacter, toIndex: Int) {
+        characterStore.characters.remove(character)
+        characterStore.characters.add(toIndex, character)
         saveUserData()
+        listeners.forEach { it.onCharacterMove(character, toIndex) }
     }
 
     fun addCharacter(
@@ -70,12 +82,14 @@ object CharacterManager {
         val character = DofusCharacter(login, password, pseudo, dofusClassId, characterSpells = ArrayList(spells))
         characterStore.characters.add(character)
         saveUserData()
+        listeners.forEach { it.onCharacterCreate(character) }
         return character
     }
 
     fun removeCharacter(character: DofusCharacter) {
         characterStore.characters.remove(character)
         saveUserData()
+        listeners.forEach { it.onCharacterDelete(character) }
     }
 
     fun updateCharacter(

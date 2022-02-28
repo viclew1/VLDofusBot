@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.gui.panes.character.card.edit.spells
 import fr.lewon.dofus.bot.gui.custom.list.Card
 import fr.lewon.dofus.bot.gui.custom.list.CardList
 import fr.lewon.dofus.bot.gui.custom.list.CardSelectionPanel
-import fr.lewon.dofus.bot.gui.panes.character.card.edit.GlobalCharacterFormPanel
+import fr.lewon.dofus.bot.gui.panes.character.card.edit.CharacterFormPanel
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.list.SpellCardList
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.visual.SpellVisualPanel
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
@@ -15,7 +15,7 @@ class SpellSelectionPanel(
 ) : CardSelectionPanel<CharacterSpell>("Spells") {
 
     override fun buildCardList(): CardList<CharacterSpell> {
-        return SpellCardList(GlobalCharacterFormPanel.SPELL_LIST_WIDTH, this, spells)
+        return SpellCardList(CharacterFormPanel.SPELL_LIST_WIDTH, this, spells)
     }
 
     override fun processAddItemButton() {

@@ -17,7 +17,7 @@ import javax.swing.border.LineBorder
 
 class StatsPanel : JPanel(MigLayout()) {
 
-    private lateinit var updateUITimer: Timer
+    private var updateUITimer: Timer? = null
     private var scriptStartMillis = -1L
     private val scriptTimerPanel = JPanel(MigLayout()).also { it.border = LineBorder(Color.BLACK, 1) }
     private val timerLabel = JLabel()
@@ -56,7 +56,7 @@ class StatsPanel : JPanel(MigLayout()) {
         scriptStartMillis = System.currentTimeMillis()
         updateExecUI(script)
         updateUITimer = Timer()
-        updateUITimer.schedule(buildUpdateExecUITimerTask(script), 0, 1000)
+        updateUITimer?.schedule(buildUpdateExecUITimerTask(script), 0, 1000)
     }
 
     private fun buildUpdateExecUITimerTask(script: DofusBotScript): TimerTask {
@@ -73,7 +73,8 @@ class StatsPanel : JPanel(MigLayout()) {
     }
 
     fun stopStatsUpdate() {
-        updateUITimer.cancel()
+        updateUITimer?.cancel()
+        updateUITimer = null
         scriptStartMillis = -1
     }
 

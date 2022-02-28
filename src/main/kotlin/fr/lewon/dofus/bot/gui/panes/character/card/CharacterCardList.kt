@@ -13,7 +13,8 @@ class CharacterCardList(cardWidth: Int, characterSelectionPanel: CharacterSelect
     cardWidth / 4,
     ArrayList(CharacterManager.getCharacters()),
     characterSelectionPanel,
-    gapY = 3
+    gapY = 3,
+    initialSelectedItem = null
 ) {
 
     override fun buildCard(item: DofusCharacter): Card<DofusCharacter> {
@@ -30,7 +31,7 @@ class CharacterCardList(cardWidth: Int, characterSelectionPanel: CharacterSelect
         }
     }
 
-    override fun onItemMoved(item: DofusCharacter) {
-        CharacterManager.updateCharacterStore(items)
+    override fun onItemMoved(item: DofusCharacter, fromIndex: Int, toIndex: Int) {
+        CharacterManager.moveCharacter(item, toIndex)
     }
 }

@@ -7,11 +7,12 @@ import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.windows.RestartGameTask
 import fr.lewon.dofus.bot.sniffer.DofusConnection
+import fr.lewon.dofus.bot.util.filemanagers.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
-object ScriptRunner {
+object ScriptRunner : CharacterManagerListener {
 
     private val listenersByCharacterName = HashMap<String, ArrayList<ScriptRunnerListener>>()
     private val runningScriptByCharacterName = HashMap<String, Thread>()
@@ -21,13 +22,29 @@ object ScriptRunner {
         characterListeners.add(listener)
     }
 
+    fun removeListener(listener: ScriptRunnerListener) {
+        listenersByCharacterName.forEach { it.value.remove(listener) }
+    }
+
+    override fun onCharacterCreate(character: DofusCharacter) {
+        // Nothing
+    }
+
+    override fun onCharacterMove(character: DofusCharacter, toIndex: Int) {
+        // Nothing
+    }
+
+    override fun onCharacterDelete(character: DofusCharacter) {
+        listenersByCharacterName.remove(character.pseudo)
+    }
+
     @Synchronized
     fun runScript(character: DofusCharacter, dofusScript: DofusBotScript) {
-        if (runningScriptByCharacterName[character.pseudo]?.isAlive == true) {
+        if (isScriptRunning(character)) {
             error("Cannot run script, there is already one running")
         }
         val logger = character.executionLogger
-        listenersByCharacterName[character.pseudo]?.forEach { it.onScriptStart(dofusScript) }
+        listenersByCharacterName[character.pseudo]?.forEach { it.onScriptStart(character, dofusScript) }
         val logItem = logger.log("Executing Dofus script : [${dofusScript.name}]")
         val thread = Thread {
             try {
@@ -45,6 +62,10 @@ object ScriptRunner {
         }
         runningScriptByCharacterName[character.pseudo] = thread
         thread.start()
+    }
+
+    fun isScriptRunning(character: DofusCharacter): Boolean {
+        return runningScriptByCharacterName[character.pseudo]?.isAlive == true
     }
 
     private fun prepareScriptExecution(currentCharacter: DofusCharacter, logItem: LogItem): GameInfo {
@@ -94,6 +115,6 @@ object ScriptRunner {
     }
 
     private fun onScriptEnd(character: DofusCharacter, endType: DofusBotScriptEndType) {
-        listenersByCharacterName[character.pseudo]?.forEach { it.onScriptEnd(endType) }
+        listenersByCharacterName[character.pseudo]?.forEach { it.onScriptEnd(character, endType) }
     }
 }

@@ -37,7 +37,7 @@ abstract class CardList<T>(
 
     abstract fun onItemRemove(item: T)
 
-    abstract fun onItemMoved(item: T)
+    abstract fun onItemMoved(item: T, fromIndex: Int, toIndex: Int)
 
     abstract fun onCardSelect(card: Card<T>?)
 
@@ -95,7 +95,7 @@ abstract class CardList<T>(
             remove(fromCard)
             insertCard(fromCard, toIndex)
             updateUI()
-            onItemMoved(fromCard.item)
+            onItemMoved(fromCard.item, fromIndex, toIndex)
         }
     }
 

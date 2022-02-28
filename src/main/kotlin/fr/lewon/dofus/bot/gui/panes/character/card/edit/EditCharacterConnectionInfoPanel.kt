@@ -58,7 +58,7 @@ class EditCharacterConnectionInfoPanel(
 
     init {
         layout = null
-        setSize(GlobalCharacterFormPanel.CONNECTION_INFO_WIDTH, GlobalCharacterFormPanel.CONNECTION_INFO_HEIGHT)
+        setSize(CharacterFormPanel.CONNECTION_INFO_WIDTH, CharacterFormPanel.CONNECTION_INFO_HEIGHT)
         classComboBox.selectedItem = BreedAssetManager.getAssets(character.dofusClassId)
         classComboBox.addItemListener {
             val dofusBreedAssets = classComboBox.selectedItem as DofusBreedAssets

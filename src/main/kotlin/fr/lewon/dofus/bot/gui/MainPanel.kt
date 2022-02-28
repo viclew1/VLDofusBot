@@ -4,8 +4,9 @@ import com.formdev.flatlaf.ui.FlatTabbedPaneUI
 import fr.lewon.dofus.bot.core.VldbCoreInitializer
 import fr.lewon.dofus.bot.gui.about.AboutPanel
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
-import fr.lewon.dofus.bot.gui.panes.character.card.edit.GlobalCharacterFormPanel
+import fr.lewon.dofus.bot.gui.panes.character.card.edit.CharacterFormPanel
 import fr.lewon.dofus.bot.gui.panes.config.ConfigPanel
+import fr.lewon.dofus.bot.gui.panes.script.CharacterScriptPanel
 import fr.lewon.dofus.bot.gui.panes.script.GlobalScriptPanel
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
@@ -37,17 +38,9 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
         add(leftPanel, "w $CHARACTERS_WIDTH:$CHARACTERS_WIDTH:$CHARACTERS_WIDTH, h max")
         add(mainTabbedPane, "w max, h max")
 
-        SwingUtilities.invokeLater {
-            mainTabbedPane.setUI(object : FlatTabbedPaneUI() {
-                override fun createMouseListener(): MouseListener {
-                    return buildHeaderListener()
-                }
-            })
-        }
-
         mainTabbedPane.addChangeListener {
             val selectedComponent = mainTabbedPane.selectedComponent
-            if (selectedComponent is GlobalScriptPanel) {
+            if (selectedComponent is CharacterScriptPanel) {
                 CharacterSelectionPanel.cardList.getCard(selectedComponent.character)?.let {
                     CharacterSelectionPanel.cardList.selectItem(it)
                 }
@@ -59,6 +52,15 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
         CharacterSelectionPanel.border = BorderFactory.createEtchedBorder()
         leftTabbedPane.border = BorderFactory.createEtchedBorder()
         mainTabbedPane.border = BorderFactory.createEtchedBorder()
+
+        SwingUtilities.invokeLater {
+            mainTabbedPane.setUI(object : FlatTabbedPaneUI() {
+                override fun createMouseListener(): MouseListener {
+                    return buildHeaderListener()
+                }
+            })
+            addTab("Global scripts") { GlobalScriptPanel() }
+        }
     }
 
     private fun addTab(title: String, buildIfMissingFunction: () -> JComponent): JComponent {
@@ -92,14 +94,16 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
     }
 
     private fun removeTab(tab: Component) {
-        val index = mainTabbedPane.indexOfComponent(tab)
-        val title = mainTabbedPane.getTitleAt(index)
-        mainTabbedPane.remove(index)
-        tabByTitle.remove(title)
+        if (tab !is GlobalScriptPanel) {
+            val index = mainTabbedPane.indexOfComponent(tab)
+            val title = mainTabbedPane.getTitleAt(index)
+            mainTabbedPane.remove(index)
+            tabByTitle.remove(title)
+        }
     }
 
     fun addCharacterScriptTab(character: DofusCharacter): JComponent {
-        return addTab("${character.pseudo} - Scripts") { GlobalScriptPanel(character) }
+        return addTab("${character.pseudo} - Scripts") { CharacterScriptPanel(character) }
     }
 
     fun addCharacterEditTab(character: DofusCharacter?, onSaveAction: (DofusCharacter) -> Unit) {
@@ -110,9 +114,9 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
             addCharacterScriptTab(it)
         }
         tab = if (character == null) {
-            addTab("New character") { GlobalCharacterFormPanel(DofusCharacter(), onSaveActionWithClose) }
+            addTab("New character") { CharacterFormPanel(DofusCharacter(), onSaveActionWithClose) }
         } else {
-            addTab("${character.pseudo} - Edit") { GlobalCharacterFormPanel(character, onSaveActionWithClose) }
+            addTab("${character.pseudo} - Edit") { CharacterFormPanel(character, onSaveActionWithClose) }
         }
     }
 
