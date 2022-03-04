@@ -20,7 +20,12 @@ import kotlin.math.min
 class AreaVisualPanel(var spell: DofusSpellLevel? = null) : JPanel() {
 
     companion object {
-        private val BOARD = DofusBoard(50, 50)
+        private val BOARD = DofusBoard(50, 50).also {
+            for (cell in it.cells) {
+                cell.cellData.los = true
+                cell.cellData.mov = true
+            }
+        }
         private val BOARD_MIN_ROW = BOARD.cells.minByOrNull { it.row }?.row ?: 0
         private val BOARD_MAX_ROW = BOARD.cells.maxByOrNull { it.row }?.row ?: 0
         private val BOARD_MIN_COL = BOARD.cells.minByOrNull { it.col }?.col ?: 0
@@ -52,16 +57,14 @@ class AreaVisualPanel(var spell: DofusSpellLevel? = null) : JPanel() {
                     hoveredRow = spell?.let { getIndex(it, e.y) } ?: Short.MAX_VALUE.toInt()
                     val effectZone = spell?.effects?.lastOrNull()?.rawZone
                         ?: DofusEffectZone(DofusEffectZoneType.POINT, 1)
-                    effectZone.let {
-                        val toCell = BOARD.getCell(BOARD_CENTER_COL + hoveredCol, BOARD_CENTER_ROW + hoveredRow)
-                        hoveredCells.clear()
-                        if (toCell != null) {
-                            val affectedCellIds = effectZoneCalculator.getAffectedCells(
-                                ORIGIN_CELL.cellId, toCell.cellId, effectZone
-                            )
-                            val affectedCells = affectedCellIds.map { BOARD.getCell(it) }
-                            hoveredCells.addAll(affectedCells)
-                        }
+                    val toCell = BOARD.getCell(BOARD_CENTER_COL + hoveredCol, BOARD_CENTER_ROW + hoveredRow)
+                    hoveredCells.clear()
+                    if (toCell != null) {
+                        val affectedCellIds = effectZoneCalculator.getAffectedCells(
+                            ORIGIN_CELL.cellId, toCell.cellId, effectZone
+                        )
+                        val affectedCells = affectedCellIds.map { BOARD.getCell(it) }
+                        hoveredCells.addAll(affectedCells)
                     }
                 } finally {
                     hoverLock.unlock()

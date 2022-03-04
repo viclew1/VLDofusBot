@@ -8,16 +8,18 @@ import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 class GlobalScriptSelectorPanel(
-    characters: List<DofusCharacter>,
     private val characterFilterPanel: CharacterFilterPanel
 ) : AbstractScriptSelectorPanel() {
 
     private var startedCount = 0
 
-    init {
-        for (character in characters) {
-            ScriptRunner.addListener(character, this)
-        }
+    fun addListenedCharacter(character: DofusCharacter) {
+        removeListenedCharacter(character)
+        ScriptRunner.addListener(character, this)
+    }
+
+    fun removeListenedCharacter(character: DofusCharacter) {
+        ScriptRunner.removeListener(character, this)
     }
 
     fun updateSelectedCharacters() {

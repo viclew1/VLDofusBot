@@ -18,7 +18,7 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
     }
 
     var startCells: List<DofusCell> = ArrayList()
-    val cells: ArrayList<DofusCell>
+    val cells = ArrayList<DofusCell>()
     private val cellsByPosition = HashMap<Pair<Int, Int>, DofusCell>()
     private val cellsByCellId = HashMap<Int, DofusCell>()
 
@@ -26,7 +26,6 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
         val initialX = TILE_WIDTH / 2f
         val initialY = TILE_HEIGHT / 4f
 
-        cells = ArrayList()
         for (xMultiplier in 0 until width * 2) {
             val x = initialX + (xMultiplier.toFloat() / 2f) * TILE_WIDTH
             for (yMultiplier in 0 until height) {

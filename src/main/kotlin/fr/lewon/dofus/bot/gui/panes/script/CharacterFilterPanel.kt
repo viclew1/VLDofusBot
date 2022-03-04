@@ -6,22 +6,31 @@ import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-class CharacterFilterPanel(characters: List<DofusCharacter>) : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
+class CharacterFilterPanel : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
 
-    private val checkboxByCharacter = characters.associateWith { JCheckBox() }
+    private val checkboxAndLabelByCharacter = HashMap<DofusCharacter, Pair<JCheckBox, JLabel>>()
 
-    init {
-        checkboxByCharacter.entries.forEach {
-            add(it.value)
-            add(JLabel("${it.key.pseudo} (${it.key.login})"), "wrap")
-        }
+    fun addCharacter(character: DofusCharacter) {
+        val checkBox = JCheckBox()
+        val label = JLabel("${character.pseudo} (${character.login})")
+        checkboxAndLabelByCharacter[character] = checkBox to label
+        add(checkBox)
+        add(label, "wrap")
+    }
+
+    fun removeCharacter(character: DofusCharacter) {
+        val checkboxAndLabel = checkboxAndLabelByCharacter[character] ?: return
+        val checkbox = checkboxAndLabel.first
+        val label = checkboxAndLabel.second
+        remove(checkbox)
+        remove(label)
     }
 
     fun getSelectedCharacters(): List<DofusCharacter> {
-        return checkboxByCharacter.filter { it.value.isSelected }.map { it.key }
+        return checkboxAndLabelByCharacter.filter { it.value.first.isSelected }.map { it.key }
     }
 
     fun getAllCheckboxes(): List<JCheckBox> {
-        return checkboxByCharacter.values.toList()
+        return checkboxAndLabelByCharacter.values.map { it.first }.toList()
     }
 }
