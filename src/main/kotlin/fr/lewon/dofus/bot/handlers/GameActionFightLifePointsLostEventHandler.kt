@@ -11,6 +11,7 @@ object GameActionFightLifePointsLostEventHandler : EventHandler<GameActionFightL
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.fightBoard.getFighterById(socketResult.targetId)?.let {
             it.hpLost += socketResult.loss
+            it.maxHp -= socketResult.permanentDamages
         }
     }
 

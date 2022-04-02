@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.handlers
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameActionFightMultipleSummonMessage
 import fr.lewon.dofus.bot.sniffer.model.types.fight.summon.spawn.SpawnInformation
@@ -18,7 +19,12 @@ object GameActionFightMultipleSummonEventHandler : EventHandler<GameActionFightM
                 val fighterId = basicSpawnInfo.informations.contextualId
                 val cellId = basicSpawnInfo.informations.disposition.cellId
                 val teamId = basicSpawnInfo.teamId
-                gameInfo.fightBoard.summonFighter(fighterId, cellId, spells, teamId)
+                val fighter = gameInfo.fightBoard.summonFighter(fighterId, cellId, spells, teamId)
+                gameInfo.fightBoard.updateFighterCharacteristics(fighter, it.stats.characteristics.characteristics)
+                val hp = DofusCharacteristics.LIFE_POINTS.getValue(fighter) +
+                        DofusCharacteristics.VITALITY.getValue(fighter)
+                fighter.maxHp = hp
+                fighter.baseHp = hp
             }
         }
     }

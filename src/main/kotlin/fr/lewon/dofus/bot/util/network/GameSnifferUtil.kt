@@ -26,37 +26,22 @@ object GameSnifferUtil {
 
     private val lock = ReentrantLock()
 
-    private val connectionByCharacterName = HashMap<String, DofusConnection>()
-    private val gameInfoByConnection = HashMap<DofusConnection, GameInfo>()
-    private var currentInterfaceName = ConfigManager.config.networkInterfaceName
-    private var messageReceiver = DofusMessageReceiver(currentInterfaceName)
+    private val connectionsByCharacterName = HashMap<String, ArrayList<DofusConnection>>()
+    private val connectionsByGameInfo = HashMap<GameInfo, ArrayList<DofusConnection>>()
+    var messageReceiver = DofusMessageReceiver(ConfigManager.config.networkInterfaceName)
 
-    fun changeNetworkInterface(networkInterfaceName: String) {
-        val runningConnections = getRunningConnections()
-        val connectionByCharacterNameOld = connectionByCharacterName.toMap() // backup current characters connection
-
+    fun updateNetworkInterface() {
         try {
             lock.lockInterruptibly()
 
-            // remove connections
-            if (runningConnections.isNotEmpty() && connectionByCharacterNameOld.isNotEmpty()) {
-                stopListeningToDeadConnections(runningConnections)
-            }
-
-            // stop capture
             messageReceiver.interrupt()
             messageReceiver.join()
 
-            // recreate thread
-            messageReceiver = DofusMessageReceiver(networkInterfaceName)
+            connectionsByCharacterName.clear()
+            connectionsByGameInfo.clear()
+
+            messageReceiver = DofusMessageReceiver(ConfigManager.config.networkInterfaceName)
             messageReceiver.start()
-
-            currentInterfaceName = networkInterfaceName
-
-            // restore connections
-            if (runningConnections.isNotEmpty() && connectionByCharacterNameOld.isNotEmpty()) {
-                listenToConnections(runningConnections.filter { connectionByCharacterNameOld.values.contains(it) })
-            }
         } finally {
             lock.unlock()
         }
@@ -81,8 +66,9 @@ object GameSnifferUtil {
 
     private fun updateCurrentConnections() {
         val runningConnections = getRunningConnections()
-        stopListeningToDeadConnections(connectionByCharacterName.values.filter { !runningConnections.contains(it) })
-        listenToConnections(runningConnections.filter { !connectionByCharacterName.values.contains(it) })
+        val storedConnections = connectionsByCharacterName.values.flatten()
+        stopListeningToDeadConnections(storedConnections.filter { !runningConnections.contains(it) })
+        listenToConnections(runningConnections.filter { !storedConnections.contains(it) })
     }
 
     private fun getRunningConnections(): List<DofusConnection> {
@@ -106,13 +92,14 @@ object GameSnifferUtil {
 
     private fun stopListeningToDeadConnections(deadConnections: List<DofusConnection>) {
         for (connection in deadConnections) {
-            val characterName = connectionByCharacterName.entries.firstOrNull { e -> e.value == connection }?.key
-                ?: error("There shouldn't be a connection without a character")
-
             messageReceiver.stopListening(connection.hostPort)
-            connectionByCharacterName.remove(characterName)
-            gameInfoByConnection.remove(connection)
-            println("stop listening ($currentInterfaceName): $characterName ($connection)")
+            connectionsByCharacterName.entries.filter { it.value.contains(connection) }
+                .forEach { it.value.remove(connection) }
+            connectionsByCharacterName.entries.removeIf { it.value.isEmpty() }
+            connectionsByGameInfo.entries.filter { it.value.contains(connection) }
+                .forEach { it.value.remove(connection) }
+            connectionsByGameInfo.entries.removeIf { it.value.isEmpty() }
+            println("stop listening (${ConfigManager.config.networkInterfaceName}) : $connection")
         }
     }
 
@@ -120,16 +107,17 @@ object GameSnifferUtil {
         for (connection in newConnections) {
             val characterName = getCharacterNameFromFrame(connection.pid) ?: continue
             val character = CharacterManager.getCharacterByName(characterName) ?: continue
-            val gameInfo = GameInfo(character).also { it.connection = connection }
+            val gameInfo = connectionsByGameInfo.keys.firstOrNull { it.character == character }
+                ?: GameInfo(character).also { it.connection = connection }
             listenToConnection(gameInfo, character, connection)
         }
     }
 
     private fun listenToConnection(gameInfo: GameInfo, character: DofusCharacter, connection: DofusConnection) {
         messageReceiver.startListening(connection, gameInfo.eventStore, character.snifferLogger)
-        connectionByCharacterName[character.pseudo] = connection
-        gameInfoByConnection[connection] = gameInfo
-        println("start listening ($currentInterfaceName) : ${character.pseudo} ($connection)")
+        connectionsByCharacterName.computeIfAbsent(character.pseudo) { ArrayList() }.add(connection)
+        connectionsByGameInfo.computeIfAbsent(gameInfo) { ArrayList() }.add(connection)
+        println("start listening (${ConfigManager.config.networkInterfaceName}) : ${character.pseudo} ($connection)")
     }
 
     private fun getCharacterNameFromFrame(pid: Long): String? {
@@ -139,41 +127,21 @@ object GameSnifferUtil {
     fun getGameInfoByConnection(connection: DofusConnection): GameInfo {
         try {
             lock.lockInterruptibly()
-            return gameInfoByConnection[connection]
+            return connectionsByGameInfo.entries.firstOrNull { it.value.contains(connection) }?.key
                 ?: error("There is no game info associated to connection : ${connection.pid}")
         } finally {
             lock.unlock()
         }
     }
 
-    fun getConnection(character: DofusCharacter): DofusConnection? {
-        try {
-            lock.lockInterruptibly()
-            return connectionByCharacterName[character.pseudo]
-        } finally {
-            lock.unlock()
-        }
+    fun getFirstConnection(character: DofusCharacter): DofusConnection? {
+        return getConnections(character).firstOrNull()
     }
 
-    fun getAllPIDs(): List<Long> {
+    fun getConnections(character: DofusCharacter): List<DofusConnection> {
         try {
             lock.lockInterruptibly()
-            return connectionByCharacterName.values.map { it.pid }
-        } finally {
-            lock.unlock()
-        }
-    }
-
-    fun setGameInfo(connection: DofusConnection, gameInfo: GameInfo) {
-        try {
-            lock.lockInterruptibly()
-            gameInfo.connection = connection
-            val characterName = connectionByCharacterName.entries.firstOrNull { it.value == connection }?.key
-                ?: error("No character for connection : $connection")
-            val character = CharacterManager.getCharacterByName(characterName)
-                ?: error("No character for name : $characterName")
-            stopListeningToDeadConnections(listOf(connection))
-            listenToConnection(gameInfo, character, connection)
+            return connectionsByCharacterName[character.pseudo] ?: emptyList()
         } finally {
             lock.unlock()
         }

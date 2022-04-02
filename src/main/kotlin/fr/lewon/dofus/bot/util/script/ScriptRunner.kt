@@ -5,8 +5,6 @@ import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.windows.RestartGameTask
-import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.util.filemanagers.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
@@ -74,7 +72,7 @@ object ScriptRunner : CharacterManagerListener {
 
     private fun prepareScriptExecution(currentCharacter: DofusCharacter, logItem: LogItem): GameInfo {
         GameSnifferUtil.updateNetwork()
-        val connection = getDofusConnection(currentCharacter, logItem)
+        val connection = GameSnifferUtil.getFirstConnection(currentCharacter) ?: error("Character must be logged in")
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         JNAUtil.updateGameBounds(gameInfo)
 
@@ -83,16 +81,6 @@ object ScriptRunner : CharacterManagerListener {
             gameInfo.shouldInitBoard = false
         }
         return gameInfo
-    }
-
-    private fun getDofusConnection(character: DofusCharacter, logItem: LogItem): DofusConnection {
-        val connectionLog = character.executionLogger.addSubLog("Fetching dofus connection ...", logItem)
-        var connection = GameSnifferUtil.getConnection(character)
-        if (connection == null) {
-            connection = RestartGameTask().run(connectionLog, GameInfo(character))
-        }
-        character.executionLogger.closeLog("OK", connectionLog, true)
-        return connection
     }
 
     @Synchronized

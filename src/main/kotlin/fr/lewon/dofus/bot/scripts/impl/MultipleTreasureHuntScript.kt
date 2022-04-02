@@ -10,7 +10,6 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.windows.RestartGameTask
 import fr.lewon.dofus.bot.util.FormatUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
@@ -26,15 +25,10 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         "Hunt count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
     )
 
-    private val cleanCacheParameter = DofusBotParameter(
-        "Clean cache every", "Amount of hunt(s) before cleaning Dofus cache", "12", DofusBotParameterType.INTEGER
-    )
-
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
             huntLevelParameter,
             huntCountParameter,
-            cleanCacheParameter
         )
     }
 
@@ -56,24 +50,20 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
 
     override fun getDescription(): String {
         val huntCount = huntCountParameter.value.toInt()
-        val cleanCacheEvery = cleanCacheParameter.value.toInt()
         var description = "Executes $huntCount hunt(s) starting with the current treasure hunt by : \n"
         description += " - Reaching treasure hunt start location \n"
         description += " - Finding hints and resolving treasure hunt steps \n"
-        description += " - Fighting the chest at the end \n"
-        description += "Dofus cache will be cleaned every $cleanCacheEvery hunt(s)"
+        description += " - Fighting the chest at the end"
         return description
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
         clearStats()
         var successCount = 0
-        var cleanCacheCount = cleanCacheParameter.value.toInt()
         val huntLevel = HuntLevel.fromLabel(huntLevelParameter.value)
             ?: error("Invalid hunt level")
 
         for (i in 0 until huntCountParameter.value.toInt()) {
-            nextRestartInStat.value = "$cleanCacheCount hunt(s)"
             val fetchStartTimeStamp = System.currentTimeMillis()
             if (gameInfo.treasureHunt == null && !FetchHuntTask(huntLevel).run(logItem, gameInfo)) {
                 error("Couldn't fetch a new hunt")
@@ -97,13 +87,7 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
                 huntDurations.add(huntDuration)
                 averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
             }
-            cleanCacheCount--
             successRateStat.value = "$successCount / ${i + 1}"
-            nextRestartInStat.value = "$cleanCacheCount hunt(s)"
-            if (cleanCacheCount == 0) {
-                RestartGameTask().run(logItem, gameInfo)
-                cleanCacheCount = cleanCacheParameter.value.toInt()
-            }
             if (!success) {
                 SoundType.FAILED.playSound()
                 WaitUtil.sleep(600 * 1000 - huntDuration)

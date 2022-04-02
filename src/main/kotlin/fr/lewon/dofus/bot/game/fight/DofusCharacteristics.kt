@@ -118,9 +118,7 @@ enum class DofusCharacteristics(val id: Int) {
     DODGE_PM_LOST_PROBABILITY_INITIAL_PERCENT(139),
     EXTRA_SCALE_PERCENT(140),
     SPELL_DAMAGE_RECEIVED_PERCENT(141),
-    WEAPON_DAMAGE_RECEIVED_PERCENT(142),
-    MAX_ACTION_POINTS(144),
-    MAX_MOVEMENT_POINTS(145);
+    WEAPON_DAMAGE_RECEIVED_PERCENT(142);
 
     private val dofusCharacteristic = CharacteristicManager.getCharacteristic(id)
         ?: error("No characteristic for id : $id")

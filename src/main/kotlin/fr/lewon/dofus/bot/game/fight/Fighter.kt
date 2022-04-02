@@ -18,6 +18,7 @@ class Fighter(
     var hpLost = 0
     var hpHealed = 0
     var baseHp = 0
+    var shield = 0
     var teamId: Int = -1
 
     fun deepCopy(): Fighter {

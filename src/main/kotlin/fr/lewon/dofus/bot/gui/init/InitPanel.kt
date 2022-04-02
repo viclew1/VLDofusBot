@@ -10,6 +10,7 @@ import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.filemanagers.HintManager
+import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder
 import net.miginfocom.swing.MigLayout
 import org.reflections.Reflections
 import java.awt.Color
@@ -21,8 +22,8 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
     private var errorOnInit = true
 
     private val initTasks = listOf(
-        buildInitTask("Dofus decompiled") { DofusMessageReceiverUtil.prepareNetworkManagers() },
-        buildInitTask("VLDofusBotCore") { VldbCoreInitializer.initAll() },
+        buildInitTask("Dofus decompiled") { DofusMessageReceiverUtil.prepareNetworkManagers(getExportPackBuilders()) },
+        buildInitTask("VLDofusBotCore") { initCore() },
         buildInitTask("File managers") { initFileManagers() },
         buildInitTask("Sniffer handlers") { initEventStoreHandlers() },
     )
@@ -109,6 +110,17 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         initTask.progressBar.isIndeterminate = false
         initTask.progressBar.maximum = 1
         initTask.progressBar.value = 1
+    }
+
+    private fun getExportPackBuilders(): List<VldbAbstractExportPackTaskBuilder> {
+        return listOf(DecryptionKeyExportPackTaskBuilder)
+    }
+
+    private fun initCore() {
+        VldbCoreInitializer.initAll(
+            DecryptionKeyExportPackTaskBuilder.decryptionKey,
+            DecryptionKeyExportPackTaskBuilder.decryptionKeyCharset
+        )
     }
 
     private fun initFileManagers() {

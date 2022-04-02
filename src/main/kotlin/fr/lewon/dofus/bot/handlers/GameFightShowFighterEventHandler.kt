@@ -39,6 +39,12 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
                 fighter.baseStatsById.putAll(baseStats.entries.associate {
                     it.key.id to CharacterCharacteristicValue().also { ccv -> ccv.total = it.value }
                 })
+            } else if (fighterInfo is GameFightCharacterInformations) {
+                val vitality = DofusCharacteristics.VITALITY.getValue(fighter)
+                val curLife = DofusCharacteristics.CUR_LIFE.getValue(fighter)
+                fighter.maxHp += vitality
+                fighter.baseHp += vitality
+                fighter.hpLost -= curLife
             }
         }
     }
@@ -58,14 +64,6 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
                 getSpellLevels(spells, fighterInfo.level)
             }
             else -> emptyList()
-        }
-    }
-
-    private fun getLevel(gameInfo: GameInfo, fighterInfo: GameFightFighterInformations, fighterId: Double): Int {
-        return when {
-            fighterInfo is GameFightMonsterInformations -> fighterInfo.creatureLevel
-            fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> fighterInfo.level
-            else -> 0
         }
     }
 

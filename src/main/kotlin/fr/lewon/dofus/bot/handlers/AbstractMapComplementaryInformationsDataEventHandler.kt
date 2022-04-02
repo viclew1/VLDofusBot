@@ -3,7 +3,6 @@ package fr.lewon.dofus.bot.handlers
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui.alert.SoundType
-import fr.lewon.dofus.bot.gui.overlay.LOSHelper
 import fr.lewon.dofus.bot.gui.panes.status.StatusPanel
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
@@ -43,7 +42,6 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         if (ConfigManager.config.playArchMonsterSound) {
             beepIfArchMonsterHere(gameInfo, socketResult.map)
         }
-        LOSHelper.updateOverlay(gameInfo)
     }
 
     private fun beepIfArchMonsterHere(gameInfo: GameInfo, map: DofusMap) {

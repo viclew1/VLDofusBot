@@ -1,7 +1,8 @@
 package fr.lewon.dofus.bot.gui.overlay
 
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.game.fight.ai.DangerMap
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
+import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -12,13 +13,13 @@ import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
+import java.awt.image.BufferedImage
 import javax.swing.JPanel
 
 object LOSHelper : AbstractOverlay(LOSHelperPanel) {
 
     private var hitBoxByCell: Map<DofusCell, Polygon> = HashMap()
     private lateinit var gameInfo: GameInfo
-    private var dangerByCell: HashMap<Int, Int> = HashMap()
 
     override fun updateOverlay(gameInfo: GameInfo) {
         this.gameInfo = gameInfo
@@ -28,15 +29,6 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
         bounds = Rectangle(gameBounds.x + windowPos.x, gameBounds.y + windowPos.y, gameBounds.width, gameBounds.height)
         contentPane.size = Dimension(gameInfo.gameBounds.width, gameInfo.gameBounds.height)
         hitBoxByCell = gameInfo.dofusBoard.cells.associateWith { buildCellHitBox(it) }
-    }
-
-    fun updateDangerMap(dangerMap: DangerMap) {
-        this.dangerByCell = HashMap()
-        dangerMap.values.flatMap { it.entries }.forEach {
-            val currentDanger = dangerByCell[it.key] ?: 0
-            val addedDanger = it.value
-            dangerByCell[it.key] = currentDanger + addedDanger
-        }
     }
 
     private object LOSHelperPanel : JPanel() {
@@ -92,6 +84,40 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
             accessibleCells.forEach { drawAccessibleCell(g, it) }
             holes.forEach { drawHole(g, it) }
             walls.forEach { drawWall(g, it) }
+            hoveredCell?.let { drawHoveredCellInfo(g, it) }
+        }
+
+        private fun drawHoveredCellInfo(g: Graphics, hoveredCell: DofusCell) {
+            val fighter = gameInfo.fightBoard.getFighter(hoveredCell) ?: return
+            val oldColor = g.color
+            g.color = Color.BLACK
+            val infoRect = buildFighterInfoImage(fighter)
+            val origin = PointAbsolute(gameInfo.gameBounds.x, gameInfo.gameBounds.y)
+            val absCenter = ConverterUtil.toPointAbsolute(gameInfo, hoveredCell.getCenter()).getDifference(origin)
+            g.drawImage(infoRect, absCenter.x, absCenter.y, null)
+            g.color = oldColor
+        }
+
+        private fun buildFighterInfoImage(fighter: Fighter): BufferedImage {
+            val toDrawLines = listOf(
+                "HP : ${fighter.getCurrentHp()} / ${fighter.maxHp}",
+                "Shield : ${DofusCharacteristics.SHIELD.getValue(fighter)}",
+                "Strength : ${DofusCharacteristics.STRENGTH.getValue(fighter)}",
+                "Agility : ${DofusCharacteristics.AGILITY.getValue(fighter)}",
+                "Intelligence : ${DofusCharacteristics.INTELLIGENCE.getValue(fighter)}",
+                "Chance : ${DofusCharacteristics.CHANCE.getValue(fighter)}",
+                "Power : ${DofusCharacteristics.DAMAGES_BONUS_PERCENT.getValue(fighter)}"
+            )
+            val image = BufferedImage(100, 14 * toDrawLines.size, BufferedImage.TYPE_INT_RGB)
+            val g2 = image.graphics as Graphics2D
+            g2.color = Color.DARK_GRAY
+            g2.fillRect(0, 0, image.width, image.height)
+            for ((index, line) in toDrawLines.withIndex()) {
+                val y = (image.height / toDrawLines.size) * (index + 1)
+                g2.color = Color.WHITE
+                g2.drawString(line, image.width / 20, y)
+            }
+            return image
         }
 
         private fun drawLine(g: Graphics, from: PointRelative, to: PointRelative) {
@@ -161,12 +187,6 @@ object LOSHelper : AbstractOverlay(LOSHelperPanel) {
                 g.color = if (isCellAlly) Color.GREEN else Color.RED
                 g.fillPolygon(halfCellPolygon)
             }
-            g.color = Color.BLACK
-            val danger = dangerByCell[cell.cellId] ?: 0
-            val origin = PointAbsolute(gameInfo.gameBounds.x, gameInfo.gameBounds.y)
-            val textLocRelative = PointRelative(cell.getCenter().x - cell.bounds.width / 2, cell.getCenter().y)
-            val absCenter = ConverterUtil.toPointAbsolute(gameInfo, textLocRelative).getDifference(origin)
-            (g as Graphics2D).drawString("$danger", absCenter.x, absCenter.y + g.fontMetrics.height / 3)
             g.color = Color.WHITE
             g.drawPolygon(polygon)
             g.color = oldColor

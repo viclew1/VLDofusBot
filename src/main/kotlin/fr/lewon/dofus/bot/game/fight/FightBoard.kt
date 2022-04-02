@@ -84,7 +84,7 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun summonFighter(fighterId: Double, cellId: Int, spells: List<DofusSpellLevel>, teamId: Int) {
+    fun summonFighter(fighterId: Double, cellId: Int, spells: List<DofusSpellLevel>, teamId: Int): Fighter {
         try {
             lock.lockInterruptibly()
             val cell = dofusBoard.getCell(cellId)
@@ -94,6 +94,7 @@ class FightBoard(private val gameInfo: GameInfo) {
             fighter.spells = spells
             fighter.teamId = teamId
             move(fighter, cell)
+            return fighter
         } finally {
             lock.unlock()
         }

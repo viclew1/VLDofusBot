@@ -15,6 +15,9 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
         const val MAP_HEIGHT = 20
         const val TILE_WIDTH = 1f / (MAP_WIDTH.toFloat() + 0.5f)
         const val TILE_HEIGHT = HEIGHT_RATIO / (MAP_HEIGHT.toFloat() + 0.5f)
+        val INVALID_CELL = DofusCell(
+            Short.MIN_VALUE.toInt(), Short.MIN_VALUE.toInt(), -1, RectangleRelative(0f, 0f, 0f, 0f)
+        )
     }
 
     var startCells: List<DofusCell> = ArrayList()
@@ -72,7 +75,7 @@ class DofusBoard(width: Int = MAP_WIDTH, height: Int = MAP_HEIGHT) {
     }
 
     fun getCell(cellId: Int): DofusCell {
-        return cellsByCellId[cellId] ?: error("No cell with id $cellId")
+        return cellsByCellId[cellId] ?: INVALID_CELL
     }
 
     fun getCell(col: Int, row: Int): DofusCell? {

@@ -65,7 +65,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
                 displayedOverlay = null
             } else if (ConfigManager.config.displayOverlays) {
                 val character = CharacterSelectionPanel.cardList.selectedItem ?: return
-                val connection = GameSnifferUtil.getConnection(character) ?: return
+                val connection = GameSnifferUtil.getFirstConnection(character) ?: return
                 toToggleOverlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
                 displayedOverlay?.isVisible = false
                 toToggleOverlay.isVisible = true

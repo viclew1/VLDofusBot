@@ -60,7 +60,7 @@ object ConfigPanel : JPanel(MigLayout()) {
             println("-----")
             val currentCharacter = CharacterSelectionPanel.cardList.selectedItem
             currentCharacter?.let { c ->
-                GameSnifferUtil.getConnection(c)?.let { connection ->
+                GameSnifferUtil.getFirstConnection(c)?.let { connection ->
                     val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
                     JNAUtil.updateGameBounds(gameInfo)
                     val windowPos = JNAUtil.getGamePosition(connection.pid)
@@ -86,7 +86,7 @@ object ConfigPanel : JPanel(MigLayout()) {
 
     private fun updateNetworkInterface(networkInterfaceName: String) {
         ConfigManager.editConfig { it.networkInterfaceName = networkInterfaceName }
-        GameSnifferUtil.changeNetworkInterface(networkInterfaceName)
+        GameSnifferUtil.updateNetworkInterface()
     }
 
     private fun addLine(leftComponent: JComponent, rightComponent: JComponent, separator: Boolean = true) {

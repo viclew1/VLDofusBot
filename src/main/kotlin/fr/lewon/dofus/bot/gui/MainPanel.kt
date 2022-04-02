@@ -123,7 +123,7 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
 }
 
 fun main() {
-    VldbCoreInitializer.initAll()
+    VldbCoreInitializer.initAll("", "")
     CharacterManager.initManager()
     BreedAssetManager.initManager()
     ConfigManager.initManager()

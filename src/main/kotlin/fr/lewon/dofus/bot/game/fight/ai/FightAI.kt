@@ -9,7 +9,6 @@ import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
-import fr.lewon.dofus.bot.gui.overlay.LOSHelper
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -64,7 +63,6 @@ class FightAI(private val dofusBoard: DofusBoard, private val aiComplement: AICo
         val initialState = FightState(
             fightBoard.deepCopy(), cooldownState, aiComplement, dofusBoard, dangerMap, lastOperation = lastOperation
         )
-        LOSHelper.updateDangerMap(dangerMap)
         val initialNode = Node(initialState, ArrayList(), initialState.evaluate())
 
         var bestNode = initialNode
