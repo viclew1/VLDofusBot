@@ -56,6 +56,10 @@ object TravelUtil {
         return getPath(gameInfo, listOf(destMap))
     }
 
+    fun getReversePath(gameInfo: GameInfo, destMap: DofusMap): List<Transition>? {
+        return WorldGraphUtil.getPath(destMap, 1, listOf(gameInfo.currentMap), gameInfo.buildCharacterBasicInfo())
+    }
+
     fun getPath(gameInfo: GameInfo, destCoordinates: DofusCoordinates): List<Transition>? {
         return getPath(gameInfo, MapManager.getDofusMaps(destCoordinates.x, destCoordinates.y))
     }

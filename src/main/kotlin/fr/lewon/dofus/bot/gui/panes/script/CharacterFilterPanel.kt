@@ -12,6 +12,7 @@ class CharacterFilterPanel : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
 
     fun addCharacter(character: DofusCharacter) {
         val checkBox = JCheckBox()
+        checkBox.addItemListener { GlobalScriptPanel.selectorPanel.updateSelectedCharacters() }
         val label = JLabel("${character.pseudo} (${character.login})")
         checkboxAndLabelByCharacter[character] = checkBox to label
         add(checkBox)

@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-open class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTask() {
+class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         if (destMaps.contains(gameInfo.currentMap)) {
@@ -18,8 +18,7 @@ open class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTas
 
 
     override fun onStarted(): String {
-        val mapsStr = destMaps.map { it.getCoordinates() }
-            .distinct()
+        val mapsStr = destMaps.map { it.getCoordinates() }.distinct()
             .joinToString(", ") { "(${it.x}; ${it.y})" }
         return "Traveling to $mapsStr ..."
     }

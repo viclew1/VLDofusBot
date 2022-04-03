@@ -58,7 +58,6 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
-        clearStats()
         var successCount = 0
         val huntLevel = HuntLevel.fromLabel(huntLevelParameter.value)
             ?: error("Invalid hunt level")
@@ -98,10 +97,4 @@ class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
         }
     }
 
-    private fun clearStats() {
-        huntDurations.clear()
-        successRateStat.resetValue()
-        averageHuntDurationStat.resetValue()
-        nextRestartInStat.resetValue()
-    }
 }

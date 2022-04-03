@@ -52,6 +52,7 @@ object ScriptRunner : CharacterManagerListener {
             try {
                 val gameInfo = prepareScriptExecution(character, logItem)
                 gameInfo.eventStore.clear()
+                dofusScript.getStats().forEach { it.resetValue() }
                 dofusScript.execute(logItem, gameInfo)
                 onScriptOk(character, logItem)
             } catch (e: InterruptedException) {

@@ -9,6 +9,7 @@ enum class DofusBotScripts(val buildScriptFun: () -> DofusBotScript) {
     SMITH_MAGIC({ SmithMagicScript() }),
     EXPLORE_CURRENT_AREA({ ExploreCurrentAreaScript() }),
     EXPLORE_AREA({ ExploreAreaScript() }),
+    EXPLORE_ALL_ZAAPS({ ExploreAllZaapsScript() }),
     REACH_MAP({ ReachMapScript() }),
     TRAVEL({ TravelScript() }),
     INIT_ALL({ InitAllScript() }),

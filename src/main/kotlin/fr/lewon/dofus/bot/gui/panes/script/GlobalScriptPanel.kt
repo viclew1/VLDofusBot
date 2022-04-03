@@ -8,25 +8,21 @@ import net.miginfocom.swing.MigLayout
 import javax.swing.BorderFactory
 import javax.swing.JPanel
 
-class GlobalScriptPanel : JPanel(MigLayout("insets 0, gapX 0, gapY 0")), CharacterManagerListener {
+object GlobalScriptPanel : JPanel(MigLayout("insets 0, gapX 0, gapY 0")), CharacterManagerListener {
 
-    private val characterFilterPanel = CharacterFilterPanel()
-    private val selectorPanel = GlobalScriptSelectorPanel(characterFilterPanel)
+    val characterFilterPanel = CharacterFilterPanel()
+    val selectorPanel = GlobalScriptSelectorPanel()
 
     init {
-        val characters = CharacterManager.getCharacters()
-        for (character in characters) {
+        for (character in CharacterManager.getCharacters()) {
             characterFilterPanel.addCharacter(character)
             selectorPanel.addListenedCharacter(character)
         }
-        characterFilterPanel.getAllCheckboxes().forEach {
-            it.addItemListener { selectorPanel.updateSelectedCharacters() }
-        }
+        CharacterManager.addListener(this)
         add(selectorPanel, "w 340:340:340, h 0:max:max")
         add(characterFilterPanel, "w 0:max:max, h 0:max:max")
         selectorPanel.border = BorderFactory.createEtchedBorder()
         characterFilterPanel.border = BorderFactory.createEtchedBorder()
-        CharacterManager.addListener(this)
     }
 
     override fun onCharacterCreate(character: DofusCharacter) {

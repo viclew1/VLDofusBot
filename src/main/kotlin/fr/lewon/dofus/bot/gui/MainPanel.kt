@@ -59,7 +59,7 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
                     return buildHeaderListener()
                 }
             })
-            addTab("Global scripts") { GlobalScriptPanel() }
+            addTab("Global scripts") { GlobalScriptPanel }
         }
     }
 

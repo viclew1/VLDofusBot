@@ -1,12 +1,12 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelToCoordinatesTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class TravelScript : DofusBotScript("Travel") {
@@ -35,10 +35,17 @@ class TravelScript : DofusBotScript("Travel") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
-        val travelOk = TravelToCoordinatesTask(DofusCoordinates(xParameter.value.toInt(), yParameter.value.toInt()))
-            .run(logItem, gameInfo)
+        val x = xParameter.value.toInt()
+        val y = yParameter.value.toInt()
+        val mapsWithCoords = MapManager.getDofusMaps(x, y)
+        val maps = mapsWithCoords.filter {
+            it.worldMap == gameInfo.currentMap.worldMap && it.subArea.area.superAreaId == gameInfo.currentMap.subArea.area.superAreaId
+        }.takeIf { it.isNotEmpty() }
+            ?: mapsWithCoords
+        val travelOk = TravelTask(maps).run(logItem, gameInfo)
         if (!travelOk) {
-            error("Failed to reach destination")
+            val destMapsStr = maps.joinToString(", ") { "(${it.posX}; ${it.posY})" }
+            error("Failed to reach destinations : $destMapsStr")
         }
     }
 
