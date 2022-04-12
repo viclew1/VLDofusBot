@@ -6,7 +6,7 @@ import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
-
+import java.awt.event.KeyEvent
 
 object KeyboardUtil {
 
@@ -16,24 +16,32 @@ object KeyboardUtil {
         sendKey(gameInfo, ENTER_KEY)
     }
 
-    fun sendKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100) {
+    fun sendKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100, ctrlModifier: Boolean = false) {
         gameInfo.executeThreadedSyncOperation {
             val handle = getHandle(gameInfo)
-            doSendKey(handle, keyEvent)
+            doSendKey(handle, keyEvent, ctrlModifier)
             WaitUtil.sleep(time)
         }
     }
 
-    fun sendKey(gameInfo: GameInfo, key: Char, time: Int = 100) {
-        sendKey(gameInfo, key.code, time)
+    fun sendKey(gameInfo: GameInfo, key: Char, time: Int = 100, ctrlModifier: Boolean = false) {
+        sendKey(gameInfo, key.code, time, ctrlModifier)
     }
 
-    private fun doSendKey(handle: WinDef.HWND, keyEvent: Int) {
+    private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) {
         try {
+            val ctrlKE = KeyEvent.VK_CONTROL
             SystemKeyLock.lockInterruptibly()
+            if (ctrlModifier) {
+                User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((ctrlKE.toLong())), LPARAM(0))
+                User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((ctrlKE.toLong())), LPARAM(0))
+            }
             User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
             User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
             User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+            if (ctrlModifier) {
+                User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((ctrlKE.toLong())), LPARAM(0))
+            }
         } finally {
             SystemKeyLock.unlock()
         }
@@ -43,7 +51,7 @@ object KeyboardUtil {
         gameInfo.executeThreadedSyncOperation {
             val handle = getHandle(gameInfo)
             text.forEach {
-                doSendKey(handle, it.code)
+                doSendKey(handle, it.code, false)
             }
             WaitUtil.sleep(time)
         }

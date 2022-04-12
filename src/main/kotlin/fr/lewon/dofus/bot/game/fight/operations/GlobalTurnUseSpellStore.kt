@@ -1,9 +1,9 @@
 package fr.lewon.dofus.bot.game.fight.operations
 
-class GlobalTurnUseSpellStore : HashMap<Double, TurnSpellUseStore>() {
+class GlobalTurnUseSpellStore : HashMap<Double, TurnUseSpellStore>() {
 
-    fun getTurnSpellUseStore(fighterId: Double): TurnSpellUseStore {
-        return computeIfAbsent(fighterId) { TurnSpellUseStore() }
+    fun getTurnUseSpellStore(fighterId: Double): TurnUseSpellStore {
+        return computeIfAbsent(fighterId) { TurnUseSpellStore() }
     }
 
     fun deepCopy(): GlobalTurnUseSpellStore {

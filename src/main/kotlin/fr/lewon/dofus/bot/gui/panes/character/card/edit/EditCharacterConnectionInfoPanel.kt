@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.gui.panes.character.card.edit
 
-import fr.lewon.dofus.bot.core.model.charac.DofusBreed
 import fr.lewon.dofus.bot.gui.custom.OutlineJLabel
 import fr.lewon.dofus.bot.gui.custom.listrenderer.TextImageComboBox
 import fr.lewon.dofus.bot.gui.util.AppFonts
@@ -17,8 +16,7 @@ import javax.swing.*
 class EditCharacterConnectionInfoPanel(
     character: DofusCharacter,
     spells: List<CharacterSpell>,
-    onSaveAction: (DofusCharacter) -> Unit,
-    private val onBreedChange: (DofusBreed) -> Unit
+    onSaveAction: (DofusCharacter) -> Unit
 ) : JPanel() {
 
     companion object {
@@ -43,7 +41,7 @@ class EditCharacterConnectionInfoPanel(
         it.addCaretListener { updateSaveButton() }
     }
     private val classLabel = OutlineJLabel("Class")
-    private val classComboBox = TextImageComboBox(25, BreedAssetManager.getAllAssets().toTypedArray()).also {
+    val classComboBox = TextImageComboBox(25, BreedAssetManager.getAllAssets().toTypedArray()).also {
         it.addItemListener { updateSaveButton() }
     }
     private val backgroundLabel = JLabel()
@@ -63,7 +61,6 @@ class EditCharacterConnectionInfoPanel(
         classComboBox.addItemListener {
             val dofusBreedAssets = classComboBox.selectedItem as DofusBreedAssets
             updateClass(dofusBreedAssets)
-            onBreedChange(dofusBreedAssets.breed)
         }
         saveButton.addActionListener { saveCharacter(character, spells, onSaveAction) }
 

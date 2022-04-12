@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
+import kotlin.math.abs
 import kotlin.math.max
 
 class FightState(
@@ -93,7 +94,7 @@ class FightState(
         if (spell.needTakenCell && fighter == null || spell.needFreeCell && fighter != null) {
             return false
         }
-        val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnSpellUseStore(currentFighter.id)
+        val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnUseSpellStore(currentFighter.id)
         if (spell.maxCastPerTarget > 0) {
             fighter?.takeIf { turnUseSpellStore.getUsesOnTarget(spell, it.id) >= spell.maxCastPerTarget }
                 ?.let { return false }
@@ -127,7 +128,7 @@ class FightState(
             return false
         }
         if (spell.maxCastPerTurn > 0) {
-            val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnSpellUseStore(currentFighter.id)
+            val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnUseSpellStore(currentFighter.id)
             if (turnUseSpellStore.getTotalUses(spell) >= spell.maxCastPerTurn) {
                 return false
             }
@@ -158,7 +159,7 @@ class FightState(
                 .filter { it.first.isAccessible() }
                 .map { it.first.cellId }
         }
-        val targets = spell.effects.map { it.target }
+        val targets = spell.effects.map { getSpellTarget(it) }
         val fighterCells = getAffectedFighters(targets).map { it.cell.cellId }
         if (spell.needTakenCell || spell.effects.all { it.rawZone.effectZoneType == DofusEffectZoneType.POINT }) {
             return fighterCells
@@ -171,6 +172,13 @@ class FightState(
             return allCells.filter { !fighterCells.contains(it) }
         }
         return allCells
+    }
+
+    private fun getSpellTarget(effect: DofusSpellEffect): DofusSpellTarget {
+        if (effect.effectType.globalType == DofusSpellEffectGlobalType.BUFF) {
+            return DofusSpellTarget.ALLIES_ONLY
+        }
+        return effect.target
     }
 
     private fun getAffectedFighters(spellTargets: List<DofusSpellTarget>): List<Fighter> {
@@ -220,7 +228,7 @@ class FightState(
     private fun useSpell(currentFighter: Fighter, spell: DofusSpellLevel, targetCellId: Int) {
         val target = fb.getFighter(targetCellId)
         val targetId = target?.id ?: Int.MAX_VALUE.toDouble()
-        val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnSpellUseStore(currentFighter.id)
+        val turnUseSpellStore = cooldownState.globalTurnUseSpellStore.getTurnUseSpellStore(currentFighter.id)
         val cooldownSpellStore = cooldownState.globalCooldownSpellStore.getCooldownSpellStore(currentFighter.id)
         val usesThisTurn = turnUseSpellStore.computeIfAbsent(spell) { HashMap() }
         val usesOnThisTarget = usesThisTurn.computeIfAbsent(targetId) { 0 }
@@ -262,7 +270,9 @@ class FightState(
             apScore = DofusCharacteristics.ACTION_POINTS.getValue(playerFighter) * 5
             mpScore = DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)
             if (closestEnemy != null) {
-                distScore = (dofusBoard.getPathLength(playerFighter.cell, closestEnemy.cell) ?: 1000) * 10
+                val dist = dofusBoard.getPathLength(playerFighter.cell, closestEnemy.cell) ?: 1000
+                val preferredDist = aiComplement.getIdealDistance(playerFighter)
+                distScore = -abs(dist - preferredDist) * 10
             }
         }
         return (realAlliesCount * 3000

@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sign
 
 class SpellSimulator(val dofusBoard: DofusBoard) {
@@ -44,6 +45,10 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 simulateBuff(fightersInAOE, DofusCharacteristics.MOVEMENT_POINTS, effect.min)
             DofusSpellEffectType.CRITICAL_BUFF ->
                 simulateBuff(fightersInAOE, DofusCharacteristics.CRITICAL_HIT, effect.min)
+            DofusSpellEffectType.DAMAGE_BUFF ->
+                simulateBuff(fightersInAOE, DofusCharacteristics.ALL_DAMAGES_BONUS, effect.min)
+            DofusSpellEffectType.POWER_BUFF ->
+                simulateBuff(fightersInAOE, DofusCharacteristics.DAMAGES_BONUS_PERCENT, effect.min)
             DofusSpellEffectType.DASH ->
                 simulateDash(fightBoard, caster, targetCell, effect.min)
             DofusSpellEffectType.TELEPORT ->
@@ -56,6 +61,8 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 simulateSwitchPositions(fightBoard, caster, targetCellId)
             DofusSpellEffectType.AIR_DAMAGE, DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.FIRE_DAMAGE, DofusSpellEffectType.NEUTRAL_DAMAGE, DofusSpellEffectType.WATER_DAMAGE ->
                 simulateDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
+            DofusSpellEffectType.MP_DECREASED_EARTH_DAMAGE ->
+                simulateMpDecreasedDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
             DofusSpellEffectType.AIR_LIFE_STEAL, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.FIRE_LIFE_STEAL, DofusSpellEffectType.NEUTRAL_LIFE_STEAL, DofusSpellEffectType.WATER_LIFE_STEAL ->
                 simulateLifeSteal(caster, targetCell, fightersInAOE, effect, criticalHit)
         }
@@ -103,6 +110,27 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 effect, caster, fighter, criticalHit, false
             ).toFloat() * (1f - 0.1f * distToCenter)).toInt()
             fighter.hpLost += realDamage
+        }
+    }
+
+    private fun simulateMpDecreasedDamages(
+        caster: Fighter,
+        aoeCenter: DofusCell,
+        fightersInAOE: List<Fighter>,
+        effect: DofusSpellEffect,
+        criticalHit: Boolean
+    ) {
+        val totalMp = caster.totalMp
+        val mpUsed = caster.totalMp - DofusCharacteristics.MOVEMENT_POINTS.getValue(caster)
+        if (totalMp > 0) {
+            val mpUsedRatio = min(1f, max(0f, (totalMp - mpUsed).toFloat() / totalMp.toFloat()))
+            for (fighter in fightersInAOE) {
+                val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
+                val realDamage = (damageCalculator.getRealEffectDamage(
+                    effect, caster, fighter, criticalHit, false
+                ).toFloat() * mpUsedRatio * (1f - 0.1f * distToCenter)).toInt()
+                fighter.hpLost += realDamage
+            }
         }
     }
 

@@ -19,7 +19,9 @@ class Fighter(
     var hpHealed = 0
     var baseHp = 0
     var shield = 0
-    var teamId: Int = -1
+    var teamId = -1
+    var totalMp = 0
+    var visible = true
 
     fun deepCopy(): Fighter {
         return Fighter(cell, id, isSummon, spells, HashMap(baseStatsById), HashMap(statsById)).also {
@@ -28,10 +30,12 @@ class Fighter(
             it.hpHealed = hpHealed
             it.baseHp = baseHp
             it.teamId = teamId
+            it.totalMp = totalMp
+            it.visible = visible
         }
     }
 
     fun getCurrentHp(): Int {
-        return min(maxHp, baseHp - hpLost + hpHealed)
+        return min(maxHp + shield, baseHp + shield - hpLost + hpHealed)
     }
 }

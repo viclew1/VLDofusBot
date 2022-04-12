@@ -2,55 +2,15 @@ package fr.lewon.dofus.bot.game.fight.ai
 
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffect
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectType
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellTarget
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.Fighter
 
 class DamageCalculator {
 
-    private val cachedSpellDamagesByFighter = HashMap<Double, HashMap<SpellKey, Int>>()
     private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<EffectKey, Int>>()
 
-    private data class SpellKey(val targetId: Double, val spellLevel: DofusSpellLevel, val criticalHit: Boolean)
     private data class EffectKey(val targetId: Double, val spellEffect: DofusSpellEffect, val criticalHit: Boolean)
-
-    fun getRealDamage(
-        spellLevel: DofusSpellLevel,
-        caster: Fighter,
-        target: Fighter,
-        criticalHit: Boolean = false,
-        upperBound: Boolean = false
-    ): Int {
-        val cachedDamages = cachedSpellDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
-        return cachedDamages.computeIfAbsent(SpellKey(target.id, spellLevel, criticalHit)) {
-            computeRealDamage(spellLevel, caster, target, criticalHit, upperBound)
-        }
-    }
-
-    private fun computeRealDamage(
-        spellLevel: DofusSpellLevel,
-        caster: Fighter,
-        target: Fighter,
-        criticalHit: Boolean,
-        upperBound: Boolean
-    ): Int {
-        return if (criticalHit) {
-            computeDamage(spellLevel.effects, caster, target, false, upperBound)
-        } else {
-            computeDamage(spellLevel.criticalEffects, caster, target, true, upperBound)
-        }
-    }
-
-    private fun computeDamage(
-        spellEffects: List<DofusSpellEffect>,
-        caster: Fighter,
-        target: Fighter,
-        criticalHit: Boolean,
-        upperBound: Boolean
-    ): Int {
-        return spellEffects.sumOf { getRealEffectDamage(it, caster, target, criticalHit, upperBound) }
-    }
 
     fun getRealEffectDamage(
         spellEffect: DofusSpellEffect,
@@ -92,7 +52,7 @@ class DamageCalculator {
                 elementResistPer = DofusCharacteristics.WATER_ELEMENT_RESIST_PERCENT
                 elementResist = DofusCharacteristics.WATER_ELEMENT_REDUCTION
             }
-            DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.EARTH_LIFE_STEAL -> {
+            DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.MP_DECREASED_EARTH_DAMAGE -> {
                 elementCharac = DofusCharacteristics.STRENGTH
                 elementDamages = DofusCharacteristics.EARTH_DAMAGE_BONUS
                 elementResistPer = DofusCharacteristics.EARTH_ELEMENT_RESIST_PERCENT

@@ -56,6 +56,16 @@ object WaitUtil {
         }
     }
 
+    fun waitUntilAnyMessageArrives(
+        gameInfo: GameInfo,
+        vararg messageClasses: Class<out INetworkMessage>,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS
+    ) {
+        if (!gameInfo.eventStore.waitUntilAnyMessageArrives(messageClasses, timeout)) {
+            error(getErrorMessage(*messageClasses))
+        }
+    }
+
     fun waitUntilMultipleMessagesArrive(
         gameInfo: GameInfo,
         vararg messageClasses: Class<out INetworkMessage>,

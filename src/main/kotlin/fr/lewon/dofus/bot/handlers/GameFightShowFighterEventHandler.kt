@@ -60,7 +60,7 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
                 getSpellLevels(spells, fighterInfo.creatureLevel)
             }
             fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> {
-                val spells = gameInfo.character.characterSpells.map { it.spell }
+                val spells = gameInfo.character.characterSpells.mapNotNull { it.spell }
                 getSpellLevels(spells, fighterInfo.level)
             }
             else -> emptyList()

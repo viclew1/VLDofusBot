@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.game.fight.ai.complements
 
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
@@ -10,6 +9,7 @@ class DefaultAIComplement(
     private val canAttack: Boolean = true,
     private val canMove: Boolean = true,
     private val shouldUseAllMP: Boolean = false,
+    private val idealDist: Int = 5
 ) : AIComplement() {
 
     override fun canAttack(playerFighter: Fighter): Boolean {
@@ -24,8 +24,8 @@ class DefaultAIComplement(
         return shouldUseAllMP
     }
 
-    override fun getIdealDistance(playerFighter: Fighter, spells: List<DofusSpellLevel>, playerRange: Int): Int {
-        return 5
+    override fun getIdealDistance(playerFighter: Fighter): Int {
+        return idealDist
     }
 
     override fun shouldAvoidUsingMp(): Boolean {
