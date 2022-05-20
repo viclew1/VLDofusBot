@@ -48,9 +48,9 @@ object CharacterManager {
         }
     }
 
-    fun getCharacter(login: String, pseudo: String): DofusCharacter? {
+    fun getCharacter(pseudo: String): DofusCharacter? {
         return characterStore.characters.firstOrNull {
-            it.login.lowercase() == login.lowercase() && it.pseudo.lowercase() == pseudo.lowercase()
+            it.pseudo.lowercase() == pseudo.lowercase()
         }
     }
 
@@ -73,13 +73,11 @@ object CharacterManager {
         listeners.forEach { it.onCharacterMove(character, toIndex) }
     }
 
-    fun addCharacter(
-        login: String, password: String, pseudo: String, dofusClassId: Int, spells: List<CharacterSpell>
-    ): DofusCharacter {
-        getCharacter(login, pseudo)?.let {
-            error("Character already registered : [$login, $pseudo]")
+    fun addCharacter(pseudo: String, dofusClassId: Int, spells: List<CharacterSpell>): DofusCharacter {
+        getCharacter(pseudo)?.let {
+            error("Character already registered : [$pseudo]")
         }
-        val character = DofusCharacter(login, password, pseudo, dofusClassId, characterSpells = ArrayList(spells))
+        val character = DofusCharacter(pseudo, dofusClassId, characterSpells = ArrayList(spells))
         characterStore.characters.add(character)
         saveUserData()
         listeners.forEach { it.onCharacterCreate(character) }
@@ -94,18 +92,14 @@ object CharacterManager {
 
     fun updateCharacter(
         character: DofusCharacter,
-        login: String = character.login,
-        password: String = character.password,
         pseudo: String = character.pseudo,
         dofusClassId: Int = character.dofusClassId,
         spells: List<CharacterSpell> = character.characterSpells
     ) {
-        val existingCharacter = getCharacter(login, pseudo)
+        val existingCharacter = getCharacter(pseudo)
         if (existingCharacter != null && existingCharacter != character) {
-            error("Character already registered : [$login, $pseudo]")
+            error("Character already registered : [$pseudo]")
         }
-        character.login = login
-        character.password = password
         character.pseudo = pseudo
         character.dofusClassId = dofusClassId
         character.characterSpells = ArrayList(spells)

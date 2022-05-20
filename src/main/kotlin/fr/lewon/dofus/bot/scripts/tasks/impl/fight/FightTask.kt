@@ -1,8 +1,9 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
-import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
@@ -17,7 +18,6 @@ import fr.lewon.dofus.bot.sniffer.model.messages.fight.*
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
-import fr.lewon.dofus.bot.util.game.DefaultUIPositions
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.RetryUtil
@@ -100,7 +100,7 @@ open class FightTask(
         val spells = gameInfo.character.characterSpells
         val characterSpellBySpellLevel = HashMap<DofusSpellLevel, CharacterSpell>()
         for (characterSpell in spells) {
-            val spell = characterSpell.spell
+            val spell = characterSpell.spellId?.let { SpellManager.getSpell(it) }
             if (spell != null) {
                 for (level in spell.levels) {
                     characterSpellBySpellLevel[level] = characterSpell
@@ -221,8 +221,7 @@ open class FightTask(
     }
 
     private fun initFight(gameInfo: GameInfo) {
-        val uiPoint = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_FIGHT)
-            ?: DefaultUIPositions.BANNER_UI_POSITION
+        val uiPoint = DofusUIElement.BANNER.getPosition(true)
         val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
         val deltaTopLeftPoint = REF_TOP_LEFT_POINT.opposite().getSum(uiPointRelative)
         val creatureModeBounds = REF_CREATURE_MODE_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)

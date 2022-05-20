@@ -5,7 +5,9 @@ import com.github.kwhat.jnativehook.dispatcher.SwingDispatchService
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
-import fr.lewon.dofus.bot.gui.overlay.LOSHelper
+import fr.lewon.dofus.bot.gui.overlay.impl.BreedingOverlay
+import fr.lewon.dofus.bot.gui.overlay.impl.LOSOverlay
+import fr.lewon.dofus.bot.gui.overlay.impl.UIOverlay
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
 import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
@@ -20,7 +22,9 @@ object KeyboardListener : Thread(), NativeKeyListener {
     private val keysPressed = HashSet<Int>()
     private var modifierPressed = false
     private val keysByOverlay = mapOf(
-        LOSHelper to listOf(NativeKeyEvent.VC_L)
+        LOSOverlay to listOf(NativeKeyEvent.VC_L, NativeKeyEvent.VC_CONTROL),
+        BreedingOverlay to listOf(NativeKeyEvent.VC_B, NativeKeyEvent.VC_CONTROL),
+        UIOverlay to listOf(NativeKeyEvent.VC_U, NativeKeyEvent.VC_CONTROL)
     ).toMap()
     private var displayedOverlay: AbstractOverlay? = null
     private val lock = ReentrantLock()

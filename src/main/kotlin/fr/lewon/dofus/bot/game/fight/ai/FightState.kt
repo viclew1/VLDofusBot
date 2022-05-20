@@ -159,7 +159,7 @@ class FightState(
                 .filter { it.first.isAccessible() }
                 .map { it.first.cellId }
         }
-        val targets = spell.effects.map { getSpellTarget(it) }
+        val targets = spell.effects.flatMap { it.targets }
         val fighterCells = getAffectedFighters(targets).map { it.cell.cellId }
         if (spell.needTakenCell || spell.effects.all { it.rawZone.effectZoneType == DofusEffectZoneType.POINT }) {
             return fighterCells
@@ -174,21 +174,12 @@ class FightState(
         return allCells
     }
 
-    private fun getSpellTarget(effect: DofusSpellEffect): DofusSpellTarget {
-        if (effect.effectType.globalType == DofusSpellEffectGlobalType.BUFF) {
-            return DofusSpellTarget.ALLIES_ONLY
-        }
-        return effect.target
-    }
-
     private fun getAffectedFighters(spellTargets: List<DofusSpellTarget>): List<Fighter> {
-        return when {
-            spellTargets.contains(DofusSpellTarget.EVERYBODY)
-                    || spellTargets.contains(DofusSpellTarget.ALLIES_ONLY)
-                    && spellTargets.contains(DofusSpellTarget.ENEMIES_ONLY) -> fb.getAllFighters()
-            spellTargets.contains(DofusSpellTarget.ALLIES_ONLY) -> fb.getAlliedFighters()
-            spellTargets.contains(DofusSpellTarget.ENEMIES_ONLY) -> fb.getEnemyFighters()
-            else -> emptyList()
+        val playerFighter = getCurrentFighter() ?: return emptyList()
+        return fb.getAllFighters().filter { fighter ->
+            spellTargets.any {
+                it.canHitTarget(playerFighter, fighter)
+            }
         }
     }
 
@@ -243,22 +234,22 @@ class FightState(
 
     fun evaluate(): Double {
         val allies = fb.getAlliedFighters()
-        val realAlliesCount = allies.filter { !it.isSummon }.size
+        val realAlliesCount = allies.filter { !it.isSummon() }.size
         if (realAlliesCount == 0) {
             return Int.MIN_VALUE.toDouble()
         }
         val enemies = fb.getEnemyFighters()
-        val realEnemiesCount = enemies.filter { !it.isSummon }.size
+        val realEnemiesCount = enemies.filter { !it.isSummon() }.size
         if (realEnemiesCount == 0) {
             return Int.MAX_VALUE.toDouble()
         }
         val alliesHp = allies.sumOf {
-            (it.getCurrentHp() * (if (it.isSummon) 0.1f else 1f)).toInt()
+            (it.getCurrentHp() * (if (it.isSummon()) 0.1f else 1f)).toInt()
         }
         val enemiesHp = enemies.sumOf {
-            (it.getCurrentHp() * (if (it.isSummon) 0.1f else 1f)).toInt()
+            (it.getCurrentHp() * (if (it.isSummon()) 0.1f else 1f)).toInt()
         }
-        val danger = allies.filter { !it.isSummon }
+        val danger = allies.filter { !it.isSummon() }
             .sumOf { dangerMap.getCellDanger(it.cell.cellId) }
 
         var distScore = 0

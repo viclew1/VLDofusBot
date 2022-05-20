@@ -1,8 +1,14 @@
 package fr.lewon.dofus.bot.game.fight
 
+import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
+import fr.lewon.dofus.bot.core.model.spell.DofusSpell
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightFighterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightCharacterInformations
 import fr.lewon.dofus.bot.util.network.GameInfo
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
@@ -67,37 +73,50 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun createOrUpdateFighter(
-        fighterId: Double, cellId: Int, spells: List<DofusSpellLevel>? = null, teamId: Int? = null
-    ) {
+    fun createOrUpdateFighter(fighterInfo: GameFightFighterInformations): Fighter {
         try {
             lock.lockInterruptibly()
+            val fighterId = fighterInfo.contextualId
+            val cellId = fighterInfo.spawnInfo.informations.disposition.cellId
+            val spells = getSpellLevels(gameInfo, fighterInfo, fighterId)
             val cell = dofusBoard.getCell(cellId)
             val fighter = fightersById.computeIfAbsent(fighterId) {
-                Fighter(cell, fighterId, false)
-            }
-            spells?.let { fighter.spells = it }
-            teamId?.let { fighter.teamId = teamId }
-            move(fighter, cell)
-        } finally {
-            lock.unlock()
-        }
-    }
-
-    fun summonFighter(fighterId: Double, cellId: Int, spells: List<DofusSpellLevel>, teamId: Int): Fighter {
-        try {
-            lock.lockInterruptibly()
-            val cell = dofusBoard.getCell(cellId)
-            val fighter = fightersById.computeIfAbsent(fighterId) {
-                Fighter(cell, fighterId, true)
+                Fighter(cell, fighterId, fighterInfo)
             }
             fighter.spells = spells
-            fighter.teamId = teamId
+            fighter.teamId = fighterInfo.spawnInfo.teamId
             move(fighter, cell)
             return fighter
         } finally {
             lock.unlock()
         }
+    }
+
+    private fun getSpellLevels(
+        gameInfo: GameInfo,
+        fighterInfo: GameFightFighterInformations,
+        fighterId: Double
+    ): List<DofusSpellLevel> {
+        return when {
+            fighterInfo is GameFightMonsterInformations -> {
+                val spells = MonsterManager.getMonster(fighterInfo.creatureGenericId.toDouble()).spells
+                getSpellLevels(spells, fighterInfo.creatureLevel)
+            }
+            fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> {
+                val spellIds = gameInfo.character.characterSpells.mapNotNull { it.spellId }
+                val spells = spellIds.mapNotNull { SpellManager.getSpell(it) }
+                getSpellLevels(spells, fighterInfo.level)
+            }
+            else -> emptyList()
+        }
+    }
+
+    private fun getSpellLevels(spells: List<DofusSpell>, level: Int): List<DofusSpellLevel> {
+        return spells.mapNotNull { getSpellLevel(it, level) }
+    }
+
+    private fun getSpellLevel(spell: DofusSpell, level: Int): DofusSpellLevel? {
+        return spell.levels.filter { it.minPlayerLevel <= level }.maxByOrNull { it.minPlayerLevel }
     }
 
     fun updateFighterCharacteristics(fighterId: Double, characteristics: List<CharacterCharacteristic>) {
@@ -153,7 +172,7 @@ class FightBoard(private val gameInfo: GameInfo) {
     fun getAllFighters(withSummons: Boolean = true): List<Fighter> {
         try {
             lock.lockInterruptibly()
-            return fightersById.values.toList().filter { withSummons || !it.isSummon }
+            return fightersById.values.toList().filter { withSummons || !it.isSummon() }
         } finally {
             lock.unlock()
         }

@@ -1,12 +1,11 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.arena
 
-import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.arena.GameRolePlayArenaFightPropositionMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.util.game.DefaultUIPositions
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
@@ -57,8 +56,7 @@ class ProcessArenaGameTask : BooleanDofusBotTask() {
     }
 
     private fun getFindMatchRectangle(): RectangleRelative {
-        val arenaFrameLoc = DofusUIPositionsManager.getArenaUiPosition()
-            ?: DefaultUIPositions.ARENA_FRAME_UI_POSITION
+        val arenaFrameLoc = DofusUIElement.ARENA.getPosition()
         val arenaFrameLocPointRelative = ConverterUtil.toPointRelative(arenaFrameLoc)
         val findMatchTopLeft = arenaFrameLocPointRelative.getSum(DELTA_TL_FIND_MATCH)
         val findMatchBottomRight = arenaFrameLocPointRelative.getSum(DELTA_BR_FIND_MATCH)

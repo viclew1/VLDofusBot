@@ -30,17 +30,16 @@ object KeyboardUtil {
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) {
         try {
-            val ctrlKE = KeyEvent.VK_CONTROL
             SystemKeyLock.lockInterruptibly()
             if (ctrlModifier) {
-                User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((ctrlKE.toLong())), LPARAM(0))
-                User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((ctrlKE.toLong())), LPARAM(0))
+                sendUser32Message(handle, WinUser.WM_KEYDOWN, KeyEvent.VK_CONTROL)
+                sendUser32Message(handle, WinUser.WM_CHAR, KeyEvent.VK_CONTROL)
             }
-            User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYDOWN, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
-            User32.INSTANCE.SendMessage(handle, WinUser.WM_CHAR, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
-            User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((keyEvent.toLong())), LPARAM(0))
+            sendUser32Message(handle, WinUser.WM_KEYDOWN, keyEvent)
+            sendUser32Message(handle, WinUser.WM_CHAR, keyEvent)
+            sendUser32Message(handle, WinUser.WM_KEYUP, keyEvent)
             if (ctrlModifier) {
-                User32.INSTANCE.SendMessage(handle, WinUser.WM_KEYUP, WinDef.WPARAM((ctrlKE.toLong())), LPARAM(0))
+                sendUser32Message(handle, WinUser.WM_KEYUP, KeyEvent.VK_CONTROL)
             }
         } finally {
             SystemKeyLock.unlock()
@@ -55,6 +54,10 @@ object KeyboardUtil {
             }
             WaitUtil.sleep(time)
         }
+    }
+
+    private fun sendUser32Message(handle: WinDef.HWND, message: Int, wParam: Int) {
+        User32.INSTANCE.SendMessage(handle, message, WinDef.WPARAM((wParam.toLong())), LPARAM(0))
     }
 
     private fun getHandle(gameInfo: GameInfo): WinDef.HWND {

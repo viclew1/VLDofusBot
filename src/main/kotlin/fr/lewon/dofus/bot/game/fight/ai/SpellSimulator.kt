@@ -38,7 +38,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         val zone = effect.rawZone
         val affectedCells = effectZoneCalculator.getAffectedCells(casterCellId, targetCellId, zone)
         val fightersInAOE = affectedCells.mapNotNull { fightBoard.getFighter(it) }
-            .filter { effectAffects(effect.target, caster, it) }
+            .filter { effectAffects(effect.targets, caster, it) }
         val effectZoneType = effect.rawZone.effectZoneType
         when (effect.effectType) {
             DofusSpellEffectType.MP_BUFF ->
@@ -68,11 +68,9 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         }
     }
 
-    private fun effectAffects(spellTarget: DofusSpellTarget, caster: Fighter, target: Fighter): Boolean {
-        return when (spellTarget) {
-            DofusSpellTarget.EVERYBODY -> true
-            DofusSpellTarget.ALLIES_ONLY -> caster.teamId == target.teamId
-            DofusSpellTarget.ENEMIES_ONLY -> caster.teamId != target.teamId
+    private fun effectAffects(spellTargets: List<DofusSpellTarget>, caster: Fighter, target: Fighter): Boolean {
+        return spellTargets.any {
+            it.canHitTarget(caster, target)
         }
     }
 

@@ -5,8 +5,6 @@ import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 
 data class DofusCharacter(
-    var login: String = "",
-    var password: String = "",
     var pseudo: String = "",
     var dofusClassId: Int = 1,
     var scriptValues: VldbScriptValues = VldbScriptValues(),

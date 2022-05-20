@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
-import fr.lewon.dofus.bot.core.dat.managers.TransportSortingUtil
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.ui.managers.TransportSortingUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil

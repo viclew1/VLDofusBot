@@ -13,7 +13,7 @@ class CharacterFilterPanel : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
     fun addCharacter(character: DofusCharacter) {
         val checkBox = JCheckBox()
         checkBox.addItemListener { GlobalScriptPanel.selectorPanel.updateSelectedCharacters() }
-        val label = JLabel("${character.pseudo} (${character.login})")
+        val label = JLabel(character.pseudo)
         checkboxAndLabelByCharacter[character] = checkBox to label
         add(checkBox)
         add(label, "wrap")
@@ -29,9 +29,5 @@ class CharacterFilterPanel : JPanel(MigLayout("insets 0, gapX 0, gapY 0")) {
 
     fun getSelectedCharacters(): List<DofusCharacter> {
         return checkboxAndLabelByCharacter.filter { it.value.first.isSelected }.map { it.key }
-    }
-
-    fun getAllCheckboxes(): List<JCheckBox> {
-        return checkboxAndLabelByCharacter.values.map { it.first }.toList()
     }
 }

@@ -1,9 +1,8 @@
 package fr.lewon.dofus.bot.handlers
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.core.model.spell.DofusSpell
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
+import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightShowFighterMessage
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
@@ -11,7 +10,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightFighterInfo
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightCharacterInformations
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
-import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessage> {
@@ -20,59 +18,40 @@ object GameFightShowFighterEventHandler : EventHandler<GameFightShowFighterMessa
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         val fighterInfo = socketResult.informations
         val fighterId = fighterInfo.contextualId
-        val cellId = fighterInfo.spawnInfo.informations.disposition.cellId
+        val fighter = gameInfo.fightBoard.createOrUpdateFighter(fighterInfo)
         val characteristics = fighterInfo.stats.characteristics.characteristics
-        val teamId = fighterInfo.spawnInfo.teamId
-        val spells = getSpellLevels(gameInfo, fighterInfo, fighterId)
-        gameInfo.fightBoard.createOrUpdateFighter(fighterId, cellId, spells, teamId)
-        gameInfo.fightBoard.updateFighterCharacteristics(fighterId, characteristics)
+        gameInfo.fightBoard.updateFighterCharacteristics(fighter, characteristics)
         if (fighterId == gameInfo.playerId) {
             gameInfo.updatePlayerFighter()
         } else {
-            val fighter = gameInfo.fightBoard.getFighterById(fighterId)
-                ?: error("Fighter $fighterId should exist")
-            val hp = DofusCharacteristics.LIFE_POINTS.getValue(fighter)
-            fighter.maxHp = hp
-            fighter.baseHp = hp
-            if (fighterInfo is GameFightMonsterInformations) {
-                val baseStats = MonsterManager.getMonster(fighterInfo.creatureGenericId.toDouble()).baseStats
-                fighter.baseStatsById.putAll(baseStats.entries.associate {
-                    it.key.id to CharacterCharacteristicValue().also { ccv -> ccv.total = it.value }
-                })
-            } else if (fighterInfo is GameFightCharacterInformations) {
-                val vitality = DofusCharacteristics.VITALITY.getValue(fighter)
-                val curLife = DofusCharacteristics.CUR_LIFE.getValue(fighter)
-                fighter.maxHp += vitality
-                fighter.baseHp += vitality
-                fighter.hpLost -= curLife
-            }
+            updateFighter(fighter, fighterInfo)
         }
     }
 
-    private fun getSpellLevels(
-        gameInfo: GameInfo,
-        fighterInfo: GameFightFighterInformations,
-        fighterId: Double
-    ): List<DofusSpellLevel> {
-        return when {
-            fighterInfo is GameFightMonsterInformations -> {
-                val spells = MonsterManager.getMonster(fighterInfo.creatureGenericId.toDouble()).spells
-                getSpellLevels(spells, fighterInfo.creatureLevel)
-            }
-            fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> {
-                val spells = gameInfo.character.characterSpells.mapNotNull { it.spell }
-                getSpellLevels(spells, fighterInfo.level)
-            }
-            else -> emptyList()
+    private fun updateFighter(fighter: Fighter, fighterInfo: GameFightFighterInformations) {
+        val hp = DofusCharacteristics.LIFE_POINTS.getValue(fighter)
+        fighter.maxHp = hp
+        fighter.baseHp = hp
+        if (fighterInfo is GameFightMonsterInformations) {
+            updateMonsterFighter(fighter, fighterInfo.creatureGenericId.toDouble())
+        } else if (fighterInfo is GameFightCharacterInformations) {
+            updateCharacterFighter(fighter)
         }
     }
 
-    private fun getSpellLevels(spells: List<DofusSpell>, level: Int): List<DofusSpellLevel> {
-        return spells.mapNotNull { getSpellLevel(it, level) }
+    private fun updateMonsterFighter(fighter: Fighter, monsterGenericId: Double) {
+        val baseStats = MonsterManager.getMonster(monsterGenericId).baseStats
+        fighter.baseStatsById.putAll(baseStats.entries.associate {
+            it.key.id to CharacterCharacteristicValue().also { ccv -> ccv.total = it.value }
+        })
     }
 
-    private fun getSpellLevel(spell: DofusSpell, level: Int): DofusSpellLevel? {
-        return spell.levels.filter { it.minPlayerLevel <= level }.maxByOrNull { it.minPlayerLevel }
+    private fun updateCharacterFighter(fighter: Fighter) {
+        val vitality = DofusCharacteristics.VITALITY.getValue(fighter)
+        val curLife = DofusCharacteristics.CUR_LIFE.getValue(fighter)
+        fighter.maxHp += vitality
+        fighter.baseHp += vitality
+        fighter.hpLost -= curLife
     }
 
 }

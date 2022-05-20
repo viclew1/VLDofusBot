@@ -27,6 +27,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         gameInfo.entityIdByNpcId.clear()
         gameInfo.monsterInfoByEntityId.clear()
         gameInfo.mainMonstersByGroupOnMap.clear()
+        gameInfo.paddockItemByCell.clear()
         socketResult.actors.forEach {
             if (it is GameRolePlayNpcInformations) {
                 gameInfo.entityIdByNpcId[it.npcId] = it.contextualId

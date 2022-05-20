@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.gui.panes.character.card.edit.spells
 
+import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
 import fr.lewon.dofus.bot.gui.panes.character.card.edit.spells.visual.SpellVisualPanel
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
@@ -24,15 +25,15 @@ class SpellBarEditionPanel(
 
         addSpells(false)
         addSpells(true)
-        updateSelectedSpell(spellCellPanels.firstOrNull { it.characterSpell.spell != null })
+        updateSelectedSpell(spellCellPanels.firstOrNull { it.characterSpell.spellId != null })
     }
 
     private fun addSpells(ctrlModifier: Boolean) {
         val constraints = "w 46:46:46, h 46:46:46"
         for (j in 1..9) {
-            addSpellCellPanel(SpellCellPanel(getSpell(j, ctrlModifier)), constraints)
+            addSpellCellPanel(SpellCellPanel(getSpell(j, ctrlModifier), spellVisualPanel), constraints)
         }
-        addSpellCellPanel(SpellCellPanel(getSpell(0, ctrlModifier)), "$constraints, wrap")
+        addSpellCellPanel(SpellCellPanel(getSpell(0, ctrlModifier), spellVisualPanel), "$constraints, wrap")
     }
 
     private fun addSpellCellPanel(spellCellPanel: SpellCellPanel, constraints: String) {
@@ -54,7 +55,8 @@ class SpellBarEditionPanel(
         selectedSpell?.isSelected = false
         selectedSpell = spellCellPanel
         selectedSpell?.isSelected = true
-        spellVisualPanel.visualizeSpell(selectedSpell?.characterSpell?.spell)
+        val spell = selectedSpell?.characterSpell?.spellId?.let { SpellManager.getSpell(it) }
+        spellVisualPanel.visualizeSpell(spell)
     }
 
     fun updateBreed(breedId: Int) {

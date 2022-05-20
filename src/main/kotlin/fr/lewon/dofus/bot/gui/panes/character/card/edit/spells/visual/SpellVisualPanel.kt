@@ -30,19 +30,21 @@ class SpellVisualPanel : JPanel(MigLayout()) {
     }
 
     fun visualizeSpell(spell: DofusSpell?) {
-        val visible = spell != null
-        rangeLabel.isVisible = visible
-        aoeLabel.isVisible = visible
-        areaVisualPanel.isVisible = visible
-        val spellLevel = spell?.levels?.lastOrNull()
-        val spellZone = spellLevel?.effects?.lastOrNull()?.rawZone
-        if (spellLevel != null && spellZone != null) {
-            rangeLabel.text = "Range : ${spellLevel.minRange} to ${spellLevel.maxRange}"
-            if (spellLevel.rangeCanBeBoosted) {
-                rangeLabel.text += " (Modifiable)"
+        SwingUtilities.invokeLater {
+            val visible = spell != null
+            rangeLabel.isVisible = visible
+            aoeLabel.isVisible = visible
+            areaVisualPanel.isVisible = visible
+            val spellLevel = spell?.levels?.lastOrNull()
+            val spellZone = spellLevel?.effects?.lastOrNull()?.rawZone
+            if (spellLevel != null && spellZone != null) {
+                rangeLabel.text = "Range : ${spellLevel.minRange} to ${spellLevel.maxRange}"
+                if (spellLevel.rangeCanBeBoosted) {
+                    rangeLabel.text += " (Modifiable)"
+                }
+                aoeLabel.text = "Area : ${spellZone.effectZoneType.name} (${spellZone.size})"
+                areaVisualPanel.spell = spellLevel
             }
-            aoeLabel.text = "Area : ${spellZone.effectZoneType.name} (${spellZone.size})"
-            areaVisualPanel.spell = spellLevel
         }
     }
 

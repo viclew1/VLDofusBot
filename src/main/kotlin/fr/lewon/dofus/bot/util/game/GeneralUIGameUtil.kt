@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -30,8 +30,7 @@ object GeneralUIGameUtil {
     }
 
     private fun getUiApMpArea(): RectangleRelative {
-        val bannerUiPosition = DofusUIPositionsManager.getBannerUiPosition(DofusUIPositionsManager.CONTEXT_DEFAULT)
-            ?: DefaultUIPositions.BANNER_UI_POSITION
+        val bannerUiPosition = DofusUIElement.BANNER.getPosition()
         val uiPointRelative = ConverterUtil.toPointRelative(bannerUiPosition)
         return RectangleRelative.build(
             uiPointRelative,

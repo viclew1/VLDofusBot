@@ -97,6 +97,30 @@ class EffectZoneCalculator(private val dofusBoard: DofusBoard) {
                     }
                 }
             }
+            DofusEffectZoneType.CONE -> {
+                if (fromCellId == targetCellId) {
+                    return emptyList()
+                }
+                val dCol = col - fromCell.col
+                val dRow = row - fromCell.row
+                val sDCol = dCol.sign
+                val sDRow = dRow.sign
+                val absDCol = abs(dCol)
+                val absDRow = abs(dRow)
+                for (i in 0..areaSize) {
+                    val coneCol = if (absDCol > absDRow) col + i * sDCol else col
+                    val coneRow = if (absDCol > absDRow) row else row + i * sDRow
+                    for (j in 0..i) {
+                        if (absDCol > absDRow) {
+                            dofusBoard.getCell(coneCol, coneRow + j)?.let { cells.add(it) }
+                            dofusBoard.getCell(coneCol, coneRow - j)?.let { cells.add(it) }
+                        } else if (absDCol < absDRow) {
+                            dofusBoard.getCell(coneCol + j, coneRow)?.let { cells.add(it) }
+                            dofusBoard.getCell(coneCol - j, coneRow)?.let { cells.add(it) }
+                        }
+                    }
+                }
+            }
         }
         return cells.filter { it.isAccessible() }
             .map { it.cellId }.distinct()

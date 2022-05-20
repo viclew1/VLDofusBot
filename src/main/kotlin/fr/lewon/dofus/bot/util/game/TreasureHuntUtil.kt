@@ -1,9 +1,9 @@
 package fr.lewon.dofus.bot.util.game
 
-import fr.lewon.dofus.bot.core.dat.managers.DofusUIPositionsManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.fight.ai.complements.TreasureChestAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
@@ -45,7 +45,7 @@ object TreasureHuntUtil {
     private val REF_DELTA_FIGHT_BUTTON_POINT = REF_FIGHT_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
 
     private fun getTreasureHuntUiPosition(): UIPoint {
-        return DofusUIPositionsManager.getTreasureHuntUiPosition() ?: DefaultUIPositions.TREASURE_HUNT_UI_POSITION
+        return DofusUIElement.TREASURE_HUNT.getPosition()
     }
 
     private fun getTopLeftHuntPoint(): PointRelative {

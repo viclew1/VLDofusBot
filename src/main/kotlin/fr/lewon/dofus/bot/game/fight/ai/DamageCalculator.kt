@@ -32,7 +32,7 @@ class DamageCalculator {
         criticalHit: Boolean,
         upperBound: Boolean
     ): Int {
-        if (!effectCanHitTarget(spellEffect.target, caster, target)) {
+        if (!effectCanHitTarget(spellEffect.targets, caster, target)) {
             return 0
         }
         val elementCharac: DofusCharacteristics
@@ -78,11 +78,9 @@ class DamageCalculator {
         )
     }
 
-    private fun effectCanHitTarget(spellTarget: DofusSpellTarget, caster: Fighter, target: Fighter): Boolean {
-        return when (spellTarget) {
-            DofusSpellTarget.ENEMIES_ONLY -> caster.teamId != target.teamId
-            DofusSpellTarget.ALLIES_ONLY -> caster.teamId == target.teamId
-            DofusSpellTarget.EVERYBODY -> true
+    private fun effectCanHitTarget(spellTargets: List<DofusSpellTarget>, caster: Fighter, target: Fighter): Boolean {
+        return spellTargets.any {
+            it.canHitTarget(caster, target)
         }
     }
 

@@ -13,6 +13,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessag
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.model.types.item.breeding.PaddockItem
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import java.awt.Rectangle
 import java.util.concurrent.locks.ReentrantLock
@@ -36,10 +37,11 @@ class GameInfo(val character: DofusCharacter) {
     var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
-    var entityIdByNpcId = HashMap<Int, Double>()
-    var monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()
-    var entityPositionsOnMapByEntityId = HashMap<Double, Int>()
-    var mainMonstersByGroupOnMap = HashMap<GameRolePlayGroupMonsterInformations, DofusMonster>()
+    val entityIdByNpcId = HashMap<Int, Double>()
+    val monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()
+    val entityPositionsOnMapByEntityId = HashMap<Double, Int>()
+    val mainMonstersByGroupOnMap = HashMap<GameRolePlayGroupMonsterInformations, DofusMonster>()
+    val paddockItemByCell = HashMap<Int, PaddockItem>()
 
     var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
     var playerId = -1.0

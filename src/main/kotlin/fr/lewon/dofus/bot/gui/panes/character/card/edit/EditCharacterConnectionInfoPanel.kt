@@ -28,14 +28,6 @@ class EditCharacterConnectionInfoPanel(
         private const val TEXT_FIELD_DELTA_HEIGHT = (LABEL_HEIGHT - TEXT_FIELD_HEIGHT) / 2
     }
 
-    private val loginLabel = OutlineJLabel("Login")
-    private val loginTextField = JTextField(character.login).also {
-        it.addCaretListener { updateSaveButton() }
-    }
-    private val passwordLabel = OutlineJLabel("Password")
-    private val passwordTextField = JPasswordField(character.password).also {
-        it.addCaretListener { updateSaveButton() }
-    }
     private val pseudoLabel = OutlineJLabel("Pseudo")
     private val pseudoTextField = JTextField(character.pseudo).also {
         it.addCaretListener { updateSaveButton() }
@@ -65,8 +57,6 @@ class EditCharacterConnectionInfoPanel(
         saveButton.addActionListener { saveCharacter(character, spells, onSaveAction) }
 
         val labelsInputsPairs = listOf(
-            Pair(loginLabel, loginTextField),
-            Pair(passwordLabel, passwordTextField),
             Pair(pseudoLabel, pseudoTextField),
             Pair(classLabel, classComboBox)
         )
@@ -113,13 +103,7 @@ class EditCharacterConnectionInfoPanel(
     ) {
         errorArea.text = ""
         errorArea.isOpaque = false
-        val existingCharacter = CharacterManager.getCharacter(getLogin(), getPseudo())
-        if (getLogin().isBlank()) {
-            errorArea.text += "- Missing param : login\n"
-        }
-        if (getPassword().isBlank()) {
-            errorArea.text += "- Missing param : password\n"
-        }
+        val existingCharacter = CharacterManager.getCharacter(getPseudo())
         if (getPseudo().isBlank()) {
             errorArea.text += "- Missing param : pseudo\n "
         }
@@ -128,8 +112,6 @@ class EditCharacterConnectionInfoPanel(
         }
         if (errorArea.text.isEmpty()) {
             character.pseudo = getPseudo()
-            character.password = getPassword()
-            character.login = getLogin()
             character.dofusClassId = getDofusClass().breed.id
             character.characterSpells = ArrayList(spells)
             onSaveAction(character)
@@ -139,9 +121,7 @@ class EditCharacterConnectionInfoPanel(
     }
 
     private fun updateSaveButton() {
-        saveButton.isEnabled = getLogin().isNotBlank()
-                && getPassword().isNotBlank()
-                && getPseudo().isNotBlank()
+        saveButton.isEnabled = getPseudo().isNotBlank()
     }
 
     private fun updateClass(dofusBreedAssets: DofusBreedAssets) {
@@ -152,14 +132,6 @@ class EditCharacterConnectionInfoPanel(
             backgroundLabel.setBounds(width / 2 - bgImg.width / 2, 0, bgImg.width, height)
             parent.repaint()
         }
-    }
-
-    private fun getLogin(): String {
-        return loginTextField.text
-    }
-
-    private fun getPassword(): String {
-        return String(passwordTextField.password)
     }
 
     private fun getPseudo(): String {

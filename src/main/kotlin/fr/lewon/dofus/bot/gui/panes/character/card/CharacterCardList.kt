@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 
 class CharacterCardList(cardWidth: Int, characterSelectionPanel: CharacterSelectionPanel) : CardList<DofusCharacter>(
     cardWidth,
-    cardWidth / 4,
+    cardWidth / 6,
     ArrayList(CharacterManager.getCharacters()),
     characterSelectionPanel,
     gapY = 3,

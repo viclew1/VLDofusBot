@@ -1,16 +1,13 @@
 package fr.lewon.dofus.bot.gui.custom.list
 
 import fr.lewon.dofus.bot.gui.util.ImageUtil
-import fr.lewon.dofus.bot.gui.util.UiResource
 import java.awt.Insets
-import java.awt.event.ActionListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.ImageIcon
-import javax.swing.JButton
 import javax.swing.JPanel
 
-abstract class Card<T>(private val cardList: CardList<T>, val item: T) : JPanel() {
+abstract class Card<T>(val cardList: CardList<T>, val item: T) : JPanel() {
 
     companion object {
         private const val BUTTON_HEIGHT_RATIO = 1f / 2f
@@ -18,30 +15,12 @@ abstract class Card<T>(private val cardList: CardList<T>, val item: T) : JPanel(
         private const val BUTTON_DELTA_Y_HEIGHT_RATIO = 1f / 10f
     }
 
-    protected open fun hasEditButton(): Boolean {
-        return true
-    }
-
-    protected open fun hasDeleteButton(): Boolean {
-        return true
-    }
-
     abstract fun updateCard(selected: Boolean)
 
     fun initializeCard(selected: Boolean, width: Int, height: Int) {
         setSize(width, height)
 
-        val buttonInfoList = ArrayList<CardButtonInfo>()
-        if (hasDeleteButton()) {
-            buttonInfoList.add(CardButtonInfo("Delete", UiResource.DELETE) {
-                cardList.removeCard(this)
-            })
-        }
-        if (hasEditButton()) {
-            buttonInfoList.add(CardButtonInfo("Configure character", UiResource.CONFIGURE_CHARACTER) {
-                cardList.cardSelectionPanel.processUpdateItemButton(this)
-            })
-        }
+        val buttonInfoList = buildButtonInfoList()
 
         val buttonMouseListener = object : MouseAdapter() {
             override fun mouseEntered(e: MouseEvent) {
@@ -81,12 +60,8 @@ abstract class Card<T>(private val cardList: CardList<T>, val item: T) : JPanel(
         initializeCard(selected)
     }
 
+    protected abstract fun buildButtonInfoList(): List<CardButtonInfo>
+
     abstract fun initializeCard(selected: Boolean)
 
-    private class CardButtonInfo(
-        val title: String,
-        val uiResource: UiResource,
-        val button: JButton = JButton(),
-        val actionListener: ActionListener,
-    )
 }
