@@ -12,7 +12,8 @@ class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTask() {
         if (destMaps.contains(gameInfo.currentMap)) {
             return true
         }
-        val path = TravelUtil.getPath(gameInfo, destMaps) ?: error("Travel path not found")
+        val path = TravelUtil.getPath(gameInfo, destMaps)
+            ?: error("Couldn't find a path to destination")
         return MoveTask(path).run(logItem, gameInfo)
     }
 

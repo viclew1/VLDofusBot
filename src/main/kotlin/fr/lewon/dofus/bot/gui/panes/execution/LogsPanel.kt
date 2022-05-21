@@ -57,6 +57,8 @@ class LogsPanel(
         logsScrollPane.border = BorderFactory.createEtchedBorder()
         logger.listeners.add(this)
         add(logsScrollPane, "w max, h max")
+
+        onLogsChange(logger.getLogs())
     }
 
     private fun createHeaderToggleButton(tooltipText: String, uiResource: UiResource): JToggleButton {

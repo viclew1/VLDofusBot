@@ -23,8 +23,8 @@ class NpcSpeakTask(private val npcId: Int, private val optionIndexes: List<Int>)
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val npcLocation = InteractiveUtil.getNpcClickPosition(gameInfo, npcId)
-        MouseUtil.leftClick(gameInfo, npcLocation)
         gameInfo.eventStore.clear()
+        MouseUtil.leftClick(gameInfo, npcLocation, 0)
         WaitUtil.waitForEvents(gameInfo, NpcDialogCreationMessage::class.java)
         for (optionIndex in optionIndexes) {
             WaitUtil.waitForEvents(gameInfo, NpcDialogQuestionMessage::class.java, BasicNoOperationMessage::class.java)
@@ -34,8 +34,8 @@ class NpcSpeakTask(private val npcId: Int, private val optionIndexes: List<Int>)
             val optionCount = min(5, dialogQuestionMessage.visibleReplies.size)
             val optionLocation = FIRST_OPTION_LOCATION
                 .getSum(PointRelative(0f, (optionIndex - optionCount + 1) * DELTA_OPTION))
-            MouseUtil.leftClick(gameInfo, optionLocation)
             gameInfo.eventStore.clear()
+            MouseUtil.leftClick(gameInfo, optionLocation, 0)
         }
         WaitUtil.waitForEvents(gameInfo, LeaveDialogMessage::class.java, BasicNoOperationMessage::class.java)
         gameInfo.eventStore.clearUntilLast(LeaveDialogMessage::class.java)

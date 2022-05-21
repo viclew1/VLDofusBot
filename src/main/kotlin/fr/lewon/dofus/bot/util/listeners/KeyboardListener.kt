@@ -6,6 +6,7 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.gui.overlay.impl.BreedingOverlay
+import fr.lewon.dofus.bot.gui.overlay.impl.GfxOverlay
 import fr.lewon.dofus.bot.gui.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.gui.overlay.impl.UIOverlay
 import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
@@ -24,7 +25,8 @@ object KeyboardListener : Thread(), NativeKeyListener {
     private val keysByOverlay = mapOf(
         LOSOverlay to listOf(NativeKeyEvent.VC_L, NativeKeyEvent.VC_CONTROL),
         BreedingOverlay to listOf(NativeKeyEvent.VC_B, NativeKeyEvent.VC_CONTROL),
-        UIOverlay to listOf(NativeKeyEvent.VC_U, NativeKeyEvent.VC_CONTROL)
+        UIOverlay to listOf(NativeKeyEvent.VC_U, NativeKeyEvent.VC_CONTROL),
+        GfxOverlay to listOf(NativeKeyEvent.VC_G, NativeKeyEvent.VC_CONTROL),
     ).toMap()
     private var displayedOverlay: AbstractOverlay? = null
     private val lock = ReentrantLock()

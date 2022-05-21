@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.gui.overlay
 
 import fr.lewon.dofus.bot.game.DofusCell
+import fr.lewon.dofus.bot.gui.overlay.line.OverlayInfoLine
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -14,7 +15,7 @@ abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOv
 
     override fun onHover(mouseLocation: Point) {
         hoveredCell = getCellAtLocation(mouseLocation)
-            ?.takeIf { it.isAccessible() }
+            ?.takeIf { canBeHovered(it) }
         onCellHover()
     }
 
@@ -27,20 +28,21 @@ abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOv
         }
     }
 
-    protected abstract fun getCellContentInfo(cell: DofusCell): List<String>?
+    protected abstract fun getCellContentInfo(cell: DofusCell): List<OverlayInfoLine>?
 
     private fun getCellAtLocation(location: Point): DofusCell? {
         return overlay.hitBoxByCell.entries.firstOrNull { it.value.contains(location) }?.key
     }
 
     override fun drawBackground(g: Graphics) {
-        val holes = overlay.gameInfo.dofusBoard.cells.filter { it.isHole() }
-        val walls = overlay.gameInfo.dofusBoard.cells.filter { it.isWall() }.sortedBy { it.cellId }
-        val accessibleCells = overlay.gameInfo.dofusBoard.cells.filter { it.isAccessible() }
-        accessibleCells.forEach { drawAccessibleCell(g, it) }
-        holes.forEach { drawHole(g, it) }
-        walls.forEach { drawWall(g, it) }
+        val cells = overlay.gameInfo.dofusBoard.cells.sortedBy { it.cellId }
+        cells.filter { it.isAccessible() }.forEach { drawAccessibleCell(g, it) }
+        cells.filter { it.isHole() }.forEach { drawHole(g, it) }
+        cells.filter { it.isWall() }.forEach { drawWall(g, it) }
+        cells.forEach { drawAdditionalCellContent(g, it) }
     }
+
+    abstract fun canBeHovered(cell: DofusCell): Boolean
 
     private fun drawLine(g: Graphics, from: PointRelative, to: PointRelative) {
         val origin = PointAbsolute(overlay.gameInfo.gameBounds.x, overlay.gameInfo.gameBounds.y)
@@ -52,9 +54,15 @@ abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOv
     private fun drawHole(g: Graphics, cell: DofusCell) {
         val polygon = overlay.hitBoxByCell[cell] ?: return
         val oldColor = g.color
-        g.color = Color.BLACK
-        g.fillPolygon(polygon)
+        g.color = getHoleColor()
+        if (g.color != null) {
+            g.fillPolygon(polygon)
+        }
         g.color = oldColor
+    }
+
+    protected open fun getHoleColor(): Color? {
+        return Color.BLACK
     }
 
     private fun drawWall(g: Graphics, cell: DofusCell) {
@@ -73,8 +81,10 @@ abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOv
             listOf(leftBevelPoint, topBevelPoint, rightBevelPoint, rightPoint, bottomPoint, leftPoint)
         )
         val oldColor = g.color
-        g.color = Color.DARK_GRAY
-        g.fillPolygon(polygon)
+        g.color = getWallColor()
+        if (g.color != null) {
+            g.fillPolygon(polygon)
+        }
         g.color = Color.WHITE
         g.drawPolygon(polygon)
         drawLine(g, leftBevelPoint, bottomBevelPoint)
@@ -83,13 +93,18 @@ abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOv
         g.color = oldColor
     }
 
+    protected open fun getWallColor(): Color? {
+        return Color.DARK_GRAY
+    }
+
     private fun drawAccessibleCell(g: Graphics, cell: DofusCell) {
         val color = getCellColor(cell)
         val polygon = overlay.hitBoxByCell[cell] ?: return
         val oldColor = g.color
         g.color = color
-        g.fillPolygon(polygon)
-        drawAdditionalCellContent(g, cell)
+        if (g.color != null) {
+            g.fillPolygon(polygon)
+        }
         g.color = Color.WHITE
         g.drawPolygon(polygon)
         g.color = oldColor

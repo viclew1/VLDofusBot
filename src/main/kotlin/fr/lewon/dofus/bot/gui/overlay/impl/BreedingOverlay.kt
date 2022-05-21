@@ -3,6 +3,8 @@ package fr.lewon.dofus.bot.gui.overlay.impl
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.gui.overlay.AbstractMapOverlay
 import fr.lewon.dofus.bot.gui.overlay.AbstractMapOverlayPanel
+import fr.lewon.dofus.bot.gui.overlay.line.OverlayInfoLine
+import fr.lewon.dofus.bot.gui.overlay.line.OverlayTextLine
 import java.awt.Color
 import java.awt.Graphics
 
@@ -20,6 +22,10 @@ object BreedingOverlay : AbstractMapOverlay() {
             //Nothing
         }
 
+        override fun canBeHovered(cell: DofusCell): Boolean {
+            return true
+        }
+
         override fun getCellColor(cell: DofusCell): Color? {
             return when {
                 overlay.gameInfo.paddockItemByCell[cell.cellId] != null -> Color.YELLOW
@@ -32,13 +38,13 @@ object BreedingOverlay : AbstractMapOverlay() {
             //Nothing
         }
 
-        override fun getCellContentInfo(cell: DofusCell): List<String>? {
+        override fun getCellContentInfo(cell: DofusCell): List<OverlayInfoLine>? {
             return overlay.gameInfo.paddockItemByCell[cell.cellId]?.let { paddockItem ->
                 listOf(
                     "Cell ID : ${paddockItem.cellId}",
                     "Durability : ${paddockItem.durability.durability}",
                     "Max durability : ${paddockItem.durability.durabilityMax}",
-                )
+                ).map { OverlayTextLine(it, 14) }
             }
         }
     }

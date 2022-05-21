@@ -17,7 +17,7 @@ class ParametersPanel(
             val parameterLabel = JLabel(parameter.key).also { it.toolTipText = parameter.description }
             add(parameterLabel, "height 20")
             add(JPanel(), "growX, height 20")
-            add(buildInputField(parameter), "al right, width 80:80:80, height 25, wrap")
+            add(buildInputField(parameter), "al right, width 130:130:130, height 25, wrap")
         }
     }
 

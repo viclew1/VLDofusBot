@@ -5,6 +5,8 @@ import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.gui.overlay.AbstractMapOverlay
 import fr.lewon.dofus.bot.gui.overlay.AbstractMapOverlayPanel
 import fr.lewon.dofus.bot.gui.overlay.OverlayUtil
+import fr.lewon.dofus.bot.gui.overlay.line.OverlayInfoLine
+import fr.lewon.dofus.bot.gui.overlay.line.OverlayTextLine
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import java.awt.Color
 import java.awt.Graphics
@@ -27,6 +29,10 @@ object LOSOverlay : AbstractMapOverlay() {
             } ?: emptyList()
         }
 
+        override fun canBeHovered(cell: DofusCell): Boolean {
+            return cell.isAccessible()
+        }
+
         override fun getCellColor(cell: DofusCell): Color? {
             val fighter = overlay.gameInfo.fightBoard.getFighter(cell)
             val isCellEnemy = fighter?.let { overlay.gameInfo.fightBoard.isFighterEnemy(it) } == true
@@ -41,6 +47,9 @@ object LOSOverlay : AbstractMapOverlay() {
         }
 
         override fun drawAdditionalCellContent(g: Graphics, cell: DofusCell) {
+            if (!cell.isAccessible()) {
+                return
+            }
             val fighter = overlay.gameInfo.fightBoard.getFighter(cell)
             val isCellEnemy = fighter?.let { overlay.gameInfo.fightBoard.isFighterEnemy(it) } == true
             val isCellAlly = fighter?.let { overlay.gameInfo.fightBoard.isFighterEnemy(it) } == false
@@ -59,7 +68,7 @@ object LOSOverlay : AbstractMapOverlay() {
             }
         }
 
-        override fun getCellContentInfo(cell: DofusCell): List<String>? {
+        override fun getCellContentInfo(cell: DofusCell): List<OverlayInfoLine>? {
             return overlay.gameInfo.fightBoard.getFighter(cell)?.let { fighter ->
                 listOf(
                     "HP : ${fighter.getCurrentHp()} / ${fighter.maxHp}",
@@ -69,7 +78,7 @@ object LOSOverlay : AbstractMapOverlay() {
                     "Intelligence : ${DofusCharacteristics.INTELLIGENCE.getValue(fighter)}",
                     "Chance : ${DofusCharacteristics.CHANCE.getValue(fighter)}",
                     "Power : ${DofusCharacteristics.DAMAGES_BONUS_PERCENT.getValue(fighter)}"
-                )
+                ).map { OverlayTextLine(it, 14) }
             }
         }
     }

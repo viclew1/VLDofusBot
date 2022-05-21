@@ -57,8 +57,8 @@ object InteractiveUtil {
         val destCellId = destCellCompleteData.cellId
         val destCell = gameInfo.dofusBoard.getCell(destCellId)
         val destPointRelative = destCell.getCenter().getSum(dRelativePoint)
-        destPointRelative.x = max(0.001f, min(destPointRelative.x, 0.99f))
-        destPointRelative.y = max(0.001f, min(destPointRelative.y, 0.99f))
+        destPointRelative.x = max(0.03f, min(destPointRelative.x, 0.97f))
+        destPointRelative.y = max(0.018f, min(destPointRelative.y, 0.88f))
         return destPointRelative
     }
 

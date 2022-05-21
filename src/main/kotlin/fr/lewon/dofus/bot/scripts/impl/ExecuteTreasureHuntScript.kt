@@ -15,7 +15,7 @@ import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class MultipleTreasureHuntScript : DofusBotScript("Multiple treasure hunts") {
+class ExecuteTreasureHuntScript : DofusBotScript("Execute treasure hunt") {
 
     private val huntLevelParameter = DofusBotParameter(
         "Hunt level", "Hunt level", "200", DofusBotParameterType.CHOICE, HuntLevel.values().map { it.label }

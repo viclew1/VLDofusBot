@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
@@ -12,22 +13,27 @@ import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ExploreSubAreaTask(
     private val subArea: DofusSubArea,
-    private val worldMap: Int,
-    private val killEverything: Boolean = false,
-    private val searchedMonsterName: String = ""
+    private val killEverything: Boolean,
+    private val searchedMonsterName: String,
+    private val stopWhenArchMonsterFound: Boolean,
+    private val stopWhenWantedMonsterFound: Boolean,
+    private val runForever: Boolean
 ) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        val toExploreMaps = MapManager.getDofusMaps(subArea)
-            .filter { it.worldMap == worldMap }
-            .toMutableList()
+        val initialExploreMapsList = MapManager.getDofusMaps(subArea)
+            .filter { it.worldMap != null }
+        if (initialExploreMapsList.isEmpty()) {
+            error("Nothing to explore in this area")
+        }
+        var toExploreMaps = initialExploreMapsList.toMutableList()
         if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
             error("Couldn't reach area")
         }
         toExploreMaps.remove(gameInfo.currentMap)
         var success = false
         while (toExploreMaps.isNotEmpty()) {
-            if (searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }) {
+            if (foundSearchedMonster(gameInfo)) {
                 return true
             }
             if (killEverything) {
@@ -38,18 +44,41 @@ class ExploreSubAreaTask(
             }
             success = true
             toExploreMaps.remove(gameInfo.currentMap)
+            if (toExploreMaps.isEmpty() && runForever) {
+                toExploreMaps = initialExploreMapsList.toMutableList()
+            }
         }
         return success
     }
 
+    private fun foundSearchedMonster(gameInfo: GameInfo): Boolean {
+        return searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }
+                || stopWhenArchMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isArchMonster(it) }
+                || stopWhenWantedMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isWantedMonster(it) }
+    }
+
+    private fun isWantedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean {
+        return isAnyMonsterMatchingPredicate(monsterInfo) { it.isQuestMonster }
+    }
+
     private fun isSearchedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean {
+        return isAnyMonsterMatchingPredicate(monsterInfo) { it.name.lowercase() == searchedMonsterName.lowercase() }
+    }
+
+    private fun isArchMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean {
+        return isAnyMonsterMatchingPredicate(monsterInfo) { it.isMiniBoss }
+    }
+
+    private fun isAnyMonsterMatchingPredicate(
+        monsterInfo: GameRolePlayGroupMonsterInformations,
+        predicate: (DofusMonster) -> Boolean
+    ): Boolean {
         val mainMonster = MonsterManager.getMonster(monsterInfo.staticInfos.mainCreatureLightInfos.genericId.toDouble())
-        if (mainMonster.name.lowercase() == searchedMonsterName.lowercase()) {
+        if (predicate(mainMonster)) {
             return true
         }
         for (underling in monsterInfo.staticInfos.underlings) {
-            val monster = MonsterManager.getMonster(underling.genericId.toDouble())
-            if (monster.name.lowercase() == searchedMonsterName.lowercase()) {
+            if (predicate(MonsterManager.getMonster(underling.genericId.toDouble()))) {
                 return true
             }
         }

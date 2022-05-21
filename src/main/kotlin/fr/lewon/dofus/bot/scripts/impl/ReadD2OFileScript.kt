@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.DofusBotParameter
@@ -35,7 +36,8 @@ class ReadD2OFileScript : DofusBotScript("Read D2O file") {
         val idStr = idParameter.value
         val d2oContent = D2OUtil.getObjects(name).filter { idStr.isBlank() || it["id"].toString() == idStr }
         val subLogItem = gameInfo.logger.addSubLog("D20 File [$name] content : ", logItem, d2oContent.size)
-        d2oContent.forEach { gameInfo.logger.addSubLog(it.toString(), subLogItem) }
+        val mapper = ObjectMapper()
+        d2oContent.forEach { gameInfo.logger.addSubLog(mapper.writeValueAsString(it), subLogItem) }
         gameInfo.logger.closeLog("End", subLogItem)
     }
 

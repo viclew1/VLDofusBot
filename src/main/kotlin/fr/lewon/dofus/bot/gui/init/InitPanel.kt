@@ -126,6 +126,7 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
         CharacterManager.initManager()
         ConfigManager.initManager()
         HintManager.initManager()
+        CustomTransitionManager.initManager()
     }
 
     private fun initEventStoreHandlers() {

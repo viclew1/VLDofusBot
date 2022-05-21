@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2p.maps.cell.CellData
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.move.Direction
@@ -44,6 +45,17 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     }
 
     private fun processTransition(gameInfo: GameInfo, transition: Transition): Boolean {
+        if (!doProcessTransition(gameInfo, transition)) {
+            return false
+        }
+        if (gameInfo.currentMap.id != transition.edge.to.mapId) {
+            val map = MapManager.getDofusMap(transition.edge.to.mapId)
+            error("Movement failed : did not reach expected map (${map.posX}, ${map.posY})")
+        }
+        return true
+    }
+
+    private fun doProcessTransition(gameInfo: GameInfo, transition: Transition): Boolean {
         return when (transition.type) {
             TransitionType.SCROLL, TransitionType.SCROLL_ACTION ->
                 processDefaultMove(gameInfo, Direction.fromInt(transition.direction), transition.cellId)

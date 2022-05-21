@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.gui.overlay
 
 import fr.lewon.dofus.bot.game.DofusCell
+import fr.lewon.dofus.bot.gui.overlay.line.OverlayInfoLine
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -25,18 +26,19 @@ object OverlayUtil {
         g: Graphics,
         overlay: AbstractOverlay,
         hoveredCell: DofusCell,
-        toDrawLines: List<String>,
-        lineHeight: Int = 14
+        toDrawLines: List<OverlayInfoLine>
     ) {
-        val width = toDrawLines.maxOf { g.fontMetrics.stringWidth(it) } + 10
-        val infoWindow = BufferedImage(width, lineHeight * toDrawLines.size + 10, BufferedImage.TYPE_INT_RGB)
+        val totalHeight = toDrawLines.sumOf { it.getHeight(g) } + 10
+        val width = toDrawLines.maxOfOrNull { it.getWidth(g) } ?: return
+        val infoWindow = BufferedImage(width + 15, totalHeight, BufferedImage.TYPE_INT_RGB)
         val g2 = infoWindow.graphics as Graphics2D
         g2.color = Color.DARK_GRAY
         g2.fillRect(0, 0, infoWindow.width, infoWindow.height)
-        for ((index, line) in toDrawLines.withIndex()) {
-            val y = lineHeight * (index + 1)
+        var currentY = 0
+        for (line in toDrawLines) {
             g2.color = Color.WHITE
-            g2.drawString(line, 5, y + 5)
+            line.draw(g2, 0, currentY)
+            currentY += line.getHeight(g)
         }
 
         val origin = PointAbsolute(overlay.gameInfo.gameBounds.x, overlay.gameInfo.gameBounds.y)

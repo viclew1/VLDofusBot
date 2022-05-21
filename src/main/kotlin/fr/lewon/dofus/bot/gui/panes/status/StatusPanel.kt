@@ -22,14 +22,4 @@ object StatusPanel : JPanel(MigLayout("insets 0")) {
         statusLabel.text = text
     }
 
-    fun startLoading(loadingStr: String) {
-        progressCircle.isVisible = true
-        statusLabel.text = loadingStr
-    }
-
-    fun stopLoading() {
-        progressCircle.isVisible = false
-        statusLabel.text = ""
-    }
-
 }
