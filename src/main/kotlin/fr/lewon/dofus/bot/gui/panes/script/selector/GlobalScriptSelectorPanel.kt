@@ -11,6 +11,14 @@ class GlobalScriptSelectorPanel : AbstractScriptSelectorPanel() {
 
     private var startedCount = 0
 
+    override fun onScriptEnd() {
+        // Nothing
+    }
+
+    override fun onScriptStart(script: DofusBotScript) {
+        // Nothing
+    }
+
     fun addListenedCharacter(character: DofusCharacter) {
         removeListenedCharacter(character)
         ScriptRunner.addListener(character, this)

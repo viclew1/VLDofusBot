@@ -13,7 +13,7 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 object ScriptRunner : CharacterManagerListener {
 
     private val listenersByCharacterName = HashMap<String, ArrayList<ScriptRunnerListener>>()
-    private val runningScriptByCharacterName = HashMap<String, Thread>()
+    private val runningScriptByCharacterName = HashMap<String, RunningScript>()
 
     fun addListener(character: DofusCharacter, listener: ScriptRunnerListener) {
         val characterListeners = listenersByCharacterName.computeIfAbsent(character.pseudo) { ArrayList() }
@@ -63,12 +63,17 @@ object ScriptRunner : CharacterManagerListener {
                 onScriptKo(character, t, logItem)
             }
         }
-        runningScriptByCharacterName[character.pseudo] = thread
+        runningScriptByCharacterName[character.pseudo] = RunningScript(dofusScript, thread)
         thread.start()
     }
 
     fun isScriptRunning(character: DofusCharacter): Boolean {
-        return runningScriptByCharacterName[character.pseudo]?.isAlive == true
+        return runningScriptByCharacterName[character.pseudo]?.thread?.isAlive == true
+    }
+
+    fun getRunningScript(character: DofusCharacter): RunningScript? {
+        return runningScriptByCharacterName[character.pseudo]
+            ?.takeIf { it.thread.isAlive }
     }
 
     private fun prepareScriptExecution(currentCharacter: DofusCharacter, logItem: LogItem): GameInfo {
@@ -86,7 +91,7 @@ object ScriptRunner : CharacterManagerListener {
 
     @Synchronized
     fun stopScript(character: DofusCharacter) {
-        runningScriptByCharacterName.remove(character.pseudo)?.interrupt()
+        runningScriptByCharacterName.remove(character.pseudo)?.thread?.interrupt()
     }
 
     private fun onScriptKo(character: DofusCharacter, t: Throwable, logItem: LogItem) {
@@ -110,4 +115,10 @@ object ScriptRunner : CharacterManagerListener {
     private fun onScriptEnd(character: DofusCharacter, endType: DofusBotScriptEndType) {
         listenersByCharacterName[character.pseudo]?.forEach { it.onScriptEnd(character, endType) }
     }
+
+    class RunningScript(
+        val script: DofusBotScript,
+        val thread: Thread,
+        val startTime: Long = System.currentTimeMillis()
+    )
 }

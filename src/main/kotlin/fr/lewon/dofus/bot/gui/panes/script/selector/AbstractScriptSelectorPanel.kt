@@ -2,7 +2,6 @@ package fr.lewon.dofus.bot.gui.panes.script.selector
 
 import fr.lewon.dofus.bot.gui.custom.parameters.ParametersPanel
 import fr.lewon.dofus.bot.gui.panes.script.DofusScriptComboBox
-import fr.lewon.dofus.bot.gui.panes.script.StatsPanel
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.gui.util.UiResource
@@ -29,10 +28,6 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
     private val parametersLabel = JLabel("Parameters").also { it.font = AppFonts.TITLE_FONT }
     private val parametersScrollPane = JScrollPane()
 
-    private val statsSeparator = JSeparator(JSeparator.HORIZONTAL).also { it.isVisible = false }
-    private val statsLabel = JLabel("Stats").also { it.font = AppFonts.TITLE_FONT }.also { it.isVisible = false }
-    private val statsPanel = StatsPanel().also { it.isVisible = false }
-
     private val startStopScriptButton = JButton().also {
         it.isBorderPainted = false
         it.border = null
@@ -45,12 +40,19 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
 
     init {
         SwingUtilities.invokeLater {
-            updateButton()
-            addScriptLauncherPane()
-            addDescriptionPane()
-            addParametersPane()
-            addStatsPane()
+            addPanes()
         }
+    }
+
+    protected open fun addPanes() {
+        updateButton()
+        addScriptLauncherPane()
+        addDescriptionPane()
+        addParametersPane()
+    }
+
+    private fun getScript(): DofusBotScript {
+        return scriptComboBox.selectedItem as DofusBotScript
     }
 
     fun updateButton(running: Boolean = isRunning()) {
@@ -74,7 +76,7 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
         startStopScriptButton.isEnabled = true
     }
 
-    private fun addScriptLauncherPane() {
+    protected open fun addScriptLauncherPane() {
         scriptComboBox.addItemListener { updateScript() }
         updateScript()
         add(JLabel("Script").also { it.font = AppFonts.TITLE_FONT })
@@ -100,17 +102,11 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
         add(parametersSeparator, "span 3 1, width max, wrap")
         add(parametersLabel, "wrap")
         parametersScrollPane.horizontalScrollBar = null
-        add(parametersScrollPane, "span 3 1, h 120:120:120, width max, wrap")
-    }
-
-    private fun addStatsPane() {
-        add(statsSeparator, "span 3 1, width max, wrap")
-        add(statsLabel, "wrap")
-        add(statsPanel, "span 3 1, width max, wrap")
+        add(parametersScrollPane, "span 3 1, h max, width max, wrap")
     }
 
     private fun buildParametersPane(): JPanel {
-        val dofusScript = scriptComboBox.selectedItem as DofusBotScript
+        val dofusScript = getScript()
         val parameters = dofusScript.getParameters()
         parameters.forEach {
             it.value = getInitialParameterValue(it, dofusScript)
@@ -138,8 +134,7 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
     }
 
     private fun updateDescription() {
-        val dofusScript = scriptComboBox.selectedItem as DofusBotScript
-        descriptionTextArea.text = dofusScript.getDescription()
+        descriptionTextArea.text = getScript().getDescription()
     }
 
     private fun toggleScript() {
@@ -152,9 +147,6 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
     }
 
     private fun startScript() {
-        statsSeparator.isVisible = true
-        statsLabel.isVisible = true
-        statsPanel.isVisible = true
         runScript(scriptComboBox.selectedItem as DofusBotScript)
     }
 
@@ -165,18 +157,22 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
     override fun onScriptEnd(character: DofusCharacter, endType: DofusBotScriptEndType) {
         if (scriptEnded(character)) {
             updateButton(false)
-            statsPanel.stopStatsUpdate()
+            onScriptEnd()
         }
     }
+
+    protected abstract fun onScriptEnd()
 
     protected abstract fun scriptEnded(character: DofusCharacter): Boolean
 
     override fun onScriptStart(character: DofusCharacter, script: DofusBotScript) {
         if (scriptStarted(character)) {
-            statsPanel.startStatsUpdate(script)
+            onScriptStart(script)
             updateButton(true)
         }
     }
+
+    protected abstract fun onScriptStart(script: DofusBotScript)
 
     protected abstract fun scriptStarted(character: DofusCharacter): Boolean
 

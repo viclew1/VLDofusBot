@@ -99,6 +99,9 @@ object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
             val title = mainTabbedPane.getTitleAt(index)
             mainTabbedPane.remove(index)
             tabByTitle.remove(title)
+            if (tab is ResourceConsumingPanel) {
+                tab.stopAll()
+            }
         }
     }
 

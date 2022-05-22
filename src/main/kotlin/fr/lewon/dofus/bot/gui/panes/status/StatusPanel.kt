@@ -17,9 +17,9 @@ object StatusPanel : JPanel(MigLayout("insets 0")) {
 
 
     private val statusLabel = JLabel()
-    private val historyLabel = JButton()
+    private val historyButton = JButton()
 
-    private val historyPopupMenu = JPopupMenu()
+    private val historyPopupMenu = JPopupMenu().also { it.add(JMenuItem("No history yet")) }
 
     private val oldMessages = ArrayBlockingQueue<String>(10)
 
@@ -28,36 +28,33 @@ object StatusPanel : JPanel(MigLayout("insets 0")) {
 
         val imageData = UiResource.HISTORY.imageData
         val filledImageData = UiResource.HISTORY.filledImageData
-        historyLabel.icon =
+        historyButton.icon =
             ImageIcon(ImageUtil.getScaledImageKeepHeight(imageData, VldbMainFrame.FOOTER_HEIGHT))
-        historyLabel.rolloverIcon =
+        historyButton.rolloverIcon =
             ImageIcon(ImageUtil.getScaledImageKeepHeight(filledImageData, VldbMainFrame.FOOTER_HEIGHT))
-        historyLabel.pressedIcon = historyLabel.rolloverIcon
-        historyLabel.isContentAreaFilled = false
+        historyButton.pressedIcon = historyButton.rolloverIcon
+        historyButton.isContentAreaFilled = false
 
-        add(historyLabel, "h max")
+        add(historyButton, "h max")
         statusLabel.insets.set(0, 0, 0, 0)
         add(statusLabel, "h max")
-        historyLabel.addMouseListener(object : MouseAdapter() {
-            override fun mouseEntered(e: MouseEvent?) {
+        historyButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
                 showHistory()
-            }
-
-            override fun mouseExited(e: MouseEvent?) {
-                historyPopupMenu.isVisible = false
             }
         })
     }
 
     private fun showHistory() {
-        val x = historyLabel.width
-        val y = -historyPopupMenu.height
-        historyPopupMenu.show(historyLabel, x, y)
-        historyPopupMenu.show(historyLabel, x, y)
+        val y = -8 - historyPopupMenu.components.size * 22
+        historyPopupMenu.show(historyButton, 0, y)
     }
 
     fun changeText(character: DofusCharacter, text: String) {
         if (statusLabel.text.isNotEmpty()) {
+            if (oldMessages.size == 0) {
+                historyPopupMenu.remove(0)
+            }
             if (!oldMessages.offer(statusLabel.text)) {
                 oldMessages.poll()
                 historyPopupMenu.remove(0)

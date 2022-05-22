@@ -98,7 +98,7 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
     }
 
     override fun getStats(): List<DofusBotScriptStat> {
-        return listOf()
+        return emptyList()
     }
 
     override fun getDescription(): String {
