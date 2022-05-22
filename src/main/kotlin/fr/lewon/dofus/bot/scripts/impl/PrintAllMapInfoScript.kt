@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.VldbCoreInitializer
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.entity.NpcManager
@@ -12,6 +13,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
+import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElementSkill
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
@@ -52,11 +54,12 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
             val toMapId = edge.to.mapId
             val edgeLogItem = gameInfo.logger.addSubLog("Edge from : $fromMapId / to : $toMapId", transitionsLogItem)
             edge.transitions.forEach {
-                gameInfo.logger.addSubLog("Transition ID : ${it.id}", edgeLogItem)
-                gameInfo.logger.addSubLog("Transition type : ${it.type}", edgeLogItem)
-                gameInfo.logger.addSubLog("Transition direction : ${it.direction}", edgeLogItem)
-                gameInfo.logger.addSubLog("Transition map ID : ${it.transitionMapId}", edgeLogItem)
-                gameInfo.logger.addSubLog("Transition criterion : ${it.criterion}", edgeLogItem)
+                val transitionLogItem = gameInfo.logger.addSubLog("Transition :", edgeLogItem)
+                gameInfo.logger.addSubLog("ID : ${it.id}", transitionLogItem)
+                gameInfo.logger.addSubLog("type : ${it.type}", transitionLogItem)
+                gameInfo.logger.addSubLog("direction : ${it.direction}", transitionLogItem)
+                gameInfo.logger.addSubLog("map ID : ${it.transitionMapId}", transitionLogItem)
+                gameInfo.logger.addSubLog("criterion : ${it.criterion}", transitionLogItem)
             }
         }
     }
@@ -71,9 +74,17 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
     private fun logInteractiveElement(elementsLogItem: LogItem, gameInfo: GameInfo, element: InteractiveElement) {
         val elementLogItem = gameInfo.logger.addSubLog("Element ${element.elementId} :", elementsLogItem, 100)
         gameInfo.logger.addSubLog("Element type ID : ${element.elementTypeId}", elementLogItem)
-        element.enabledSkills.forEach {
+        val enabledSkillsLogItem = gameInfo.logger.addSubLog("Enabled skills : ", elementLogItem)
+        logSkills(gameInfo, element.enabledSkills, enabledSkillsLogItem)
+        val disabledSkillsLogItem = gameInfo.logger.addSubLog("Disabled skills : ", elementLogItem)
+        logSkills(gameInfo, element.disabledSkills, disabledSkillsLogItem)
+    }
+
+    private fun logSkills(gameInfo: GameInfo, skills: ArrayList<InteractiveElementSkill>, skillsLogItem: LogItem) {
+        skills.forEach {
             val skill = SkillManager.getSkill(it.skillId.toDouble())
-            gameInfo.logger.addSubLog("Skill ${it.skillId} : ${skill?.label ?: "Unknown skill label"}", elementLogItem)
+            val label = skill?.label ?: "Unknown skill label"
+            gameInfo.logger.addSubLog("Skill ${it.skillId} : $label", skillsLogItem)
         }
     }
 

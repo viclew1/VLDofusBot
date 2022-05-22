@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.handlers
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.gui.panes.status.StatusPanel
@@ -10,7 +11,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTr
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc.GameRolePlayNpcInformations
 import fr.lewon.dofus.bot.sniffer.store.EventHandler
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
 import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
@@ -40,18 +40,31 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
-        if (ConfigManager.config.playSpecialMonsterSound) {
-            beepIfSpecialMonsterHere(gameInfo, socketResult.map)
-        }
+        beepIfSpecialMonsterHere(gameInfo, socketResult.map)
     }
 
     private fun beepIfSpecialMonsterHere(gameInfo: GameInfo, map: DofusMap) {
-        gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isMiniBoss || it.value.isQuestMonster }?.let {
-            SoundType.RARE_MONSTER_FOUND.playSound()
-            val mapStr = "(${map.posX}, ${map.posY})"
-            val statusText = "Special monster [${it.value.name}] seen on map $mapStr"
-            StatusPanel.changeText(gameInfo.character, statusText)
+        val archMonster = gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isMiniBoss }?.value
+        val questMonster = gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isQuestMonster }?.value
+        if (archMonster != null) {
+            notifyMonsterSeen(gameInfo, SoundType.ARCH_MONSTER_FOUND, "Arch monster", archMonster, map)
         }
+        if (questMonster != null) {
+            notifyMonsterSeen(gameInfo, SoundType.QUEST_MONSTER_FOUND, "Quest monster", questMonster, map)
+        }
+    }
+
+    private fun notifyMonsterSeen(
+        gameInfo: GameInfo,
+        soundType: SoundType,
+        monsterLabel: String,
+        monster: DofusMonster,
+        map: DofusMap
+    ) {
+        soundType.playSound()
+        val mapStr = "(${map.posX}, ${map.posY})"
+        val statusText = "$monsterLabel [${monster.name}] seen on map $mapStr"
+        StatusPanel.changeText(gameInfo.character, statusText)
     }
 
 }

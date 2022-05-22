@@ -51,7 +51,7 @@ object StatusPanel : JPanel(MigLayout("insets 0")) {
 
     private fun showHistory() {
         val x = historyLabel.width
-        val y = -historyPopupMenu.height + historyLabel.height / 2
+        val y = -historyPopupMenu.height
         historyPopupMenu.show(historyLabel, x, y)
         historyPopupMenu.show(historyLabel, x, y)
     }

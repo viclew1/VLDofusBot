@@ -17,8 +17,10 @@ object ConfigPanel : JPanel(MigLayout()) {
     private val locateCursorButton = JButton("Locate")
     private val displayOverlaysLabel = JLabel("Display overlays")
     private val displayOverlaysCheckBox = JCheckBox()
-    private val specialMonsterSoundLabel = JLabel("Special monster sound")
-    private val specialMonsterSoundCheckBox = JCheckBox()
+    private val archMonsterSoundLabel = JLabel("Arch monster sound")
+    private val archMonsterSoundCheckBox = JCheckBox()
+    private val questMonsterSoundLabel = JLabel("Quest monster sound")
+    private val questMonsterSoundCheckBox = JCheckBox()
     private val networkInterfaceSelectionLabel = JLabel("Network interface")
     private val networkInterfaceSelectionComboBox =
         JComboBox(DofusMessageReceiverUtil.getNetworkInterfaceNames().toTypedArray())
@@ -36,10 +38,17 @@ object ConfigPanel : JPanel(MigLayout()) {
         }
 
         // Arch monster sound
-        specialMonsterSoundCheckBox.isSelected = ConfigManager.config.playSpecialMonsterSound
-        addLine(specialMonsterSoundLabel, specialMonsterSoundCheckBox)
-        specialMonsterSoundCheckBox.addItemListener {
-            updateSpecialMonsterSound(specialMonsterSoundCheckBox.isSelected)
+        archMonsterSoundCheckBox.isSelected = ConfigManager.config.playArchMonsterSound
+        addLine(archMonsterSoundLabel, archMonsterSoundCheckBox)
+        archMonsterSoundCheckBox.addItemListener {
+            updateArchMonsterSound(archMonsterSoundCheckBox.isSelected)
+        }
+
+        // Quest monster sound
+        questMonsterSoundCheckBox.isSelected = ConfigManager.config.playQuestMonsterSound
+        addLine(questMonsterSoundLabel, questMonsterSoundCheckBox)
+        questMonsterSoundCheckBox.addItemListener {
+            updateQuestMonsterSound(questMonsterSoundCheckBox.isSelected)
         }
 
         // Network Interface GUI
@@ -80,8 +89,12 @@ object ConfigPanel : JPanel(MigLayout()) {
         ConfigManager.editConfig { it.displayOverlays = displayOverlays }
     }
 
-    private fun updateSpecialMonsterSound(playSpecialMonsterSound: Boolean) {
-        ConfigManager.editConfig { it.playSpecialMonsterSound = playSpecialMonsterSound }
+    private fun updateArchMonsterSound(playArchMonsterSound: Boolean) {
+        ConfigManager.editConfig { it.playArchMonsterSound = playArchMonsterSound }
+    }
+
+    private fun updateQuestMonsterSound(playQuestMonsterSound: Boolean) {
+        ConfigManager.editConfig { it.playQuestMonsterSound = playQuestMonsterSound }
     }
 
     private fun updateNetworkInterface(networkInterfaceName: String) {

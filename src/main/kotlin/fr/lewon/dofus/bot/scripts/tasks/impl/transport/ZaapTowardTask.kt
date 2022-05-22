@@ -41,8 +41,8 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         MouseUtil.leftClick(gameInfo, firstElementLocation, 200)
         var skippedCount = 0
         while (zaapDestinationIndex - skippedCount >= 10) {
-            MouseUtil.leftClick(gameInfo, tenthElementLocation)
-            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_DOWN, 200)
+            MouseUtil.leftClick(gameInfo, tenthElementLocation, 50)
+            KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_DOWN, 400)
             skippedCount += minOf(10, zaapDestinations.size - 10 - skippedCount)
         }
         val zaapLocation = firstElementLocation.also {

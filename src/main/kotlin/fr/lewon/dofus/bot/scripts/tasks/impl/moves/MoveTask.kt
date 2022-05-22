@@ -38,8 +38,8 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     private fun getTransitionDescription(transition: Transition): String {
         return when (transition.type) {
             TransitionType.SCROLL, TransitionType.SCROLL_ACTION -> Direction.fromInt(transition.direction).toString()
-            TransitionType.MAP_ACTION -> "Cell ${transition.cellId}"
-            TransitionType.INTERACTIVE -> "Element ${transition.id.toInt()}"
+            TransitionType.MAP_ACTION -> "Cell ${transition.cellId} (${transition.id})"
+            TransitionType.INTERACTIVE -> "Element ${transition.id.toInt()} (${transition.id})"
             else -> error("Transition not implemented yet : ${transition.type}")
         }
     }

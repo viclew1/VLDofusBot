@@ -8,5 +8,5 @@ open class DofusBotParameter(
     @field:JsonProperty var value: String = "",
     @field:JsonProperty var type: DofusBotParameterType = DofusBotParameterType.STRING,
     @field:JsonProperty var possibleValues: List<String> = emptyList(),
-    @field:JsonProperty var defaultValue: String = value
+    @field:JsonProperty var defaultValue: String = value,
 )
