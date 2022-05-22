@@ -29,9 +29,11 @@ object VldbMainFrame : JFrame("VL Dofus Bot") {
     private const val DEFAULT_HEIGHT = 768
     private const val HEADER_HEIGHT = 60
     private const val HEADER_BUTTON_WIDTH = 30
-    private const val FOOTER_HEIGHT = 30
+    const val FOOTER_HEIGHT = 30
 
     init {
+        ToolTipManager.sharedInstance().initialDelay = 0
+        ToolTipManager.sharedInstance().dismissDelay = 10000
         isUndecorated = true
         defaultCloseOperation = EXIT_ON_CLOSE
         iconImage = ImageIO.read(VLDofusBot::class.java.getResourceAsStream("/icon/taskbar_logo.png"))

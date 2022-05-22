@@ -11,7 +11,7 @@ abstract class Card<T>(val cardList: CardList<T>, val item: T) : JPanel() {
 
     companion object {
         private const val BUTTON_HEIGHT_RATIO = 1f / 2f
-        private const val BUTTON_DELTA_X_HEIGHT_RATIO = 1f / 4f
+        private const val BUTTON_DELTA_X_HEIGHT_RATIO = 1f / 2f
         private const val BUTTON_DELTA_Y_HEIGHT_RATIO = 1f / 10f
     }
 

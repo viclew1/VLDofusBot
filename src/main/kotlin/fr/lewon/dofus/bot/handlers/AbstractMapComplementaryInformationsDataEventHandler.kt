@@ -40,17 +40,17 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
-        if (ConfigManager.config.playArchMonsterSound) {
-            beepIfArchMonsterHere(gameInfo, socketResult.map)
+        if (ConfigManager.config.playSpecialMonsterSound) {
+            beepIfSpecialMonsterHere(gameInfo, socketResult.map)
         }
     }
 
-    private fun beepIfArchMonsterHere(gameInfo: GameInfo, map: DofusMap) {
-        gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isMiniBoss }?.let {
+    private fun beepIfSpecialMonsterHere(gameInfo: GameInfo, map: DofusMap) {
+        gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isMiniBoss || it.value.isQuestMonster }?.let {
             SoundType.RARE_MONSTER_FOUND.playSound()
             val mapStr = "(${map.posX}, ${map.posY})"
-            val statusText = "${gameInfo.character.pseudo} found arch monster [${it.value.name}] on map $mapStr"
-            StatusPanel.changeText(statusText)
+            val statusText = "Special monster [${it.value.name}] seen on map $mapStr"
+            StatusPanel.changeText(gameInfo.character, statusText)
         }
     }
 

@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.gui.panes.execution
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.logs.VldbLoggerListener
-import fr.lewon.dofus.bot.gui.custom.ext.CollapsiblePanel
+import fr.lewon.dofus.bot.gui.custom.ext.JCollapsiblePanel
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.gui.util.UiResource
@@ -149,7 +149,7 @@ class LogsPanel(
         if (logItem.description.isEmpty()) {
             (component as JTextArea).text = logItem.toString()
         } else {
-            val collapsiblePanel = (component as CollapsiblePanel)
+            val collapsiblePanel = (component as JCollapsiblePanel)
             collapsiblePanel.setTitleComponentText(logItem.toString())
             collapsiblePanel.contentPane
         }
@@ -163,7 +163,7 @@ class LogsPanel(
     }
 
     private fun buildLogItemCellWithDescription(logItem: LogItem): Component {
-        return CollapsiblePanel(logItem.toString()).also {
+        return JCollapsiblePanel(logItem.toString()).also {
             val textArea = JTextArea(logItem.description)
             textArea.lineWrap = true
             textArea.isEditable = false

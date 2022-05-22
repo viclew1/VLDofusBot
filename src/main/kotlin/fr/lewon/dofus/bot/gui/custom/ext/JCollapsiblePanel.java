@@ -50,7 +50,7 @@ import java.awt.event.ItemListener;
 /**
  * The user-triggered collapsable panel containing the component (trigger) in the titled border
  */
-public class CollapsiblePanel extends JPanel {
+public class JCollapsiblePanel extends JPanel {
 
     private static final long serialVersionUID = 1270484262007416569L;
 
@@ -82,8 +82,8 @@ public class CollapsiblePanel extends JPanel {
      *
      * @param component Radio button that expands and collapses the panel based on if it is selected or not
      */
-    public CollapsiblePanel(JRadioButton component) {
-        component.addItemListener(new CollapsiblePanel.ExpandAndCollapseAction());
+    public JCollapsiblePanel(JRadioButton component) {
+        component.addItemListener(new JCollapsiblePanel.ExpandAndCollapseAction());
         titleComponent = component;
         collapsed = !component.isSelected();
         commonConstructor();
@@ -96,7 +96,7 @@ public class CollapsiblePanel extends JPanel {
      *
      * @param text Title of the collapsable panel in string format, used to create a button with text and an arrow icon
      */
-    public CollapsiblePanel(String text) {
+    public JCollapsiblePanel(String text) {
         arrow.setText(text);
         titleComponent = arrow;
         collapsed = true;
@@ -214,7 +214,7 @@ public class CollapsiblePanel extends JPanel {
         button.setFocusable(false);
         button.setContentAreaFilled(false);
 
-        button.addActionListener(new CollapsiblePanel.ExpandAndCollapseAction());
+        button.addActionListener(new JCollapsiblePanel.ExpandAndCollapseAction());
 
         return button;
     }
