@@ -23,7 +23,7 @@ import javax.swing.*
 object MainPanel : JPanel(MigLayout("gapX 0, gapY 0, fill, insets 0")) {
 
     const val CHARACTERS_WIDTH = 260
-    private const val CONFIG_TABS_HEIGHT = 200
+    private const val CONFIG_TABS_HEIGHT = 210
 
     private val leftTabbedPane = JTabbedPane()
     private val mainTabbedPane = JTabbedPane()
