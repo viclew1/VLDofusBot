@@ -4,10 +4,10 @@ import fr.lewon.dofus.bot.core.d2o.managers.item.EffectManager
 import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.alert.SoundType
-import fr.lewon.dofus.bot.scripts.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicCharacteristics
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicLine
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicStrategy

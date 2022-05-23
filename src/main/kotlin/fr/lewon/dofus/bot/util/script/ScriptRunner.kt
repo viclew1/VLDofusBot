@@ -20,6 +20,10 @@ object ScriptRunner : CharacterManagerListener {
         characterListeners.add(listener)
     }
 
+    fun removeListeners(character: DofusCharacter) {
+        listenersByCharacterName[character.pseudo]?.clear()
+    }
+
     fun removeListener(character: DofusCharacter, listener: ScriptRunnerListener) {
         listenersByCharacterName[character.pseudo]?.remove(listener)
     }

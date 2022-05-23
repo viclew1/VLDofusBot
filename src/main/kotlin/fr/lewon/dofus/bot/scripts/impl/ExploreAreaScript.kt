@@ -4,10 +4,10 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
-import fr.lewon.dofus.bot.scripts.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 import java.text.Normalizer
@@ -47,7 +47,13 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
     )
 
     private val subAreaParameter = DofusBotParameter(
-        "Sub area", "Dofus sub area", "", DofusBotParameterType.CHOICE, SUB_AREA_LABELS
+        "Sub area",
+        "Dofus sub area",
+        "",
+        DofusBotParameterType.CHOICE,
+        SUB_AREA_LABELS,
+        parentParameter = currentAreaParameter,
+        displayCondition = { currentAreaParameter.value == "false" }
     )
 
     private val runForeverParameter = DofusBotParameter(

@@ -13,6 +13,9 @@ enum class UiResource(path: String, filledPath: String) {
     AUTO_SCROLL("/icon/ui/auto_scroll.png", "/icon/ui/auto_scroll_filled.png"),
     ERASE("/icon/ui/erase.png", "/icon/ui/erase_filled.png"),
     HISTORY("/icon/ui/history.png", "/icon/ui/history_filled.png"),
+    BLACK_CIRCLE("/icon/ui/black_circle.png", "/icon/ui/black_circle.png"),
+    RED_CIRCLE("/icon/ui/red_circle.png", "/icon/ui/red_circle.png"),
+    GREEN_CIRCLE("/icon/ui/green_circle.png", "/icon/ui/green_circle.png"),
     ;
 
     val imageData = javaClass.getResourceAsStream(path)?.readAllBytes()

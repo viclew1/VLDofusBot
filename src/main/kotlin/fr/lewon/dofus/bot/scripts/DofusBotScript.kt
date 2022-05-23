@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 abstract class DofusBotScript(val name: String) {

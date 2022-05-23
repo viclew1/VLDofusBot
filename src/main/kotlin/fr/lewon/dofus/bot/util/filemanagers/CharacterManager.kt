@@ -7,9 +7,10 @@ import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
-import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.filemanagers.listeners.CharacterManagerListener
+import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
@@ -87,6 +88,7 @@ object CharacterManager {
     fun removeCharacter(character: DofusCharacter) {
         characterStore.characters.remove(character)
         saveUserData()
+        ScriptRunner.removeListeners(character)
         listeners.forEach { it.onCharacterDelete(character) }
     }
 

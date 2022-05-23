@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.scripts
+package fr.lewon.dofus.bot.scripts.parameters
 
 enum class DofusBotParameterType {
 

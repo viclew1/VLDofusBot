@@ -2,8 +2,8 @@ package fr.lewon.dofus.bot.gui.panes.script.selector
 
 import fr.lewon.dofus.bot.gui.panes.script.GlobalScriptPanel
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.scripts.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.filemanagers.CharacterManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 

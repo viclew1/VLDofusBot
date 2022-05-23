@@ -3,10 +3,10 @@ package fr.lewon.dofus.bot.scripts.impl
 import com.fasterxml.jackson.databind.ObjectMapper
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.util.network.GameInfo
 
 class ReadD2OFileScript : DofusBotScript("Read D2O file") {

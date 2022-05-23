@@ -7,7 +7,11 @@ import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.model.characters.DofusBreedAssets
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.util.filemanagers.BreedAssetManager
+import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
+import fr.lewon.dofus.bot.util.script.ScriptRunner
+import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -19,7 +23,7 @@ import javax.swing.border.EmptyBorder
 
 
 class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
-    Card<DofusCharacter>(cardList, character) {
+    Card<DofusCharacter>(cardList, character), ScriptRunnerListener {
 
     companion object {
         private const val BLUR_RATIO = 0.75f
@@ -31,6 +35,8 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
         private const val ICON_DELTA_HEIGHT_RATIO = 1f / 4f
         private const val ICON_HEIGHT_RATIO = 1f + 2f * ICON_DELTA_HEIGHT_RATIO
 
+        private const val ACTIVITY_HEIGHT_RATIO = 2f / 5f
+
         private const val LABEL_DELTA_HEIGHT_RATIO = 1f / 6f
         private const val LABEL_HEIGHT_RATIO = 2f / 3f
         private const val LABEL_DELTA_WIDTH_RATIO = 1f / 5f
@@ -40,6 +46,7 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
     private val iconLabel = JLabel()
     private val backgroundLabel = JLabel()
     private val pseudoLabel = OutlineJLabel()
+    private val activityLabel = JLabel()
 
     private var dofusClassId = character.dofusClassId
     private lateinit var bgImg: BufferedImage
@@ -59,6 +66,8 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
 
         pseudoLabel.horizontalAlignment = SwingConstants.LEFT
         pseudoLabel.verticalAlignment = SwingConstants.CENTER
+
+        ScriptRunner.addListener(character, this)
     }
 
     override fun buildButtonInfoList(): List<CardButtonInfo> {
@@ -74,6 +83,7 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
 
     override fun initializeCard(selected: Boolean) {
         add(pseudoLabel)
+        add(activityLabel)
         add(iconLabel)
         add(backgroundLabel)
 
@@ -89,6 +99,12 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
             (width * BANNER_WIDTH_RATIO).toInt(),
             height + 5
         )
+        activityLabel.setBounds(
+            (width - 2 * ACTIVITY_HEIGHT_RATIO * height - 5).toInt(),
+            (height - ACTIVITY_HEIGHT_RATIO * height - 2).toInt(),
+            (ACTIVITY_HEIGHT_RATIO * height).toInt(),
+            (ACTIVITY_HEIGHT_RATIO * height).toInt()
+        )
 
         updatePseudo(
             item.pseudo,
@@ -102,6 +118,12 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
         updateBgImg(dofusClass)
         updateIconImg(dofusClass)
         updateCard(selected)
+        updateActivityIcon(UiResource.BLACK_CIRCLE)
+        activityLabel.toolTipText = "Not initialized yet"
+    }
+
+    private fun updateActivityIcon(resource: UiResource) {
+        activityLabel.icon = ImageIcon(ImageUtil.getScaledImage(resource.imageData, activityLabel.bounds.width))
     }
 
     private fun updatePseudo(text: String, x: Int, y: Int, w: Int, h: Int) {
@@ -118,6 +140,16 @@ class CharacterCard(cardList: CharacterCardList, character: DofusCharacter) :
         }
         updateBlurredImg(selected)
         pseudoLabel.text = item.pseudo
+    }
+
+    override fun onScriptStart(character: DofusCharacter, script: DofusBotScript) {
+        activityLabel.toolTipText = "Script running : ${script.name}"
+        updateActivityIcon(UiResource.RED_CIRCLE)
+    }
+
+    override fun onScriptEnd(character: DofusCharacter, endType: DofusBotScriptEndType) {
+        activityLabel.toolTipText = "Available"
+        updateActivityIcon(UiResource.GREEN_CIRCLE)
     }
 
     private fun updateBgImg(dofusBreedAssets: DofusBreedAssets) {
