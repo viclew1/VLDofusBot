@@ -18,7 +18,8 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
 
         private val SUB_AREAS = SubAreaManager.getAllSubAreas()
             .filter {
-                MapManager.getDofusMaps(it).isNotEmpty()
+                ExploreSubAreaTask.SUB_AREA_ID_FULLY_ALLOWED.contains(it.id)
+                        || MapManager.getDofusMaps(it).isNotEmpty()
                         && !it.isConquestVillage
                         && it.monsters.isNotEmpty()
                         && it.area.superAreaId == 0

@@ -20,9 +20,17 @@ class ExploreSubAreaTask(
     private val runForever: Boolean
 ) : BooleanDofusBotTask() {
 
+    companion object {
+        val SUB_AREA_ID_FULLY_ALLOWED = listOf(
+            99.0, 100.0, 181.0, // Astrub undergrounds
+            7.0, // Amakna crypts
+            813.0, // Shadow dimension
+        )
+    }
+
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val initialExploreMapsList = MapManager.getDofusMaps(subArea)
-            .filter { it.worldMap != null }
+            .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
         if (initialExploreMapsList.isEmpty()) {
             error("Nothing to explore in this area")
         }

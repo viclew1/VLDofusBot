@@ -49,9 +49,8 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
             ?: error("No vertex found")
         val edges = WorldGraphUtil.getOutgoingEdges(currentVertex)
         edges.forEach { edge ->
-            val fromMapId = edge.from.mapId
             val toMapId = edge.to.mapId
-            val edgeLogItem = gameInfo.logger.addSubLog("Edge from : $fromMapId / to : $toMapId", transitionsLogItem)
+            val edgeLogItem = gameInfo.logger.addSubLog("Edge to : $toMapId", transitionsLogItem)
             edge.transitions.forEach {
                 val transitionLogItem = gameInfo.logger.addSubLog("Transition :", edgeLogItem)
                 gameInfo.logger.addSubLog("ID : ${it.id}", transitionLogItem)
