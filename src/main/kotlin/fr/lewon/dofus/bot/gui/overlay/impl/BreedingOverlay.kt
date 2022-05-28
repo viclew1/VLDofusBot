@@ -12,6 +12,10 @@ object BreedingOverlay : AbstractMapOverlay() {
 
     private val PADDOCK_ITEM_CELL_IDS = listOf(356, 342, 329, 315, 314)
 
+    override fun additionalInit() {
+        // Nothing
+    }
+
     override fun buildContentPane(): AbstractMapOverlayPanel {
         return BreedingHelperPanel(this)
     }

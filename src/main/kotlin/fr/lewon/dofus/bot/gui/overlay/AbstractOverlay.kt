@@ -1,30 +1,33 @@
 package fr.lewon.dofus.bot.gui.overlay
 
-import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
 import java.awt.Color
 import java.awt.Dimension
-import java.awt.Polygon
 import java.awt.Rectangle
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 abstract class AbstractOverlay : JFrame() {
 
-    var hitBoxByCell: Map<DofusCell, Polygon> = HashMap()
     lateinit var gameInfo: GameInfo
     val overlayBounds by lazy {
         buildOverlayBounds()
     }
 
     init {
-        isAlwaysOnTop = true
-        isUndecorated = true
-        this.contentPane = buildContentPane()
-        this.contentPane.background = Color.GRAY
-        opacity = 0.60f
+        SwingUtilities.invokeLater {
+            isAlwaysOnTop = true
+            isUndecorated = true
+            opacity = 0.60f
+            additionalInit()
+            this.contentPane = buildContentPane()
+            this.contentPane.background = Color.GRAY
+        }
     }
+
+    abstract fun additionalInit()
 
     protected abstract fun buildContentPane(): JPanel
 

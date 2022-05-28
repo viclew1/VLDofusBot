@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.scripts.impl
+package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class ReadSpellInfoScript : DofusBotScript("Read spell info") {
+class ReadSpellInfoScript : DofusBotScript("Read spell info", true) {
 
     private val nameParameter = DofusBotParameter(
         "Name", "Spell name", "", DofusBotParameterType.STRING

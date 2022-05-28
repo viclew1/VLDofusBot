@@ -30,7 +30,7 @@ object OverlayUtil {
     ) {
         val totalHeight = toDrawLines.sumOf { it.getHeight(g) } + 10
         val width = toDrawLines.maxOfOrNull { it.getWidth(g) } ?: return
-        val infoWindow = BufferedImage(width + 15, totalHeight, BufferedImage.TYPE_INT_RGB)
+        val infoWindow = BufferedImage(width + 30, totalHeight, BufferedImage.TYPE_INT_RGB)
         val g2 = infoWindow.graphics as Graphics2D
         g2.color = Color.DARK_GRAY
         g2.fillRect(0, 0, infoWindow.width, infoWindow.height)
@@ -42,10 +42,20 @@ object OverlayUtil {
         }
 
         val origin = PointAbsolute(overlay.gameInfo.gameBounds.x, overlay.gameInfo.gameBounds.y)
-        val absCenter = ConverterUtil.toPointAbsolute(
-            overlay.gameInfo, hoveredCell.getCenter()
-        ).getDifference(origin)
-        g.drawImage(infoWindow, absCenter.x, absCenter.y, null)
+        val drawOrigin = ConverterUtil.toPointAbsolute(overlay.gameInfo, hoveredCell.getCenter())
+            .getDifference(origin)
+        val bottomRightPointAbsolute = ConverterUtil.toPointAbsolute(overlay.gameInfo, hoveredCell.getCenter())
+            .getSum(PointAbsolute(infoWindow.width, infoWindow.height))
+        val bottomRightPointRelative = ConverterUtil.toPointRelative(overlay.gameInfo, bottomRightPointAbsolute)
+        var x = drawOrigin.x
+        if (bottomRightPointRelative.x > 1.0f) {
+            x -= infoWindow.width
+        }
+        var y = drawOrigin.y
+        if (bottomRightPointRelative.y > 1.0f) {
+            y -= infoWindow.height
+        }
+        g.drawImage(infoWindow, x, y, null)
     }
 
 }

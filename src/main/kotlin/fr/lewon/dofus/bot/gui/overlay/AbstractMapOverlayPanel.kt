@@ -11,6 +11,7 @@ import java.awt.Point
 
 abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOverlayPanel(overlay) {
 
+    override lateinit var overlay: AbstractMapOverlay
     var hoveredCell: DofusCell? = null
 
     override fun onHover(mouseLocation: Point) {

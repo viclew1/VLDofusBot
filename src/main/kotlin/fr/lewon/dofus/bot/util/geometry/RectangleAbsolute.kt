@@ -1,5 +1,7 @@
 package fr.lewon.dofus.bot.util.geometry
 
+import java.awt.Rectangle
+
 class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int) :
     IRectangle<RectangleAbsolute, PointAbsolute> {
 
@@ -9,6 +11,9 @@ class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int)
             return RectangleAbsolute(topLeft.x, topLeft.y, topRight.x - topLeft.x, topRight.y - topLeft.y)
         }
 
+        fun build(rectangle: Rectangle): RectangleAbsolute {
+            return RectangleAbsolute(rectangle.x, rectangle.y, rectangle.width, rectangle.height)
+        }
     }
 
     override fun getCenter(): PointAbsolute {

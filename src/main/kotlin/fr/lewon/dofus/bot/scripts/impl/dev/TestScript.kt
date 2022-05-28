@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.scripts.impl
+package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.DofusBotScript
@@ -7,8 +7,7 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class TestScript : DofusBotScript("Test") {
-
+class TestScript : DofusBotScript("Test", true) {
 
     override fun getParameters(): List<DofusBotParameter> {
         return listOf()

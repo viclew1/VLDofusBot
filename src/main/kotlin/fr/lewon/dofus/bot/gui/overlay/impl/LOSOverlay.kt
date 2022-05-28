@@ -13,6 +13,10 @@ import java.awt.Graphics
 
 object LOSOverlay : AbstractMapOverlay() {
 
+    override fun additionalInit() {
+        // Nothing
+    }
+    
     override fun buildContentPane(): AbstractMapOverlayPanel {
         return LOSHelperPanel(this)
     }

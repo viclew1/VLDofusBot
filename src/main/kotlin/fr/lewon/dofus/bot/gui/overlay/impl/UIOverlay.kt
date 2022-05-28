@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.gui.overlay.impl
 
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
-import fr.lewon.dofus.bot.core.ui.xml.modele.uixml.Container
+import fr.lewon.dofus.bot.core.ui.xml.containers.Container
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.gui.overlay.AbstractOverlayPanel
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -16,6 +16,10 @@ import javax.swing.JPanel
 
 object UIOverlay : AbstractOverlay() {
 
+    override fun additionalInit() {
+        // Nothing
+    }
+
     override fun buildContentPane(): JPanel {
         return UIOverlayPanel(this)
     }
@@ -26,40 +30,54 @@ object UIOverlay : AbstractOverlay() {
 
     override fun updateOverlay(gameInfo: GameInfo) {
         super.updateOverlay(gameInfo)
+        (contentPane as UIOverlayPanel).updateContainer()
     }
 
     private class UIOverlayPanel(overlay: AbstractOverlay) : AbstractOverlayPanel(overlay) {
 
-        var uiElement = DofusUIElement.values().first()
+        private val toDrawRectangles = ArrayList<Pair<Container, Rectangle>>()
+        private val uiElementComboBox = JComboBox(DofusUIElement.values())
+        private var hoveredContainer: Container? = null
 
         init {
-            val comboBox = JComboBox(DofusUIElement.values())
-            comboBox.addItemListener {
+            uiElementComboBox.addItemListener {
                 if (it.stateChange == ItemEvent.SELECTED) {
-                    uiElement = it.item as DofusUIElement
-                    val container = uiElement.getDefaultContainer()
-                    println("++++")
-                    printContainerSizes(container)
+                    updateContainer()
                 }
             }
-            add(comboBox)
+            add(uiElementComboBox)
         }
 
-        private fun printContainerSizes(container: Container, level: Int = 0) {
-            val prefix = "-".repeat(level)
-            println("$prefix ${container.name} : POS : (${container.position.x}, ${container.position.y}) / SIZE : (${container.size.x}, ${container.size.y})")
-            if (container.name == "gd_zaap") {
-                println("----")
-                container.anchors.anchorList.forEach { println(it) }
-                println("----")
-            }
-            for (child in container.containers) {
-                printContainerSizes(child, level + 1)
+        fun updateContainer() {
+            val container = (uiElementComboBox.selectedItem as DofusUIElement).getContainer()
+            toDrawRectangles.clear()
+            addRectangles(container)
+        }
+
+        private fun addRectangles(container: Container) {
+            val rectAbs = ConverterUtil.toRectangleAbsolute(container.bounds)
+            toDrawRectangles.add(container to Rectangle(rectAbs.x, rectAbs.y, rectAbs.width, rectAbs.height))
+            for (subContainer in container.children) {
+                addRectangles(subContainer)
             }
         }
 
         override fun onHover(mouseLocation: Point) {
-            //Nothing
+            hoveredContainer = getContainerAtLocation(mouseLocation)
+        }
+
+        private fun getContainerAtLocation(location: Point): Container? {
+            return toDrawRectangles.filter { it.second.contains(location) }
+                .minByOrNull { it.second.width * it.second.height }
+                ?.first
+        }
+
+        private fun getContainerLevel(container: Container): Int {
+            var level = 1
+            if (container != container.root) {
+                level += getContainerLevel(container.parentContainer)
+            }
+            return level
         }
 
         override fun drawBackground(g: Graphics) {
@@ -67,30 +85,22 @@ object UIOverlay : AbstractOverlay() {
         }
 
         override fun drawOverlay(g: Graphics) {
-            val container = uiElement.getDefaultContainer()
-            val origin = uiElement.getPosition()
-            drawContainer(g, container)
-        }
-
-        private fun drawContainer(
-            g: Graphics,
-            container: Container
-        ) {
-            val position = container.position
-            if (container == container.root || container.name.isNotEmpty()) {
-                g.color = when (container.name) {
-                    "gd_zaap" -> Color.RED
-                    "tx_availableKamas" -> Color.BLUE
-                    "btn_resetSearch" -> Color.GREEN
-                    else -> Color.BLACK
+            toDrawRectangles.forEach {
+                val container = it.first
+                val rect = it.second
+                if (container == hoveredContainer) {
+                    g.color = Color.LIGHT_GRAY
+                    g.fillRect(rect.x, rect.y, rect.width, rect.height)
+                    g.color = Color.WHITE
+                    g.drawString(container.name, rect.x, rect.y)
+                    g.color = Color.BLACK
+                    g.drawRect(rect.x, rect.y, rect.width, rect.height)
+                } else if (getContainerLevel(container) == 1) {
+                    g.color = Color.DARK_GRAY
+                    g.fillRect(rect.x, rect.y, rect.width, rect.height)
+                    g.color = Color.BLACK
+                    g.drawRect(rect.x, rect.y, rect.width, rect.height)
                 }
-                val positionAbs = ConverterUtil.toPointAbsolute(gameInfo, position)
-                val sizeAbs = ConverterUtil.toPointAbsolute(gameInfo, container.size)
-                g.drawRect(positionAbs.x, positionAbs.y, sizeAbs.x, sizeAbs.y)
-                g.drawString(container.name, positionAbs.x, positionAbs.y)
-            }
-            for (subContainer in container.containers) {
-                drawContainer(g, subContainer)
             }
         }
 

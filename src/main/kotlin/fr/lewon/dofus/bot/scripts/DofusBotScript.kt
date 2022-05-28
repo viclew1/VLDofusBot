@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-abstract class DofusBotScript(val name: String) {
+abstract class DofusBotScript(val name: String, val isDev: Boolean = false) {
 
     abstract fun getParameters(): List<DofusBotParameter>
 

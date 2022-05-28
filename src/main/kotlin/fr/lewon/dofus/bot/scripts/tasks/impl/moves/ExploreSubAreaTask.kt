@@ -48,7 +48,11 @@ class ExploreSubAreaTask(
                 killMonsters(logItem, gameInfo)
             }
             if (!TravelTask(toExploreMaps).run(logItem, gameInfo)) {
-                error("Failed to move")
+                if (success && runForever) {
+                    toExploreMaps = initialExploreMapsList.toMutableList()
+                } else {
+                    error("Failed to move")
+                }
             }
             success = true
             toExploreMaps.remove(gameInfo.currentMap)

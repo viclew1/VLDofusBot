@@ -19,7 +19,8 @@ class DofusBotScriptRenderer : JLabel(), ListCellRenderer<DofusBotScript> {
         isSelected: Boolean,
         cellHasFocus: Boolean
     ): Component {
-        this.text = value.name
+        this.text = if (value.isDev) "DEV - " else ""
+        this.text += value.name
         if (isSelected) {
             background = list.selectionBackground
             foreground = list.selectionForeground

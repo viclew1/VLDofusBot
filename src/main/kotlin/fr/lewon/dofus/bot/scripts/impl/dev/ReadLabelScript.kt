@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.scripts.impl
+package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.logs.LogItem
@@ -8,7 +8,7 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class ReadLabelScript : DofusBotScript("Read label") {
+class ReadLabelScript : DofusBotScript("Read label", true) {
 
     private val nameIdParameter = DofusBotParameter(
         "Name ID", "Label name ID", "0", DofusBotParameterType.INTEGER

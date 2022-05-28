@@ -1,7 +1,5 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
-import fr.lewon.dofus.bot.core.ui.UIBounds
-import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.geometry.PointRelative
@@ -58,12 +56,7 @@ object ZaapInterfaceUtil {
     }
 
     private fun getZaapTopLeftLocation(): PointRelative {
-        val zaapUiCenterPoint = DofusUIElement.ZAAP_SELECTION.getPosition()
-        val zaapUiPoint = UIPoint(
-            UIBounds.CENTER.x - 750 / 2 + 5 + zaapUiCenterPoint.x,
-            UIBounds.CENTER.y - 710 / 2 - 60 + 5 + zaapUiCenterPoint.y
-        )
-        return ConverterUtil.toPointRelative(zaapUiPoint)
+        return ConverterUtil.toPointRelative(DofusUIElement.ZAAP_SELECTION.getPosition())
     }
 
 }

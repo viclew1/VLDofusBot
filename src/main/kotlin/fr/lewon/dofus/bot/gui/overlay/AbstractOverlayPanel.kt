@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import javax.swing.JPanel
 
-abstract class AbstractOverlayPanel(protected val overlay: AbstractOverlay) : JPanel() {
+abstract class AbstractOverlayPanel(protected open val overlay: AbstractOverlay) : JPanel() {
 
     init {
         addMouseMotionListener(object : MouseMotionAdapter() {

@@ -2,6 +2,8 @@ package fr.lewon.dofus.bot.util.io
 
 import fr.lewon.dofus.bot.core.ui.UIBounds
 import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.core.ui.UIRectangle
+import fr.lewon.dofus.bot.gui.overlay.impl.UIOverlay
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
@@ -48,12 +50,11 @@ object ConverterUtil {
         return PointAbsolute(x.roundToInt(), y.roundToInt())
     }
 
-    fun toRectangleRelative(gameInfo: GameInfo, rectangle: RectangleAbsolute): RectangleRelative {
-        val x1 = (rectangle.x - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
-        val y1 = (rectangle.y - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
-        val x2 = (rectangle.x + rectangle.width - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
-        val y2 =
-            (rectangle.y + rectangle.height - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
+    fun toRectangleRelative(gameInfo: GameInfo, rect: RectangleAbsolute): RectangleRelative {
+        val x1 = (rect.x - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
+        val y1 = (rect.y - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
+        val x2 = (rect.x + rect.width - gameInfo.gameBounds.x).toFloat() / gameInfo.gameBounds.width.toFloat()
+        val y2 = (rect.y + rect.height - gameInfo.gameBounds.y).toFloat() / gameInfo.gameBounds.height.toFloat()
         return RectangleRelative(
             (x1 * PRECISION) / PRECISION,
             (y1 * PRECISION) / PRECISION,
@@ -62,12 +63,23 @@ object ConverterUtil {
         )
     }
 
-    fun toRectangleAbsolute(gameInfo: GameInfo, rectangle: RectangleRelative): RectangleAbsolute {
-        val x1 = rectangle.x * gameInfo.gameBounds.width + gameInfo.gameBounds.x
-        val y1 = rectangle.y * gameInfo.gameBounds.height + gameInfo.gameBounds.y
-        val x2 = (rectangle.x + rectangle.width) * gameInfo.gameBounds.width + gameInfo.gameBounds.x
-        val y2 = (rectangle.y + rectangle.height) * gameInfo.gameBounds.height + gameInfo.gameBounds.y
+    fun toRectangleAbsolute(gameInfo: GameInfo, rect: RectangleRelative): RectangleAbsolute {
+        val x1 = rect.x * gameInfo.gameBounds.width + gameInfo.gameBounds.x
+        val y1 = rect.y * gameInfo.gameBounds.height + gameInfo.gameBounds.y
+        val x2 = (rect.x + rect.width) * gameInfo.gameBounds.width + gameInfo.gameBounds.x
+        val y2 = (rect.y + rect.height) * gameInfo.gameBounds.height + gameInfo.gameBounds.y
         return RectangleAbsolute(x1.roundToInt(), y1.roundToInt(), (x2 - x1).roundToInt(), (y2 - y1).roundToInt())
     }
 
+    fun toRectangleRelative(gameInfo: GameInfo, rect: UIRectangle): RectangleRelative {
+        return toRectangleRelative(gameInfo, toRectangleAbsolute(rect))
+    }
+
+    fun toRectangleAbsolute(rect: UIRectangle): RectangleAbsolute {
+        val topLeftAbs = toPointAbsolute(UIOverlay.gameInfo, rect.position)
+        val bottomRightUIPoint = UIPoint(rect.position.x + rect.size.x, rect.position.y + rect.size.y)
+        val bottomRightAbs = toPointAbsolute(UIOverlay.gameInfo, bottomRightUIPoint)
+        val sizeAbs = PointAbsolute(bottomRightAbs.x - topLeftAbs.x, bottomRightAbs.y - topLeftAbs.y)
+        return RectangleAbsolute(topLeftAbs.x, topLeftAbs.y, sizeAbs.x, sizeAbs.y)
+    }
 }

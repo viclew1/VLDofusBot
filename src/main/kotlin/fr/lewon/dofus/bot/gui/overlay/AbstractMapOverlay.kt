@@ -8,6 +8,8 @@ import java.awt.Rectangle
 
 abstract class AbstractMapOverlay : AbstractOverlay() {
 
+    var hitBoxByCell: Map<DofusCell, Polygon> = HashMap()
+    
     abstract override fun buildContentPane(): AbstractMapOverlayPanel
 
     override fun updateOverlay(gameInfo: GameInfo) {

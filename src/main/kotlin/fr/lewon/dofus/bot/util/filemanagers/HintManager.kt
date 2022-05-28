@@ -3,11 +3,13 @@ package fr.lewon.dofus.bot.util.filemanagers
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
+import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementData
 import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.core.model.hunt.DofusPointOfInterest
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.model.hint.ElementIdByPoiLabel
+import fr.lewon.dofus.bot.model.hint.GfxIdsByPoiLabel
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
@@ -15,37 +17,47 @@ import java.nio.charset.StandardCharsets
 
 object HintManager {
 
-    private lateinit var elementIdByPoiLabel: ElementIdByPoiLabel
-    private lateinit var elementIdByPoiLabelFile: File
+    private lateinit var gfxIdsByPoiLabel: GfxIdsByPoiLabel
+    private lateinit var gfxIdsByPoiLabelFile: File
 
     fun initManager() {
-        elementIdByPoiLabelFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/hint_element_id_by_label")
-        if (elementIdByPoiLabelFile.exists()) {
-            elementIdByPoiLabel = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .readValue(elementIdByPoiLabelFile)
+        gfxIdsByPoiLabelFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/hint_gfx_ids_by_label")
+        if (gfxIdsByPoiLabelFile.exists()) {
+            gfxIdsByPoiLabel = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .readValue(gfxIdsByPoiLabelFile)
         } else {
-            elementIdByPoiLabel = ElementIdByPoiLabel()
+            gfxIdsByPoiLabel = GfxIdsByPoiLabel()
             saveHintStoreContent()
         }
     }
 
     private fun saveHintStoreContent() {
-        with(OutputStreamWriter(FileOutputStream(elementIdByPoiLabelFile, false), StandardCharsets.UTF_8)) {
-            write(ObjectMapper().writeValueAsString(elementIdByPoiLabel))
+        with(OutputStreamWriter(FileOutputStream(gfxIdsByPoiLabelFile, false), StandardCharsets.UTF_8)) {
+            write(ObjectMapper().writeValueAsString(gfxIdsByPoiLabel))
             close()
         }
     }
 
     fun isPointOfInterestOnMap(map: DofusMap, pointOfInterest: DofusPointOfInterest): Boolean {
-        val elementId = elementIdByPoiLabel[pointOfInterest.label] ?: error("Unknown POI element")
+        val gfxIds = gfxIdsByPoiLabel[pointOfInterest.label] ?: error("Unknown POI element")
         return D2PMapsAdapter.getCompleteCellDataByCellId(map.id)
             .flatMap { it.value.graphicalElements }
-            .map { it.elementId }
-            .contains(elementId)
+            .map { D2PElementsAdapter.getElement(it.elementId) }
+            .filterIsInstance<NormalGraphicalElementData>()
+            .map { it.gfxId }
+            .intersect(gfxIds)
+            .isNotEmpty()
     }
 
-    fun addHintElementMatch(pointOfInterestLabel: String, elementId: Int) {
-        elementIdByPoiLabel[pointOfInterestLabel] = elementId
+    fun addHintGfxMatch(pointOfInterestLabel: String, gfxId: Int) {
+        gfxIdsByPoiLabel.computeIfAbsent(pointOfInterestLabel) { ArrayList() }
+            .takeIf { !it.contains(gfxId) }
+            ?.add(gfxId)
+        saveHintStoreContent()
+    }
+
+    fun removeHintGfxMatch(pointOfInterestLabel: String) {
+        gfxIdsByPoiLabel.remove(pointOfInterestLabel)
         saveHintStoreContent()
     }
 }

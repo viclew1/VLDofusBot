@@ -81,7 +81,7 @@ abstract class AbstractScriptSelectorPanel : JPanel(MigLayout()), ScriptRunnerLi
         updateScript()
         add(JLabel("Script").also { it.font = AppFonts.TITLE_FONT })
         add(scriptComboBox, "al right")
-        add(startStopScriptButton, "gap 50, al left, wrap")
+        add(startStopScriptButton, "al right, wrap")
     }
 
     private fun addDescriptionPane() {

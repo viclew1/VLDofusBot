@@ -28,7 +28,7 @@ object InteractiveUtil {
     private val OPTION_HEADER_MIN_COLOR = Color(65, 60, 48)
     private val OPTION_HEADER_MAX_COLOR = Color(73, 68, 56)
 
-    private val SKILL_SIGN_IDS = listOf(360, 361, 362)
+    private val SKILL_SIGN_IDS = listOf(339, 360, 361, 362)
 
     private fun getElementClickPosition(gameInfo: GameInfo, elementId: Int): PointRelative {
         val interactiveElement = gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }

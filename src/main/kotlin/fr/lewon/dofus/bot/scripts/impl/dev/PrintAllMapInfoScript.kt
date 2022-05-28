@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.scripts.impl
+package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
@@ -15,7 +15,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElementSkill
 import fr.lewon.dofus.bot.util.network.GameInfo
 
-class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
+class PrintAllMapInfoScript : DofusBotScript("Print all map info", true) {
 
     override fun getParameters(): List<DofusBotParameter> {
         return emptyList()
@@ -58,6 +58,7 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info") {
                 gameInfo.logger.addSubLog("direction : ${it.direction}", transitionLogItem)
                 gameInfo.logger.addSubLog("map ID : ${it.transitionMapId}", transitionLogItem)
                 gameInfo.logger.addSubLog("criterion : ${it.criterion}", transitionLogItem)
+                gameInfo.logger.addSubLog("cell ID : ${it.cellId}", transitionLogItem)
             }
         }
     }

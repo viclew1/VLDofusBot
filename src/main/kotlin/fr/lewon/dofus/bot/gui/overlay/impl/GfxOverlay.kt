@@ -15,7 +15,7 @@ import java.awt.Graphics
 
 object GfxOverlay : AbstractMapOverlay() {
 
-    init {
+    override fun additionalInit() {
         opacity = 0.9f
     }
 
