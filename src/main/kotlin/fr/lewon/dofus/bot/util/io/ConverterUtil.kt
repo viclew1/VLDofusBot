@@ -71,8 +71,10 @@ object ConverterUtil {
         return RectangleAbsolute(x1.roundToInt(), y1.roundToInt(), (x2 - x1).roundToInt(), (y2 - y1).roundToInt())
     }
 
-    fun toRectangleRelative(gameInfo: GameInfo, rect: UIRectangle): RectangleRelative {
-        return toRectangleRelative(gameInfo, toRectangleAbsolute(rect))
+    fun toRectangleRelative(rect: UIRectangle): RectangleRelative {
+        val topLeftPosition = rect.position
+        val bottomRightPosition = rect.position.transpose(rect.size)
+        return RectangleRelative.build(toPointRelative(topLeftPosition), toPointRelative(bottomRightPosition))
     }
 
     fun toRectangleAbsolute(rect: UIRectangle): RectangleAbsolute {

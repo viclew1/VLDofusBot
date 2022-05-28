@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
@@ -11,6 +12,7 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.ui.UiUtil
 
 class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
 
@@ -42,12 +44,8 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
     }
 
     private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {
-        WaitUtil.waitForEvents(
-            gameInfo,
-            ZaapDestinationsMessage::class.java,
-            BasicNoOperationMessage::class.java,
-        )
-        return WaitUtil.waitUntil({ ZaapInterfaceUtil.isZaapFrameOpened(gameInfo) })
+        WaitUtil.waitForEvents(gameInfo, ZaapDestinationsMessage::class.java, BasicNoOperationMessage::class.java)
+        return WaitUtil.waitUntil({ UiUtil.isWindowOpenedUsingCloseButton(gameInfo, DofusUIElement.ZAAP_SELECTION) })
     }
 
     override fun onStarted(): String {

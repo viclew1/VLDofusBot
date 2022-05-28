@@ -6,21 +6,18 @@ import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.arena.GameRolePlayArenaFightPropositionMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.io.*
+import fr.lewon.dofus.bot.util.io.KeyboardUtil
+import fr.lewon.dofus.bot.util.io.MouseUtil
+import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.ui.UiUtil
 import java.awt.event.KeyEvent
 
 class ProcessArenaGameTask : BooleanDofusBotTask() {
 
     companion object {
-        private val REF_TOP_LEFT_POSITION = PointRelative(0.15953307f, 0.24473257f)
-        private val DELTA_TL_FIND_MATCH = PointRelative(0.62f, 0.54f).getDifference(REF_TOP_LEFT_POSITION)
-        private val DELTA_BR_FIND_MATCH = PointRelative(0.74f, 0.57f).getDifference(REF_TOP_LEFT_POSITION)
-
-        private val REF_POPUP_POSITION = PointRelative(-0.27110583f, 0.5319465f)
         private val REF_ACCEPT_GAME_BUTTON_RECTANGLE = RectangleRelative.build(
             PointRelative(-0.09274673f, 0.66567606f), PointRelative(0.0035671822f, 0.6879643f)
         )
@@ -47,20 +44,11 @@ class ProcessArenaGameTask : BooleanDofusBotTask() {
     }
 
     private fun isArenaFrameOpened(gameInfo: GameInfo): Boolean {
-        return ScreenUtil.colorCount(
-            gameInfo,
-            getFindMatchRectangle(),
-            DofusColors.HIGHLIGHT_COLOR_MIN,
-            DofusColors.HIGHLIGHT_COLOR_MAX
-        ) > 0
+        return UiUtil.isWindowOpenedUsingCloseButton(gameInfo, DofusUIElement.ARENA)
     }
 
     private fun getFindMatchRectangle(): RectangleRelative {
-        val arenaFrameLoc = DofusUIElement.ARENA.getPosition()
-        val arenaFrameLocPointRelative = ConverterUtil.toPointRelative(arenaFrameLoc)
-        val findMatchTopLeft = arenaFrameLocPointRelative.getSum(DELTA_TL_FIND_MATCH)
-        val findMatchBottomRight = arenaFrameLocPointRelative.getSum(DELTA_BR_FIND_MATCH)
-        return RectangleRelative.build(findMatchTopLeft, findMatchBottomRight)
+        return UiUtil.getContainerBounds(DofusUIElement.ARENA, "btn_1v1Queue")
     }
 
     private fun findingArenaGame(logItem: LogItem, gameInfo: GameInfo) {

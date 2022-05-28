@@ -41,6 +41,7 @@ object HintManager {
     fun isPointOfInterestOnMap(map: DofusMap, pointOfInterest: DofusPointOfInterest): Boolean {
         val gfxIds = gfxIdsByPoiLabel[pointOfInterest.label] ?: error("Unknown POI element")
         return D2PMapsAdapter.getCompleteCellDataByCellId(map.id)
+            .filter { it.value.cellData.mapChangeData == 0 }
             .flatMap { it.value.graphicalElements }
             .map { D2PElementsAdapter.getElement(it.elementId) }
             .filterIsInstance<NormalGraphicalElementData>()

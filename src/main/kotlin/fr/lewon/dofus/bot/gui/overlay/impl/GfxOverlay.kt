@@ -48,9 +48,11 @@ object GfxOverlay : AbstractMapOverlay() {
                 ?.map { it.gfxId }?.distinct()
                 ?: return null
             val lines = ArrayList<OverlayInfoLine>()
+            lines.add(OverlayTextLine("Cell ID : ${cell.cellId}", 14))
+            lines.add(OverlayTextLine("------------", 8))
             for (gfxId in gfxIds) {
-                lines.add(OverlayTextLine("Cell ID : ${cell.cellId} / GFX ID : $gfxId", 14))
-                val image = ImageUtil.getScaledImageKeepHeight(D2PGfxAdapter.getGfxImageDataById(gfxId.toDouble()), 30)
+                lines.add(OverlayTextLine("GFX ID : $gfxId", 14))
+                val image = ImageUtil.getScaledImageKeepHeight(D2PGfxAdapter.getGfxImageDataById(gfxId.toDouble()), 60)
                 lines.add(OverlayImageLine(image))
             }
             return lines

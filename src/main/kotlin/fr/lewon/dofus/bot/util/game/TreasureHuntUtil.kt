@@ -2,7 +2,6 @@ package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.fight.ai.complements.TreasureChestAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
@@ -17,100 +16,73 @@ import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirecti
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.ui.UiUtil
 import java.awt.Color
 
 object TreasureHuntUtil {
 
-    private val REF_TOP_LEFT_HUNT_POINT = PointRelative(-0.27520758f, 0.14222223f)
-    private val REF_GIVE_UP_HUNT_POINT = PointRelative(-0.03321471f, 0.19111112f)
-    private val REF_FIGHT_POINT = PointRelative(-0.2019774f, 0.2627866f)
-    private val REF_DISPLAY_BORDER_POINT = PointRelative(-0.080681816f, 0.3849432f)
-    private val REF_FIRST_FLAG_POINT = PointRelative(-0.03084223f, 0.26222223f)
-    private val REF_SIXTH_FLAG_POINT = PointRelative(-0.03084223f, 0.40564373f)
-    private val REF_SEARCH_POINT = PointRelative(-0.042372882f, 0.43915343f)
-
-    private val REF_DISPLAY_BORDERS_FROM_FLAG_X = REF_DISPLAY_BORDER_POINT.x - REF_FIRST_FLAG_POINT.x
-    private const val FLAG_WIDTH = 0.02f
-    private const val FLAG_HALF_WIDTH = FLAG_WIDTH / 2f
-    private val FLAG_DELTA_Y = (REF_SIXTH_FLAG_POINT.y - REF_FIRST_FLAG_POINT.y) / 5
-
-    private val REF_DELTA_GIVE_UP_HUNT_POINT = REF_GIVE_UP_HUNT_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
-    private val REF_DELTA_FIRST_FLAG_POINT = REF_FIRST_FLAG_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
-    private val REF_DELTA_SEARCH_BUTTON_POINT_FROM_LAST_FLAG = REF_SEARCH_POINT.getDifference(REF_SIXTH_FLAG_POINT)
-    private val REF_DELTA_FIGHT_BUTTON_POINT = REF_FIGHT_POINT.getDifference(REF_TOP_LEFT_HUNT_POINT)
-
-    private fun getTreasureHuntUiPosition(): UIPoint {
-        return DofusUIElement.TREASURE_HUNT.getPosition()
+    private fun getRefStepBounds(): RectangleRelative {
+        return UiUtil.getContainerBounds(DofusUIElement.TREASURE_HUNT, "ctr_step")
     }
 
-    private fun getTopLeftHuntPoint(): PointRelative {
-        val uiPoint = getTreasureHuntUiPosition()
-        return ConverterUtil.toPointRelative(uiPoint)
+    private fun getRefFlagBounds(): RectangleRelative {
+        return UiUtil.getContainerBounds(DofusUIElement.TREASURE_HUNT, "tx_flag")
     }
 
-    private fun getFirstFlagPoint(): PointRelative {
-        return getTopLeftHuntPoint().getSum(REF_DELTA_FIRST_FLAG_POINT)
+    private fun getRefSearchPoint(): PointRelative {
+        return UiUtil.getContainerBounds(DofusUIElement.TREASURE_HUNT, "btn_dig").getCenter()
+    }
+
+    private fun getRefFightBounds(): PointRelative {
+        return UiUtil.getContainerBounds(DofusUIElement.TREASURE_HUNT, "btn_digFight").getCenter()
     }
 
     private fun getFightPoint(): PointRelative {
-        return getTopLeftHuntPoint().getSum(REF_DELTA_FIGHT_BUTTON_POINT)
+        return getRefFightBounds().getSum(PointRelative(0f, getRefStepBounds().height))
     }
 
     private fun getGiveUpHuntPoint(): PointRelative {
-        return getTopLeftHuntPoint().getSum(REF_DELTA_GIVE_UP_HUNT_POINT)
+        return UiUtil.getContainerBounds(DofusUIElement.TREASURE_HUNT, "btn_giveUp").getCenter()
     }
 
     private fun getSearchHuntPoint(gameInfo: GameInfo): PointRelative {
-        val flagsCount = getFlagsCount(gameInfo)
-        val topLeftHuntPoint = getTopLeftHuntPoint()
-        val firstFlagPoint = topLeftHuntPoint.getSum(REF_DELTA_FIRST_FLAG_POINT)
-        val lastFlagPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + (flagsCount - 1) * FLAG_DELTA_Y)
-        return lastFlagPoint.getSum(REF_DELTA_SEARCH_BUTTON_POINT_FROM_LAST_FLAG)
+        val dy = (getTreasureHunt(gameInfo).totalStepCount + 1) * getRefStepBounds().height
+        return getRefSearchPoint().getSum(PointRelative(0f, dy))
     }
 
     fun isHuntPresent(gameInfo: GameInfo): Boolean {
-        val topLeftHuntPoint = getTopLeftHuntPoint()
-        val refRect = RectangleRelative(topLeftHuntPoint.x, topLeftHuntPoint.y, 0.1f, 0.1f)
+        val arrowMinimizeRect = UiUtil.getContainerBounds(DofusUIElement.TREASURE_HUNT, "btn_arrowMinimize")
         return ScreenUtil.colorCount(
-            gameInfo, refRect, DofusColors.HIGHLIGHT_COLOR_MIN, DofusColors.HIGHLIGHT_COLOR_MAX
-        ) > 0 && ScreenUtil.colorCount(gameInfo, refRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
+            gameInfo, arrowMinimizeRect, DofusColors.HIGHLIGHT_COLOR_MIN, DofusColors.HIGHLIGHT_COLOR_MAX
+        ) > 0 && ScreenUtil.colorCount(gameInfo, arrowMinimizeRect, Color(55, 55, 55), Color(60, 60, 60)) > 0
     }
 
     fun getTreasureHunt(gameInfo: GameInfo): TreasureHuntMessage {
         return gameInfo.treasureHunt ?: error("No current hunt. Fetch one before executing it")
     }
 
+    private fun getFlagBounds(flagIndex: Int): RectangleRelative {
+        return getRefFlagBounds().getTranslation(PointRelative(0f, (flagIndex + 1) * getRefStepBounds().height))
+    }
+
     fun tickFlag(gameInfo: GameInfo, flagIndex: Int) {
-        val firstFlagPoint = getFirstFlagPoint()
-        val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * flagIndex)
+        val flagPoint = getFlagBounds(flagIndex).getCenter()
         gameInfo.eventStore.clear()
-        MouseUtil.leftClick(gameInfo, tickPoint)
+        MouseUtil.leftClick(gameInfo, flagPoint)
         waitForTreasureHuntUpdate(gameInfo)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
     }
 
     fun getLastNonTickedFlagIndex(gameInfo: GameInfo): Int? {
-        val firstFlagPoint = getFirstFlagPoint()
+        val minColor = DofusColors.HIGHLIGHT_COLOR_MIN
+        val maxColor = DofusColors.HIGHLIGHT_COLOR_MAX
         for (i in 0 until getFlagsCount(gameInfo)) {
-            val tickPoint = PointRelative(firstFlagPoint.x, firstFlagPoint.y + FLAG_DELTA_Y * i)
-            val tickBox = RectangleRelative(
-                tickPoint.x - FLAG_HALF_WIDTH,
-                tickPoint.y - FLAG_HALF_WIDTH,
-                FLAG_WIDTH,
-                FLAG_WIDTH
-            )
-            if (ScreenUtil.colorCount(
-                    gameInfo,
-                    tickBox,
-                    DofusColors.HIGHLIGHT_COLOR_MIN,
-                    DofusColors.HIGHLIGHT_COLOR_MAX
-                ) == 0
-            ) {
+            val tickBox = getFlagBounds(i)
+            if (ScreenUtil.colorCount(gameInfo, tickBox, minColor, maxColor) == 0) {
                 return i
             }
         }
@@ -178,38 +150,22 @@ object TreasureHuntUtil {
     }
 
     fun waitForTreasureHuntUpdate(gameInfo: GameInfo) {
-        WaitUtil.waitForEvents(
-            gameInfo,
-            TreasureHuntMessage::class.java,
-            BasicNoOperationMessage::class.java
-        )
+        WaitUtil.waitForEvents(gameInfo, TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
         if (!WaitUtil.waitUntil({ isHuntPresent(gameInfo) })) {
             error("Can't find treasure hunt frame. Hunt most likely failed.")
         }
     }
 
     fun getFlagsCount(gameInfo: GameInfo): Int {
-        gameInfo.treasureHunt?.let {
-            return it.totalStepCount
-        }
-        val firstFlagPoint = getFirstFlagPoint()
-        var flagsCount = 0
-        val x = firstFlagPoint.x + REF_DISPLAY_BORDERS_FROM_FLAG_X
-        while (ScreenUtil.colorCount(
-                gameInfo,
-                RectangleRelative(
-                    x - FLAG_HALF_WIDTH,
-                    firstFlagPoint.y + flagsCount * FLAG_DELTA_Y - FLAG_HALF_WIDTH,
-                    FLAG_WIDTH,
-                    FLAG_WIDTH
-                ), DofusColors.HIGHLIGHT_COLOR_MIN, DofusColors.HIGHLIGHT_COLOR_MAX
-            ) == 0
-        ) {
-            if (flagsCount++ > 20) {
+        val minColor = Color(150, 125, 80)
+        val maxColor = Color(200, 170, 120)
+        var flagIndex = 0
+        while (ScreenUtil.colorCount(gameInfo, getFlagBounds(flagIndex), minColor, maxColor) != 0) {
+            if (flagIndex++ > 20) {
                 error("Invalid flag count.")
             }
         }
-        return flagsCount
+        return flagIndex
     }
 
     fun getLastHintMap(gameInfo: GameInfo): DofusMap {
