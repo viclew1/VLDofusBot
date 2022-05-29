@@ -42,18 +42,21 @@ object GfxOverlay : AbstractMapOverlay() {
         }
 
         override fun getCellContentInfo(cell: DofusCell): List<OverlayInfoLine>? {
-            val gfxIds = gameInfo.completeCellDataByCellId[cell.cellId]?.graphicalElements
-                ?.map { D2PElementsAdapter.getElement(it.elementId) }
-                ?.filterIsInstance<NormalGraphicalElementData>()
-                ?.map { it.gfxId }?.distinct()
+            val graphicalElements = gameInfo.completeCellDataByCellId[cell.cellId]?.graphicalElements
                 ?: return null
             val lines = ArrayList<OverlayInfoLine>()
             lines.add(OverlayTextLine("Cell ID : ${cell.cellId}", 14))
             lines.add(OverlayTextLine("------------", 8))
-            for (gfxId in gfxIds) {
-                lines.add(OverlayTextLine("GFX ID : $gfxId", 14))
-                val image = ImageUtil.getScaledImageKeepHeight(D2PGfxAdapter.getGfxImageDataById(gfxId.toDouble()), 60)
-                lines.add(OverlayImageLine(image))
+            for (graphicalElement in graphicalElements) {
+                lines.add(OverlayTextLine("Graphical elem offset : ${graphicalElement.pixelOffset}", 14))
+                val element = D2PElementsAdapter.getElement(graphicalElement.elementId)
+                if (element is NormalGraphicalElementData) {
+                    val gfxId = element.gfxId
+                    val gfxImageData = D2PGfxAdapter.getGfxImageDataById(gfxId.toDouble())
+                    lines.add(OverlayTextLine("GFX ID : $gfxId", 14))
+                    val image = ImageUtil.getScaledImageKeepHeight(gfxImageData, 60)
+                    lines.add(OverlayImageLine(image))
+                }
             }
             return lines
         }
