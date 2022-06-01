@@ -9,6 +9,6 @@ data class VldbMetamobConfig(
     @field:JsonProperty var captureAutoUpdate: Boolean = false,
 ) {
     fun deepCopy(): VldbMetamobConfig {
-        return VldbMetamobConfig(metamobUniqueID, metamobPseudo, captureAutoUpdate)
+        return VldbMetamobConfig(metamobUniqueID, metamobPseudo, tradeAutoUpdate, captureAutoUpdate)
     }
 }
