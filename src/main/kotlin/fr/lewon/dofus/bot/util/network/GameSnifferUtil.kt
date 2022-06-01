@@ -95,15 +95,6 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
         }
     }
 
-    fun isConnected(character: DofusCharacter): Boolean {
-        try {
-            LOCK.lockInterruptibly()
-            return getConnections(character).isNotEmpty()
-        } finally {
-            LOCK.unlock()
-        }
-    }
-
     private fun startSnifferIfNeeded() {
         if (!MESSAGE_RECEIVER.isSnifferRunning()) {
             MESSAGE_RECEIVER.start()

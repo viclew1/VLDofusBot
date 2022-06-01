@@ -1,6 +1,9 @@
 package fr.lewon.dofus.bot.gui.metamobhelper.util
 
+import fr.lewon.dofus.bot.core.VldbCoreInitializer
+import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.gui.metamobhelper.model.MetamobMonster
 import fr.lewon.dofus.bot.gui.metamobhelper.model.MetamobMonsterType
@@ -13,12 +16,12 @@ import fr.lewon.dofus.bot.sniffer.model.types.fight.result.entry.FightResultPlay
 
 object MetamobMonstersUpdater {
 
-    private const val SOUL_STONE_ITEM_ID = 7010
+    private val SOUL_STONE_ITEM_IDS = listOf(7010, 10417, 10418)
     private const val MONSTER_STONE_EFFECT_ACTION_ID = 623
 
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
         val playerLoots = playerResult.rewards.objects.filterIndexed { index, _ -> index % 2 == 0 }
-        if (playerLoots.contains(SOUL_STONE_ITEM_ID)) {
+        if (playerLoots.intersect(SOUL_STONE_ITEM_IDS).isNotEmpty()) {
             val allMetamobMonsters = getAllMonsters()
             val amountByMonster = HashMap<MetamobMonster, Int>()
             for (monster in monsters) {
@@ -104,4 +107,15 @@ object MetamobMonstersUpdater {
         return MetamobMonsterUpdate(monster.id, state, amount)
     }
 
+}
+
+fun main() {
+    VldbCoreInitializer.initAll()
+    D2OUtil.getObjects("Items").forEach {
+        val nameId = it["nameId"].toString().toInt()
+        val name = I18NUtil.getLabel(nameId)
+        if (name?.contains("Pierre") == true) {
+            println("${it["id"]} - $name")
+        }
+    }
 }

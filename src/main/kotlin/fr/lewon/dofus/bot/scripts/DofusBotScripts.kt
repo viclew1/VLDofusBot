@@ -14,7 +14,6 @@ enum class DofusBotScripts(val buildScriptFun: () -> DofusBotScript) {
     FIGHT_DUNGEON({ FightDungeonScript() }),
     SMITH_MAGIC({ SmithMagicScript() }),
     RAISE_MOUNTS({ RaiseMountsScript() }),
-    INIT_ALL({ InitAllScript() }),
     REGISTER_HINT_GFX({ RegisterHintGfxScript() }),
     REMOVE_HINT_GFX({ RemoveHintGfxScript() }),
     PRINT_ALL_MAP_INFO({ PrintAllMapInfoScript() }),

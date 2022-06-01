@@ -17,6 +17,7 @@ enum class UiResource(path: String, filledPath: String) {
     BLACK_CIRCLE("/icon/ui/black_circle.png", "/icon/ui/black_circle.png"),
     RED_CIRCLE("/icon/ui/red_circle.png", "/icon/ui/red_circle.png"),
     GREEN_CIRCLE("/icon/ui/green_circle.png", "/icon/ui/green_circle.png"),
+    ORANGE_CIRCLE("/icon/ui/orange_circle.png", "/icon/ui/orange_circle.png"),
     MENU("/icon/ui/menu.png", "/icon/ui/menu_filled.png"),
     ;
 

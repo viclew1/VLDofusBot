@@ -53,6 +53,7 @@ class CharacterCard(cardList: CharacterCardList, private val character: DofusCha
     private var dofusClassId = character.dofusClassId
     private lateinit var bgImg: BufferedImage
     private lateinit var blurredImg: BufferedImage
+    private lateinit var currentCharacterState: CharacterState
 
     init {
         isOpaque = true
@@ -179,28 +180,55 @@ class CharacterCard(cardList: CharacterCardList, private val character: DofusCha
         setStateDisconnected()
     }
 
+    fun updateState() {
+        if (currentCharacterState != CharacterState.BUSY) {
+            setDefaultState()
+        }
+    }
+
     private fun setDefaultState() {
         GameSnifferUtil.updateNetwork()
-        if (GameSnifferUtil.isConnected(character)) {
-            setStateAvailable()
+        val connection = GameSnifferUtil.getFirstConnection(character)
+        if (connection != null) {
+            if (GameSnifferUtil.getGameInfoByConnection(connection).shouldInitBoard) {
+                setStateToInitialize()
+            } else {
+                setStateAvailable()
+            }
         } else {
             setStateDisconnected()
         }
     }
 
+    private fun setStateToInitialize() {
+        currentCharacterState = CharacterState.TO_INITIALIZE
+        activityLabel.toolTipText = "To initialize - switch to another map to initialize everything"
+        updateActivityIcon(UiResource.ORANGE_CIRCLE)
+    }
+
     private fun setStateAvailable() {
+        currentCharacterState = CharacterState.AVAILABLE
         activityLabel.toolTipText = "Available"
         updateActivityIcon(UiResource.GREEN_CIRCLE)
     }
 
     private fun setStateBusy(scriptName: String) {
+        currentCharacterState = CharacterState.BUSY
         activityLabel.toolTipText = "Script running : $scriptName"
         updateActivityIcon(UiResource.RED_CIRCLE)
     }
 
     private fun setStateDisconnected() {
+        currentCharacterState = CharacterState.DISCONNECTED
         activityLabel.toolTipText = "Disconnected"
         updateActivityIcon(UiResource.BLACK_CIRCLE)
+    }
+
+    private enum class CharacterState {
+        BUSY,
+        AVAILABLE,
+        TO_INITIALIZE,
+        DISCONNECTED
     }
 
 }
