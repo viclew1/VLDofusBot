@@ -36,7 +36,8 @@ object MetamobConfigPanel : AbstractConfigPanel() {
 
         // Auto update on trade
         tradeAutoUpdateCheckbox.isSelected = MetamobConfigManager.readConfig().tradeAutoUpdate
-        tradeAutoUpdateLabel.toolTipText = "Auto updates metamob when a character trades monsters with someone"
+        tradeAutoUpdateLabel.toolTipText =
+            "Auto updates metamob when an initialized character trades monsters with someone"
         addLine(tradeAutoUpdateLabel, tradeAutoUpdateCheckbox)
         tradeAutoUpdateCheckbox.addItemListener {
             updateTradeAutoUpdate(tradeAutoUpdateCheckbox.isSelected)
@@ -44,7 +45,8 @@ object MetamobConfigPanel : AbstractConfigPanel() {
 
         // Auto update on capture
         captureAutoUpdateCheckbox.isSelected = MetamobConfigManager.readConfig().captureAutoUpdate
-        captureAutoUpdateLabel.toolTipText = "Auto updates metamob when a character captures a monster group"
+        captureAutoUpdateLabel.toolTipText =
+            "Auto updates metamob when an initialized character captures a monster group"
         addLine(captureAutoUpdateLabel, captureAutoUpdateCheckbox)
         captureAutoUpdateCheckbox.addItemListener {
             updateCaptureAutoUpdate(captureAutoUpdateCheckbox.isSelected)
