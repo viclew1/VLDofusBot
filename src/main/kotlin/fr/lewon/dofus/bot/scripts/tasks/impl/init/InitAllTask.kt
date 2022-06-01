@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.RefreshHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class InitAllTask : DofusBotTask<Any?>() {
 

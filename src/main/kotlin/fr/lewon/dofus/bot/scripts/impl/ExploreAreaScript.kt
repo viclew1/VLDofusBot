@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.text.Normalizer
 
 class ExploreAreaScript : DofusBotScript("Explore area") {

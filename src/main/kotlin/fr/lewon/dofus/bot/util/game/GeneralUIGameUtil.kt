@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
 
 object GeneralUIGameUtil {

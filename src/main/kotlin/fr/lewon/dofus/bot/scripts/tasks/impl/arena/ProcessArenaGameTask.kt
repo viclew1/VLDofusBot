@@ -11,7 +11,7 @@ import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import fr.lewon.dofus.bot.util.ui.UiUtil
 import java.awt.event.KeyEvent
 

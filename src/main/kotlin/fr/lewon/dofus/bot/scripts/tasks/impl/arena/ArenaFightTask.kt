@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.game.fight.ai.impl.DefaultFightAI
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class ArenaFightTask(
     aiComplement: AIComplement = DefaultAIComplement(),

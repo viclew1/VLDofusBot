@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : BooleanDofusBotTask() {
 

@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.gui.alert
 
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.ConfigManager
 import java.io.BufferedInputStream
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.Clip
@@ -8,8 +8,8 @@ import javax.sound.sampled.Clip
 
 enum class SoundType(private val soundFileName: String, private val playSoundCondition: () -> Boolean = { true }) {
 
-    ARCH_MONSTER_FOUND("arch_monster_found.wav", { ConfigManager.config.playArchMonsterSound }),
-    QUEST_MONSTER_FOUND("quest_monster_found.wav", { ConfigManager.config.playQuestMonsterSound }),
+    ARCH_MONSTER_FOUND("arch_monster_found.wav", { ConfigManager.readConfig().playArchMonsterSound }),
+    QUEST_MONSTER_FOUND("quest_monster_found.wav", { ConfigManager.readConfig().playQuestMonsterSound }),
     OBJECT_CRAFT("craft.wav"),
     FAILED("failed.wav"),
     SUCCEEDED("success.wav");

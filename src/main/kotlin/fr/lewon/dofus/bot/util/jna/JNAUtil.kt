@@ -6,7 +6,7 @@ import com.sun.jna.platform.win32.*
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.ptr.IntByReference
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.image.BufferedImage

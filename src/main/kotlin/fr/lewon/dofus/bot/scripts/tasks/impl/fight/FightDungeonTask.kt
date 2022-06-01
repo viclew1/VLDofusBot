@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.misc.GameRolePlayShowActorMessa
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class FightDungeonTask(private val dungeon: Dungeon, private val shouldExit: Boolean = true) : BooleanDofusBotTask() {
 

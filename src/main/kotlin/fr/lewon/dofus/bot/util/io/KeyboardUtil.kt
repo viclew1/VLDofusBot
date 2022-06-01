@@ -5,7 +5,7 @@ import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
 import fr.lewon.dofus.bot.util.jna.JNAUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.event.KeyEvent
 
 object KeyboardUtil {

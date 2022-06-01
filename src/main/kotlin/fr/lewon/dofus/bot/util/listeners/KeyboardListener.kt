@@ -4,13 +4,13 @@ import com.github.kwhat.jnativehook.GlobalScreen
 import com.github.kwhat.jnativehook.dispatcher.SwingDispatchService
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
-import fr.lewon.dofus.bot.gui.overlay.AbstractOverlay
-import fr.lewon.dofus.bot.gui.overlay.impl.BreedingOverlay
-import fr.lewon.dofus.bot.gui.overlay.impl.GfxOverlay
-import fr.lewon.dofus.bot.gui.overlay.impl.LOSOverlay
-import fr.lewon.dofus.bot.gui.overlay.impl.UIOverlay
-import fr.lewon.dofus.bot.gui.panes.character.CharacterSelectionPanel
-import fr.lewon.dofus.bot.util.filemanagers.ConfigManager
+import fr.lewon.dofus.bot.gui.vldb.overlay.AbstractOverlay
+import fr.lewon.dofus.bot.gui.vldb.overlay.impl.BreedingOverlay
+import fr.lewon.dofus.bot.gui.vldb.overlay.impl.GfxOverlay
+import fr.lewon.dofus.bot.gui.vldb.overlay.impl.LOSOverlay
+import fr.lewon.dofus.bot.gui.vldb.overlay.impl.UIOverlay
+import fr.lewon.dofus.bot.gui.vldb.panes.character.CharacterSelectionPanel
+import fr.lewon.dofus.bot.util.filemanagers.impl.ConfigManager
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.util.concurrent.locks.ReentrantLock
@@ -69,7 +69,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
             if (toToggleOverlay == displayedOverlay) {
                 toToggleOverlay.isVisible = false
                 displayedOverlay = null
-            } else if (ConfigManager.config.displayOverlays) {
+            } else if (ConfigManager.readConfig().displayOverlays) {
                 val character = CharacterSelectionPanel.cardList.selectedItem ?: return
                 val connection = GameSnifferUtil.getFirstConnection(character) ?: return
                 toToggleOverlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))

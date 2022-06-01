@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
 import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class TransportTowardTask(private val transporter: ITransporter) : BooleanDofusBotTask() {
 

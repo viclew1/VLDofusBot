@@ -6,9 +6,9 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.util.filemanagers.HintManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.HintManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirectionToPOI) : BooleanDofusBotTask() {
 

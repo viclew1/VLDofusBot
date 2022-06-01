@@ -2,11 +2,10 @@ package fr.lewon.dofus.bot.gui.init
 
 import fr.lewon.dofus.bot.VLDofusBot
 import fr.lewon.dofus.bot.core.VldbCoreInitializer
-import fr.lewon.dofus.bot.gui.InitFrame
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
-import fr.lewon.dofus.bot.sniffer.store.EventHandler
 import fr.lewon.dofus.bot.sniffer.store.EventStore
-import fr.lewon.dofus.bot.util.filemanagers.*
+import fr.lewon.dofus.bot.sniffer.store.IEventHandler
+import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
 import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder
 import net.miginfocom.swing.MigLayout
 import org.reflections.Reflections
@@ -121,17 +120,16 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
     }
 
     private fun initFileManagers() {
-        BreedAssetManager.initManager()
-        SpellAssetManager.initManager()
-        CharacterManager.initManager()
-        ConfigManager.initManager()
-        HintManager.initManager()
-        CustomTransitionManager.initManager()
+        Reflections(ToInitManager::class.java.packageName)
+            .getSubTypesOf(ToInitManager::class.java)
+            .filter { !it.kotlin.isAbstract }
+            .mapNotNull { it.kotlin.objectInstance ?: it.getConstructor().newInstance() }
+            .forEach { it.initManager() }
     }
 
     private fun initEventStoreHandlers() {
         Reflections(VLDofusBot::class.java.packageName)
-            .getSubTypesOf(EventHandler::class.java)
+            .getSubTypesOf(IEventHandler::class.java)
             .filter { !it.kotlin.isAbstract }
             .mapNotNull { it.kotlin.objectInstance ?: it.getConstructor().newInstance() }
             .forEach { EventStore.addEventHandler(it) }

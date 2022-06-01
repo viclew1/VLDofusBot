@@ -14,7 +14,7 @@ import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min

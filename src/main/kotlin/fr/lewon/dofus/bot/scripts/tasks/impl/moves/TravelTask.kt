@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class TravelTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTask() {
 

@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class UseItemInInventoryTask(private val searchName: String) : BooleanDofusBotTask() {
 

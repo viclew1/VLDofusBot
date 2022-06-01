@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.gui.util
 enum class UiResource(path: String, filledPath: String) {
 
     VLDB_LOGO("/icon/logo.png", "/icon/logo.png"),
+    METAMOB_HELPER_LOGO("/icon/metamob_helper.png", "/icon/metamob_helper.png"),
     CONFIGURE_CHARACTER("/icon/ui/configure_character.png", "/icon/ui/configure_character_filled.png"),
     DELETE("/icon/ui/delete.png", "/icon/ui/delete_filled.png"),
     STOP("/icon/ui/stop.png", "/icon/ui/stop_filled.png"),
@@ -16,6 +17,7 @@ enum class UiResource(path: String, filledPath: String) {
     BLACK_CIRCLE("/icon/ui/black_circle.png", "/icon/ui/black_circle.png"),
     RED_CIRCLE("/icon/ui/red_circle.png", "/icon/ui/red_circle.png"),
     GREEN_CIRCLE("/icon/ui/green_circle.png", "/icon/ui/green_circle.png"),
+    MENU("/icon/ui/menu.png", "/icon/ui/menu_filled.png"),
     ;
 
     val imageData = javaClass.getResourceAsStream(path)?.readAllBytes()

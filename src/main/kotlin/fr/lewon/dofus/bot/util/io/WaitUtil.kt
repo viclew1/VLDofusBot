@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.io
 
 import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object WaitUtil {
 

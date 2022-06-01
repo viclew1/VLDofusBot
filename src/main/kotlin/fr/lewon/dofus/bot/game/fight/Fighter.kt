@@ -18,7 +18,7 @@ import kotlin.math.min
 class Fighter(
     var cell: DofusCell,
     var id: Double,
-    private val fighterInfo: GameFightFighterInformations,
+    val fighterInfo: GameFightFighterInformations,
     var spells: List<DofusSpellLevel> = ArrayList(),
     val baseStatsById: MutableMap<Int, CharacterCharacteristic> = HashMap(),
     val statsById: MutableMap<Int, CharacterCharacteristic> = HashMap(),

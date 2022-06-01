@@ -13,7 +13,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElementSkill
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class PrintAllMapInfoScript : DofusBotScript("Print all map info", true) {
 
@@ -40,13 +40,13 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info", true) {
     }
 
     private fun logTransitions(mapLogItem: LogItem, gameInfo: GameInfo) {
-        val transitionsLogItem = gameInfo.logger.addSubLog("Transitions :", mapLogItem, 100)
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("Can't find player cell id")
+            ?: return
         val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
-            ?: error("Can't find player cell data")
+            ?: return
         val currentVertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
-            ?: error("No vertex found")
+            ?: return
+        val transitionsLogItem = gameInfo.logger.addSubLog("Transitions :", mapLogItem, 100)
         val edges = WorldGraphUtil.getOutgoingEdges(currentVertex)
         edges.forEach { edge ->
             val toMapId = edge.to.mapId

@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class LeaveHavenBagTask : AbstractHavenBagTask(false) {
 

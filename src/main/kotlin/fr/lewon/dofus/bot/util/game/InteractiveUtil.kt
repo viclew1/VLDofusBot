@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
@@ -28,7 +28,7 @@ object InteractiveUtil {
     private val OPTION_HEADER_MIN_COLOR = Color(65, 60, 48)
     private val OPTION_HEADER_MAX_COLOR = Color(73, 68, 56)
 
-    private val SKILL_SIGN_IDS = listOf(339, 360, 361, 362)
+    private val INVALID_SKILL_IDS = listOf(339, 360, 361, 362)
 
     private fun getElementClickPosition(gameInfo: GameInfo, elementId: Int): PointRelative {
         val interactiveElement = gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }
@@ -67,14 +67,14 @@ object InteractiveUtil {
     fun useInteractive(gameInfo: GameInfo, elementId: Int, skillId: Int) {
         val element = gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }
             ?: error("Element not found on current map : $elementId")
-        val skills = element.enabledSkills.filter { !SKILL_SIGN_IDS.contains(it.skillId) }
+        val skills = element.enabledSkills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }
         val elementClickLocation = getElementClickPosition(gameInfo, elementId)
         val skillIndex = skills.map { it.skillId }.indexOf(skillId)
         if (skillIndex < 0) {
             error("No skill available on interactive : $skillId on element : $elementId")
         }
 
-        if (skills.filter { !SKILL_SIGN_IDS.contains(it.skillId) }.size > 1) {
+        if (skills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }.size > 1) {
             if (!RetryUtil.tryUntilSuccess({ clickOption(gameInfo, elementClickLocation, skillIndex) }, 10)) {
                 error("Couldn't use interactive")
             }

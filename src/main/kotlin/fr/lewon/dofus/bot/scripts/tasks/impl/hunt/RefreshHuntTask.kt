@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachHavenBagTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class RefreshHuntTask : BooleanDofusBotTask() {
 

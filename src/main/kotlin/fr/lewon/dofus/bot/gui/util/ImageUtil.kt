@@ -6,6 +6,7 @@ import java.awt.image.ConvolveOp
 import java.awt.image.Kernel
 import javax.swing.ImageIcon
 
+
 object ImageUtil {
 
     fun getScaledImage(imageData: ByteArray, w: Int, h: Int): BufferedImage {
@@ -36,6 +37,27 @@ object ImageUtil {
         g2.drawImage(imageIcon.image, 0, 0, w, h, null)
         g2.dispose()
         return resizedImg
+    }
+
+    fun getScaledImage(bufferedImage: BufferedImage, w: Int): BufferedImage {
+        val ratio = bufferedImage.width.toFloat() / bufferedImage.height.toFloat()
+        val h = w.toFloat() / ratio
+        return getScaledImage(bufferedImage, w, h.toInt())
+    }
+
+    fun getScaledImageKeepHeight(bufferedImage: BufferedImage, h: Int): BufferedImage {
+        val ratio = bufferedImage.width.toFloat() / bufferedImage.height.toFloat()
+        val w = h.toFloat() * ratio
+        return getScaledImage(bufferedImage, w.toInt(), h)
+    }
+
+    fun getScaledImage(bufferedImage: BufferedImage, w: Int, h: Int): BufferedImage {
+        val resized = BufferedImage(w, h, bufferedImage.type)
+        val g = resized.createGraphics()
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        g.drawImage(bufferedImage, 0, 0, w, h, 0, 0, bufferedImage.width, bufferedImage.height, null)
+        g.dispose()
+        return resized
     }
 
     fun blurImage(bgImg: BufferedImage, blurRatio: Float = 1f): BufferedImage {

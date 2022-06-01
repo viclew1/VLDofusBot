@@ -5,31 +5,19 @@ import fr.lewon.dofus.bot.gui.alert.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.scripts.DofusBotScript
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
-import fr.lewon.dofus.bot.util.filemanagers.listeners.CharacterManagerListener
+import fr.lewon.dofus.bot.util.ListenableByCharacter
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.jna.JNAUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-object ScriptRunner : CharacterManagerListener {
+object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterManagerListener {
 
-    private val listenersByCharacterName = HashMap<String, ArrayList<ScriptRunnerListener>>()
-    private val runningScriptByCharacterName = HashMap<String, RunningScript>()
+    private val RUNNING_SCRIPT_BY_CHARACTER_NAME = HashMap<String, RunningScript>()
 
-    fun addListener(character: DofusCharacter, listener: ScriptRunnerListener) {
-        val characterListeners = listenersByCharacterName.computeIfAbsent(character.pseudo) { ArrayList() }
-        characterListeners.add(listener)
-    }
-
-    fun removeListeners(character: DofusCharacter) {
-        listenersByCharacterName[character.pseudo]?.clear()
-    }
-
-    fun removeListener(character: DofusCharacter, listener: ScriptRunnerListener) {
-        listenersByCharacterName[character.pseudo]?.remove(listener)
-    }
-
-    fun removeListener(listener: ScriptRunnerListener) {
-        listenersByCharacterName.forEach { it.value.remove(listener) }
+    init {
+        CharacterManager.addListener(this)
     }
 
     override fun onCharacterCreate(character: DofusCharacter) {
@@ -41,7 +29,7 @@ object ScriptRunner : CharacterManagerListener {
     }
 
     override fun onCharacterDelete(character: DofusCharacter) {
-        listenersByCharacterName.remove(character.pseudo)
+        removeListeners(character)
     }
 
     @Synchronized
@@ -50,7 +38,7 @@ object ScriptRunner : CharacterManagerListener {
             error("Cannot run script, there is already one running")
         }
         val logger = character.executionLogger
-        listenersByCharacterName[character.pseudo]?.forEach { it.onScriptStart(character, dofusScript) }
+        getListeners(character.pseudo).forEach { it.onScriptStart(character, dofusScript) }
         val logItem = logger.log("Executing Dofus script : [${dofusScript.name}]")
         val thread = Thread {
             try {
@@ -67,16 +55,16 @@ object ScriptRunner : CharacterManagerListener {
                 onScriptKo(character, t, logItem)
             }
         }
-        runningScriptByCharacterName[character.pseudo] = RunningScript(dofusScript, thread)
+        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = RunningScript(dofusScript, thread)
         thread.start()
     }
 
     fun isScriptRunning(character: DofusCharacter): Boolean {
-        return runningScriptByCharacterName[character.pseudo]?.thread?.isAlive == true
+        return RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo]?.thread?.isAlive == true
     }
 
     fun getRunningScript(character: DofusCharacter): RunningScript? {
-        return runningScriptByCharacterName[character.pseudo]
+        return RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo]
             ?.takeIf { it.thread.isAlive }
     }
 
@@ -95,7 +83,7 @@ object ScriptRunner : CharacterManagerListener {
 
     @Synchronized
     fun stopScript(character: DofusCharacter) {
-        runningScriptByCharacterName.remove(character.pseudo)?.thread?.interrupt()
+        RUNNING_SCRIPT_BY_CHARACTER_NAME.remove(character.pseudo)?.thread?.interrupt()
     }
 
     private fun onScriptKo(character: DofusCharacter, t: Throwable, logItem: LogItem) {
@@ -117,7 +105,7 @@ object ScriptRunner : CharacterManagerListener {
     }
 
     private fun onScriptEnd(character: DofusCharacter, endType: DofusBotScriptEndType) {
-        listenersByCharacterName[character.pseudo]?.forEach { it.onScriptEnd(character, endType) }
+        getListeners(character.pseudo).forEach { it.onScriptEnd(character, endType) }
     }
 
     class RunningScript(

@@ -7,8 +7,8 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.util.filemanagers.HintManager
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.filemanagers.impl.HintManager
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class RegisterHintGfxScript : DofusBotScript("Register hint GFX ID", true) {
 

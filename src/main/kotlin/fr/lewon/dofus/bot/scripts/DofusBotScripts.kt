@@ -8,6 +8,7 @@ enum class DofusBotScripts(val buildScriptFun: () -> DofusBotScript) {
     REACH_MAP({ ReachMapScript() }),
     EXPLORE_AREA({ ExploreAreaScript() }),
     EXPLORE_ALL_ZAAPS({ ExploreAllZaapsScript() }),
+    UPDATE_METAMOB({ UpdateMetamobScript() }),
     TREASURE_HUNT_EXECUTE({ ExecuteTreasureHuntScript() }),
     FIGHT_ARENA({ FightArenaScript() }),
     FIGHT_DUNGEON({ FightDungeonScript() }),

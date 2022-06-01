@@ -13,7 +13,7 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.transport.OpenZaapInterfaceTask
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.event.KeyEvent
 
 class ExploreAllZaapsScript : DofusBotScript("Explore all zaaps") {

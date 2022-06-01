@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class ExecuteFightHuntStepTask : BooleanDofusBotTask() {
 

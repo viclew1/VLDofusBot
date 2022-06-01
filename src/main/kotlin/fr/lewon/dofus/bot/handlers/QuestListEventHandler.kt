@@ -4,10 +4,10 @@ import fr.lewon.dofus.bot.core.d2o.managers.quest.QuestManager
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.quest.QuestListMessage
 import fr.lewon.dofus.bot.sniffer.model.types.quest.QuestActiveDetailedInformations
-import fr.lewon.dofus.bot.sniffer.store.EventHandler
+import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
-object QuestListEventHandler : EventHandler<QuestListMessage> {
+object QuestListEventHandler : IEventHandler<QuestListMessage> {
     override fun onEventReceived(socketResult: QuestListMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.finishedQuestIds = socketResult.finishedQuestsIds

@@ -9,7 +9,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacterist
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightFighterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightCharacterInformations
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
 
@@ -18,6 +18,7 @@ class FightBoard(private val gameInfo: GameInfo) {
     private val lock = ReentrantLock()
     private val dofusBoard = gameInfo.dofusBoard
     private val fightersById = HashMap<Double, Fighter>()
+    val deadFighters = ArrayList<Fighter>()
 
     fun move(fromCellId: Int, toCellId: Int) {
         try {
@@ -67,6 +68,7 @@ class FightBoard(private val gameInfo: GameInfo) {
     fun killFighter(id: Double) {
         try {
             lock.lockInterruptibly()
+            fightersById[id]?.let { deadFighters.add(it) }
             fightersById.remove(id)
         } finally {
             lock.unlock()

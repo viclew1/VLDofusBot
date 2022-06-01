@@ -11,7 +11,7 @@ import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 import fr.lewon.dofus.bot.util.ui.UiUtil
 
 class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {

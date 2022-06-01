@@ -15,7 +15,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMe
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object MoveUtil {
 

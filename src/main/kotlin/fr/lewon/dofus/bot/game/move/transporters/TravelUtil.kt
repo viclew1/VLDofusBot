@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
-import fr.lewon.dofus.bot.util.network.GameInfo
+import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object TravelUtil {
 
