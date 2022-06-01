@@ -12,7 +12,7 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-class GameFightEndEventHandler : IEventHandler<GameFightEndMessage> {
+object GameFightEndEventHandler : IEventHandler<GameFightEndMessage> {
     override fun onEventReceived(socketResult: GameFightEndMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         if (MetamobConfigManager.readConfig().captureAutoUpdate) {
