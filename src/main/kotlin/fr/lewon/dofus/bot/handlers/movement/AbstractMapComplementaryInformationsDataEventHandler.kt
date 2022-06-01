@@ -54,7 +54,6 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         Thread {
             gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
             gameInfo.playerId = WaitUtil.waitForEvent(gameInfo, SetCharacterRestrictionsMessage::class.java).actorId
-            println(gameInfo.playerId)
             gameInfo.shouldInitBoard = false
             val card = CharacterSelectionPanel.cardList.getCard(gameInfo.character) as CharacterCard?
             card?.updateState()
