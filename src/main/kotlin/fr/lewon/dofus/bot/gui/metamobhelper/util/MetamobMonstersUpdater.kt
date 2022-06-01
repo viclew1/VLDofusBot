@@ -1,9 +1,6 @@
 package fr.lewon.dofus.bot.gui.metamobhelper.util
 
-import fr.lewon.dofus.bot.core.VldbCoreInitializer
-import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.gui.metamobhelper.model.MetamobMonster
 import fr.lewon.dofus.bot.gui.metamobhelper.model.MetamobMonsterType
@@ -107,15 +104,4 @@ object MetamobMonstersUpdater {
         return MetamobMonsterUpdate(monster.id, state, amount)
     }
 
-}
-
-fun main() {
-    VldbCoreInitializer.initAll()
-    D2OUtil.getObjects("Items").forEach {
-        val nameId = it["nameId"].toString().toInt()
-        val name = I18NUtil.getLabel(nameId)
-        if (name?.contains("Pierre") == true) {
-            println("${it["id"]} - $name")
-        }
-    }
 }
