@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.RefreshHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.util.FormatUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
@@ -58,6 +59,11 @@ class ExecuteTreasureHuntScript : DofusBotScript("Execute treasure hunt") {
     }
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo) {
+        if (gameInfo.treasureHunt == null && TreasureHuntUtil.isHuntPresent(gameInfo)) {
+            if (!RefreshHuntTask().run(logItem, gameInfo)) {
+                error("Couldn't refresh hunt")
+            }
+        }
         var successCount = 0
         val huntLevel = HuntLevel.fromLabel(huntLevelParameter.value)
             ?: error("Invalid hunt level")

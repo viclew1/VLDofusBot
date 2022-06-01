@@ -23,9 +23,6 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
 
     override fun onEventReceived(socketResult: T, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
-        if (gameInfo.shouldInitBoard) {
-            initBoard(gameInfo)
-        }
         gameInfo.currentMap = socketResult.map
         gameInfo.drhellerOnMap = socketResult.actors.firstOrNull { it is GameRolePlayTreasureHintInformations } != null
         gameInfo.dofusBoard.updateStartCells(socketResult.fightStartPositions.positionsForChallenger)
@@ -47,12 +44,17 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
+        if (gameInfo.shouldInitBoard) {
+            initBoard(gameInfo)
+        }
         beepIfSpecialMonsterHere(gameInfo, socketResult.map)
     }
 
     private fun initBoard(gameInfo: GameInfo) {
         Thread {
+            gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
             gameInfo.playerId = WaitUtil.waitForEvent(gameInfo, SetCharacterRestrictionsMessage::class.java).actorId
+            println(gameInfo.playerId)
             gameInfo.shouldInitBoard = false
             val card = CharacterSelectionPanel.cardList.getCard(gameInfo.character) as CharacterCard?
             card?.updateState()
