@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.core.ui.managers.TransportSortingUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.util.StringUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
@@ -13,7 +14,6 @@ import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import fr.lewon.dofus.bot.util.ui.UiUtil
 import java.awt.event.KeyEvent
-import java.text.Normalizer
 
 class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
 
@@ -62,13 +62,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     private fun getOrderedZaapDestinations(zaapDestinations: List<DofusMap>): List<DofusMap> {
         val favoriteZaaps = TransportSortingUtil.getFavoriteZaapMapIds().map { it.toInt() }
         val favoriteIndexFunc: (DofusMap) -> String = { if (favoriteZaaps.contains(it.id.toInt())) "A" else "B" }
-        return zaapDestinations.sortedBy { removeAccents(favoriteIndexFunc(it) + it.subArea.area.name + it.subArea.name) }
-    }
-
-    private fun removeAccents(str: String): String {
-        val temp = Normalizer.normalize(str.lowercase(), Normalizer.Form.NFD)
-        val regex = "\\p{InCombiningDiacriticalMarks}+".toRegex()
-        return regex.replace(temp, "")
+        return zaapDestinations.sortedBy { StringUtil.removeAccents(favoriteIndexFunc(it) + it.subArea.area.name + it.subArea.name) }
     }
 
     override fun onStarted(): String {

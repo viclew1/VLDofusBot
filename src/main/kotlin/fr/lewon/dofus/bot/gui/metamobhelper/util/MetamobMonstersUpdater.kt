@@ -10,6 +10,7 @@ import fr.lewon.dofus.bot.gui.metamobhelper.monsters.MonsterListContainerPanel
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.ObjectItem
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.effect.ObjectEffectDice
 import fr.lewon.dofus.bot.sniffer.model.types.fight.result.entry.FightResultPlayerListEntry
+import fr.lewon.dofus.bot.util.StringUtil
 
 object MetamobMonstersUpdater {
 
@@ -22,7 +23,9 @@ object MetamobMonstersUpdater {
             val allMetamobMonsters = getAllMonsters()
             val amountByMonster = HashMap<MetamobMonster, Int>()
             for (monster in monsters) {
-                val metamobMonster = allMetamobMonsters.firstOrNull { it.name.lowercase() == monster.name.lowercase() }
+                val metamobMonster = allMetamobMonsters.firstOrNull {
+                    stringEqualsIgnoreCaseAndAccents(it.name, monster.name)
+                }
                 if (metamobMonster != null) {
                     val currentAmount = amountByMonster.computeIfAbsent(metamobMonster) { 0 }
                     amountByMonster[metamobMonster] = currentAmount + 1
@@ -79,7 +82,7 @@ object MetamobMonstersUpdater {
                 .filter { it.actionId == MONSTER_STONE_EFFECT_ACTION_ID }
             for (monsterStored in monstersStored) {
                 val monsterName = MonsterManager.getMonster(monsterStored.diceConst.toDouble()).name.lowercase()
-                val monster = monsters.firstOrNull { it.name.lowercase() == monsterName }
+                val monster = monsters.firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monsterName) }
                 if (monster != null) {
                     val currentAmount = amountByMonster.computeIfAbsent(monster) { 0 }
                     amountByMonster[monster] = currentAmount + 1
@@ -87,6 +90,10 @@ object MetamobMonstersUpdater {
             }
         }
         return amountByMonster
+    }
+
+    private fun stringEqualsIgnoreCaseAndAccents(str1: String, str2: String): Boolean {
+        return StringUtil.removeAccents(str1).lowercase() == StringUtil.removeAccents(str2).lowercase()
     }
 
     private fun getAllMonsters(): List<MetamobMonster> {

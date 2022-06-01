@@ -9,8 +9,8 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
+import fr.lewon.dofus.bot.util.StringUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
-import java.text.Normalizer
 
 class ExploreAreaScript : DofusBotScript("Explore area") {
 
@@ -31,13 +31,8 @@ class ExploreAreaScript : DofusBotScript("Explore area") {
         }
 
         private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { "${it.area.name} (${it.name})" }
-        private val SUB_AREA_LABELS = SUB_AREA_BY_LABEL.keys.sortedBy { removeAccents(it) }
+        private val SUB_AREA_LABELS = SUB_AREA_BY_LABEL.keys.sortedBy { StringUtil.removeAccents(it) }
 
-        private fun removeAccents(str: String): String {
-            val temp = Normalizer.normalize(str.lowercase(), Normalizer.Form.NFD)
-            val regex = "\\p{InCombiningDiacriticalMarks}+".toRegex()
-            return regex.replace(temp, "")
-        }
     }
 
     private val currentAreaParameter = DofusBotParameter(
