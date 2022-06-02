@@ -23,6 +23,7 @@ class AccessHavenBagChestTask : BooleanDofusBotTask() {
         if (!ReachHavenBagTask().run(logItem, gameInfo)) {
             error("Couldn't reach haven bag")
         }
+        WaitUtil.sleep(1000)
         gameInfo.eventStore.clear()
         val interactiveElement = findChestElement(gameInfo)
             ?: error("Couldn't find chest interactive element")

@@ -19,6 +19,7 @@ enum class UiResource(path: String, filledPath: String) {
     GREEN_CIRCLE("/icon/ui/green_circle.png", "/icon/ui/green_circle.png"),
     ORANGE_CIRCLE("/icon/ui/orange_circle.png", "/icon/ui/orange_circle.png"),
     MENU("/icon/ui/menu.png", "/icon/ui/menu_filled.png"),
+    REFRESH("/icon/ui/refresh.png", "/icon/ui/refresh_filled.png")
     ;
 
     val imageData = javaClass.getResourceAsStream(path)?.readAllBytes()

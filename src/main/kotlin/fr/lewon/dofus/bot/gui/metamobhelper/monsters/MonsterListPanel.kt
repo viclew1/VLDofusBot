@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.gui.metamobhelper.monsters
 
 import fr.lewon.dofus.bot.gui.metamobhelper.filter.MonsterFilterPanel
+import fr.lewon.dofus.bot.gui.metamobhelper.filter.MonsterFilterStatsPanel
 import fr.lewon.dofus.bot.gui.metamobhelper.model.MetamobMonster
 import fr.lewon.dofus.bot.gui.util.AppFonts
 import java.awt.Color
@@ -39,6 +40,7 @@ object MonsterListPanel : JPanel() {
             }
         }
         paintComponent(null)
+        MonsterFilterStatsPanel.update(visibleMonsters)
         updateUI()
     }
 

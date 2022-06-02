@@ -56,7 +56,7 @@ class PrintAllMapInfoScript : DofusBotScript("Print all map info", true) {
                 gameInfo.logger.addSubLog("ID : ${it.id}", transitionLogItem)
                 gameInfo.logger.addSubLog("type : ${it.type}", transitionLogItem)
                 gameInfo.logger.addSubLog("direction : ${it.direction}", transitionLogItem)
-                gameInfo.logger.addSubLog("map ID : ${it.transitionMapId}", transitionLogItem)
+                gameInfo.logger.addSubLog("map ID : ${it.transitionMapId.toLong()}", transitionLogItem)
                 gameInfo.logger.addSubLog("criterion : ${it.criterion}", transitionLogItem)
                 gameInfo.logger.addSubLog("cell ID : ${it.cellId}", transitionLogItem)
             }

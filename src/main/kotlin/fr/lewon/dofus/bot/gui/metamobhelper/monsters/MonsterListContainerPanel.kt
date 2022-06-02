@@ -2,24 +2,29 @@ package fr.lewon.dofus.bot.gui.metamobhelper.monsters
 
 import fr.lewon.dofus.bot.gui.metamobhelper.util.MetamobRequestProcessor
 import fr.lewon.dofus.bot.gui.util.AppFonts
+import fr.lewon.dofus.bot.gui.util.ImageUtil
+import fr.lewon.dofus.bot.gui.util.UiResource
 import net.miginfocom.swing.MigLayout
-import javax.swing.JButton
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JScrollPane
+import javax.swing.*
 
 object MonsterListContainerPanel : JPanel(MigLayout()) {
 
-    private val monstersLabel = JLabel("Monsters").also { it.font = AppFonts.TITLE_FONT }
+    private val monstersLabel = JLabel("Monsters").also {
+        it.font = AppFonts.TITLE_FONT
+    }
     private val monstersScrollPane = JScrollPane()
-    private val refreshButton = JButton("Refresh")
+    private val refreshButton = JButton()
     private val errorLabel =
         JLabel("Error accessing server. Either Metamob is down or your have a problem in your config.")
 
     init {
-        add(monstersLabel, "wrap")
-        add(refreshButton)
-        add(errorLabel, "wrap")
+        refreshButton.icon = ImageIcon(ImageUtil.getScaledImage(UiResource.REFRESH.imageData, 30, 30))
+        refreshButton.rolloverIcon = ImageIcon(ImageUtil.getScaledImage(UiResource.REFRESH.filledImageData, 30, 30))
+        refreshButton.isContentAreaFilled = false
+        refreshButton.toolTipText = "Refresh"
+        add(monstersLabel)
+        add(refreshButton, "al left, wrap")
+        add(errorLabel, "span 2 1, wrap")
         errorLabel.isVisible = false
         refreshButton.addActionListener { refresh() }
         monstersScrollPane.horizontalScrollBar = null
