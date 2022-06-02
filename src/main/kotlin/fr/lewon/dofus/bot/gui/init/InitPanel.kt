@@ -89,9 +89,11 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
 
     private fun startInit(initTask: InitTask, errors: ArrayList<String>) {
         initTask.label.foreground = Color.WHITE
-        initTask.progressBar.isIndeterminate = true
-        initTask.progressBar.isVisible = true
-        initTask.progressBar.foreground = Color.LIGHT_GRAY
+        SwingUtilities.invokeLater {
+            initTask.progressBar.isIndeterminate = true
+            initTask.progressBar.isVisible = true
+            initTask.progressBar.foreground = Color.LIGHT_GRAY
+        }
         try {
             initTask.function()
             initTask.success = true
@@ -101,11 +103,13 @@ object InitPanel : JPanel(MigLayout("ins 10")) {
             initTask.success = false
         }
         val color = if (initTask.success) Color.GREEN else Color.RED
-        initTask.progressBar.foreground = color
         initTask.label.foreground = color
-        initTask.progressBar.isIndeterminate = false
-        initTask.progressBar.maximum = 1
-        initTask.progressBar.value = 1
+        SwingUtilities.invokeLater {
+            initTask.progressBar.foreground = color
+            initTask.progressBar.isIndeterminate = false
+            initTask.progressBar.maximum = 1
+            initTask.progressBar.value = 1
+        }
     }
 
     private fun getExportPackBuilders(): List<VldbAbstractExportPackTaskBuilder> {

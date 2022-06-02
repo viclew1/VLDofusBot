@@ -52,6 +52,9 @@ object MetamobMonstersUpdater {
     private fun updateMonstersAmount(objectItems: List<ObjectItem>, amountSumCalculator: (Int, Int) -> Int) {
         val allMonsters = getAllMonsters()
         val amountByMonster = getAmountByMonster(allMonsters, objectItems)
+        if (amountByMonster.isEmpty()) {
+            return
+        }
         val monsterUpdates = amountByMonster.entries.map {
             val monster = it.key
             val amount = amountSumCalculator(monster.amount, it.value)
@@ -61,7 +64,7 @@ object MetamobMonstersUpdater {
         MonsterListContainerPanel.refresh()
     }
 
-    fun updateMonsters(objectItems: List<ObjectItem>) {
+    fun cleanAndUpdateMonsters(objectItems: List<ObjectItem>) {
         val allMonsters = getAllMonsters()
         val amountByMonster = getAmountByMonster(allMonsters, objectItems)
         val monsterUpdates = allMonsters.map {

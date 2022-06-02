@@ -51,7 +51,7 @@ class UpdateMetamobScript : DofusBotScript("Update Metamob") {
             error("Failed to access Metamob. It might be down but it is more likely that your settings are wrong")
         }
         val metamobUpdateLogItem = gameInfo.logger.addSubLog("Computing owned monsters ... ", logItem)
-        MetamobMonstersUpdater.updateMonsters(chestContent.objectItems)
+        MetamobMonstersUpdater.cleanAndUpdateMonsters(chestContent.objectItems)
         gameInfo.logger.closeLog("OK", metamobUpdateLogItem)
     }
 }

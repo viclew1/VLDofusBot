@@ -4,7 +4,9 @@ import fr.lewon.dofus.bot.AbstractMainPanel
 import fr.lewon.dofus.bot.gui.metamobhelper.filter.MonsterFilterGlobalPanel
 import fr.lewon.dofus.bot.gui.metamobhelper.monsters.MonsterListContainerPanel
 import javax.swing.BorderFactory
+import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.JTabbedPane
 
 object MetamobHelperMainPanel : AbstractMainPanel() {
 
@@ -12,8 +14,12 @@ object MetamobHelperMainPanel : AbstractMainPanel() {
         return MonsterFilterGlobalPanel.also { it.border = BorderFactory.createEtchedBorder() }
     }
 
-    override fun getRightPaneContent(): JPanel {
-        return MonsterListContainerPanel
+    override fun getRightPaneContent(): JComponent {
+        val tabbedPane = JTabbedPane()
+        tabbedPane.addTab("Monsters", MonsterListContainerPanel)
+        tabbedPane.addTab("Community", JPanel())
+        tabbedPane.addTab("Help", JPanel())
+        return tabbedPane
     }
 
 }

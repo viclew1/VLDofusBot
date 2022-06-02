@@ -55,6 +55,7 @@ class GameInfo(val character: DofusCharacter) {
     var activeObjectiveIds: List<Int> = ArrayList()
 
     var currentTradeInfo = TradeInfo()
+    var inShop = false
 
     fun updatePlayerFighter() {
         val fighter = fightBoard.getPlayerFighter()

@@ -15,6 +15,8 @@ object MetamobConfigPanel : AbstractConfigPanel() {
     private val tradeAutoUpdateCheckbox = JCheckBox()
     private val captureAutoUpdateLabel = JLabel("Auto update on capture")
     private val captureAutoUpdateCheckbox = JCheckBox()
+    private val shopAutoUpdateLabel = JLabel("Auto update on buy")
+    private val shopAutoUpdateCheckbox = JCheckBox()
 
     init {
         // Metamob unique identifier
@@ -51,6 +53,15 @@ object MetamobConfigPanel : AbstractConfigPanel() {
         captureAutoUpdateCheckbox.addItemListener {
             updateCaptureAutoUpdate(captureAutoUpdateCheckbox.isSelected)
         }
+
+        // Auto update on buy
+        shopAutoUpdateCheckbox.isSelected = MetamobConfigManager.readConfig().shopAutoUpdate
+        shopAutoUpdateLabel.toolTipText =
+            "Auto updates metamob when an initialized character buys a monster group"
+        addLine(shopAutoUpdateLabel, shopAutoUpdateCheckbox)
+        shopAutoUpdateCheckbox.addItemListener {
+            updateShopAutoUpdate(shopAutoUpdateCheckbox.isSelected)
+        }
     }
 
     private fun updateMetamobUniqueID(metamobUniqueID: String) {
@@ -67,5 +78,9 @@ object MetamobConfigPanel : AbstractConfigPanel() {
 
     private fun updateCaptureAutoUpdate(captureAutoUpdate: Boolean) {
         MetamobConfigManager.editConfig { it.captureAutoUpdate = captureAutoUpdate }
+    }
+
+    private fun updateShopAutoUpdate(shopAutoUpdate: Boolean) {
+        MetamobConfigManager.editConfig { it.shopAutoUpdate = shopAutoUpdate }
     }
 }

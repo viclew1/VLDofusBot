@@ -17,6 +17,7 @@ object ExchangeLeaveEventHandler : IEventHandler<ExchangeLeaveMessage> {
         } else {
             gameInfo.currentTradeInfo = TradeInfo()
         }
+        gameInfo.inShop = false
     }
 
     private fun updateMetamob(gameInfo: GameInfo) {
