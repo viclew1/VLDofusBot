@@ -21,17 +21,19 @@ object MetamobMonstersUpdater {
         val playerLoots = playerResult.rewards.objects.filterIndexed { index, _ -> index % 2 == 0 }
         if (playerLoots.intersect(SOUL_STONE_ITEM_IDS).isNotEmpty()) {
             val allMetamobMonsters = getAllMonsters()
-            val amountByMonster = HashMap<MetamobMonster, Int>()
+            val amountToAddByMonster = HashMap<MetamobMonster, Int>()
             for (monster in monsters) {
-                val metamobMonster = allMetamobMonsters.firstOrNull {
-                    stringEqualsIgnoreCaseAndAccents(it.name, monster.name)
-                }
+                val metamobMonster = allMetamobMonsters
+                    .firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
                 if (metamobMonster != null) {
-                    val currentAmount = amountByMonster.computeIfAbsent(metamobMonster) { 0 }
-                    amountByMonster[metamobMonster] = currentAmount + 1
+                    val currentAmount = amountToAddByMonster.computeIfAbsent(metamobMonster) { 0 }
+                    amountToAddByMonster[metamobMonster] = currentAmount + 1
                 }
             }
-            val monsterUpdates = amountByMonster.entries.map {
+            if (amountToAddByMonster.isEmpty()) {
+                error("Couldn't add monsters : ${monsters.joinToString(", ") { it.name }}")
+            }
+            val monsterUpdates = amountToAddByMonster.entries.map {
                 val monster = it.key
                 val amount = monster.amount + it.value
                 buildMonsterUpdate(monster, amount)

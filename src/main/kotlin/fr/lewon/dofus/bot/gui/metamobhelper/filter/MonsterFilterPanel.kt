@@ -6,6 +6,7 @@ import fr.lewon.dofus.bot.gui.util.AppFonts
 import fr.lewon.dofus.bot.gui.vldb.panes.script.parameters.ParametersPanel
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.util.StringUtil
 import net.miginfocom.swing.MigLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -15,7 +16,7 @@ object MonsterFilterPanel : JPanel(MigLayout()) {
 
     private val monsterNameParameter = DofusBotParameter(key = "Monster", description = "Monster name")
     private val monsterNameFilter = MonsterFilter(monsterNameParameter) { value, monster ->
-        value.isEmpty() || monster.name.contains(value, true)
+        value.isEmpty() || StringUtil.removeAccents(monster.name).contains(StringUtil.removeAccents(value), true)
     }
     private val ownedParameter = DofusBotParameter(
         key = "Owned",

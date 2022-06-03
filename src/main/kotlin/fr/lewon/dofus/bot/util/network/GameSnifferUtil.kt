@@ -143,8 +143,8 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
                 .forEach { it.value.remove(connection) }
             CONNECTIONS_BY_GAME_INFO.entries.removeIf { it.value.isEmpty() }
         }
-        println("stop listening : ${removedCharacterNames.joinToString(" / ")}")
         removedCharacterNames.forEach { characterName ->
+            println("stop listening : $characterName")
             getListeners(characterName).forEach { listener ->
                 listener.onListenStop()
             }
