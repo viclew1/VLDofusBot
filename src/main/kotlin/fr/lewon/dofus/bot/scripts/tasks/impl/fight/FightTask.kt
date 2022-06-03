@@ -153,13 +153,13 @@ open class FightTask(
 
         gameInfo.fightBoard.resetFighters()
 
+        WaitUtil.sleep(800)
+        if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null || isLvlUp(gameInfo) })) {
+            error("Close button not found")
+        }
         if (isLvlUp(gameInfo)) {
             MouseUtil.leftClick(gameInfo, LVL_UP_OK_BUTTON_POINT)
             WaitUtil.waitUntil({ !isLvlUp(gameInfo) })
-        }
-        WaitUtil.sleep(800)
-        if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null })) {
-            error("Close button not found")
         }
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)

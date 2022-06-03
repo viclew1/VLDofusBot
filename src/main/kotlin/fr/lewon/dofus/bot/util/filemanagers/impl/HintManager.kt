@@ -61,16 +61,19 @@ object HintManager : ToInitManager {
         val cellHalfWidth = D2PMapsAdapter.CELL_HALF_WIDTH
         val topOk = cellId >= mapWidth * 2 || ge.pixelOffset.y >= 0
         val bottomOk = cellId <= mapCellsCount - mapWidth * 2 || ge.pixelOffset.y <= cellHalfHeight
-        val divideLeftover = cellId % mapWidth
-        val leftOk = divideLeftover > 0 || ge.pixelOffset.x >= -cellHalfWidth
-        val rightOk = divideLeftover < mapWidth - 1 || ge.pixelOffset.x <= cellHalfWidth * 2f
+        val divideLeftover = cellId % (mapWidth * 2)
+        val leftOk = divideLeftover != 0 && divideLeftover != mapWidth
+                || divideLeftover == 0 && ge.pixelOffset.x >= -cellHalfWidth
+                || divideLeftover == mapWidth && ge.pixelOffset.x >= -2 * cellHalfWidth
+        val rightOk = divideLeftover != mapWidth * 2 - 1 && divideLeftover != mapWidth - 1
+                || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 2f
+                || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 3f
         return topOk && bottomOk && leftOk && rightOk
     }
 
     fun addHintGfxMatch(pointOfInterestLabel: String, gfxId: Int) {
-        gfxIdsByPoiLabel.computeIfAbsent(pointOfInterestLabel) { ArrayList() }
-            .takeIf { !it.contains(gfxId) }
-            ?.add(gfxId)
+        gfxIdsByPoiLabel.computeIfAbsent(pointOfInterestLabel) { HashSet() }
+            .add(gfxId)
         saveHintStoreContent()
     }
 

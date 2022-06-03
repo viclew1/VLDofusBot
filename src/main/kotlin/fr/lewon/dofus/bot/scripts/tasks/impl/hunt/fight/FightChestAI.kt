@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectGlobalType
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusBoard
+import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.ai.FightState
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
@@ -16,15 +17,33 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
         private const val TO_HIT_CHEST_BONES_ID = 2672
     }
 
+    override fun selectStartCell(fightBoard: FightBoard): DofusCell? {
+        return dofusBoard.startCells.firstOrNull {
+            it.neighbors.all { cell -> cell.isAccessible() && fightBoard.getFighter(cell) == null }
+        }
+    }
+
     override fun doGetNextOperation(fightBoard: FightBoard, initialState: FightState): FightOperation {
-        val toHitMonster = fightBoard.getEnemyFighters().firstOrNull { it.bonesId == TO_HIT_CHEST_BONES_ID }
+        val playerFighter = fightBoard.getPlayerFighter()
             ?: return FightOperation(FightOperationType.PASS_TURN)
-        return initialState.getPossibleOperations().filter {
+        val toHitMonster = fightBoard.getEnemyFighters().firstOrNull { it.bonesId == TO_HIT_CHEST_BONES_ID }
+            ?.takeIf { fightBoard.getFighterById(it.getSummonerId()) != null }
+            ?: return FightOperation(FightOperationType.PASS_TURN)
+        val hitOperations = initialState.getPossibleOperations().filter {
             it.targetCellId == toHitMonster.cell.cellId
                     && it.type == FightOperationType.SPELL
                     && it.spell != null
                     && isSingleAttackSpell(it.spell)
-        }.minByOrNull { it.spell?.apCost ?: Int.MAX_VALUE } ?: FightOperation(FightOperationType.PASS_TURN)
+        }
+        var chosenOperations = hitOperations.filter { it.targetCellId == toHitMonster.cell.cellId }
+        if (chosenOperations.isEmpty()) {
+            chosenOperations = hitOperations.filter {
+                val fighter = it.targetCellId?.let { cellId -> fightBoard.getFighter(cellId) }
+                fighter != null && fighter.teamId != playerFighter.teamId && fighter.isSummon()
+            }
+        }
+        return chosenOperations.minByOrNull { it.spell?.apCost ?: Int.MAX_VALUE }
+            ?: FightOperation(FightOperationType.PASS_TURN)
     }
 
     private fun isSingleAttackSpell(spell: DofusSpellLevel): Boolean {
