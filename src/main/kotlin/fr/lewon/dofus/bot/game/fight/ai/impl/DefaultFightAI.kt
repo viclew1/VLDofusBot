@@ -12,7 +12,7 @@ import kotlin.math.abs
 import kotlin.random.Random
 
 
-class DefaultFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : FightAI(dofusBoard, aiComplement) {
+open class DefaultFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : FightAI(dofusBoard, aiComplement) {
 
     override fun selectStartCell(fightBoard: FightBoard): DofusCell? {
         val tempFightBoard = fightBoard.deepCopy()

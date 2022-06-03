@@ -28,6 +28,7 @@ class Fighter(
     } else null
 ) : IDofusFighter {
 
+    var bonesId: Int = 0
     var teamId = fighterInfo.spawnInfo.teamId
     var invisibilityState = fighterInfo.stats.invisibilityState
 

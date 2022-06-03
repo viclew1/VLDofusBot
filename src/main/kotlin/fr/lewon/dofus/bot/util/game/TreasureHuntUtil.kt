@@ -3,8 +3,7 @@ package fr.lewon.dofus.bot.util.game
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
-import fr.lewon.dofus.bot.game.fight.ai.complements.TreasureChestAIComplement
-import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight.FightChestTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecutePoiHuntStepTask
@@ -139,7 +138,7 @@ object TreasureHuntUtil {
     fun fight(logItem: LogItem, gameInfo: GameInfo): Boolean {
         gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getFightPoint())
-        return FightTask(TreasureChestAIComplement()).run(logItem, gameInfo)
+        return FightChestTask().run(logItem, gameInfo)
     }
 
     fun clickFightForUpdate(gameInfo: GameInfo) {

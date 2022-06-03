@@ -63,7 +63,7 @@ object HintManager : ToInitManager {
         val bottomOk = cellId <= mapCellsCount - mapWidth * 2 || ge.pixelOffset.y <= cellHalfHeight
         val divideLeftover = cellId % mapWidth
         val leftOk = divideLeftover > 0 || ge.pixelOffset.x >= -cellHalfWidth
-        val rightOk = divideLeftover < mapWidth - 1 || ge.pixelOffset.x <= cellHalfWidth * 3f
+        val rightOk = divideLeftover < mapWidth - 1 || ge.pixelOffset.x <= cellHalfWidth * 2f
         return topOk && bottomOk && leftOk && rightOk
     }
 

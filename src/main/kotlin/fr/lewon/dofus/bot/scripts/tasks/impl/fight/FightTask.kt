@@ -4,8 +4,10 @@ import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
+import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
+import fr.lewon.dofus.bot.game.fight.ai.FightAI
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.game.fight.ai.impl.DefaultFightAI
@@ -108,7 +110,7 @@ open class FightTask(
             }
         }
 
-        val ai = DefaultFightAI(dofusBoard, aiComplement)
+        val ai = getFightAI(dofusBoard, aiComplement)
         selectInitialPosition(gameInfo, fightBoard, ai)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
@@ -164,7 +166,11 @@ open class FightTask(
         return true
     }
 
-    protected open fun selectInitialPosition(gameInfo: GameInfo, fightBoard: FightBoard, ai: DefaultFightAI) {
+    protected open fun getFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement): FightAI {
+        return DefaultFightAI(dofusBoard, aiComplement)
+    }
+
+    protected open fun selectInitialPosition(gameInfo: GameInfo, fightBoard: FightBoard, ai: FightAI) {
         val playerFighter = fightBoard.getPlayerFighter() ?: error("Player not found")
         ai.selectStartCell(fightBoard)?.takeIf { it != playerFighter.cell }?.let {
             WaitUtil.sleep(500)
