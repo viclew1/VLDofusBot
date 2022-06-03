@@ -91,7 +91,8 @@ open class FightTask(
     }
 
     private fun isFightEnded(gameInfo: GameInfo): Boolean {
-        return gameInfo.eventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java) != null
+        return gameInfo.eventStore.getLastEvent(GameFightEndMessage::class.java) != null
+                || gameInfo.eventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java) != null
     }
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
@@ -114,6 +115,7 @@ open class FightTask(
         selectInitialPosition(gameInfo, fightBoard, ai)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
+        gameInfo.eventStore.clear(GameFightEndMessage::class.java)
         gameInfo.eventStore.clear(MapComplementaryInformationsDataMessage::class.java)
         gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)

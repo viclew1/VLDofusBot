@@ -34,8 +34,6 @@ object MouseUtil {
     private fun moveAround(handle: WinDef.HWND, position: PointAbsolute) {
         val cornerPoints = listOf(
             PointAbsolute(position.x + 1, position.y),
-            PointAbsolute(position.x, position.y + 1),
-            PointAbsolute(position.x - 1, position.y),
             PointAbsolute(position.x, position.y - 1),
         )
         cornerPoints.forEach { doMove(handle, it) }
