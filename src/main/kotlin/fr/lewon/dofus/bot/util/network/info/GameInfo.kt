@@ -105,7 +105,7 @@ class GameInfo(val character: DofusCharacter) {
 
     @Synchronized
     fun updateCellData(mapId: Double) {
-        val completeCellDataByCellId = D2PMapsAdapter.getCompleteCellDataByCellId(mapId)
+        completeCellDataByCellId = D2PMapsAdapter.getCompleteCellDataByCellId(mapId)
         dofusBoard.updateCells(completeCellDataByCellId.values.map { it.cellData })
         LOSOverlay.updateOverlay(this)
     }

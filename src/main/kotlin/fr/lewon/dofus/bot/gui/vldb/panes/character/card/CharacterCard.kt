@@ -173,7 +173,7 @@ class CharacterCard(cardList: CharacterCardList, private val character: DofusCha
     }
 
     override fun onListenStart() {
-        setStateAvailable()
+        setDefaultState()
     }
 
     override fun onListenStop() {
