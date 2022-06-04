@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.util.network.info
 
+import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
 import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
@@ -7,6 +8,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.move.MoveHistory
+import fr.lewon.dofus.bot.gui.vldb.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
@@ -99,6 +101,13 @@ class GameInfo(val character: DofusCharacter) {
         } finally {
             lock.unlock()
         }
+    }
+
+    @Synchronized
+    fun updateCellData(mapId: Double) {
+        val completeCellDataByCellId = D2PMapsAdapter.getCompleteCellDataByCellId(mapId)
+        dofusBoard.updateCells(completeCellDataByCellId.values.map { it.cellData })
+        LOSOverlay.updateOverlay(this)
     }
 
 }

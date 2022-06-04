@@ -162,11 +162,12 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     }
 
     private fun listenToConnection(gameInfo: GameInfo, character: DofusCharacter, connection: DofusConnection) {
+        gameInfo.shouldInitBoard = true
         MESSAGE_RECEIVER.startListening(connection, gameInfo.eventStore, character.snifferLogger)
         CONNECTIONS_BY_CHARACTER_NAME.computeIfAbsent(character.pseudo) { ArrayList() }.add(connection)
         CONNECTIONS_BY_GAME_INFO.computeIfAbsent(gameInfo) { ArrayList() }.add(connection)
-        getListeners(character.pseudo).forEach { it.onListenStart() }
         println("start listening (${ConfigManager.readConfig().networkInterfaceName}) : ${character.pseudo} ($connection)")
+        getListeners(character.pseudo).forEach { it.onListenStart() }
     }
 
     private fun getCharacterNameFromFrame(pid: Long): String? {

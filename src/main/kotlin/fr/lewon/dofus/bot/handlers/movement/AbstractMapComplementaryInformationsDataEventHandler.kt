@@ -45,18 +45,19 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
         if (gameInfo.shouldInitBoard) {
-            initBoard(gameInfo)
+            initBoard(gameInfo, socketResult)
         }
         beepIfSpecialMonsterHere(gameInfo, socketResult.map)
     }
 
-    private fun initBoard(gameInfo: GameInfo) {
+    private fun initBoard(gameInfo: GameInfo, socketResult: T) {
         gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
         Thread {
             gameInfo.playerId = WaitUtil.waitForEvent(gameInfo, SetCharacterRestrictionsMessage::class.java).actorId
             gameInfo.shouldInitBoard = false
             val card = CharacterSelectionPanel.cardList.getCard(gameInfo.character) as CharacterCard?
             card?.updateState()
+            gameInfo.updateCellData(socketResult.map.id)
             println("${gameInfo.character.pseudo} initialized, ID : ${gameInfo.playerId}")
         }.start()
     }
