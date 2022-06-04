@@ -34,9 +34,7 @@ object MetamobMonstersUpdater {
                 error("Couldn't add monsters : ${monsters.joinToString(", ") { it.name }}")
             }
             val monsterUpdates = amountToAddByMonster.entries.map {
-                val monster = it.key
-                val amount = monster.amount + it.value
-                buildMonsterUpdate(monster, amount)
+                buildMonsterUpdate(it.key, it.value, "+")
             }
             MetamobRequestProcessor.updateMonsters(monsterUpdates)
             MonsterListContainerPanel.refresh()
@@ -44,23 +42,21 @@ object MetamobMonstersUpdater {
     }
 
     fun addMonsters(objectItems: List<ObjectItem>) {
-        updateMonstersAmount(objectItems) { current, modifier -> current + modifier }
+        updateMonstersAmount(objectItems, "+")
     }
 
     fun removeMonsters(objectItems: List<ObjectItem>) {
-        updateMonstersAmount(objectItems) { current, modifier -> current - modifier }
+        updateMonstersAmount(objectItems, "-")
     }
 
-    private fun updateMonstersAmount(objectItems: List<ObjectItem>, amountSumCalculator: (Int, Int) -> Int) {
+    private fun updateMonstersAmount(objectItems: List<ObjectItem>, amountPrefix: String) {
         val allMonsters = getAllMonsters()
         val amountByMonster = getAmountByMonster(allMonsters, objectItems)
         if (amountByMonster.isEmpty()) {
             return
         }
         val monsterUpdates = amountByMonster.entries.map {
-            val monster = it.key
-            val amount = amountSumCalculator(monster.amount, it.value)
-            buildMonsterUpdate(monster, amount)
+            buildMonsterUpdate(it.key, it.value, amountPrefix)
         }
         MetamobRequestProcessor.updateMonsters(monsterUpdates)
         MonsterListContainerPanel.refresh()
@@ -106,14 +102,18 @@ object MetamobMonstersUpdater {
             ?: error("Couldn't get metamob monsters")
     }
 
-    private fun buildMonsterUpdate(monster: MetamobMonster, amount: Int): MetamobMonsterUpdate {
+    private fun buildMonsterUpdate(
+        monster: MetamobMonster,
+        amount: Int,
+        amountPrefix: String = ""
+    ): MetamobMonsterUpdate {
         val state = when {
             monster.type == MetamobMonsterType.MONSTER -> MetamobMonsterUpdateState.NONE
             amount == 0 -> MetamobMonsterUpdateState.SEARCH
             amount > 1 -> MetamobMonsterUpdateState.OFFER
             else -> MetamobMonsterUpdateState.NONE
         }
-        return MetamobMonsterUpdate(monster.id, state, amount)
+        return MetamobMonsterUpdate(monster.id, state, "$amountPrefix$amount")
     }
 
 }

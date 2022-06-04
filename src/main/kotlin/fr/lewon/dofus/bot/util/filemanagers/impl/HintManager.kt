@@ -66,8 +66,8 @@ object HintManager : ToInitManager {
                 || divideLeftover == 0 && ge.pixelOffset.x >= -cellHalfWidth
                 || divideLeftover == mapWidth && ge.pixelOffset.x >= -2 * cellHalfWidth
         val rightOk = divideLeftover != mapWidth * 2 - 1 && divideLeftover != mapWidth - 1
-                || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 2f
-                || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 3f
+                || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 1.5f
+                || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 2.5f
         return topOk && bottomOk && leftOk && rightOk
     }
 

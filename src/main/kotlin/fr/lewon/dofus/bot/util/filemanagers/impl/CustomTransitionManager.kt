@@ -44,6 +44,10 @@ object CustomTransitionManager : ToInitManager {
         TransitionUpdate(9.9614726E7, 9.9614725E7, { true }, { it.criterion = "" }), // 24;-4 to 24;-5
     )
 
+    private val TO_CREATE_TRANSITION = listOf(
+        1
+    )
+
     override fun initManager() {
         TO_DISABLE_TRANSITION_IDS.forEach {
             WorldGraphUtil.addInvalidTransitionId(it)
