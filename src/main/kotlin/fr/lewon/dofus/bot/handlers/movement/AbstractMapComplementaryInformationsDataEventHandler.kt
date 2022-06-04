@@ -51,12 +51,13 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
     }
 
     private fun initBoard(gameInfo: GameInfo) {
+        gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
         Thread {
-            gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
             gameInfo.playerId = WaitUtil.waitForEvent(gameInfo, SetCharacterRestrictionsMessage::class.java).actorId
             gameInfo.shouldInitBoard = false
             val card = CharacterSelectionPanel.cardList.getCard(gameInfo.character) as CharacterCard?
             card?.updateState()
+            println("${gameInfo.character.pseudo} initialized, ID : ${gameInfo.playerId}")
         }.start()
     }
 
