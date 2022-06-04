@@ -13,17 +13,16 @@ object ExchangeLeaveEventHandler : IEventHandler<ExchangeLeaveMessage> {
     override fun onEventReceived(socketResult: ExchangeLeaveMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         if (socketResult.success && MetamobConfigManager.readConfig().tradeAutoUpdate) {
-            updateMetamob(gameInfo)
+            Thread { updateMetamob(gameInfo) }.start()
         } else {
             gameInfo.currentTradeInfo = TradeInfo()
         }
         gameInfo.inShop = false
     }
 
+    @Synchronized
     private fun updateMetamob(gameInfo: GameInfo) {
-        Thread {
-            MetamobMonstersUpdater.addMonsters(gameInfo.currentTradeInfo.toAddItems)
-            MetamobMonstersUpdater.removeMonsters(gameInfo.currentTradeInfo.toDeleteItems)
-        }.start()
+        MetamobMonstersUpdater.addMonsters(gameInfo.currentTradeInfo.toAddItems)
+        MetamobMonstersUpdater.removeMonsters(gameInfo.currentTradeInfo.toDeleteItems)
     }
 }

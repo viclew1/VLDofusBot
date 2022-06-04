@@ -34,7 +34,7 @@ object MetamobMonstersUpdater {
                 error("Couldn't add monsters : ${monsters.joinToString(", ") { it.name }}")
             }
             val monsterUpdates = amountToAddByMonster.entries.map {
-                buildMonsterUpdate(it.key, it.value, "+")
+                buildMonsterUpdate(it.key, it.value, UpdateOperation.ADD)
             }
             MetamobRequestProcessor.updateMonsters(monsterUpdates)
             MonsterListContainerPanel.refresh()
@@ -42,21 +42,21 @@ object MetamobMonstersUpdater {
     }
 
     fun addMonsters(objectItems: List<ObjectItem>) {
-        updateMonstersAmount(objectItems, "+")
+        updateMonstersAmount(objectItems, UpdateOperation.ADD)
     }
 
     fun removeMonsters(objectItems: List<ObjectItem>) {
-        updateMonstersAmount(objectItems, "-")
+        updateMonstersAmount(objectItems, UpdateOperation.REMOVE)
     }
 
-    private fun updateMonstersAmount(objectItems: List<ObjectItem>, amountPrefix: String) {
+    private fun updateMonstersAmount(objectItems: List<ObjectItem>, updateOperation: UpdateOperation) {
         val allMonsters = getAllMonsters()
         val amountByMonster = getAmountByMonster(allMonsters, objectItems)
         if (amountByMonster.isEmpty()) {
             return
         }
         val monsterUpdates = amountByMonster.entries.map {
-            buildMonsterUpdate(it.key, it.value, amountPrefix)
+            buildMonsterUpdate(it.key, it.value, updateOperation)
         }
         MetamobRequestProcessor.updateMonsters(monsterUpdates)
         MonsterListContainerPanel.refresh()
@@ -67,7 +67,7 @@ object MetamobMonstersUpdater {
         val amountByMonster = getAmountByMonster(allMonsters, objectItems)
         val monsterUpdates = allMonsters.map {
             val amount = amountByMonster[it] ?: 0
-            buildMonsterUpdate(it, amount)
+            buildMonsterUpdate(it, amount, UpdateOperation.REPLACE)
         }
         MetamobRequestProcessor.updateMonsters(monsterUpdates)
         MonsterListContainerPanel.refresh()
@@ -105,15 +105,26 @@ object MetamobMonstersUpdater {
     private fun buildMonsterUpdate(
         monster: MetamobMonster,
         amount: Int,
-        amountPrefix: String = ""
+        updateOperation: UpdateOperation
     ): MetamobMonsterUpdate {
+        val totalAmount = updateOperation.getTotalAmount(monster, amount)
         val state = when {
-            monster.type == MetamobMonsterType.MONSTER -> MetamobMonsterUpdateState.NONE
-            amount == 0 -> MetamobMonsterUpdateState.SEARCH
-            amount > 1 -> MetamobMonsterUpdateState.OFFER
+            monster.type != MetamobMonsterType.ARCHMONSTER -> MetamobMonsterUpdateState.NONE
+            totalAmount == 0 -> MetamobMonsterUpdateState.SEARCH
+            totalAmount > 1 -> MetamobMonsterUpdateState.OFFER
             else -> MetamobMonsterUpdateState.NONE
         }
-        return MetamobMonsterUpdate(monster.id, state, "$amountPrefix$amount")
+        return MetamobMonsterUpdate(monster.id, state, "${updateOperation.prefix}$amount")
+    }
+
+    private enum class UpdateOperation(val prefix: String, private val amountCalculator: (Int, Int) -> Int) {
+        REPLACE("", { _, modifiedAmount -> modifiedAmount }),
+        ADD("+", { currentAmount, modifiedAmount -> currentAmount + modifiedAmount }),
+        REMOVE("-", { currentAmount, modifiedAmount -> currentAmount - modifiedAmount });
+
+        fun getTotalAmount(monster: MetamobMonster, amount: Int): Int {
+            return amountCalculator(monster.amount, amount)
+        }
     }
 
 }
