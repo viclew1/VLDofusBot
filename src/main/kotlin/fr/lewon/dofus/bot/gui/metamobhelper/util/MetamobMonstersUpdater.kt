@@ -86,7 +86,7 @@ object MetamobMonstersUpdater {
                 val monster = monsters.firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monsterName) }
                 if (monster != null) {
                     val currentAmount = amountByMonster.computeIfAbsent(monster) { 0 }
-                    amountByMonster[monster] = currentAmount + 1
+                    amountByMonster[monster] = currentAmount + objectItem.quantity
                 }
             }
         }

@@ -50,6 +50,7 @@ object StatusPanel : JPanel(MigLayout("insets 0")) {
         historyPopupMenu.show(historyButton, 0, y)
     }
 
+    @Synchronized
     fun changeText(character: DofusCharacter, text: String) {
         if (statusLabel.text.isNotEmpty()) {
             if (oldMessages.size == 0) {

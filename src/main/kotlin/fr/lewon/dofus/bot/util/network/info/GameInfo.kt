@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.move.MoveHistory
@@ -79,28 +80,11 @@ class GameInfo(val character: DofusCharacter) {
     }
 
     fun executeThreadedSyncOperation(operation: () -> Unit) {
-        try {
-            lock.lockInterruptibly()
-            val condition = lock.newCondition()
-            Thread {
-                executeSyncOperation {
-                    condition.signal()
-                    operation()
-                }
-            }.start()
-            condition.await()
-        } finally {
-            lock.unlock()
-        }
+        LockUtils.executeThreadedSyncOperation(lock, operation)
     }
 
     fun <T> executeSyncOperation(operation: () -> T): T {
-        try {
-            lock.lockInterruptibly()
-            return operation()
-        } finally {
-            lock.unlock()
-        }
+        return LockUtils.executeSyncOperation(lock, operation)
     }
 
     @Synchronized
