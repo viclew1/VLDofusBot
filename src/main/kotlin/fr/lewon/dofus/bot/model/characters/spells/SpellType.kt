@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.model.characters.spells
 
-import fr.lewon.dofus.bot.gui.custom.listrenderer.TextImageListItem
+import fr.lewon.dofus.bot.gui2.util.toPainter
 
-enum class SpellType(private val label: String, iconFileName: String) : TextImageListItem {
+enum class SpellType(val label: String, iconFileName: String) {
     NAMED_SPELL("Named Spell", "feature_67.png"),
     CUSTOM_MP_BUFF("Custom MP Buff", "feature_204.png"),
     CUSTOM_GAP_CLOSER("Custom Gap Closer", "feature_25.png");
@@ -10,16 +10,5 @@ enum class SpellType(private val label: String, iconFileName: String) : TextImag
     private val basePath = "/icon/menu_icons/"
     private val iconData = javaClass.getResourceAsStream(basePath + iconFileName)?.readAllBytes()
         ?: error("Couldn't find icon [$iconFileName]")
-
-    override fun getListImageIconData(): ByteArray {
-        return iconData
-    }
-
-    override fun getIndex(): Int {
-        return ordinal
-    }
-
-    override fun getLabel(): String {
-        return label
-    }
+    val iconPainter = iconData.toPainter()
 }

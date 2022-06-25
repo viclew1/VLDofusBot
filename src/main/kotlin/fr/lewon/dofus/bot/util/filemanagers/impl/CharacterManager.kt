@@ -7,11 +7,12 @@ import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
-import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.Listenable
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
+import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.io.File
 import java.io.FileOutputStream
@@ -30,11 +31,15 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
             characterStore = mapper.readValue(dataStoreFile)
         } else {
             characterStore = CharacterStore()
-            saveUserData()
+            saveCharacterStore()
         }
     }
 
-    private fun saveUserData() {
+    override fun getNeededManagers(): List<ToInitManager> {
+        return listOf(GlobalConfigManager)
+    }
+
+    private fun saveCharacterStore() {
         with(OutputStreamWriter(FileOutputStream(dataStoreFile, false), StandardCharsets.UTF_8)) {
             write(ObjectMapper().writeValueAsString(characterStore))
             close()
@@ -62,7 +67,7 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
     fun moveCharacter(character: DofusCharacter, toIndex: Int) {
         characterStore.characters.remove(character)
         characterStore.characters.add(toIndex, character)
-        saveUserData()
+        saveCharacterStore()
         listeners.forEach { it.onCharacterMove(character, toIndex) }
     }
 
@@ -72,15 +77,16 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
         }
         val character = DofusCharacter(pseudo, dofusClassId, characterSpells = ArrayList(spells))
         characterStore.characters.add(character)
-        saveUserData()
+        saveCharacterStore()
         listeners.forEach { it.onCharacterCreate(character) }
         return character
     }
 
     fun removeCharacter(character: DofusCharacter) {
         characterStore.characters.remove(character)
-        saveUserData()
+        saveCharacterStore()
         ScriptRunner.removeListeners(character)
+        GameSnifferUtil.removeListeners(character)
         listeners.forEach { it.onCharacterDelete(character) }
     }
 
@@ -97,16 +103,21 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
         character.pseudo = pseudo
         character.dofusClassId = dofusClassId
         character.characterSpells = ArrayList(spells)
-        saveUserData()
+        saveCharacterStore()
     }
 
-    fun updateParamValue(character: DofusCharacter, script: DofusBotScript, param: DofusBotParameter) {
-        character.scriptValues.updateParamValue(script.name, param.key, param.value)
-        saveUserData()
+    fun updateParamValue(
+        character: DofusCharacter,
+        script: DofusBotScriptBuilder,
+        param: DofusBotParameter,
+        value: String
+    ) {
+        character.scriptValuesStore.getValues(script).updateParamValue(param, value)
+        saveCharacterStore()
     }
 
-    fun getParamValue(character: DofusCharacter, script: DofusBotScript, param: DofusBotParameter): String? {
-        return character.scriptValues.getParamValue(script.name, param.key)
+    fun getParamValue(character: DofusCharacter, script: DofusBotScriptBuilder, param: DofusBotParameter): String {
+        return character.scriptValuesStore.getValues(script.name).getParamValue(param)
     }
 
 }

@@ -3,18 +3,14 @@ package fr.lewon.dofus.bot.handlers.movement
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.gui.alert.SoundType
-import fr.lewon.dofus.bot.gui.vldb.panes.character.CharacterSelectionPanel
-import fr.lewon.dofus.bot.gui.vldb.panes.character.card.CharacterCard
-import fr.lewon.dofus.bot.gui.vldb.panes.status.StatusPanel
+import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarUIState
+import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTreasureHintInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc.GameRolePlayNpcInformations
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
-import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
@@ -44,22 +40,10 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
-        if (gameInfo.shouldInitBoard) {
-            initBoard(gameInfo, socketResult)
+        if (gameInfo.shouldInitBoard && !gameInfo.initRequested) {
+            gameInfo.initRequested = true
         }
         beepIfSpecialMonsterHere(gameInfo, socketResult.map)
-    }
-
-    private fun initBoard(gameInfo: GameInfo, socketResult: T) {
-        gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
-        Thread {
-            gameInfo.playerId = WaitUtil.waitForEvent(gameInfo, SetCharacterRestrictionsMessage::class.java).actorId
-            gameInfo.shouldInitBoard = false
-            val card = CharacterSelectionPanel.cardList.getCard(gameInfo.character) as CharacterCard?
-            card?.updateState()
-            gameInfo.updateCellData(socketResult.map.id)
-            println("${gameInfo.character.pseudo} initialized, ID : ${gameInfo.playerId}")
-        }.start()
     }
 
     private fun beepIfSpecialMonsterHere(gameInfo: GameInfo, map: DofusMap) {
@@ -83,7 +67,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         soundType.playSound()
         val mapStr = "(${map.posX}, ${map.posY}) (ID : ${map.id.toLong()})"
         val statusText = "$monsterLabel [${monster.name}] seen on map $mapStr"
-        StatusPanel.changeText(gameInfo.character, statusText)
+        StatusBarUIState.changeText(gameInfo.character, statusText)
     }
 
 }

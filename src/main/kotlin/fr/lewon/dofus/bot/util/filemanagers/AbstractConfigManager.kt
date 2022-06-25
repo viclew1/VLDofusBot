@@ -22,6 +22,10 @@ abstract class AbstractConfigManager<T>(private val fileName: String) : ToInitMa
         }
     }
 
+    override fun getNeededManagers(): List<ToInitManager> {
+        return emptyList()
+    }
+
     protected abstract fun deserializeConfig(file: File): T
 
     protected abstract fun createNewConfig(): T

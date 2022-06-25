@@ -4,4 +4,6 @@ interface ToInitManager {
 
     fun initManager()
 
+    fun getNeededManagers(): List<ToInitManager>
+
 }

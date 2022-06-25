@@ -62,6 +62,10 @@ object CustomTransitionManager : ToInitManager {
         }
     }
 
+    override fun getNeededManagers(): List<ToInitManager> {
+        return emptyList()
+    }
+
     private fun getTransitions(fromMapId: Double, toMapId: Double): List<Transition> {
         val vertex = WorldGraphUtil.getVertex(fromMapId, 1)
             ?: error("No vertex found for map : $fromMapId")

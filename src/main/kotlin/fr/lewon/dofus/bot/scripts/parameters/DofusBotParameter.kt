@@ -1,12 +1,12 @@
 package fr.lewon.dofus.bot.scripts.parameters
 
+import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+
 open class DofusBotParameter(
     var key: String = "",
     var description: String = "",
-    var value: String = "",
+    var defaultValue: String = "",
     var type: DofusBotParameterType = DofusBotParameterType.STRING,
     var possibleValues: List<String> = emptyList(),
-    var defaultValue: String = value,
-    var parentParameter: DofusBotParameter? = null,
-    var displayCondition: () -> Boolean = { true }
+    var displayCondition: (scriptValues: VldbScriptValues) -> Boolean = { true }
 )

@@ -1,15 +1,19 @@
 package fr.lewon.dofus.bot.model.characters
 
-class VldbScriptValues : HashMap<String, HashMap<String, String>>() {
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 
-    fun getParamValue(scriptName: String, parameterKey: String): String? {
-        val scriptParameters = computeIfAbsent(scriptName) { HashMap() }
-        return scriptParameters[parameterKey]
+class VldbScriptValues : HashMap<String, String>() {
+
+    fun getParamValue(parameter: DofusBotParameter): String {
+        return computeIfAbsent(parameter.key) { parameter.defaultValue }
     }
 
-    fun updateParamValue(scriptName: String, parameterKey: String, parameterValue: String) {
-        val scriptParameters = computeIfAbsent(scriptName) { HashMap() }
-        scriptParameters[parameterKey] = parameterValue
+    fun updateParamValue(parameter: DofusBotParameter, parameterValue: String) {
+        this[parameter.key] = parameterValue
+    }
+
+    fun deepCopy(): VldbScriptValues {
+        return VldbScriptValues().also { it.putAll(this) }
     }
 
 }

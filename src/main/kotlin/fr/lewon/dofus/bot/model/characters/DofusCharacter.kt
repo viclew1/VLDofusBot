@@ -7,12 +7,14 @@ import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 data class DofusCharacter(
     var pseudo: String = "",
     var dofusClassId: Int = 1,
-    var scriptValues: VldbScriptValues = VldbScriptValues(),
+    var scriptValuesStore: VldbScriptValuesStore = VldbScriptValuesStore(),
     var characterSpells: ArrayList<CharacterSpell> = ArrayList()
 ) {
+
     @JsonIgnore
     val executionLogger = VldbLogger()
 
     @JsonIgnore
     val snifferLogger = VldbLogger(100)
+
 }

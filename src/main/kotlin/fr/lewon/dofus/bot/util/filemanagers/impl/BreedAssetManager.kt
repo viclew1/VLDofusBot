@@ -12,8 +12,12 @@ object BreedAssetManager : ToInitManager {
         breedAssetsById = BreedManager.getAllBreeds().associate { it.id to DofusBreedAssets(it) }
     }
 
+    override fun getNeededManagers(): List<ToInitManager> {
+        return emptyList()
+    }
+
     fun getAllAssets(): List<DofusBreedAssets> {
-        return breedAssetsById.values.sortedBy { it.getIndex() }
+        return breedAssetsById.values.sortedBy { it.breed.id }
     }
 
     fun getAssets(classId: Int): DofusBreedAssets {

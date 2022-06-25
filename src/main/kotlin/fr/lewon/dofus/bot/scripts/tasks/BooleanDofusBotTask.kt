@@ -20,6 +20,7 @@ abstract class BooleanDofusBotTask : DofusBotTask<Boolean>() {
         } catch (e: IllegalMonitorStateException) {
             throw e
         } catch (e: Throwable) {
+            e.printStackTrace()
             error = e
             false
         }

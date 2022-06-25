@@ -9,8 +9,8 @@ import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.move.MoveHistory
-import fr.lewon.dofus.bot.gui.vldb.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
@@ -34,6 +34,7 @@ class GameInfo(val character: DofusCharacter) {
     var completeBounds = Rectangle()
 
     var shouldInitBoard = true
+    var initRequested = false
     val dofusBoard = DofusBoard()
     val fightBoard = FightBoard(this)
     val moveHistory = MoveHistory()
