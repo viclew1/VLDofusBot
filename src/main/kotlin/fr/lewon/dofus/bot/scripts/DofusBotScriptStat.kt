@@ -4,7 +4,8 @@ class DofusBotScriptStat(val key: String, private val defaultValue: String = "/"
 
     var value: String = defaultValue
 
-    fun resetValue() {
-        value = defaultValue
+    fun deepCopy(): DofusBotScriptStat {
+        return DofusBotScriptStat(key, defaultValue)
     }
+    
 }

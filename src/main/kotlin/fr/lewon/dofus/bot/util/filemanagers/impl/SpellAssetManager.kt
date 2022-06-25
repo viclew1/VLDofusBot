@@ -15,6 +15,10 @@ object SpellAssetManager : ToInitManager {
             .associate { it.id to buildIconData(it.iconId) }
     }
 
+    override fun getNeededManagers(): List<ToInitManager> {
+        return emptyList()
+    }
+
     private fun buildIconData(iconId: Int): ByteArray? {
         return javaClass.getResourceAsStream("/icon/spells/$iconId.png")?.readAllBytes()
     }

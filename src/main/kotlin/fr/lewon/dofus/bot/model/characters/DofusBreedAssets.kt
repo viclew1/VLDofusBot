@@ -1,10 +1,11 @@
 package fr.lewon.dofus.bot.model.characters
 
+import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.model.charac.DofusBreed
-import fr.lewon.dofus.bot.gui.custom.listrenderer.TextImageListItem
+import fr.lewon.dofus.bot.gui2.util.getBufferedImage
 
 
-class DofusBreedAssets(val breed: DofusBreed) : TextImageListItem {
+class DofusBreedAssets(val breed: DofusBreed) {
 
     private val iconFileName = "icon/symbol_${breed.id}.png"
     private val bannerFileName = "banner/banner_${breed.id}.png"
@@ -17,20 +18,10 @@ class DofusBreedAssets(val breed: DofusBreed) : TextImageListItem {
         ?: error("Couldn't find icon [$iconFileName]")
     val bannerData = javaClass.getResourceAsStream(basePath + bannerFileName)?.readAllBytes()
         ?: error("Couldn't find banner [$bannerFileName]")
-
-    override fun getListImageIconData(): ByteArray {
-        return simpleIconData
-    }
-
-    override fun getIndex(): Int {
-        return breed.id - 1
-    }
-
-    override fun getLabel(): String {
-        return breed.name
-    }
-
-    override fun toString(): String {
-        return getLabel()
-    }
+    val simpleIcon = simpleIconData.getBufferedImage()
+    val iconImage = iconData.getBufferedImage()
+    val bannerImage = bannerData.getBufferedImage()
+    val simpleIconPainter = simpleIcon.toPainter()
+    val iconPainter = iconImage.toPainter()
+    val bannerPainter = bannerImage.toPainter()
 }

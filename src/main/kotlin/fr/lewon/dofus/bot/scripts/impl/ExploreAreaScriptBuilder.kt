@@ -1,0 +1,130 @@
+package fr.lewon.dofus.bot.scripts.impl
+
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
+import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
+import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
+import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
+import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
+import fr.lewon.dofus.bot.util.StringUtil
+import fr.lewon.dofus.bot.util.network.info.GameInfo
+
+object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
+
+    private val SUB_AREAS = SubAreaManager.getAllSubAreas()
+        .filter {
+            ExploreSubAreaTask.SUB_AREA_ID_FULLY_ALLOWED.contains(it.id)
+                    || MapManager.getDofusMaps(it).isNotEmpty()
+                    && !it.isConquestVillage
+                    && it.monsters.isNotEmpty()
+                    && it.area.superAreaId == 0
+                    && hasNoBoss(it)
+        }
+
+    private fun hasNoBoss(subArea: DofusSubArea): Boolean {
+        return subArea.monsters.none { it.isBoss }
+    }
+
+    private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { "${it.area.name} (${it.name})" }
+    private val SUB_AREA_LABELS = SUB_AREA_BY_LABEL.keys.sortedBy { StringUtil.removeAccents(it) }
+
+    private val currentAreaParameter = DofusBotParameter(
+        "Run in current area",
+        "If checked, ignores sub area parameter and explores current area",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
+    private val subAreaParameter = DofusBotParameter(
+        "Sub area",
+        "Dofus sub area",
+        SUB_AREA_LABELS.firstOrNull() ?: "",
+        DofusBotParameterType.CHOICE,
+        SUB_AREA_LABELS,
+        displayCondition = { it.getParamValue(currentAreaParameter) == "false" }
+    )
+
+    private val runForeverParameter = DofusBotParameter(
+        "Run forever",
+        "Explores this area until you manually stop",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
+    private val killEverythingParameter = DofusBotParameter(
+        "Kill everything",
+        "Fights every group of monsters present on the maps",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
+    private val searchedMonsterParameter = DofusBotParameter(
+        "Searched monster",
+        "Monster which will stop exploration when found. Leave empty if you're not seeking a monster",
+        "",
+        DofusBotParameterType.STRING
+    )
+
+    private val stopWhenArchMonsterFoundParameter = DofusBotParameter(
+        "Stop when arch monster found",
+        "Stops exploration when you find an arch monster",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
+    private val stopWhenWantedMonsterFoundParameter = DofusBotParameter(
+        "Stop when wanted monster found",
+        "Stops exploration when you find a wanted monster",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
+    override fun getParameters(): List<DofusBotParameter> {
+        return listOf(
+            currentAreaParameter,
+            subAreaParameter,
+            stopWhenArchMonsterFoundParameter,
+            stopWhenWantedMonsterFoundParameter,
+            searchedMonsterParameter,
+            runForeverParameter,
+            killEverythingParameter,
+        )
+    }
+
+    override fun getStats(): List<DofusBotScriptStat> {
+        return emptyList()
+    }
+
+    override fun getDescription(): String {
+        return "Explore all maps of selected sub area"
+    }
+
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+        val currentAreaParameterValue = scriptValues.getParamValue(currentAreaParameter).toBoolean()
+        val subArea = if (currentAreaParameterValue) {
+            gameInfo.currentMap.subArea
+        } else {
+            val subAreaParameterValue = scriptValues.getParamValue(subAreaParameter)
+            SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
+        }
+        val runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
+        val killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean()
+        val searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter)
+        val stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean()
+        val stopWhenWantedMonsterFound =
+            scriptValues.getParamValue(stopWhenWantedMonsterFoundParameter).toBoolean()
+        ExploreSubAreaTask(
+            subArea,
+            killEverything,
+            searchedMonsterName,
+            stopWhenArchMonsterFound,
+            stopWhenWantedMonsterFound,
+            runForever
+        ).run(logItem, gameInfo)
+    }
+
+}

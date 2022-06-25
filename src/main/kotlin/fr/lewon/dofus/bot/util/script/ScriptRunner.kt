@@ -1,9 +1,10 @@
 package fr.lewon.dofus.bot.util.script
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.gui.alert.SoundType
+import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.scripts.DofusBotScript
+import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
 import fr.lewon.dofus.bot.util.ListenableByCharacter
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
@@ -33,19 +34,19 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     }
 
     @Synchronized
-    fun runScript(character: DofusCharacter, dofusScript: DofusBotScript) {
+    fun runScript(character: DofusCharacter, scriptBuilder: DofusBotScriptBuilder, scriptValues: VldbScriptValues) {
         if (isScriptRunning(character)) {
             error("Cannot run script, there is already one running")
         }
         val logger = character.executionLogger
-        getListeners(character.pseudo).forEach { it.onScriptStart(character, dofusScript) }
-        val logItem = logger.log("Executing Dofus script : [${dofusScript.name}]")
+        getListeners(character.pseudo).forEach { it.onScriptStart(character, scriptBuilder) }
+        val logItem = logger.log("Executing Dofus script : [${scriptBuilder.name}]")
         val thread = Thread {
             try {
                 val gameInfo = prepareScriptExecution(character, logItem)
                 gameInfo.eventStore.clear()
-                dofusScript.getStats().forEach { it.resetValue() }
-                dofusScript.execute(logItem, gameInfo)
+                val script = scriptBuilder.buildScript()
+                script.execute(logItem, gameInfo, scriptValues)
                 onScriptOk(character, logItem)
             } catch (e: InterruptedException) {
                 onScriptCanceled(character, logItem)
@@ -55,7 +56,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
                 onScriptKo(character, t, logItem)
             }
         }
-        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = RunningScript(dofusScript, thread)
+        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = RunningScript(scriptBuilder, thread)
         thread.start()
     }
 
@@ -109,7 +110,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     }
 
     class RunningScript(
-        val script: DofusBotScript,
+        val scriptBuilder: DofusBotScriptBuilder,
         val thread: Thread,
         val startTime: Long = System.currentTimeMillis()
     )

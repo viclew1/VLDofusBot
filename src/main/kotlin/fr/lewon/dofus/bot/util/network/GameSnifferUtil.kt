@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
 import fr.lewon.dofus.bot.util.ListenableByCharacter
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.impl.ConfigManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
@@ -13,9 +13,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 
 object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
@@ -34,7 +31,7 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     private val CONNECTIONS_BY_CHARACTER_NAME = HashMap<String, ArrayList<DofusConnection>>()
     private val CONNECTIONS_BY_GAME_INFO = HashMap<GameInfo, ArrayList<DofusConnection>>()
-    private var MESSAGE_RECEIVER = DofusMessageReceiver(ConfigManager.readConfig().networkInterfaceName)
+    private var MESSAGE_RECEIVER = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
 
     init {
         val autoUpdateTimerTask = object : TimerTask() {
@@ -55,7 +52,7 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
             CONNECTIONS_BY_CHARACTER_NAME.clear()
             CONNECTIONS_BY_GAME_INFO.clear()
 
-            MESSAGE_RECEIVER = DofusMessageReceiver(ConfigManager.readConfig().networkInterfaceName)
+            MESSAGE_RECEIVER = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
             MESSAGE_RECEIVER.start()
         } finally {
             LOCK.unlock()
@@ -131,22 +128,22 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     }
 
     private fun stopListeningToDeadConnections(deadConnections: List<DofusConnection>) {
-        val removedCharacterNames = HashSet<String>()
+        val removedCharacters = HashSet<DofusCharacter>()
         for (connection in deadConnections) {
             MESSAGE_RECEIVER.stopListening(connection.hostPort)
             CONNECTIONS_BY_CHARACTER_NAME.entries.filter { it.value.contains(connection) }
                 .forEach { it.value.remove(connection) }
             val toRemove = CONNECTIONS_BY_CHARACTER_NAME.entries.filter { it.value.isEmpty() }
-            removedCharacterNames.addAll(toRemove.map { it.key })
-            CONNECTIONS_BY_CHARACTER_NAME.entries.removeAll(toRemove)
+            removedCharacters.addAll(toRemove.mapNotNull { CharacterManager.getCharacter(it.key) })
+            CONNECTIONS_BY_CHARACTER_NAME.entries.removeAll(toRemove.toSet())
             CONNECTIONS_BY_GAME_INFO.entries.filter { it.value.contains(connection) }
                 .forEach { it.value.remove(connection) }
             CONNECTIONS_BY_GAME_INFO.entries.removeIf { it.value.isEmpty() }
         }
-        removedCharacterNames.forEach { characterName ->
-            println("stop listening : $characterName")
-            getListeners(characterName).forEach { listener ->
-                listener.onListenStop()
+        removedCharacters.forEach { character ->
+            println("stop listening : ${character.pseudo}")
+            getListeners(character).forEach { listener ->
+                listener.onListenStop(character)
             }
         }
     }
@@ -166,8 +163,10 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
         MESSAGE_RECEIVER.startListening(connection, gameInfo.eventStore, character.snifferLogger)
         CONNECTIONS_BY_CHARACTER_NAME.computeIfAbsent(character.pseudo) { ArrayList() }.add(connection)
         CONNECTIONS_BY_GAME_INFO.computeIfAbsent(gameInfo) { ArrayList() }.add(connection)
-        println("start listening (${ConfigManager.readConfig().networkInterfaceName}) : ${character.pseudo} ($connection)")
-        getListeners(character.pseudo).forEach { it.onListenStart() }
+        println("start listening (${GlobalConfigManager.readConfig().networkInterfaceName}) : ${character.pseudo} ($connection)")
+        getListeners(character).forEach { listener ->
+            listener.onListenStart(character)
+        }
     }
 
     private fun getCharacterNameFromFrame(pid: Long): String? {

@@ -1,9 +1,11 @@
 package fr.lewon.dofus.bot.util.network
 
-interface GameSnifferListener {
-    
-    fun onListenStart()
+import fr.lewon.dofus.bot.model.characters.DofusCharacter
 
-    fun onListenStop()
+interface GameSnifferListener {
+
+    fun onListenStart(character: DofusCharacter)
+
+    fun onListenStop(character: DofusCharacter)
 
 }

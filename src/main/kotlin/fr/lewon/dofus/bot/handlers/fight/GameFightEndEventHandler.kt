@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.handlers.fight
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.gui.metamobhelper.util.MetamobMonstersUpdater
+import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightEndMessage
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations

@@ -1,20 +1,17 @@
 package fr.lewon.dofus.bot.scripts
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
+import fr.lewon.dofus.bot.model.characters.VldbScriptValues
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-abstract class DofusBotScript(val name: String, val isDev: Boolean = false) {
+abstract class DofusBotScript(val builder: DofusBotScriptBuilder) {
 
-    abstract fun getParameters(): List<DofusBotParameter>
+    private val stats = builder.getStats().map { it.deepCopy() }
 
-    abstract fun getStats(): List<DofusBotScriptStat>
-
-    abstract fun getDescription(): String
-
-    abstract fun execute(logItem: LogItem, gameInfo: GameInfo)
-
-    override fun toString(): String {
-        return name
+    fun getStats(): List<DofusBotScriptStat> {
+        return stats.map { it.deepCopy() }
     }
+
+    abstract fun execute(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues)
+
 }
