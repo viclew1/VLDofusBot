@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
-import fr.lewon.dofus.bot.core.d2o.managers.map.WaypointManager
+import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
@@ -14,7 +14,7 @@ open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBot
         if (dofusMaps.contains(gameInfo.currentMap)) {
             return true
         }
-        val zaaps = WaypointManager.getAllZaapMaps()
+        val zaaps = SubAreaManager.getAllZaapMaps()
         val transporters = TravelUtil.getTransporters()
 
         val zaapWithDist = TravelUtil.getClosestZaap(gameInfo, dofusMaps)
