@@ -18,8 +18,7 @@ object MetamobMonstersUpdater {
     private const val MONSTER_STONE_EFFECT_ACTION_ID = 623
 
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
-        val playerLoots = playerResult.rewards.objects.filterIndexed { index, _ -> index % 2 == 0 }
-        if (playerLoots.intersect(SOUL_STONE_ITEM_IDS).isNotEmpty()) {
+        if (playerResult.rewards.objects.any { SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
             val allMetamobMonsters = getAllMonsters()
             val amountToAddByMonster = HashMap<MetamobMonster, Int>()
             for (monster in monsters) {

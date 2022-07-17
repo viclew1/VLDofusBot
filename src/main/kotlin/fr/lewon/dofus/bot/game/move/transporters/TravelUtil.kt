@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.game.move.transporters
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.HintManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
-import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.world.Transition
@@ -26,7 +26,7 @@ object TravelUtil {
     }
 
     fun getClosestZaap(gameInfo: GameInfo, maps: List<DofusMap>): Pair<DofusMap, Int>? {
-        val zaaps = SubAreaManager.getAllZaapMaps()
+        val zaaps = HintManager.getAllZaapMaps()
             .sortedBy { minDistance(it, maps) }
         val zaapsSubList = zaaps.takeIf { it.size > 3 }?.subList(0, 3) ?: zaaps
         return getClosest(gameInfo, zaapsSubList, maps) { it }

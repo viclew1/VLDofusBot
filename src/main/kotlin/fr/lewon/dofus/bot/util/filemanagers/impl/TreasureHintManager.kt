@@ -18,7 +18,7 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
-object HintManager : ToInitManager {
+object TreasureHintManager : ToInitManager {
 
     private lateinit var gfxIdsByPoiLabel: GfxIdsByPoiLabel
     private lateinit var gfxIdsByPoiLabelFile: File

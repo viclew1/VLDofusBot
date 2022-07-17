@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.util.filemanagers.impl.HintManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.TreasureHintManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class RegisterHintGfxScript : DofusBotScript("Register hint GFX ID", true) {
@@ -57,7 +57,7 @@ class RegisterHintGfxScript : DofusBotScript("Register hint GFX ID", true) {
         } else hintNameParameter.value.takeIf { it.isNotBlank() } ?: error("Hint name cannot be empty")
         val gfxId = gfxIdParameter.value.toIntOrNull()
             ?: error("Invalid GFX ID : ${gfxIdParameter.value}")
-        HintManager.addHintGfxMatch(hintLabel, gfxId)
+        TreasureHintManager.addHintGfxMatch(hintLabel, gfxId)
         gameInfo.logger.addSubLog("GFX ID $gfxId associated to hint : $hintLabel", logItem)
     }
 

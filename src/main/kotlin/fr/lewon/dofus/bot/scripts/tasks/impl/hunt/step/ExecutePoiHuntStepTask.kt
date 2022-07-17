@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.util.filemanagers.impl.HintManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.TreasureHintManager
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
@@ -17,7 +17,7 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val stopFunc: (DofusMap, Int) -> Boolean = { map, _ ->
-            HintManager.isPointOfInterestOnMap(map, pointOfInterest)
+            TreasureHintManager.isPointOfInterestOnMap(map, pointOfInterest)
         }
         val path = MoveUtil.buildDirectionalPath(gameInfo, huntStep.direction, stopFunc, 10)
             ?: error("No map with hint found")

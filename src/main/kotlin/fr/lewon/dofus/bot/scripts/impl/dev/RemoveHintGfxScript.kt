@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
-import fr.lewon.dofus.bot.util.filemanagers.impl.HintManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.TreasureHintManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class RemoveHintGfxScript : DofusBotScript("Remove hint GFX ID", true) {
@@ -51,7 +51,7 @@ class RemoveHintGfxScript : DofusBotScript("Remove hint GFX ID", true) {
             PointOfInterestManager.getPointOfInterest(currentHint.poiLabelId)?.label
                 ?: error("No POI for id : ${currentHint.poiLabelId}")
         } else hintNameParameter.value.takeIf { it.isNotBlank() } ?: error("Hint name cannot be empty")
-        HintManager.removeHintGfxMatch(hintLabel)
+        TreasureHintManager.removeHintGfxMatch(hintLabel)
         gameInfo.logger.addSubLog("GFX ID removed for hint : $hintLabel", logItem)
     }
 
