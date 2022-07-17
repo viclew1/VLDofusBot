@@ -122,7 +122,7 @@ fun main() {
     CharacterManager.initManager()
     ConfigManager.initManager()
     MetamobConfigManager.initManager()
-    HintManager.initManager()
+    TreasureHintManager.initManager()
     CustomTransitionManager.initManager()
     MainFrame.isVisible = true
 }
