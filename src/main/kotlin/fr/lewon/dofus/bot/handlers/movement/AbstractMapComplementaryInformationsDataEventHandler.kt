@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.handlers.movement
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarUIUtil
 import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
@@ -67,7 +67,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         soundType.playSound()
         val mapStr = "(${map.posX}, ${map.posY}) (ID : ${map.id.toLong()})"
         val statusText = "$monsterLabel [${monster.name}] seen on map $mapStr"
-        StatusBarUIState.changeText(gameInfo.character, statusText)
+        StatusBarUIUtil.changeText(gameInfo.character, statusText)
     }
 
 }

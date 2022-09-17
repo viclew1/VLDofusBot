@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.handlers.movement
 
-import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
@@ -12,7 +12,7 @@ object SetCharacterRestrictionEventHandler : IEventHandler<SetCharacterRestricti
         if (gameInfo.initRequested) {
             gameInfo.playerId = socketResult.actorId
             gameInfo.updateCellData(gameInfo.currentMap.id)
-            CharactersUIState.updateState(gameInfo.character)
+            CharactersUIUtil.updateState(gameInfo.character)
             println("${gameInfo.character.pseudo} initialized, ID : ${gameInfo.playerId}")
             gameInfo.shouldInitBoard = false
             gameInfo.initRequested = false

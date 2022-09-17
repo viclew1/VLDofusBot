@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
@@ -23,13 +23,12 @@ import androidx.compose.ui.window.rememberWindowState
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui2.init.InitBottomBar
 import fr.lewon.dofus.bot.gui2.init.InitContent
-import fr.lewon.dofus.bot.gui2.init.InitUIState
+import fr.lewon.dofus.bot.gui2.init.InitUIUtil
 import fr.lewon.dofus.bot.gui2.main.MainContent
 import fr.lewon.dofus.bot.gui2.main.currentAppContent
 import fr.lewon.dofus.bot.gui2.util.AppInfo
 import fr.lewon.dofus.bot.gui2.util.UiResource
 import fr.lewon.dofus.bot.gui2.util.getScaledImage
-import kotlinx.coroutines.launch
 import java.awt.Dimension
 import kotlin.system.exitProcess
 
@@ -38,7 +37,6 @@ class VLDofusBot
 private lateinit var composeWindow: ComposeWindow
 private lateinit var windowState: WindowState
 private var currentPage = mutableStateOf(AppPage.INITIALIZER)
-private var justOpened = true
 fun main() = application {
     windowState = rememberWindowState(size = currentPage.value.defaultSize)
     Window(
@@ -59,13 +57,9 @@ fun main() = application {
             )
         }
     }
-    if (justOpened) {
-        justOpened = false
-        val coroutineScope = rememberCoroutineScope()
-        coroutineScope.launch {
-            updatePage(AppPage.INITIALIZER)
-            InitUIState.initAll()
-        }
+    LaunchedEffect(true) {
+        updatePage(AppPage.INITIALIZER)
+        InitUIUtil.initAll()
     }
 }
 

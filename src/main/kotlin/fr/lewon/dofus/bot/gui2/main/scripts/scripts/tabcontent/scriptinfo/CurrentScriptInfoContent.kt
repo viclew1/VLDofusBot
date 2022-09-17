@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
@@ -19,7 +19,7 @@ fun CurrentScriptInfoContent() {
             .background(AppColors.DARK_BG_COLOR)
     ) {
         Column {
-            for (character in ScriptTabsUIState.getSelectedCharacters()) {
+            for (character in CharactersUIUtil.getSelectedCharacters()) {
                 ScriptInfoContent(character)
             }
         }

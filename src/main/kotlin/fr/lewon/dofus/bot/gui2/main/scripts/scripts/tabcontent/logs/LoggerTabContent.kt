@@ -24,7 +24,7 @@ fun LoggerTabContent(character: DofusCharacter) {
             backgroundColor = MaterialTheme.colors.background,
             contentColor = AppColors.primaryLightColor,
         ) {
-            for (loggerType in LogsUIState.LoggerType.values()) {
+            for (loggerType in LoggerUIType.values()) {
                 Tab(
                     text = { Text(loggerType.label) },
                     modifier = Modifier.handPointerIcon(),

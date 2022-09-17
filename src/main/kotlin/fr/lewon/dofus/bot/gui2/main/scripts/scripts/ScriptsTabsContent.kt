@@ -16,7 +16,7 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun ScriptsTabsContent() {
-    val currentPage = ScriptTabsUIState.currentPage.value
+    val currentPage = ScriptTabsUIUtil.currentPage.value
     Column {
         TabRow(
             selectedTabIndex = currentPage.ordinal,
@@ -31,7 +31,7 @@ fun ScriptsTabsContent() {
                     selected = currentPage == scriptTab,
                     unselectedContentColor = Color.LightGray,
                     onClick = {
-                        ScriptTabsUIState.currentPage.value = scriptTab
+                        ScriptTabsUIUtil.currentPage.value = scriptTab
                         scriptTab.onTabSelect()
                     },
                     enabled = scriptTab.isEnabled()

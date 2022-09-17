@@ -15,27 +15,22 @@ import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.AnimatedButton
 import fr.lewon.dofus.bot.gui2.custom.CommonText
 import fr.lewon.dofus.bot.gui2.custom.CustomShapes
-import fr.lewon.dofus.bot.gui2.custom.VerticalReorderLazyColumn
 import fr.lewon.dofus.bot.gui2.util.AppColors
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 
 @Composable
 fun CharactersListContent() {
-    val characters = CharactersUIState.characters
-    val selectedCharacter = CharactersUIState.selectedCharacter.value
+    val characters = CharactersUIUtil.getAllCharacters()
+    val selectedCharacter = CharactersUIUtil.getSelectedCharacter()
     Column {
         HeaderLine()
         Box {
             val lazyListState = rememberLazyListState()
-            VerticalReorderLazyColumn(
-                { character, toIndex -> CharacterManager.moveCharacter(character, toIndex) },
-                characters,
-                30,
-                Modifier.fillMaxHeight().padding(end = 8.dp),
-                lazyListState,
-                CharactersUIState.isDragging
-            ) { character ->
-                CharacterCardContent(character, selectedCharacter == character)
+            Column(Modifier.fillMaxHeight().padding(end = 8.dp)) {
+                for (character in characters) {
+                    Column(Modifier.height(30.dp)) {
+                        CharacterCardContent(character, selectedCharacter == character)
+                    }
+                }
             }
             VerticalScrollbar(
                 modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd)

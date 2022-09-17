@@ -26,12 +26,13 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 @Composable
 fun StatusBarContent() {
     val showHistory = remember { mutableStateOf(false) }
+    val statusBarUIState = StatusBarUIUtil.UI_STATE.value
     Row(
         Modifier.border(BorderStroke(1.dp, AppColors.DARK_BG_COLOR)).fillMaxWidth()
             .background(AppColors.backgroundColor)
     ) {
         Column(Modifier.align(Alignment.CenterVertically)) {
-            val history = StatusBarUIState.historyState.value
+            val history = statusBarUIState.oldMessages
             AnimatedVisibility(showHistory.value, enter = expandVertically(), exit = shrinkVertically()) {
                 Column {
                     for (entry in history) {
@@ -40,7 +41,7 @@ fun StatusBarContent() {
                 }
             }
             Row {
-                HistoryLine(StatusBarUIState.currentStatusState.value)
+                HistoryLine(statusBarUIState.currentStatus)
                 Spacer(Modifier.weight(1f))
 
                 Row(Modifier.height(30.dp)) {
@@ -69,9 +70,4 @@ private fun HistoryLine(text: String) {
             CommonText(text)
         }
     }
-}
-
-@Composable
-private fun HistoryButton() {
-    val expanded = remember { mutableStateOf(false) }
 }

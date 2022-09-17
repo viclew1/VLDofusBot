@@ -23,9 +23,10 @@ import fr.lewon.dofus.bot.gui2.util.getScaledImage
 
 @Composable
 fun InitBottomBar() {
-    if (InitUIState.INIT_SUCCESS.value) {
+    val initUIState = InitUIUtil.INIT_UI_STATE.value
+    if (initUIState.initSuccess) {
         successBottomBar()
-    } else if (InitUIState.ERRORS_ON_INIT.value) {
+    } else if (initUIState.errorsOnInit) {
         errorBottomBar()
     }
 }
@@ -44,6 +45,7 @@ private fun successBottomBar() {
 
 @Composable
 private fun errorBottomBar() {
+    val initUIState = InitUIUtil.INIT_UI_STATE.value
     Column {
         retryButton(Modifier.size(80.dp, 30.dp).align(Alignment.End))
         BottomAppBar(modifier = Modifier.height(210.dp), cutoutShape = CircleShape) {
@@ -52,7 +54,7 @@ private fun errorBottomBar() {
                     val state = rememberScrollState()
                     SelectionContainer {
                         Text(
-                            text = "Initialization KO : ${InitUIState.ERRORS.value.joinToString("") { "\n - $it" }}",
+                            text = "Initialization KO : ${initUIState.errors.joinToString("") { "\n - $it" }}",
                             color = Color.Red,
                             modifier = Modifier.fillMaxSize().padding(end = 10.dp).verticalScroll(state)
                         )
@@ -70,7 +72,7 @@ private fun errorBottomBar() {
 @Composable
 private fun retryButton(modifier: Modifier) {
     AnimatedButton(
-        { InitUIState.initAll() },
+        { InitUIUtil.initAll() },
         "Retry",
         UiResource.RETRY.imageData.getScaledImage(32).toPainter(),
         modifier,

@@ -21,19 +21,20 @@ import fr.lewon.dofus.bot.gui2.main.settings.*
 
 @Composable
 fun MetamobConfigContent() {
+    val metamobConfig = SettingsUIUtil.SETTINGS_UI_STATE.value.metamobConfig
     Column {
         ConfigLine("Metamob unique ID", "Needed to use Metamob, you can find it on Metamob under profile / API", true) {
             ConfigTextField(
-                SettingsUIState.settingsMetamobConfig.value.metamobUniqueID ?: "",
+                metamobConfig.metamobUniqueID ?: "",
                 onValueChange = { value ->
-                    SettingsUIState.updateMetamobConfig { it.metamobUniqueID = value }
+                    SettingsUIUtil.updateMetamobConfig { it.metamobUniqueID = value }
                 })
         }
         ConfigLine("Metamob pseudo", "Needed to use Metamob, your Metamob pseudo", true) {
             ConfigTextField(
-                SettingsUIState.settingsMetamobConfig.value.metamobPseudo ?: "",
+                metamobConfig.metamobPseudo ?: "",
                 onValueChange = { value ->
-                    SettingsUIState.updateMetamobConfig { it.metamobPseudo = value }
+                    SettingsUIUtil.updateMetamobConfig { it.metamobPseudo = value }
                 })
         }
         ConfigLine("Test metamob connection", "", true) {
@@ -62,25 +63,25 @@ fun MetamobConfigContent() {
             "Update on capture",
             "Auto update metamob when you capture a monster group",
             true,
-            SettingsUIState.settingsMetamobConfig.value.captureAutoUpdate
+            metamobConfig.captureAutoUpdate
         ) { checked ->
-            SettingsUIState.updateMetamobConfig { it.captureAutoUpdate = checked }
+            SettingsUIUtil.updateMetamobConfig { it.captureAutoUpdate = checked }
         }
         ConfigSwitchLine(
             "Update on trade",
             "Auto update metamob when you obtain or lose soul stones in a trade",
             true,
-            SettingsUIState.settingsMetamobConfig.value.tradeAutoUpdate
+            metamobConfig.tradeAutoUpdate
         ) { checked ->
-            SettingsUIState.updateMetamobConfig { it.tradeAutoUpdate = checked }
+            SettingsUIUtil.updateMetamobConfig { it.tradeAutoUpdate = checked }
         }
         ConfigSwitchLine(
             "Update on buy",
             "Auto update metamob when you buy a soul stone in auction house or to a merchant player",
             true,
-            SettingsUIState.settingsMetamobConfig.value.shopAutoUpdate
+            metamobConfig.shopAutoUpdate
         ) { checked ->
-            SettingsUIState.updateMetamobConfig { it.shopAutoUpdate = checked }
+            SettingsUIUtil.updateMetamobConfig { it.shopAutoUpdate = checked }
         }
     }
 }

@@ -39,7 +39,7 @@ object FightDungeonScriptBuilder : DofusBotScriptBuilder("Fight dungeon") {
     }
 
     override fun getDescription(): String {
-        return "Fights in the dungeon until you run out of keys"
+        return "Runs a dungeon until you run out of keys"
     }
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {

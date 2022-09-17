@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.*
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -21,7 +21,7 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 
 @Composable
 fun ScriptParametersContent() {
-    val script = ScriptTabsUIState.getCurrentScriptBuilder()
+    val script = ScriptTabsUIUtil.getCurrentScriptBuilder()
     val parameters = ScriptParametersUIState.getCurrentScriptParameters()
     Column {
         CommonText(

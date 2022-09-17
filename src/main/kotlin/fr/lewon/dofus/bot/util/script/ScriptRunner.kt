@@ -29,8 +29,12 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
         // Nothing
     }
 
+    override fun onCharacterUpdate(character: DofusCharacter) {
+        // Nothing
+    }
+
     override fun onCharacterDelete(character: DofusCharacter) {
-        removeListeners(character)
+        // Nothing
     }
 
     @Synchronized
@@ -39,7 +43,6 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
             error("Cannot run script, there is already one running")
         }
         val logger = character.executionLogger
-        getListeners(character.pseudo).forEach { it.onScriptStart(character, scriptBuilder) }
         val logItem = logger.log("Executing Dofus script : [${scriptBuilder.name}]")
         val thread = Thread {
             try {
@@ -56,7 +59,9 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
                 onScriptKo(character, t, logItem)
             }
         }
-        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = RunningScript(scriptBuilder, thread)
+        val runningScript = RunningScript(scriptBuilder, thread)
+        getListeners(character.pseudo).forEach { it.onScriptStart(character, runningScript) }
+        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = runningScript
         thread.start()
     }
 
