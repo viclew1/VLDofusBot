@@ -8,7 +8,7 @@ data class DofusCharacter(
     var pseudo: String = "",
     var dofusClassId: Int = 1,
     var scriptValuesStore: VldbScriptValuesStore = VldbScriptValuesStore(),
-    var characterSpells: ArrayList<CharacterSpell> = ArrayList()
+    var characterSpells: ArrayList<CharacterSpell> = ArrayList(),
 ) {
 
     @JsonIgnore

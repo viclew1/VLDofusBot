@@ -19,8 +19,8 @@ fun InitContent() {
         modifier = Modifier.background(AppColors.VERY_DARK_BG_COLOR).fillMaxSize().padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        for (initTask in InitUIState.INIT_TASKS) {
-            initTaskLine(initTask)
+        for (initTask in InitUIUtil.INIT_TASKS_UI_STATES) {
+            initTaskLine(initTask.value)
             Divider(Modifier.fillMaxWidth(0.95f).align(Alignment.CenterHorizontally))
         }
         Spacer(Modifier.fillMaxHeight().weight(1f))
@@ -28,27 +28,27 @@ fun InitContent() {
 }
 
 @Composable
-private fun initTaskLine(initTask: InitTask) {
+private fun initTaskLine(initTaskUIState: InitTaskUIState) {
     Row(modifier = Modifier.fillMaxWidth()) {
         val color = when {
-            initTask.success.value -> Color.Green
-            initTask.executed.value -> Color.Red
-            initTask.executing.value -> AppColors.primaryLightColor
+            initTaskUIState.success -> Color.Green
+            initTaskUIState.executed -> Color.Red
+            initTaskUIState.executing -> AppColors.primaryLightColor
             else -> Color.LightGray
         }
         Text(
-            text = initTask.label,
+            text = initTaskUIState.label,
             modifier = Modifier.width(200.dp),
             color = color,
             fontSize = 13.sp
         )
 
-        if (initTask.executing.value) {
+        if (initTaskUIState.executing) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(0.9f).align(Alignment.CenterVertically),
                 color = color
             )
-        } else if (initTask.executed.value) {
+        } else if (initTaskUIState.executed) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(0.9f).align(Alignment.CenterVertically),
                 color = color,

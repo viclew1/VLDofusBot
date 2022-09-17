@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.listeners
 
 import fr.lewon.dofus.bot.core.utils.LockUtils
-import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import java.util.*
@@ -31,7 +31,7 @@ object OverlayManager {
             toToggleOverlay.overlay.isVisible = false
             displayedOverlay = null
         } else if (GlobalConfigManager.readConfig().run { displayOverlays && shouldDisplayOverlay(toToggleOverlay) }) {
-            val character = CharactersUIState.selectedCharacter.value ?: return
+            val character = CharactersUIUtil.getSelectedCharacter() ?: return
             val connection = GameSnifferUtil.getFirstConnection(character) ?: return
             toToggleOverlay.overlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
             displayedOverlay?.overlay?.isVisible = false

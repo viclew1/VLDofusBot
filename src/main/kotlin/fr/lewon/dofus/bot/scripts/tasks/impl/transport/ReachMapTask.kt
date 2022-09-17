@@ -1,11 +1,10 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
-import fr.lewon.dofus.bot.core.d2o.managers.map.HintManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
+import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBotTask() {
@@ -14,7 +13,7 @@ open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBot
         if (dofusMaps.contains(gameInfo.currentMap)) {
             return true
         }
-        val zaaps = HintManager.getAllZaapMaps()
+        val zaaps = TravelUtil.getAllZaapMaps()
         val transporters = TravelUtil.getTransporters()
 
         val zaapWithDist = TravelUtil.getClosestZaap(gameInfo, dofusMaps)

@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.game.move.transporters
+package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.d2o.managers.map.HintManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
@@ -6,9 +6,18 @@ import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
+import fr.lewon.dofus.bot.game.move.transporters.FrigostTransporter
+import fr.lewon.dofus.bot.game.move.transporters.ITransporter
+import fr.lewon.dofus.bot.game.move.transporters.OtomaiTransporter
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object TravelUtil {
+
+    fun getAllZaapMaps(): List<DofusMap> {
+        return HintManager.getHints(HintManager.HintType.ZAAP)
+            .map { it.map }
+            .filter { !it.subArea.isConquestVillage }
+    }
 
     fun getTransporters(): List<ITransporter> {
         return listOf<ITransporter>(
@@ -26,8 +35,7 @@ object TravelUtil {
     }
 
     fun getClosestZaap(gameInfo: GameInfo, maps: List<DofusMap>): Pair<DofusMap, Int>? {
-        val zaaps = HintManager.getAllZaapMaps()
-            .sortedBy { minDistance(it, maps) }
+        val zaaps = getAllZaapMaps().sortedBy { minDistance(it, maps) }
         val zaapsSubList = zaaps.takeIf { it.size > 3 }?.subList(0, 3) ?: zaaps
         return getClosest(gameInfo, zaapsSubList, maps) { it }
     }
@@ -66,7 +74,7 @@ object TravelUtil {
 
     fun getPath(gameInfo: GameInfo, destMaps: List<DofusMap>): List<Transition>? {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("Couldn't find played cell id (player ID : ${gameInfo.playerId})")
+            ?: error("Couldn't find player cell id (player ID : ${gameInfo.playerId})")
         val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
             ?: error("Couldn't find cell data (cell ID : $playerCellId)")
         return WorldGraphUtil.getPath(

@@ -64,13 +64,6 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
         return characterStore.characters.toList()
     }
 
-    fun moveCharacter(character: DofusCharacter, toIndex: Int) {
-        characterStore.characters.remove(character)
-        characterStore.characters.add(toIndex, character)
-        saveCharacterStore()
-        listeners.forEach { it.onCharacterMove(character, toIndex) }
-    }
-
     fun addCharacter(pseudo: String, dofusClassId: Int, spells: List<CharacterSpell>): DofusCharacter {
         getCharacter(pseudo)?.let {
             error("Character already registered : [$pseudo]")
@@ -104,6 +97,7 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
         character.dofusClassId = dofusClassId
         character.characterSpells = ArrayList(spells)
         saveCharacterStore()
+        listeners.forEach { it.onCharacterUpdate(character) }
     }
 
     fun updateParamValue(

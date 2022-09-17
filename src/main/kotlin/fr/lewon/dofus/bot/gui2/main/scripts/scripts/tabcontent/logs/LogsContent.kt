@@ -28,7 +28,7 @@ import fr.lewon.dofus.bot.gui2.util.UiResource
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 
 @Composable
-fun LogsContent(loggerType: LogsUIState.LoggerType, character: DofusCharacter) {
+fun LogsContent(loggerType: LoggerUIType, character: DofusCharacter) {
     val logger = loggerType.loggerGetter(character)
     val logItems = LogsUIState.getLogs(character, loggerType).value
     Column(Modifier.fillMaxSize()) {

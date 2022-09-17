@@ -17,14 +17,15 @@ import fr.lewon.dofus.bot.gui2.custom.ComboBox
 import fr.lewon.dofus.bot.gui2.custom.CommonText
 import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIState
 import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
 fun ScriptSelectorContent() {
-    val script = ScriptTabsUIState.getCurrentScriptBuilder()
+    val script = ScriptTabsUIUtil.getCurrentScriptBuilder()
     Column {
         Row(Modifier.height(40.dp)) {
             CommonText(
@@ -36,7 +37,7 @@ fun ScriptSelectorContent() {
                 ComboBox(
                     Modifier.fillMaxWidth().height(30.dp),
                     script,
-                    mutableStateOf(ScriptTabsUIState.scripts),
+                    mutableStateOf(ScriptTabsUIUtil.scripts),
                     { script.value = it },
                     { (if (it.isDev) "DEV - " else "") + it.name })
             }
@@ -63,7 +64,7 @@ fun ScriptSelectorContent() {
 
 @Composable
 private fun PlayScriptButton() {
-    val isStarted = ScriptTabsUIState.isScriptStarted()
+    val isStarted = ScriptTabsUIUtil.isScriptStarted()
     val dyRatio = if (isStarted) 0f else 0.5f
     val color = animateColorAsState(if (isStarted) AppColors.RED else AppColors.GREEN)
     val animatedDyRatio = animateFloatAsState(targetValue = dyRatio)
@@ -84,11 +85,11 @@ private fun PlayScriptButton() {
             color = color.value
         ) {
             Box(Modifier.fillMaxSize().handPointerIcon().clickable {
-                val selectedCharacters = ScriptTabsUIState.getSelectedCharacters()
+                val selectedCharacters = CharactersUIUtil.getSelectedCharacters()
                 if (isStarted) {
                     selectedCharacters.forEach { ScriptRunner.stopScript(it) }
                 } else {
-                    val scriptBuilder = ScriptTabsUIState.getCurrentScriptBuilder().value
+                    val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder().value
                     val scriptValues = ScriptParametersUIState.getScriptValuesStore().getValues(scriptBuilder)
                     selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, scriptValues) }
                 }

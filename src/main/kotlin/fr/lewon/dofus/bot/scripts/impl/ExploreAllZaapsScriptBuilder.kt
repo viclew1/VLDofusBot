@@ -1,9 +1,7 @@
 package fr.lewon.dofus.bot.scripts.impl
 
-import fr.lewon.dofus.bot.core.d2o.managers.map.HintManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.game.move.transporters.TravelUtil
 import fr.lewon.dofus.bot.model.characters.VldbScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
@@ -12,6 +10,7 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.OpenZaapInterfaceTask
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
+import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
@@ -38,7 +37,7 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
         LeaveHavenBagTask().run(logItem, gameInfo)
-        val zaaps = HintManager.getAllZaapMaps()
+        val zaaps = TravelUtil.getAllZaapMaps()
             .filter { shouldExploreZaap(gameInfo, it, registeredZaaps) }
             .sortedBy { it.getCoordinates().distanceTo(gameInfo.currentMap.getCoordinates()) }
             .toMutableList()

@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.ComboBox
 import fr.lewon.dofus.bot.gui2.main.settings.ConfigLine
-import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIState
+import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
@@ -37,7 +37,8 @@ fun NetworkInterfaceParametersContent() {
 
 @Composable
 private fun NetworkInterfaceDropDownMenu() {
-    val currentNetworkInterface = SettingsUIState.settingsGlobalConfig.value.networkInterfaceName
+    val globalConfig = SettingsUIUtil.SETTINGS_UI_STATE.value.globalConfig
+    val currentNetworkInterface = globalConfig.networkInterfaceName
         ?: error("Network interface not initialized")
     val selectedItem = mutableStateOf(currentNetworkInterface)
     ComboBox(
@@ -45,7 +46,7 @@ private fun NetworkInterfaceDropDownMenu() {
         selectedItem,
         networkInterfaces,
         { item ->
-            SettingsUIState.updateGlobalConfig { it.networkInterfaceName = item }
+            SettingsUIUtil.updateGlobalConfig { it.networkInterfaceName = item }
             GameSnifferUtil.updateNetworkInterface()
         },
         { item -> item }

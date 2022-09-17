@@ -2,8 +2,10 @@ package fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
+import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.VldbScriptValuesStore
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -16,7 +18,7 @@ object ScriptParametersUIState {
     private val globalScriptValues = VldbScriptValuesStore()
 
     fun getCurrentScriptParameters(): List<DofusBotParameter> {
-        return ScriptTabsUIState.getCurrentScriptBuilder().value.getParameters()
+        return ScriptTabsUIUtil.getCurrentScriptBuilder().value.getParameters()
     }
 
     fun shouldDisplay(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter): MutableState<Boolean> {
@@ -28,15 +30,19 @@ object ScriptParametersUIState {
     }
 
     fun updateParamValue(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter, value: String) {
-        when (ScriptTabsUIState.currentPage.value) {
-            ScriptTab.INDIVIDUAL ->
-                CharacterManager.updateParamValue(
-                    ScriptTabsUIState.getCurrentCharacter(), scriptBuilder, parameter, value
-                )
+        when (ScriptTabsUIUtil.currentPage.value) {
+            ScriptTab.INDIVIDUAL -> {
+                CharacterManager.updateParamValue(getSelectedCharacter(), scriptBuilder, parameter, value)
+            }
             ScriptTab.GLOBAL ->
                 globalScriptValues.getValues(scriptBuilder).updateParamValue(parameter, value)
         }
         updateParameters(scriptBuilder)
+    }
+
+    private fun getSelectedCharacter(): DofusCharacter {
+        return CharactersUIUtil.getSelectedCharacter()
+            ?: error("A character should be selected")
     }
 
     fun updateParameters(scriptBuilder: DofusBotScriptBuilder) {
@@ -53,8 +59,8 @@ object ScriptParametersUIState {
     }
 
     fun getScriptValuesStore(): VldbScriptValuesStore {
-        return when (ScriptTabsUIState.currentPage.value) {
-            ScriptTab.INDIVIDUAL -> ScriptTabsUIState.getCurrentCharacter().scriptValuesStore
+        return when (ScriptTabsUIUtil.currentPage.value) {
+            ScriptTab.INDIVIDUAL -> getSelectedCharacter().scriptValuesStore
             ScriptTab.GLOBAL -> globalScriptValues
         }
     }

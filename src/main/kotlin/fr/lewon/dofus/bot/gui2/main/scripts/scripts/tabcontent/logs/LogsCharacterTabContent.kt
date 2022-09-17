@@ -10,8 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
@@ -24,7 +25,7 @@ fun LogsCharacterTabContent() {
                 .border(BorderStroke(1.dp, Color.Gray))
                 .background(AppColors.DARK_BG_COLOR)
         ) {
-            if (ScriptTabsUIState.getSelectedCharacters().isNotEmpty()) {
+            if (CharactersUIUtil.getSelectedCharacters().isNotEmpty()) {
                 LogsTabsRow()
                 Box(Modifier.fillMaxSize().padding(5.dp)) {
                     val state = rememberScrollState()
@@ -46,8 +47,8 @@ fun LogsCharacterTabContent() {
 
 @Composable
 private fun LogsTabsRow() {
-    val selectedCharacters = ScriptTabsUIState.getSelectedCharacters()
-    val selectedIndex = if (ScriptTabsUIState.currentPage.value == ScriptTab.GLOBAL) {
+    val selectedCharacters = CharactersUIUtil.getSelectedCharacters()
+    val selectedIndex = if (ScriptTabsUIUtil.currentPage.value == ScriptTab.GLOBAL) {
         selectedCharacters.indexOfFirst { it.pseudo == LogsUIState.logsSelectedCharacter.value }
             .takeIf { it >= 0 } ?: 0.also { LogsUIState.logsSelectedCharacter.value = "" }
     } else 0
