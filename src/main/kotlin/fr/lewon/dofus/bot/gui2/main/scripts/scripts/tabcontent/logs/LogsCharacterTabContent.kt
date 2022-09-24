@@ -48,9 +48,9 @@ fun LogsCharacterTabContent() {
 @Composable
 private fun LogsTabsRow() {
     val selectedCharacters = CharactersUIUtil.getSelectedCharacters()
-    val selectedIndex = if (ScriptTabsUIUtil.currentPage.value == ScriptTab.GLOBAL) {
-        selectedCharacters.indexOfFirst { it.pseudo == LogsUIState.logsSelectedCharacter.value }
-            .takeIf { it >= 0 } ?: 0.also { LogsUIState.logsSelectedCharacter.value = "" }
+    val selectedIndex = if (ScriptTabsUIUtil.getCurrentTab() == ScriptTab.GLOBAL) {
+        selectedCharacters.indexOfFirst { it.pseudo == LogsUIUtil.logsSelectedCharacter.value }
+            .takeIf { it >= 0 } ?: 0.also { LogsUIUtil.logsSelectedCharacter.value = "" }
     } else 0
     Column {
         TabRow(
@@ -67,9 +67,9 @@ private fun LogsTabsRow() {
                 Tab(
                     text = { Text(character.pseudo) },
                     modifier = Modifier.handPointerIcon(),
-                    selected = character.pseudo == LogsUIState.logsSelectedCharacter.value,
+                    selected = character.pseudo == LogsUIUtil.logsSelectedCharacter.value,
                     unselectedContentColor = Color.LightGray,
-                    onClick = { LogsUIState.logsSelectedCharacter.value = character.pseudo },
+                    onClick = { LogsUIUtil.logsSelectedCharacter.value = character.pseudo },
                     enabled = selectedCharacters.size > 1
                 )
             }

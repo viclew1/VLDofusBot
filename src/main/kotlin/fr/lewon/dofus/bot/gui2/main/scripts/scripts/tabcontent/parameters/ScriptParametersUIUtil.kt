@@ -11,29 +11,37 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 
-object ScriptParametersUIState {
+object ScriptParametersUIUtil {
 
-    private val shouldDisplayByParameterByScript =
-        HashMap<DofusBotScriptBuilder, HashMap<DofusBotParameter, MutableState<Boolean>>>()
+    private val uiStateByParameterByScript = HashMap<DofusBotScriptBuilder, MutableState<ScriptBuilderUIState>>()
     private val globalScriptValues = VldbScriptValuesStore()
 
     fun getCurrentScriptParameters(): List<DofusBotParameter> {
-        return ScriptTabsUIUtil.getCurrentScriptBuilder().value.getParameters()
+        return ScriptTabsUIUtil.getCurrentScriptBuilder().getParameters()
     }
 
-    fun shouldDisplay(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter): MutableState<Boolean> {
-        val shouldDisplayByParameter = shouldDisplayByParameterByScript.computeIfAbsent(scriptBuilder) { HashMap() }
-        val shouldDisplay = shouldDisplayByParameter.computeIfAbsent(parameter) { mutableStateOf(false) }
-        val scriptValues = getScriptValuesStore().getValues(scriptBuilder)
-        shouldDisplay.value = parameter.displayCondition(scriptValues)
-        return shouldDisplay
+    private fun getScriptBuilderUIState(scriptBuilder: DofusBotScriptBuilder): MutableState<ScriptBuilderUIState> {
+        return uiStateByParameterByScript.computeIfAbsent(scriptBuilder) { mutableStateOf(ScriptBuilderUIState(emptyMap())) }
+    }
+
+    fun getScriptParameterUIState(
+        scriptBuilder: DofusBotScriptBuilder,
+        parameter: DofusBotParameter
+    ): ScriptParameterUIState {
+        val builderUIState = getScriptBuilderUIState(scriptBuilder)
+        var uiState = builderUIState.value.scriptParameterUIStateByParameter[parameter]
+        if (uiState == null) {
+            uiState = ScriptParameterUIState(parameter, false, getParamValue(scriptBuilder, parameter))
+            val uiStateByParameter = builderUIState.value.scriptParameterUIStateByParameter.plus(parameter to uiState)
+            builderUIState.value = builderUIState.value.copy(scriptParameterUIStateByParameter = uiStateByParameter)
+        }
+        return uiState
     }
 
     fun updateParamValue(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter, value: String) {
-        when (ScriptTabsUIUtil.currentPage.value) {
-            ScriptTab.INDIVIDUAL -> {
+        when (ScriptTabsUIUtil.getCurrentTab()) {
+            ScriptTab.INDIVIDUAL ->
                 CharacterManager.updateParamValue(getSelectedCharacter(), scriptBuilder, parameter, value)
-            }
             ScriptTab.GLOBAL ->
                 globalScriptValues.getValues(scriptBuilder).updateParamValue(parameter, value)
         }
@@ -48,10 +56,15 @@ object ScriptParametersUIState {
     fun updateParameters(scriptBuilder: DofusBotScriptBuilder) {
         val scriptValues = getScriptValuesStore().getValues(scriptBuilder)
         val parameters = scriptBuilder.getParameters()
-        val shouldDisplayByParameter = shouldDisplayByParameterByScript.computeIfAbsent(scriptBuilder) { HashMap() }
-        parameters.forEach { parameter ->
-            shouldDisplayByParameter[parameter]?.value = parameter.displayCondition(scriptValues)
+        val builderUIState = getScriptBuilderUIState(scriptBuilder)
+        val uiStateByParameter = parameters.associateWith { parameter ->
+            ScriptParameterUIState(
+                parameter,
+                parameter.displayCondition(scriptValues),
+                getParamValue(scriptBuilder, parameter)
+            )
         }
+        builderUIState.value = builderUIState.value.copy(scriptParameterUIStateByParameter = uiStateByParameter)
     }
 
     private fun getParamValue(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter): String {
@@ -59,7 +72,7 @@ object ScriptParametersUIState {
     }
 
     fun getScriptValuesStore(): VldbScriptValuesStore {
-        return when (ScriptTabsUIUtil.currentPage.value) {
+        return when (ScriptTabsUIUtil.getCurrentTab()) {
             ScriptTab.INDIVIDUAL -> getSelectedCharacter().scriptValuesStore
             ScriptTab.GLOBAL -> globalScriptValues
         }

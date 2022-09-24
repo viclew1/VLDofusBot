@@ -12,9 +12,12 @@ import fr.lewon.dofus.bot.sniffer.store.EventStore
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.updatePage
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.listeners.KeyboardListener
+import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.reflections.Reflections
 
 object InitUIUtil {
@@ -27,11 +30,12 @@ object InitUIUtil {
         }),
         mutableStateOf(InitTaskUIState("${AppInfo.APP_NAME} Core") { initCore() }),
         mutableStateOf(InitTaskUIState("File managers") { initFileManagers() }),
-        mutableStateOf(InitTaskUIState("Sniffer handlers") { initEventStoreHandlers() })
+        mutableStateOf(InitTaskUIState("Sniffer handlers") { initEventStoreHandlers() }),
+        mutableStateOf(InitTaskUIState("Sniffer network interface") { initSniffer() })
     )
 
     fun initAll() {
-        Thread {
+        GlobalScope.launch {
             INIT_UI_STATE.value = INIT_UI_STATE.value.copy(
                 errorsOnInit = false,
                 errors = emptyList()
@@ -45,12 +49,12 @@ object InitUIUtil {
                 errorsOnInit = !success
             )
             if (success) {
-                CharacterManager.addListener(CharactersUIUtil)
+                CharactersUIUtil.initListeners()
                 Thread.sleep(1000)
                 KeyboardListener.start()
                 updatePage(AppPage.MAIN)
             }
-        }.start()
+        }
     }
 
     private fun startInit(initTaskUIState: MutableState<InitTaskUIState>) {
@@ -111,4 +115,11 @@ object InitUIUtil {
             .forEach { EventStore.addEventHandler(it) }
     }
 
+    private fun initSniffer() {
+        val networkInterfaceName = GlobalConfigManager.readConfig().networkInterfaceName
+        if (DofusMessageReceiverUtil.findInetAddress(networkInterfaceName) == null) {
+            GlobalConfigManager.editConfig { it.networkInterfaceName = null }
+        }
+        GameSnifferUtil.updateNetworkInterface()
+    }
 }

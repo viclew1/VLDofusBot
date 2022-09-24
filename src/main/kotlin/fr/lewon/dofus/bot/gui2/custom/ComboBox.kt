@@ -36,8 +36,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun <T> ComboBox(
     modifier: Modifier = Modifier,
-    selectedItem: MutableState<T>,
-    items: MutableState<List<T>>,
+    selectedItem: T,
+    items: List<T>,
     onItemSelect: (item: T) -> Unit,
     getItemText: (item: T) -> String,
     maxDropDownHeight: Dp = Dp.Infinity
@@ -78,7 +78,7 @@ fun <T> ComboBox(
             Row {
                 Row(Modifier.weight(1f).align(Alignment.CenterVertically).padding(start = 5.dp)) {
                     Text(
-                        getItemText(selectedItem.value),
+                        getItemText(selectedItem),
                         fontSize = 12.sp,
                         color = Color.White,
                         maxLines = 1,
@@ -98,21 +98,21 @@ fun <T> ComboBox(
             )
         ) {
             val itemHeight = 20
-            Box(Modifier.height(min(maxDropDownHeight, (items.value.size * itemHeight).dp))) {
+            Box(Modifier.height(min(maxDropDownHeight, (items.size * itemHeight).dp))) {
                 rememberCoroutineScope().launch {
-                    scrollState.scrollTo(items.value.indexOf(selectedItem.value) * (itemHeight))
+                    scrollState.scrollTo(items.indexOf(selectedItem) * (itemHeight))
                 }
                 Column(Modifier.verticalScroll(scrollState).padding(end = 10.dp)) {
                     val popupFocusManager = LocalFocusManager.current
                     val opened = remember { mutableStateOf(false) }
-                    items.value.forEach { item ->
+                    items.forEach { item ->
                         val popupFocusRequester = remember { FocusRequester() }
                         Row(
                             modifier = Modifier.handPointerIcon().fillMaxWidth().padding(horizontal = 5.dp)
                                 .height(itemHeight.dp)
                                 .focusRequester(popupFocusRequester)
                                 .onPlaced {
-                                    if (!opened.value && item == selectedItem.value) {
+                                    if (!opened.value && item == selectedItem) {
                                         popupFocusRequester.requestFocus()
                                         opened.value = true
                                     }
@@ -135,7 +135,7 @@ fun <T> ComboBox(
                                 ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            val color = if (selectedItem.value == item) AppColors.primaryColor else Color.White
+                            val color = if (selectedItem == item) AppColors.primaryColor else Color.White
                             Text(getItemText(item), fontSize = 13.sp, color = color, maxLines = 1)
                         }
                     }

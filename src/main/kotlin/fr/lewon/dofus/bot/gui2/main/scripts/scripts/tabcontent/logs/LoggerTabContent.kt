@@ -16,10 +16,11 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 
 @Composable
 fun LoggerTabContent(character: DofusCharacter) {
-    val selectedLoggerType = LogsUIState.getLoggerType(character)
+    val characterLogsUIState = LogsUIUtil.getCharacterLogsUIState(character)
+    val selectedLoggerType = characterLogsUIState.value.loggerType
     Column {
         TabRow(
-            selectedLoggerType.value.ordinal,
+            selectedLoggerType.ordinal,
             Modifier.height(30.dp),
             backgroundColor = MaterialTheme.colors.background,
             contentColor = AppColors.primaryLightColor,
@@ -28,13 +29,13 @@ fun LoggerTabContent(character: DofusCharacter) {
                 Tab(
                     text = { Text(loggerType.label) },
                     modifier = Modifier.handPointerIcon(),
-                    selected = selectedLoggerType.value == loggerType,
+                    selected = selectedLoggerType == loggerType,
                     unselectedContentColor = Color.LightGray,
-                    onClick = { selectedLoggerType.value = loggerType },
+                    onClick = { characterLogsUIState.value = characterLogsUIState.value.copy(loggerType = loggerType) },
                     enabled = true
                 )
             }
         }
-        LogsContent(selectedLoggerType.value, character)
+        LogsContent(selectedLoggerType, character)
     }
 }

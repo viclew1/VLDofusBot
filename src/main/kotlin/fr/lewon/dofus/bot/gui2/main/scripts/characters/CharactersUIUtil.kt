@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.logs.LoggerUIType
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.logs.LogsUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.logs.LogsUIUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
@@ -19,6 +19,8 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.concurrent.locks.ReentrantLock
 
 object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSnifferListener, VldbLoggerListener {
@@ -28,8 +30,9 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     private val CHARACTERS_UI_STATE = mutableStateOf(CharactersUIState(getOrderedCharacters()))
     private val CHARACTER_BY_LOGGER = HashMap<VldbLogger, DofusCharacter>()
 
-    init {
-        for (character in getOrderedCharacters()) {
+    fun initListeners() {
+        CharacterManager.addListener(this)
+        for (character in CHARACTERS_UI_STATE.value.characters) {
             addListeners(character)
         }
     }
@@ -61,7 +64,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     fun selectCharacter(character: DofusCharacter?) {
         LockUtils.executeSyncOperation(LOCK) {
             CHARACTERS_UI_STATE.value = CHARACTERS_UI_STATE.value.copy(selectedCharacter = character)
-            ScriptTabsUIUtil.currentPage.value = if (character == null) ScriptTab.GLOBAL else ScriptTab.INDIVIDUAL
+            ScriptTabsUIUtil.updateCurrentTab(if (character == null) ScriptTab.GLOBAL else ScriptTab.INDIVIDUAL)
         }
     }
 
@@ -82,6 +85,8 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     override fun onCharacterUpdate(character: DofusCharacter) {
         LockUtils.executeSyncOperation(LOCK) {
             CHARACTERS_UI_STATE.value = CHARACTERS_UI_STATE.value.copy(characters = getOrderedCharacters())
+            val characterUIState = getCharacterUIState(character)
+            characterUIState.value = characterUIState.value.copy()
             computeState(character, true)
         }
     }
@@ -146,17 +151,20 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             val character = CHARACTER_BY_LOGGER[logger] ?: error("Unregistered logger character")
             val loggerUIType = getCharacterLoggersWithTypes(character)[logger]
                 ?: error("Unregistered logger type")
-            if (!LogsUIState.getPauseEnabled(character, loggerUIType).value) {
-                LogsUIState.getLogs(character, loggerUIType).value = logs
-                val expandedLogItems = LogsUIState.getExpandedLogItems(character, loggerUIType)
-                expandedLogItems.value = expandedLogItems.value.toMutableList().also {
-                    it.removeIf { logItem -> !logs.contains(logItem) }
-                }
-                val autoScrollEnabled = LogsUIState.getAutoScrollEnabled(character, loggerUIType).value
-                val pauseEnabled = LogsUIState.getPauseEnabled(character, loggerUIType).value
-                if (autoScrollEnabled && !pauseEnabled) {
-                    LogsUIState.getScrollState(character, loggerUIType).value = ScrollState(Int.MAX_VALUE)
-                }
+            val loggerUIState = LogsUIUtil.getLoggerUIState(character, loggerUIType)
+            if (!loggerUIState.value.pauseLogs) {
+                val autoScrollEnabled = loggerUIState.value.autoScroll
+                val pauseEnabled = loggerUIState.value.pauseLogs
+                val scrollState = if (autoScrollEnabled && !pauseEnabled) {
+                    ScrollState(Int.MAX_VALUE)
+                } else loggerUIState.value.scrollState
+                loggerUIState.value = loggerUIState.value.copy(
+                    logs = logs,
+                    expandedLogItems = loggerUIState.value.expandedLogItems.toMutableList().also {
+                        it.removeIf { logItem -> !logs.contains(logItem) }
+                    },
+                    scrollState = scrollState
+                )
             }
         }
     }
@@ -171,7 +179,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     }
 
     private fun computeState(character: DofusCharacter, updateNetwork: Boolean = true) {
-        Thread {
+        GlobalScope.launch {
             val characterState = getCharacterUIState(character)
             if (updateNetwork) {
                 GameSnifferUtil.updateNetwork()
@@ -188,7 +196,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             }
             characterState.value = characterState.value.copy(activityState = newActivityState)
             CHARACTERS_UI_STATE.value = CHARACTERS_UI_STATE.value.copy(characters = getOrderedCharacters())
-        }.start()
+        }
     }
 
     fun getAllCharacters(): List<DofusCharacter> {
@@ -196,7 +204,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     }
 
     fun getSelectedCharacters(): List<DofusCharacter> {
-        return when (ScriptTabsUIUtil.currentPage.value) {
+        return when (ScriptTabsUIUtil.getCurrentTab()) {
             ScriptTab.GLOBAL -> getCheckedCharacters()
             ScriptTab.INDIVIDUAL -> getSelectedCharacter()?.let { listOf(it) } ?: emptyList()
         }

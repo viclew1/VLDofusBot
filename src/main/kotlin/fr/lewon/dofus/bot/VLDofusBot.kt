@@ -25,7 +25,7 @@ import fr.lewon.dofus.bot.gui2.init.InitBottomBar
 import fr.lewon.dofus.bot.gui2.init.InitContent
 import fr.lewon.dofus.bot.gui2.init.InitUIUtil
 import fr.lewon.dofus.bot.gui2.main.MainContent
-import fr.lewon.dofus.bot.gui2.main.currentAppContent
+import fr.lewon.dofus.bot.gui2.main.MainContentUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppInfo
 import fr.lewon.dofus.bot.gui2.util.UiResource
 import fr.lewon.dofus.bot.gui2.util.getScaledImage
@@ -116,7 +116,7 @@ enum class AppPage(
         bottomBarContent = { InitBottomBar() }
     ),
     MAIN(
-        { "${AppInfo.APP_NAME} - ${currentAppContent.value.title}" },
+        { "${AppInfo.APP_NAME} - ${MainContentUIUtil.mainContentUIState.value.currentAppContent.title}" },
         Typography(FontFamily.SansSerif),
         true,
         DpSize(1300.dp, 850.dp),

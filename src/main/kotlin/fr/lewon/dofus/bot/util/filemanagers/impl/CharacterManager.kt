@@ -108,6 +108,7 @@ object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager 
     ) {
         character.scriptValuesStore.getValues(script).updateParamValue(param, value)
         saveCharacterStore()
+        listeners.forEach { it.onCharacterUpdate(character) }
     }
 
     fun getParamValue(character: DofusCharacter, script: DofusBotScriptBuilder, param: DofusBotParameter): String {

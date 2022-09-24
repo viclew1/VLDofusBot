@@ -119,7 +119,7 @@ private fun HoverButtons(character: DofusCharacter, isHovered: MutableState<Bool
 @Composable
 private fun GlobalScriptSelectedCheckbox(characterUIState: MutableState<CharacterUIState>) {
     AnimatedVisibility(
-        visible = ScriptTabsUIUtil.currentPage.value == ScriptTab.GLOBAL,
+        visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.GLOBAL,
         enter = expandHorizontally(expandFrom = Alignment.End),
         exit = shrinkHorizontally(shrinkTowards = Alignment.End)
     ) {

@@ -23,15 +23,12 @@ import fr.lewon.dofus.bot.gui2.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui2.util.AppColors
 
-var currentAppContent = mutableStateOf(MainAppContent.SCRIPTS)
-    private set
-
 @Composable
 fun MainContent() {
     Row(Modifier.fillMaxSize()) {
         MainNavigationRail()
         Box(Modifier.fillMaxSize()) {
-            currentAppContent.value.content()
+            MainContentUIUtil.mainContentUIState.value.currentAppContent.content()
         }
     }
 }
@@ -41,10 +38,11 @@ private fun MainNavigationRail() {
     NavigationRail(modifier = Modifier.fillMaxHeight().width(64.dp)) {
         for (appContent in MainAppContent.values()) {
             Divider(Modifier.fillMaxWidth(0.8f).height(2.dp).align(Alignment.CenterHorizontally))
-            val selected = currentAppContent.value == appContent
+            val uiState = MainContentUIUtil.mainContentUIState.value
+            val selected = uiState.currentAppContent == appContent
             val isHovered = remember { mutableStateOf(false) }
             NavigationRailItem(selected,
-                { currentAppContent.value = appContent },
+                { MainContentUIUtil.mainContentUIState.value = uiState.copy(currentAppContent = appContent) },
                 modifier = Modifier.defaultHoverManager(isHovered).handPointerIcon().fillMaxWidth()
                     .padding(vertical = 3.dp),
                 icon = {
