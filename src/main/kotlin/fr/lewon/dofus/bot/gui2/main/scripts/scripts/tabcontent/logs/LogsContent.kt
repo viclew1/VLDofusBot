@@ -30,30 +30,31 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 @Composable
 fun LogsContent(loggerType: LoggerUIType, character: DofusCharacter) {
     val logger = loggerType.loggerGetter(character)
-    val logItems = LogsUIState.getLogs(character, loggerType).value
+    val loggerUIState = LogsUIUtil.getLoggerUIState(character, loggerType)
+    val logItems = loggerUIState.value.logs
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.height(30.dp)) {
-            val autoScrollEnabled = LogsUIState.getAutoScrollEnabled(character, loggerType)
+            val autoScrollEnabled = loggerUIState.value.autoScroll
             AnimatedButton(
-                { autoScrollEnabled.value = !autoScrollEnabled.value },
+                { loggerUIState.value = loggerUIState.value.copy(autoScroll = !autoScrollEnabled) },
                 "Auto scroll",
                 UiResource.AUTO_SCROLL.imagePainter,
                 Modifier.width(100.dp),
                 CustomShapes.buildTrapezoidShape(bottomRightDeltaRatio = 0.15f),
-                if (autoScrollEnabled.value) AppColors.primaryLightColor else Color.Gray,
-                if (autoScrollEnabled.value) Color.Black else Color.White
+                if (autoScrollEnabled) AppColors.primaryLightColor else Color.Gray,
+                if (autoScrollEnabled) Color.Black else Color.White
             )
             Spacer(Modifier.weight(1f))
             if (loggerType.canBePaused) {
-                val pauseEnabled = LogsUIState.getPauseEnabled(character, loggerType)
+                val pauseEnabled = loggerUIState.value.pauseLogs
                 AnimatedButton(
-                    { pauseEnabled.value = !pauseEnabled.value },
+                    { loggerUIState.value = loggerUIState.value.copy(pauseLogs = !pauseEnabled) },
                     "Pause",
                     UiResource.PAUSE.imagePainter,
                     Modifier.width(100.dp),
                     CustomShapes.buildTrapezoidShape(bottomRightDeltaRatio = 0.15f, bottomLeftDeltaRatio = 0.15f),
-                    if (pauseEnabled.value) AppColors.primaryLightColor else Color.Gray,
-                    if (pauseEnabled.value) Color.Black else Color.White
+                    if (pauseEnabled) AppColors.primaryLightColor else Color.Gray,
+                    if (pauseEnabled) Color.Black else Color.White
                 )
                 Spacer(Modifier.weight(1f))
             }
@@ -67,28 +68,30 @@ fun LogsContent(loggerType: LoggerUIType, character: DofusCharacter) {
             )
         }
         Box(Modifier.fillMaxWidth().padding(5.dp)) {
-            val logsScrollState = LogsUIState.getScrollState(character, loggerType).value
+            val logsScrollState = loggerUIState.value.scrollState
             Column(Modifier.verticalScroll(logsScrollState).padding(end = 14.dp)) {
-                val expandedLogItems = LogsUIState.getExpandedLogItems(character, loggerType)
+                val expandedLogItems = loggerUIState.value.expandedLogItems
                 for (logItem in logItems) {
                     if (logItem.description.isEmpty()) {
                         SelectionContainer {
                             CommonText(logItem.toString())
                         }
                     } else {
-                        val expanded = expandedLogItems.value.contains(logItem)
+                        val expanded = expandedLogItems.contains(logItem)
                         val descriptionScrollState = remember(logItem) { ScrollState(0) }
                         Column {
                             Row {
                                 Button(
                                     {
-                                        val newList = expandedLogItems.value.toMutableList()
+                                        val newExpandedLogItems = expandedLogItems.toMutableList()
                                         if (expanded) {
-                                            newList.remove(logItem)
+                                            newExpandedLogItems.remove(logItem)
                                         } else {
-                                            newList.add(logItem)
+                                            newExpandedLogItems.add(logItem)
                                         }
-                                        expandedLogItems.value = newList
+                                        loggerUIState.value = loggerUIState.value.copy(
+                                            expandedLogItems = newExpandedLogItems
+                                        )
                                     },
                                     modifier = Modifier.size(12.dp).align(Alignment.CenterVertically),
                                     contentPadding = PaddingValues(0.dp),

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,13 +18,13 @@ import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
 fun ScriptSelectorContent() {
-    val script = ScriptTabsUIUtil.getCurrentScriptBuilder()
+    val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder()
     Column {
         Row(Modifier.height(40.dp)) {
             CommonText(
@@ -36,9 +35,9 @@ fun ScriptSelectorContent() {
             Row(Modifier.padding(end = 30.dp, top = 5.dp, bottom = 5.dp).weight(1f)) {
                 ComboBox(
                     Modifier.fillMaxWidth().height(30.dp),
-                    script,
-                    mutableStateOf(ScriptTabsUIUtil.scripts),
-                    { script.value = it },
+                    scriptBuilder,
+                    ScriptTabsUIUtil.scripts,
+                    { ScriptTabsUIUtil.updateCurrentScriptBuilder(it) },
                     { (if (it.isDev) "DEV - " else "") + it.name })
             }
             Row(Modifier.align(Alignment.CenterVertically).width(40.dp).fillMaxHeight().padding(10.dp)) {
@@ -51,7 +50,7 @@ fun ScriptSelectorContent() {
         ) {
             val state = rememberScrollState()
             CommonText(
-                script.value.getDescription(),
+                scriptBuilder.getDescription(),
                 Modifier.verticalScroll(state).padding(10.dp),
             )
             VerticalScrollbar(
@@ -89,8 +88,8 @@ private fun PlayScriptButton() {
                 if (isStarted) {
                     selectedCharacters.forEach { ScriptRunner.stopScript(it) }
                 } else {
-                    val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder().value
-                    val scriptValues = ScriptParametersUIState.getScriptValuesStore().getValues(scriptBuilder)
+                    val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder()
+                    val scriptValues = ScriptParametersUIUtil.getScriptValuesStore().getValues(scriptBuilder)
                     selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, scriptValues) }
                 }
             })

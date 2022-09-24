@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -13,8 +14,9 @@ import fr.lewon.dofus.bot.gui2.main.settings.ConfigLine
 import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-private var shouldInitNetworkInterfaces = true
 private val networkInterfaces = mutableStateOf(emptyList<String>())
 
 @Composable
@@ -27,11 +29,10 @@ fun NetworkInterfaceParametersContent() {
             }
         }
     }
-    if (shouldInitNetworkInterfaces) {
-        shouldInitNetworkInterfaces = false
-        Thread {
+    LaunchedEffect(true) {
+        GlobalScope.launch {
             networkInterfaces.value = DofusMessageReceiverUtil.getNetworkInterfaceNames()
-        }.start()
+        }
     }
 }
 
@@ -40,11 +41,10 @@ private fun NetworkInterfaceDropDownMenu() {
     val globalConfig = SettingsUIUtil.SETTINGS_UI_STATE.value.globalConfig
     val currentNetworkInterface = globalConfig.networkInterfaceName
         ?: error("Network interface not initialized")
-    val selectedItem = mutableStateOf(currentNetworkInterface)
     ComboBox(
         Modifier.width(300.dp).height(30.dp),
-        selectedItem,
-        networkInterfaces,
+        currentNetworkInterface,
+        networkInterfaces.value,
         { item ->
             SettingsUIUtil.updateGlobalConfig { it.networkInterfaceName = item }
             GameSnifferUtil.updateNetworkInterface()

@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.scripts.parameters
 
 import fr.lewon.dofus.bot.model.characters.VldbScriptValues
 
-open class DofusBotParameter(
+data class DofusBotParameter(
     var key: String = "",
     var description: String = "",
     var defaultValue: String = "",
