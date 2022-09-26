@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.WorldMapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -91,7 +91,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         return "Reaches the destination using zaaps or transporters if needed."
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val useTeleports = scriptValues.getParamValue(useTeleportsParameter).toBoolean()
         val destMaps = getDestMaps(scriptValues)
         val travelOk = if (useTeleports) {
@@ -104,19 +104,19 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         }
     }
 
-    private fun getDestMaps(scriptValues: VldbScriptValues): List<DofusMap> {
+    private fun getDestMaps(scriptValues: ScriptValues): List<DofusMap> {
         return when (ReachMapType.fromLabel(scriptValues.getParamValue(reachMapTypeParameter))) {
             ReachMapType.BY_COORDINATES -> getDestMapsByCoordinates(scriptValues)
             ReachMapType.BY_MAP_ID -> getDestMapsByMapId(scriptValues)
         }
     }
 
-    private fun getDestMapsByMapId(scriptValues: VldbScriptValues): List<DofusMap> {
+    private fun getDestMapsByMapId(scriptValues: ScriptValues): List<DofusMap> {
         val mapId = scriptValues.getParamValue(mapIdParameter).toDouble()
         return listOf(MapManager.getDofusMap(mapId))
     }
 
-    private fun getDestMapsByCoordinates(scriptValues: VldbScriptValues): List<DofusMap> {
+    private fun getDestMapsByCoordinates(scriptValues: ScriptValues): List<DofusMap> {
         val x = scriptValues.getParamValue(xParameter).toIntOrNull() ?: error("Invalid X")
         val y = scriptValues.getParamValue(yParameter).toIntOrNull() ?: error("Invalid Y")
         val worldMapStr = scriptValues.getParamValue(worldMapParameter)

@@ -6,15 +6,15 @@ import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.VldbScriptValuesStore
+import fr.lewon.dofus.bot.model.characters.scriptvalues.CharacterScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.ScriptParamManager
 
 object ScriptParametersUIUtil {
 
     private val uiStateByParameterByScript = HashMap<DofusBotScriptBuilder, MutableState<ScriptBuilderUIState>>()
-    private val globalScriptValues = VldbScriptValuesStore()
+    private val globalScriptValues = CharacterScriptValues()
 
     fun getCurrentScriptParameters(): List<DofusBotParameter> {
         return ScriptTabsUIUtil.getCurrentScriptBuilder().getParameters()
@@ -41,7 +41,7 @@ object ScriptParametersUIUtil {
     fun updateParamValue(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter, value: String) {
         when (ScriptTabsUIUtil.getCurrentTab()) {
             ScriptTab.INDIVIDUAL ->
-                CharacterManager.updateParamValue(getSelectedCharacter(), scriptBuilder, parameter, value)
+                ScriptParamManager.updateParamValue(getSelectedCharacter(), scriptBuilder, parameter, value)
             ScriptTab.GLOBAL ->
                 globalScriptValues.getValues(scriptBuilder).updateParamValue(parameter, value)
         }
@@ -71,9 +71,9 @@ object ScriptParametersUIUtil {
         return getScriptValuesStore().getValues(scriptBuilder).getParamValue(parameter)
     }
 
-    fun getScriptValuesStore(): VldbScriptValuesStore {
+    fun getScriptValuesStore(): CharacterScriptValues {
         return when (ScriptTabsUIUtil.getCurrentTab()) {
-            ScriptTab.INDIVIDUAL -> getSelectedCharacter().scriptValuesStore
+            ScriptTab.INDIVIDUAL -> ScriptParamManager.getCharacterScriptValues(getSelectedCharacter())
             ScriptTab.GLOBAL -> globalScriptValues
         }
     }

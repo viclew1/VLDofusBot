@@ -11,7 +11,6 @@ import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 
 
@@ -32,15 +31,6 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     private val CONNECTIONS_BY_CHARACTER_NAME = HashMap<String, ArrayList<DofusConnection>>()
     private val CONNECTIONS_BY_GAME_INFO = HashMap<GameInfo, ArrayList<DofusConnection>>()
     private var MESSAGE_RECEIVER = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
-
-    init {
-        val autoUpdateTimerTask = object : TimerTask() {
-            override fun run() {
-                updateNetwork()
-            }
-        }
-        Timer().schedule(autoUpdateTimerTask, 0L, 5000L)
-    }
 
     fun updateNetworkInterface() {
         try {
@@ -151,7 +141,7 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     private fun listenToConnections(newConnections: List<DofusConnection>) {
         for (connection in newConnections) {
             val characterName = getCharacterNameFromFrame(connection.pid) ?: continue
-            val character = CharacterManager.getCharacterByName(characterName) ?: continue
+            val character = CharacterManager.getCharacter(characterName) ?: continue
             val gameInfo = CONNECTIONS_BY_GAME_INFO.keys.firstOrNull { it.character == character }
                 ?: GameInfo(character).also { it.connection = connection }
             listenToConnection(gameInfo, character, connection)

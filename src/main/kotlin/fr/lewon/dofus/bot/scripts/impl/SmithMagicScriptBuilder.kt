@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.item.EffectManager
 import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui2.util.SoundType
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -65,7 +65,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         return "Executes a smithing strategy on an item you have to chose manually once the smithing interface is opened"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val strategyParamValue = scriptValues.getParamValue(strategyParameter)
         val strategy = STRATEGIES[strategyParamValue] ?: error("No strategy selected")
         openNeededWorkshop(gameInfo, strategy.getSmithMagicType())

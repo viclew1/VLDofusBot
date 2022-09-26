@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.util.script
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
 import fr.lewon.dofus.bot.util.ListenableByCharacter
@@ -29,16 +29,12 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
         // Nothing
     }
 
-    override fun onCharacterUpdate(character: DofusCharacter) {
-        // Nothing
-    }
-
     override fun onCharacterDelete(character: DofusCharacter) {
         // Nothing
     }
 
     @Synchronized
-    fun runScript(character: DofusCharacter, scriptBuilder: DofusBotScriptBuilder, scriptValues: VldbScriptValues) {
+    fun runScript(character: DofusCharacter, scriptBuilder: DofusBotScriptBuilder, scriptValues: ScriptValues) {
         if (isScriptRunning(character)) {
             error("Cannot run script, there is already one running")
         }

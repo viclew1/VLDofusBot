@@ -16,8 +16,10 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.listeners.KeyboardListener
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.export.builder.VldbAbstractExportPackTaskBuilder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.reflections.Reflections
 
 object InitUIUtil {
@@ -36,23 +38,25 @@ object InitUIUtil {
 
     fun initAll() {
         GlobalScope.launch {
-            INIT_UI_STATE.value = INIT_UI_STATE.value.copy(
-                errorsOnInit = false,
-                errors = emptyList()
-            )
-            val toInitTasks = INIT_TASKS_UI_STATES.filter { !it.value.success }
-            toInitTasks.forEach { it.value = it.value.copy(executed = false) }
-            toInitTasks.forEach { startInit(it) }
-            val success = INIT_TASKS_UI_STATES.all { it.value.success }
-            INIT_UI_STATE.value = INIT_UI_STATE.value.copy(
-                initSuccess = success,
-                errorsOnInit = !success
-            )
-            if (success) {
-                CharactersUIUtil.initListeners()
-                Thread.sleep(1000)
-                KeyboardListener.start()
-                updatePage(AppPage.MAIN)
+            launch {
+                INIT_UI_STATE.value = INIT_UI_STATE.value.copy(
+                    errorsOnInit = false,
+                    errors = emptyList()
+                )
+                val toInitTasks = INIT_TASKS_UI_STATES.filter { !it.value.success }
+                toInitTasks.forEach { it.value = it.value.copy(executed = false) }
+                toInitTasks.forEach { startInit(it) }
+                val success = INIT_TASKS_UI_STATES.all { it.value.success }
+                INIT_UI_STATE.value = INIT_UI_STATE.value.copy(
+                    initSuccess = success,
+                    errorsOnInit = !success
+                )
+                if (success) {
+                    CharactersUIUtil.initListeners()
+                    withContext(Dispatchers.IO) { Thread.sleep(1000) }
+                    KeyboardListener.start()
+                    updatePage(AppPage.MAIN)
+                }
             }
         }
     }
@@ -118,7 +122,9 @@ object InitUIUtil {
     private fun initSniffer() {
         val networkInterfaceName = GlobalConfigManager.readConfig().networkInterfaceName
         if (DofusMessageReceiverUtil.findInetAddress(networkInterfaceName) == null) {
-            GlobalConfigManager.editConfig { it.networkInterfaceName = null }
+            val defaultNetworkInterface = DofusMessageReceiverUtil.getNetworkInterfaceNames().firstOrNull()
+                ?: error("No valid network interface found, check your internet connection")
+            GlobalConfigManager.editConfig { it.networkInterfaceName = defaultNetworkInterface }
         }
         GameSnifferUtil.updateNetworkInterface()
     }

@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacterist
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightFighterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightCharacterInformations
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
@@ -105,7 +106,8 @@ class FightBoard(private val gameInfo: GameInfo) {
                 getSpellLevels(spells, fighterInfo.creatureLevel)
             }
             fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> {
-                val spellIds = gameInfo.character.characterSpells.mapNotNull { it.spellId }
+                val characterSpells = CharacterSpellManager.getSpells(gameInfo.character)
+                val spellIds = characterSpells.mapNotNull { it.spellId }
                 val spells = spellIds.mapNotNull { SpellManager.getSpell(it) }
                 getSpellLevels(spells, fighterInfo.level)
             }
