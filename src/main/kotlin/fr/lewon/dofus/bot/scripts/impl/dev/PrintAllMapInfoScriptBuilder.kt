@@ -8,7 +8,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.entity.DofusNPC
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -30,7 +30,7 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
         return "Prints all map info, used for development"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val currentMap = gameInfo.currentMap
         val mapD2OInfo =
             D2OUtil.getObjects("MapPositions").filter { it["id"].toString() == currentMap.id.toString() }

@@ -20,6 +20,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.fight.*
 import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.RetryUtil
@@ -100,9 +101,9 @@ open class FightTask(
         val dofusBoard = gameInfo.dofusBoard
         initFight(gameInfo)
 
-        val spells = gameInfo.character.characterSpells
+        val characterSpells = CharacterSpellManager.getSpells(gameInfo.character)
         val characterSpellBySpellLevel = HashMap<DofusSpellLevel, CharacterSpell>()
-        for (characterSpell in spells) {
+        for (characterSpell in characterSpells) {
             val spell = characterSpell.spellId?.let { SpellManager.getSpell(it) }
             if (spell != null) {
                 for (level in spell.levels) {

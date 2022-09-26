@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -27,7 +27,7 @@ object ReadLabelScriptBuilder : DofusBotScriptBuilder("Read label", true) {
         return "Read the label by its ID."
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val nameId = scriptValues.getParamValue(nameIdParameter)
         if (nameId.isEmpty()) {
             error("Missing name ID parameter")

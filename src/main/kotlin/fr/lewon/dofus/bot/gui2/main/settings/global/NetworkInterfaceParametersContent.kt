@@ -31,7 +31,9 @@ fun NetworkInterfaceParametersContent() {
     }
     LaunchedEffect(true) {
         GlobalScope.launch {
-            networkInterfaces.value = DofusMessageReceiverUtil.getNetworkInterfaceNames()
+            launch {
+                networkInterfaces.value = DofusMessageReceiverUtil.getNetworkInterfaceNames()
+            }
         }
     }
 }
@@ -40,7 +42,6 @@ fun NetworkInterfaceParametersContent() {
 private fun NetworkInterfaceDropDownMenu() {
     val globalConfig = SettingsUIUtil.SETTINGS_UI_STATE.value.globalConfig
     val currentNetworkInterface = globalConfig.networkInterfaceName
-        ?: error("Network interface not initialized")
     ComboBox(
         Modifier.width(300.dp).height(30.dp),
         currentNetworkInterface,

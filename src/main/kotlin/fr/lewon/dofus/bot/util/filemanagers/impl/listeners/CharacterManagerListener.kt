@@ -10,6 +10,4 @@ interface CharacterManagerListener {
 
     fun onCharacterDelete(character: DofusCharacter)
 
-    fun onCharacterUpdate(character: DofusCharacter)
-
 }

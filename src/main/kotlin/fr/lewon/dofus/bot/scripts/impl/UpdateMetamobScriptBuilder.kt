@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobRequestProcessor
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -29,7 +29,7 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
         return "Updates your Metamob information using the archmonster stones in your haven bag chest"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         if (!AccessHavenBagChestTask().run(logItem, gameInfo)) {
             error("Couldn't access haven bag chest")
         }

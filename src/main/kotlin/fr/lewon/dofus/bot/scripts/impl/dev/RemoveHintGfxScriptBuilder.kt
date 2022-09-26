@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.d2o.managers.hunt.PointOfInterestManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -40,7 +40,7 @@ object RemoveHintGfxScriptBuilder : DofusBotScriptBuilder("Remove hint GFX ID", 
         return "Removes an hint label to GFX ID match in case you made a mistake or a match changed"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val currentHintValue = scriptValues.getParamValue(currentHintParameter).toBoolean()
         val hintLabel = if (currentHintValue) {
             val currentHint = gameInfo.treasureHunt?.huntSteps?.lastOrNull()

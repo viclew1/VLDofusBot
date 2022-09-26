@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.scripts.impl.dev
 import com.fasterxml.jackson.databind.ObjectMapper
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.characters.VldbScriptValues
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -32,7 +32,7 @@ object ReadD2OFileScriptBuilder : DofusBotScriptBuilder("Read D2O file", true) {
         return "Read the D2O file associated to the passed name."
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: VldbScriptValues) {
+    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val name = scriptValues.getParamValue(nameParameter)
         val idStr = scriptValues.getParamValue(idParameter)
         val d2oContent = D2OUtil.getObjects(name).filter { idStr.isBlank() || it["id"].toString() == idStr }
