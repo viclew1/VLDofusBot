@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.logs.LoggerUIType
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.logs.LogsUIUtil
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.scriptinfo.ScriptInfoUIUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
@@ -94,6 +95,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 characters = getOrderedCharacters(),
                 selectedCharacter = newSelectedCharacter,
             )
+            ScriptInfoUIUtil.removeScriptInfoUIState(character)
         }
     }
 
@@ -111,6 +113,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 activityState = CharacterActivityState.BUSY,
                 runningScript = script
             )
+            ScriptInfoUIUtil.updateState(character)
         }
     }
 
@@ -119,6 +122,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             val characterState = getCharacterUIState(character)
             characterState.value = characterState.value.copy(runningScript = null)
             computeState(character)
+            ScriptInfoUIUtil.updateState(character)
         }
     }
 

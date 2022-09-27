@@ -23,9 +23,6 @@ dependencies {
     implementation(project(":VLDofusBotSniffer"))
     implementation("net.java.dev.jna:jna:5.10.0")
     implementation("net.java.dev.jna:jna-platform:5.10.0")
-    implementation("com.miglayout:miglayout:3.7.4")
-    implementation("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    implementation("com.formdev:flatlaf:1.6.5")
     implementation("com.github.kwhat:jnativehook:2.2.2")
     implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.1.1")
 }
