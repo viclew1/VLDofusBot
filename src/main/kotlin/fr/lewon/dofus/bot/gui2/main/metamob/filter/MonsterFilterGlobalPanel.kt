@@ -1,9 +1,8 @@
 package fr.lewon.dofus.bot.gui2.main.metamob.filter
 
-import net.miginfocom.swing.MigLayout
 import javax.swing.JPanel
 
-object MonsterFilterGlobalPanel : JPanel(MigLayout("")) {
+object MonsterFilterGlobalPanel : JPanel() {
 
     init {
         add(MonsterFilterPanel, "w max, h max, wrap")

@@ -4,10 +4,9 @@ import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobRequestProcessor
 import fr.lewon.dofus.bot.gui2.util.AppFonts
 import fr.lewon.dofus.bot.gui2.util.ImageUtil
 import fr.lewon.dofus.bot.gui2.util.UiResource
-import net.miginfocom.swing.MigLayout
 import javax.swing.*
 
-object MonsterListContainerPanel : JPanel(MigLayout()) {
+object MonsterListContainerPanel : JPanel() {
 
     private val monstersLabel = JLabel("Monsters").also {
         it.font = AppFonts.TITLE_FONT

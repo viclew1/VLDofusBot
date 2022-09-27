@@ -5,12 +5,11 @@ import fr.lewon.dofus.bot.gui2.util.AppFonts
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.util.StringUtil
-import net.miginfocom.swing.MigLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 
-object MonsterFilterPanel : JPanel(MigLayout()) {
+object MonsterFilterPanel : JPanel() {
 
     private val monsterNameParameter = DofusBotParameter(key = "Monster", description = "Monster name")
     private val monsterNameFilter = MonsterFilter(monsterNameParameter) { value, monster ->

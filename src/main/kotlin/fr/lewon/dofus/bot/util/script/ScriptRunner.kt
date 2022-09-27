@@ -56,8 +56,8 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
             }
         }
         val runningScript = RunningScript(scriptBuilder, thread)
-        getListeners(character.pseudo).forEach { it.onScriptStart(character, runningScript) }
         RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = runningScript
+        getListeners(character.pseudo).forEach { it.onScriptStart(character, runningScript) }
         thread.start()
     }
 

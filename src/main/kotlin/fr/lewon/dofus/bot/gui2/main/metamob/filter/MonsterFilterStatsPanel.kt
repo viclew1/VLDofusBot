@@ -3,12 +3,11 @@ package fr.lewon.dofus.bot.gui2.main.metamob.filter
 import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonsterType
 import fr.lewon.dofus.bot.gui2.util.AppFonts
-import net.miginfocom.swing.MigLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 
-object MonsterFilterStatsPanel : JPanel(MigLayout()) {
+object MonsterFilterStatsPanel : JPanel() {
 
     private val totalDisplayedLabel = JLabel("Total displayed : ")
     private val totalDisplayedValue = JLabel("0")
@@ -23,7 +22,7 @@ object MonsterFilterStatsPanel : JPanel(MigLayout()) {
     private val statsScrollPane = JScrollPane()
 
     init {
-        val statsPanel = JPanel(MigLayout())
+        val statsPanel = JPanel()
         statsPanel.add(totalDisplayedLabel)
         statsPanel.add(totalDisplayedValue, "wrap")
         statsPanel.add(totalArchmonsterLabel)
