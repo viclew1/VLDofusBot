@@ -65,6 +65,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 simulateMpDecreasedDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
             DofusSpellEffectType.AIR_LIFE_STEAL, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.FIRE_LIFE_STEAL, DofusSpellEffectType.NEUTRAL_LIFE_STEAL, DofusSpellEffectType.WATER_LIFE_STEAL ->
                 simulateLifeSteal(caster, targetCell, fightersInAOE, effect, criticalHit)
+            else -> Unit
         }
     }
 

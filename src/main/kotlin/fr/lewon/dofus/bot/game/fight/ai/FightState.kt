@@ -271,7 +271,7 @@ class FightState(
                 + alliesHp
                 - enemiesHp
                 - danger
-                - distScore
+                + distScore
                 + mpScore
                 + apScore).toDouble()
     }

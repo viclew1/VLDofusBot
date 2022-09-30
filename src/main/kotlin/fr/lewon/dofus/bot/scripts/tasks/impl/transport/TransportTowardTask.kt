@@ -12,7 +12,9 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 class TransportTowardTask(private val transporter: ITransporter) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        ReachMapTask(listOf(transporter.getTransporterMap())).run(logItem, gameInfo)
+        if (!ReachMapTask(listOf(transporter.getTransporterMap())).run(logItem, gameInfo)) {
+            error("Couldn't reach transporter")
+        }
         WaitUtil.sleep(2000)
         NpcSpeakTask(transporter.getNpcId(), listOf(transporter.getOptionIndex())).run(logItem, gameInfo)
         MoveUtil.waitForMapChange(gameInfo)
