@@ -37,6 +37,7 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes["Main-Class"] = "fr.lewon.dofus.bot.VLDofusBotKt"
     }
