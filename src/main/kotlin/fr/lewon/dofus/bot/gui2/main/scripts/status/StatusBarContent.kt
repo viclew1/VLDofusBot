@@ -26,7 +26,7 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 @Composable
 fun StatusBarContent() {
     val showHistory = remember { mutableStateOf(false) }
-    val statusBarUIState = StatusBarUIUtil.UI_STATE.value
+    val statusBarUIState = StatusBarUIUtil.statusBarUIState.value
     Row(
         Modifier.border(BorderStroke(1.dp, AppColors.DARK_BG_COLOR)).fillMaxWidth()
             .background(AppColors.backgroundColor)
