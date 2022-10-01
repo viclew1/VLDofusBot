@@ -8,11 +8,11 @@ import java.time.LocalDateTime
 object StatusBarUIUtil {
 
     private const val MAX_HISTORY_SIZE = 10
-    val UI_STATE = mutableStateOf(StatusBarUIState())
+    val statusBarUIState = mutableStateOf(StatusBarUIState())
 
     @Synchronized
     fun changeText(character: DofusCharacter, text: String) {
-        val statusBarUIState = UI_STATE.value
+        val statusBarUIState = statusBarUIState.value
         val newOldMessages = ArrayList(statusBarUIState.oldMessages)
         if (statusBarUIState.currentStatus.isNotEmpty()) {
             if (statusBarUIState.oldMessages.size >= MAX_HISTORY_SIZE) {
@@ -26,7 +26,7 @@ object StatusBarUIUtil {
         val seconds = StringUtils.leftPad(ldt.second.toString(), 2, "0")
         val timeStamp = "$hours:$minutes:$seconds"
         val newStatus = "$timeStamp : ${character.pseudo} - $text"
-        UI_STATE.value = statusBarUIState.copy(oldMessages = newOldMessages, currentStatus = newStatus)
+        this.statusBarUIState.value = statusBarUIState.copy(oldMessages = newOldMessages, currentStatus = newStatus)
     }
 
 }

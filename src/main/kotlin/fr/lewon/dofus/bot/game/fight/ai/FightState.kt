@@ -46,7 +46,6 @@ class FightState(
         val currentFighter = getCurrentFighter() ?: return ArrayList()
         val currentFighterPosition = currentFighter.cell
 
-        val cooldownState = cooldownState
         val currentFighterAp = DofusCharacteristics.ACTION_POINTS.getValue(currentFighter)
         val currentFighterMp = DofusCharacteristics.MOVEMENT_POINTS.getValue(currentFighter)
 

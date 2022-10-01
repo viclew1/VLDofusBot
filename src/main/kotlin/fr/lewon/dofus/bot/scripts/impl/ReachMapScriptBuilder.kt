@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.HintManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.WorldMapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
@@ -21,8 +22,13 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
     private val WORLD_MAPS_LABELS = WORLD_MAPS_BY_LABEL.keys.sorted()
     private val DEFAULT_WORLD_MAP_LABEL = WorldMapManager.getWorldMap(1)?.name
         ?: error("Default world map not found")
-
+    private val MAP_ID_BY_DUNGEON = HintManager.getHints(HintManager.HintType.DUNGEON).associate {
+        "${it.name} (${it.map.subArea.level})" to it.map
+    }
     private val REACH_MAP_TYPE_LABELS = ReachMapType.values().map { it.label }
+    private val DUNGEON_LABELS = MAP_ID_BY_DUNGEON.entries.sortedWith(
+        compareBy({ it.value.subArea.level }, { it.key })
+    ).map { it.key }
 
     private val reachMapTypeParameter = DofusBotParameter(
         "Type",
@@ -65,6 +71,15 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
     )
 
+    private val dungeonParameter = DofusBotParameter(
+        "Dungeon",
+        "Dungeon entrance destination",
+        DUNGEON_LABELS.first(),
+        DofusBotParameterType.CHOICE,
+        DUNGEON_LABELS,
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_DUNGEON.label }
+    )
+
     private val useTeleportsParameter = DofusBotParameter(
         "Use teleports",
         "Check if you want to allow teleports for the travel",
@@ -79,6 +94,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
             xParameter,
             yParameter,
             worldMapParameter,
+            dungeonParameter,
             useTeleportsParameter
         )
     }
@@ -108,7 +124,14 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         return when (ReachMapType.fromLabel(scriptValues.getParamValue(reachMapTypeParameter))) {
             ReachMapType.BY_COORDINATES -> getDestMapsByCoordinates(scriptValues)
             ReachMapType.BY_MAP_ID -> getDestMapsByMapId(scriptValues)
+            ReachMapType.BY_DUNGEON -> getDungeonMaps(scriptValues)
         }
+    }
+
+    private fun getDungeonMaps(scriptValues: ScriptValues): List<DofusMap> {
+        val dungeon = scriptValues.getParamValue(dungeonParameter)
+        val mapId = MAP_ID_BY_DUNGEON[dungeon] ?: error("Couldn't find dungeon map id : $dungeon")
+        return listOf(mapId)
     }
 
     private fun getDestMapsByMapId(scriptValues: ScriptValues): List<DofusMap> {
@@ -134,7 +157,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
 
     private enum class ReachMapType(val label: String) {
         BY_COORDINATES("By Coordinates"),
-        BY_MAP_ID("By Map ID");
+        BY_MAP_ID("By Map ID"),
+        BY_DUNGEON("By Dungeon");
 
         companion object {
             fun fromLabel(label: String): ReachMapType {

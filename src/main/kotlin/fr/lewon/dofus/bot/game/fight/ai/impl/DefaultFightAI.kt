@@ -29,7 +29,7 @@ open class DefaultFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : 
     }
 
     override fun doGetNextOperation(fightBoard: FightBoard, initialState: FightState): FightOperation {
-        val initialNode = Node(initialState, ArrayList(), initialState.evaluate())
+        val initialNode = Node(initialState.deepCopy(), ArrayList(), initialState.evaluate())
 
         var bestNode = initialNode
         val frontier = mutableListOf(initialNode)
@@ -44,9 +44,7 @@ open class DefaultFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : 
             for (node in nodesToExplore) {
                 frontier.remove(node)
                 if (System.currentTimeMillis() - startTime > 1500) {
-                    return selectOperation(bestNode).also {
-                        initialState.makeMove(it)
-                    }
+                    return selectOperation(bestNode)
                 }
                 for (move in node.state.getPossibleOperations()) {
                     val childState = node.state.deepCopy()
@@ -61,9 +59,7 @@ open class DefaultFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : 
                     if (bestNode.score < childNodeScore) {
                         bestNode = childNode
                         if (bestNode.score == Int.MAX_VALUE.toDouble()) {
-                            return selectOperation(bestNode).also {
-                                initialState.makeMove(it)
-                            }
+                            return selectOperation(bestNode)
                         }
                     }
                 }

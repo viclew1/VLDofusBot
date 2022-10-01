@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +26,9 @@ fun ScriptTabContent() {
             exit = shrinkVertically(shrinkTowards = Alignment.Top)
         ) {
             ScriptParametersContent()
+        }
+        if (parameters.isEmpty()) {
+            Spacer(Modifier.weight(1f))
         }
         AnimatedVisibility(
             ScriptTabsUIUtil.isScriptStarted(),
