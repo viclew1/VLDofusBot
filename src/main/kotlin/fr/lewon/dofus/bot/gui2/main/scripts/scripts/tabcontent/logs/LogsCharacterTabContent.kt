@@ -53,25 +53,27 @@ private fun LogsTabsRow() {
             .takeIf { it >= 0 } ?: 0.also { LogsUIUtil.logsSelectedCharacter.value = "" }
     } else 0
     Column {
-        TabRow(
-            selectedIndex, Modifier.height(30.dp),
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier.tabIndicatorOffset(tabPositions.getOrNull(selectedIndex) ?: tabPositions.first())
-                )
-            },
-            backgroundColor = MaterialTheme.colors.background,
-            contentColor = AppColors.primaryLightColor,
-        ) {
-            for (character in selectedCharacters) {
-                Tab(
-                    text = { Text(character.pseudo) },
-                    modifier = Modifier.handPointerIcon(),
-                    selected = character.pseudo == LogsUIUtil.logsSelectedCharacter.value,
-                    unselectedContentColor = Color.LightGray,
-                    onClick = { LogsUIUtil.logsSelectedCharacter.value = character.pseudo },
-                    enabled = selectedCharacters.size > 1
-                )
+        if (ScriptTabsUIUtil.getCurrentTab() == ScriptTab.GLOBAL) {
+            TabRow(
+                selectedIndex, Modifier.height(30.dp),
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        Modifier.tabIndicatorOffset(tabPositions.getOrNull(selectedIndex) ?: tabPositions.first())
+                    )
+                },
+                backgroundColor = MaterialTheme.colors.background,
+                contentColor = AppColors.primaryLightColor,
+            ) {
+                for (character in selectedCharacters) {
+                    Tab(
+                        text = { Text(character.pseudo) },
+                        modifier = Modifier.handPointerIcon(),
+                        selected = character.pseudo == LogsUIUtil.logsSelectedCharacter.value,
+                        unselectedContentColor = Color.LightGray,
+                        onClick = { LogsUIUtil.logsSelectedCharacter.value = character.pseudo },
+                        enabled = selectedCharacters.size > 1
+                    )
+                }
             }
         }
         val character = selectedCharacters[selectedIndex]
