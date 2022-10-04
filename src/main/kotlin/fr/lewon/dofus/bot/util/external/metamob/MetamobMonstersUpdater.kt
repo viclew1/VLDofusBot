@@ -1,16 +1,16 @@
-package fr.lewon.dofus.bot.gui2.main.metamob.util
+package fr.lewon.dofus.bot.util.external.metamob
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonsterType
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonsterUpdate
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonsterUpdateState
 import fr.lewon.dofus.bot.gui2.main.metamob.monsters.MonsterListContainerPanel
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.ObjectItem
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.effect.ObjectEffectDice
 import fr.lewon.dofus.bot.sniffer.model.types.fight.result.entry.FightResultPlayerListEntry
 import fr.lewon.dofus.bot.util.StringUtil
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdate
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdateState
 
 object MetamobMonstersUpdater {
 

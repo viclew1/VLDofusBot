@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui2.main.metamob.model
+package fr.lewon.dofus.bot.util.external.metamob.model
 
 import com.fasterxml.jackson.annotation.JsonValue
 

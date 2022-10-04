@@ -2,14 +2,14 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
-import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobMonstersUpdater
-import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobRequestProcessor
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.AccessHavenBagChestTask
 import fr.lewon.dofus.bot.sniffer.model.messages.storage.StorageInventoryContentMessage
+import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
+import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo

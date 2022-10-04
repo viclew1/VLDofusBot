@@ -8,6 +8,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.*
@@ -76,11 +78,15 @@ private fun ParameterLine(scriptBuilder: DofusBotScriptBuilder, parameter: Dofus
 private fun ParameterInput(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter) {
     val parameterValue = ScriptParametersUIUtil.getScriptParameterUIState(scriptBuilder, parameter).parameterValue
     val possibleValues = parameter.possibleValues
+    val onKeyEvent: (KeyEvent) -> Boolean = {
+        true
+    }
     when (parameter.type) {
         DofusBotParameterType.BOOLEAN ->
             Switch(
                 parameterValue.toBoolean(),
-                { ScriptParametersUIUtil.updateParamValue(scriptBuilder, parameter, it.toString()) }
+                { ScriptParametersUIUtil.updateParamValue(scriptBuilder, parameter, it.toString()) },
+                Modifier.onKeyEvent(onKeyEvent)
             )
         DofusBotParameterType.CHOICE ->
             ComboBox(

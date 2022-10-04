@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.util.http
+package fr.lewon.dofus.bot.util.external
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -9,9 +9,9 @@ import java.net.URL
 
 abstract class AbstractRequestProcessor(private val baseUri: String) {
 
-    protected val objectMapper: ObjectMapper =
-        ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+    protected val objectMapper: ObjectMapper = ObjectMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
 
     @Synchronized
     open fun checkParameters(): Boolean {
@@ -39,12 +39,15 @@ abstract class AbstractRequestProcessor(private val baseUri: String) {
     }
 
     protected inline fun <reified T> getForObject(uri: String): T? {
-        if (!checkParameters()) {
-            return null
+        return get(uri)?.let { objectMapper.readValue(it) }
+    }
+
+    protected fun get(uri: String): ByteArray? {
+        return takeIf { checkParameters() }?.buildConnection(uri)?.run {
+            requestMethod = "GET"
+            responseCode
+            inputStream.readAllBytes()
         }
-        val co = buildConnection(uri)
-        co.requestMethod = "GET"
-        return readResponse(co)
     }
 
     protected fun buildConnection(uri: String): HttpURLConnection {

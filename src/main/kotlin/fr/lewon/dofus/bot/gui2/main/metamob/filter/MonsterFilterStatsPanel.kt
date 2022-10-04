@@ -1,8 +1,8 @@
 package fr.lewon.dofus.bot.gui2.main.metamob.filter
 
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonsterType
 import fr.lewon.dofus.bot.gui2.util.AppFonts
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JScrollPane

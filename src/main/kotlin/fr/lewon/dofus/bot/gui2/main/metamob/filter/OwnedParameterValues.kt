@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.gui2.main.metamob.filter
 
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 
 enum class OwnedParameterValues(val label: String, val monsterMatchesFun: (MetamobMonster) -> Boolean) {
     ANY("Any", { true }),

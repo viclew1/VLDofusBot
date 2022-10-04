@@ -1,11 +1,10 @@
-package fr.lewon.dofus.bot.gui2.main.metamob.monsters
+package fr.lewon.dofus.bot.util.external.metamob
 
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
-import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobRequestProcessor
 import fr.lewon.dofus.bot.gui2.util.ImageUtil
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import java.awt.image.BufferedImage
 
-object MonsterImageCache {
+object MetamobMonsterImageCache {
 
     private val imageByUrl = HashMap<String, BufferedImage?>()
 
