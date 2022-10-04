@@ -1,9 +1,9 @@
 package fr.lewon.dofus.bot.gui2.main.metamob.monsters
 
-import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobRequestProcessor
 import fr.lewon.dofus.bot.gui2.util.AppFonts
 import fr.lewon.dofus.bot.gui2.util.ImageUtil
 import fr.lewon.dofus.bot.gui2.util.UiResource
+import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 import javax.swing.*
 
 object MonsterListContainerPanel : JPanel() {

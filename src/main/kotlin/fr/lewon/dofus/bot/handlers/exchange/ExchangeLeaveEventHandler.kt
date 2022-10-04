@@ -1,9 +1,9 @@
 package fr.lewon.dofus.bot.handlers.exchange
 
-import fr.lewon.dofus.bot.gui2.main.metamob.util.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.exchange.ExchangeLeaveMessage
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
+import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo

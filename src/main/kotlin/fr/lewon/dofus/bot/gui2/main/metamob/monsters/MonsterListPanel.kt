@@ -2,8 +2,9 @@ package fr.lewon.dofus.bot.gui2.main.metamob.monsters
 
 import fr.lewon.dofus.bot.gui2.main.metamob.filter.MonsterFilterPanel
 import fr.lewon.dofus.bot.gui2.main.metamob.filter.MonsterFilterStatsPanel
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.gui2.util.AppFonts
+import fr.lewon.dofus.bot.util.external.metamob.MetamobMonsterImageCache
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
@@ -112,7 +113,7 @@ object MonsterListPanel : JPanel() {
     private fun getImage(monster: MetamobMonster): BufferedImage? {
         if (!monsterImagesLoaded.contains(monster.imageUrl)) {
             Thread {
-                imageByUrl[monster.imageUrl] = MonsterImageCache.getImage(monster, IMAGE_HEIGHT)
+                imageByUrl[monster.imageUrl] = MetamobMonsterImageCache.getImage(monster, IMAGE_HEIGHT)
                 updateUI()
             }.start()
             monsterImagesLoaded.add(monster.imageUrl)

@@ -1,9 +1,9 @@
-package fr.lewon.dofus.bot.gui2.main.metamob.util
+package fr.lewon.dofus.bot.util.external.metamob
 
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonster
-import fr.lewon.dofus.bot.gui2.main.metamob.model.MetamobMonsterUpdate
+import fr.lewon.dofus.bot.util.external.AbstractRequestProcessor
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
+import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdate
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
-import fr.lewon.dofus.bot.util.http.AbstractRequestProcessor
 import java.awt.image.BufferedImage
 import java.net.HttpURLConnection
 import java.net.URL
