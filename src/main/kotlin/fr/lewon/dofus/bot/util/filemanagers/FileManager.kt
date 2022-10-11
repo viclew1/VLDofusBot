@@ -3,29 +3,43 @@ package fr.lewon.dofus.bot.util.filemanagers
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
+import fr.lewon.dofus.bot.core.utils.LockUtils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.locks.ReentrantLock
 
-abstract class FileManager<T>(private val fileName: String, defaultStore: T) : ToInitManager {
+class FileManager<T : Any>(fileName: String, defaultStore: T) {
 
-    protected var store = defaultStore
-    private lateinit var storeFile: File
+    private val store: T
+    private val storeFile: File = File("${VldbFilesUtil.getVldbConfigDirectory()}/$fileName")
+    private val lock = ReentrantLock()
 
-    override fun initManager() {
-        storeFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/$fileName")
+    init {
         val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         if (storeFile.exists()) {
-            store = mapper.readValue(storeFile, getStoreClass())
+            store = mapper.readValue(storeFile, defaultStore::class.java)
         } else {
+            store = defaultStore
             saveStore()
         }
     }
 
-    protected abstract fun getStoreClass(): Class<T>
+    fun updateStore(update: (T) -> Unit) {
+        LockUtils.executeSyncOperation(lock) {
+            update(store)
+            saveStore()
+        }
+    }
 
-    protected fun saveStore() {
+    fun <R> getElement(get: (T) -> R): R {
+        return LockUtils.executeSyncOperation(lock) {
+            get(store)
+        }
+    }
+
+    private fun saveStore() {
         with(OutputStreamWriter(FileOutputStream(storeFile, false), StandardCharsets.UTF_8)) {
             write(ObjectMapper().writeValueAsString(store))
             close()

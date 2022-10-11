@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.WorldMapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.model.maps.DofusWorldMap
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
@@ -62,13 +63,24 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
     )
 
+    private val useCurrentWorldMapParameter = DofusBotParameter(
+        "Use current world map",
+        "Reach destination coordinates in current world map",
+        "false",
+        DofusBotParameterType.BOOLEAN,
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
+    )
+
     private val worldMapParameter = DofusBotParameter(
         "World map",
         "Destination world map",
         DEFAULT_WORLD_MAP_LABEL,
         DofusBotParameterType.CHOICE,
         WORLD_MAPS_LABELS,
-        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
+        displayCondition = {
+            it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label
+                    && it.getParamValue(useCurrentWorldMapParameter) == false.toString()
+        }
     )
 
     private val dungeonParameter = DofusBotParameter(
@@ -93,6 +105,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
             mapIdParameter,
             xParameter,
             yParameter,
+            useCurrentWorldMapParameter,
             worldMapParameter,
             dungeonParameter,
             useTeleportsParameter
@@ -109,7 +122,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val useTeleports = scriptValues.getParamValue(useTeleportsParameter).toBoolean()
-        val destMaps = getDestMaps(scriptValues)
+        val destMaps = getDestMaps(gameInfo, scriptValues)
         val travelOk = if (useTeleports) {
             ReachMapTask(destMaps).run(logItem, gameInfo)
         } else {
@@ -120,9 +133,9 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         }
     }
 
-    private fun getDestMaps(scriptValues: ScriptValues): List<DofusMap> {
+    private fun getDestMaps(gameInfo: GameInfo, scriptValues: ScriptValues): List<DofusMap> {
         return when (ReachMapType.fromLabel(scriptValues.getParamValue(reachMapTypeParameter))) {
-            ReachMapType.BY_COORDINATES -> getDestMapsByCoordinates(scriptValues)
+            ReachMapType.BY_COORDINATES -> getDestMapsByCoordinates(gameInfo, scriptValues)
             ReachMapType.BY_MAP_ID -> getDestMapsByMapId(scriptValues)
             ReachMapType.BY_DUNGEON -> getDungeonMaps(scriptValues)
         }
@@ -139,20 +152,27 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         return listOf(MapManager.getDofusMap(mapId))
     }
 
-    private fun getDestMapsByCoordinates(scriptValues: ScriptValues): List<DofusMap> {
+    private fun getDestMapsByCoordinates(gameInfo: GameInfo, scriptValues: ScriptValues): List<DofusMap> {
         val x = scriptValues.getParamValue(xParameter).toIntOrNull() ?: error("Invalid X")
         val y = scriptValues.getParamValue(yParameter).toIntOrNull() ?: error("Invalid Y")
-        val worldMapStr = scriptValues.getParamValue(worldMapParameter)
-        val worldMap = WORLD_MAPS_BY_LABEL[worldMapStr]
-            ?: error("World map not found : $worldMapStr")
+        val worldMap = getDestinationWorldMap(gameInfo.currentMap, scriptValues)
         val maps = MapManager.getDofusMaps(x, y)
         val mapsOnWorldMap = maps.filter { it.worldMap == worldMap }
         if (mapsOnWorldMap.isEmpty()) {
-            error("Can't find a map with coordinates ($x, $y) in world map $worldMapStr")
+            error("Can't find a map with coordinates ($x, $y) in world map [${worldMap.name}]")
         }
         return mapsOnWorldMap.filter { it.hasPriorityOnWorldMap }
             .takeIf { it.isNotEmpty() }
             ?: mapsOnWorldMap
+    }
+
+    private fun getDestinationWorldMap(currentMap: DofusMap, scriptValues: ScriptValues): DofusWorldMap {
+        if (scriptValues.getParamValue(useCurrentWorldMapParameter).toBoolean()) {
+            return currentMap.worldMap ?: error("No current world map")
+        }
+        val worldMapStr = scriptValues.getParamValue(worldMapParameter)
+        return WORLD_MAPS_BY_LABEL[worldMapStr]
+            ?: error("World map not found : $worldMapStr")
     }
 
     private enum class ReachMapType(val label: String) {

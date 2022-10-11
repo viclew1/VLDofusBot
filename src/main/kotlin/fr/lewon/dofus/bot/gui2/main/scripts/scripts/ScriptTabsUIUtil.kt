@@ -12,21 +12,19 @@ object ScriptTabsUIUtil {
 
     fun getCurrentScriptBuilder(): DofusBotScriptBuilder {
         return when (uiState.value.currentTab) {
-            ScriptTab.INDIVIDUAL -> {
-                val selectedCharacter = CharactersUIUtil.getSelectedCharacter()
+            ScriptTab.INDIVIDUAL ->
+                CharactersUIUtil.getSelectedCharacterUIState()?.value?.scriptBuilder
                     ?: error("A character should be selected")
-                CharactersUIUtil.getCharacterUIState(selectedCharacter).value.scriptBuilder
-            }
-            ScriptTab.GLOBAL -> uiState.value.globalScriptBuilder
+            ScriptTab.GLOBAL ->
+                uiState.value.globalScriptBuilder
         }
     }
 
     fun updateCurrentScriptBuilder(scriptBuilder: DofusBotScriptBuilder) {
         when (uiState.value.currentTab) {
             ScriptTab.INDIVIDUAL -> {
-                val selectedCharacter = CharactersUIUtil.getSelectedCharacter()
+                val characterUIState = CharactersUIUtil.getSelectedCharacterUIState()
                     ?: error("A character should be selected")
-                val characterUIState = CharactersUIUtil.getCharacterUIState(selectedCharacter)
                 characterUIState.value = characterUIState.value.copy(scriptBuilder = scriptBuilder)
             }
             ScriptTab.GLOBAL -> uiState.value = uiState.value.copy(globalScriptBuilder = scriptBuilder)
@@ -34,8 +32,8 @@ object ScriptTabsUIUtil {
     }
 
     fun isScriptStarted(): Boolean {
-        return CharactersUIUtil.getSelectedCharacters()
-            .any { CharactersUIUtil.getCharacterUIState(it).value.runningScript != null }
+        return CharactersUIUtil.getSelectedCharactersUIStates()
+            .any { it.value.runningScript != null }
     }
 
     fun getCurrentTab(): ScriptTab {

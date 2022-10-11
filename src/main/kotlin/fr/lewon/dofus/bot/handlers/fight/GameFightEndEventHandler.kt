@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.handlers.fight
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightEndMessage
 import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
@@ -18,6 +19,11 @@ object GameFightEndEventHandler : IEventHandler<GameFightEndMessage> {
         if (MetamobConfigManager.readConfig().captureAutoUpdate) {
             updateMetamob(gameInfo, socketResult)
         }
+        socketResult.results.filterIsInstance<FightResultPlayerListEntry>()
+            .firstOrNull { it.id == gameInfo.playerId }
+            ?.let {
+                CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, it.level)
+            }
     }
 
     private fun updateMetamob(gameInfo: GameInfo, socketResult: GameFightEndMessage) {
@@ -31,8 +37,11 @@ object GameFightEndEventHandler : IEventHandler<GameFightEndMessage> {
             .filter { it.fighterInfo is GameFightMonsterInformations }
             .map { MonsterManager.getMonster((it.fighterInfo as GameFightMonsterInformations).creatureGenericId.toDouble()) }
         gameInfo.fightBoard.deadFighters.clear()
-        Thread {
-            MetamobMonstersUpdater.addMonsters(playerResult as FightResultPlayerListEntry, monsters)
-        }.start()
+        if (MetamobMonstersUpdater.isMetamobConfigured()) {
+            Thread {
+                MetamobMonstersUpdater.addMonsters(playerResult as FightResultPlayerListEntry, monsters)
+            }.start()
+        }
     }
+
 }

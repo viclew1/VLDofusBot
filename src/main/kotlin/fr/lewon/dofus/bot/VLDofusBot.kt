@@ -35,7 +35,7 @@ import kotlin.system.exitProcess
 class VLDofusBot
 
 private lateinit var composeWindow: ComposeWindow
-private lateinit var windowState: WindowState
+lateinit var windowState: WindowState
 private var currentPage = mutableStateOf(AppPage.INITIALIZER)
 fun main() = application {
     windowState = rememberWindowState(size = currentPage.value.defaultSize)

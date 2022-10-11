@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 
 data class DofusCharacter(
-    val pseudo: String = "",
-    val dofusClassId: Int = 1,
+    var name: String = "",
+    var dofusClassId: Int = 1,
 ) {
 
     @JsonIgnore

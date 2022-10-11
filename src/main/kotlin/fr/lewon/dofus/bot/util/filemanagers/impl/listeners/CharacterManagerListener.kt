@@ -6,8 +6,8 @@ interface CharacterManagerListener {
 
     fun onCharacterCreate(character: DofusCharacter)
 
-    fun onCharacterMove(character: DofusCharacter, toIndex: Int)
-
     fun onCharacterDelete(character: DofusCharacter)
+
+    fun onCharacterUpdate(character: DofusCharacter)
 
 }

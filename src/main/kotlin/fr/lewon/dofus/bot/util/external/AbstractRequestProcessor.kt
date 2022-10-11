@@ -52,7 +52,7 @@ abstract class AbstractRequestProcessor(private val baseUri: String) {
 
     protected fun buildConnection(uri: String): HttpURLConnection {
         val slash = if (!baseUri.endsWith("/") && !uri.startsWith("/")) "/" else ""
-        return (URL("${this.baseUri}$slash$uri").openConnection() as HttpURLConnection)
+        return (URL("$baseUri$slash$uri").openConnection() as HttpURLConnection)
             .also { setRequestProperties(it) }
     }
 
@@ -61,8 +61,7 @@ abstract class AbstractRequestProcessor(private val baseUri: String) {
     protected fun writeBody(bodyObj: Any, connection: HttpURLConnection) {
         val bodyJson = objectMapper.writeValueAsString(bodyObj)
         connection.doOutput = true
-        val os = connection.outputStream
-        os.write(bodyJson.toByteArray(Charsets.UTF_8), 0, bodyJson.length)
+        connection.outputStream.write(bodyJson.toByteArray(Charsets.UTF_8), 0, bodyJson.length)
     }
 
     protected inline fun <reified T> readResponse(connection: HttpURLConnection): T {

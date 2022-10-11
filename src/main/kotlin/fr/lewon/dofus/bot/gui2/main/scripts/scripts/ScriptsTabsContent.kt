@@ -25,16 +25,17 @@ fun ScriptsTabsContent() {
             modifier = Modifier.height(30.dp)
         ) {
             ScriptTab.values().forEach { scriptTab ->
+                val enabled = scriptTab.isEnabled()
                 Tab(
                     text = { Text(scriptTab.title) },
                     modifier = Modifier.handPointerIcon(),
                     selected = currentPage == scriptTab,
-                    unselectedContentColor = Color.LightGray,
+                    unselectedContentColor = if (enabled) Color.LightGray else Color.Black,
                     onClick = {
                         ScriptTabsUIUtil.updateCurrentTab(scriptTab)
                         scriptTab.onTabSelect()
                     },
-                    enabled = scriptTab.isEnabled()
+                    enabled = enabled,
                 )
             }
         }

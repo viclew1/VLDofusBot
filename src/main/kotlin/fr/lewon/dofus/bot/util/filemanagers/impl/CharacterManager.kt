@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
+import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
@@ -9,13 +10,16 @@ import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.script.ScriptRunner
+import java.util.concurrent.locks.ReentrantLock
 
-object CharacterManager : FileManager<CharacterStore>("user_data", CharacterStore()) {
+object CharacterManager : ToInitManager {
 
     private val listeners = ArrayList<CharacterManagerListener>()
+    private val lock = ReentrantLock()
+    private lateinit var fileManager: FileManager<CharacterStore>
 
-    override fun getStoreClass(): Class<CharacterStore> {
-        return CharacterStore::class.java
+    override fun initManager() {
+        fileManager = FileManager("characters", CharacterStore())
     }
 
     override fun getNeededManagers(): List<ToInitManager> {
@@ -23,65 +27,79 @@ object CharacterManager : FileManager<CharacterStore>("user_data", CharacterStor
     }
 
     fun addListener(listener: CharacterManagerListener) {
-        listeners.add(listener)
+        LockUtils.executeSyncOperation(lock) {
+            listeners.add(listener)
+        }
     }
 
     fun removeListener(listener: CharacterManagerListener) {
-        listeners.remove(listener)
+        LockUtils.executeSyncOperation(lock) {
+            listeners.remove(listener)
+        }
     }
 
-    fun getCharacter(pseudo: String): DofusCharacter? {
-        return store.characters.firstOrNull {
-            it.pseudo.lowercase() == pseudo.lowercase()
+    fun getCharacter(name: String): DofusCharacter? {
+        return LockUtils.executeSyncOperation(lock) {
+            fileManager.getElement { store ->
+                store.characters.firstOrNull {
+                    it.name.lowercase() == name.lowercase()
+                }
+            }
         }
     }
 
     fun getCharacters(): List<DofusCharacter> {
-        return store.characters.toList()
-    }
-
-    fun addCharacter(pseudo: String, dofusClassId: Int, spells: List<CharacterSpell>): DofusCharacter {
-        getCharacter(pseudo)?.let {
-            error("Character already registered : [$pseudo]")
+        return LockUtils.executeSyncOperation(lock) {
+            fileManager.getElement { store ->
+                store.characters.toList()
+            }
         }
-        return DofusCharacter(pseudo, dofusClassId)
-            .also { doAddCharacter(it) }
-            .also { CharacterSpellManager.updateSpells(it, CharacterSpells(spells)) }
     }
 
-    private fun doAddCharacter(character: DofusCharacter) {
-        store.characters.add(character)
-        saveStore()
-        listeners.forEach { it.onCharacterCreate(character) }
-    }
-
-    fun removeCharacter(character: DofusCharacter, removeScriptParams: Boolean = true) {
-        store.characters.remove(character)
-        saveStore()
-        if (removeScriptParams) {
-            ScriptParamManager.removeScriptParams(character)
+    fun getCharacters(selectedCharactersNames: List<String>): List<DofusCharacter> {
+        return LockUtils.executeSyncOperation(lock) {
+            fileManager.getElement { store ->
+                store.characters.filter { it.name in selectedCharactersNames }
+            }
         }
+    }
+
+    fun addCharacter(name: String, dofusClassId: Int, spells: List<CharacterSpell>): DofusCharacter {
+        return LockUtils.executeSyncOperation(lock) {
+            getCharacter(name)?.let {
+                error("Character already registered : [$name]")
+            }
+            DofusCharacter(name, dofusClassId).also { character ->
+                CharacterSpellManager.updateSpells(name, CharacterSpells(spells))
+                fileManager.updateStore { store ->
+                    store.characters.add(character)
+                }
+                listeners.toList().forEach { listener -> listener.onCharacterCreate(character) }
+            }
+        }
+    }
+
+    fun removeCharacter(name: String) {
+        removeCharacter(getCharacter(name) ?: error("Character not found : $name"))
+    }
+
+    fun removeCharacter(character: DofusCharacter) {
+        fileManager.updateStore { store ->
+            store.characters.remove(character)
+        }
+        ScriptValuesManager.removeScriptValues(character.name)
+        CharacterSpellManager.removeSpells(character.name)
         ScriptRunner.removeListeners(character)
         GameSnifferUtil.removeListeners(character)
-        listeners.forEach { it.onCharacterDelete(character) }
+        listeners.toList().forEach { it.onCharacterDelete(character) }
     }
 
-    fun updateCharacter(
-        oldPseudo: String,
-        pseudo: String,
-        dofusClassId: Int,
-        spells: List<CharacterSpell>
-    ) {
-        val storedCharacter = getCharacter(oldPseudo)
-            ?: error("Character not found in store : $oldPseudo")
-        val newCharacter = storedCharacter.copy(
-            pseudo = pseudo,
-            dofusClassId = dofusClassId,
-        )
-        removeCharacter(storedCharacter, oldPseudo != pseudo)
-        doAddCharacter(newCharacter)
-        saveStore()
-        CharacterSpellManager.updateSpells(newCharacter, CharacterSpells(spells))
+    fun updateCharacter(name: String, dofusClassId: Int? = null) {
+        val storedCharacter = getCharacter(name)
+            ?: error("Character not found in store : $name")
+        storedCharacter.dofusClassId = dofusClassId ?: storedCharacter.dofusClassId
+        fileManager.updateStore { }
+        listeners.toList().forEach { it.onCharacterUpdate(storedCharacter) }
     }
 
 }

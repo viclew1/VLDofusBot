@@ -44,7 +44,7 @@ class ProcessArenaGameTask : BooleanDofusBotTask() {
     }
 
     private fun isArenaFrameOpened(gameInfo: GameInfo): Boolean {
-        return UiUtil.isWindowOpenedUsingCloseButton(gameInfo, DofusUIElement.ARENA)
+        return UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.ARENA)
     }
 
     private fun getFindMatchRectangle(): RectangleRelative {

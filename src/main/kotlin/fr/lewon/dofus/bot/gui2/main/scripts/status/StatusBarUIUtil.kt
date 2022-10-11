@@ -25,7 +25,7 @@ object StatusBarUIUtil {
         val minutes = StringUtils.leftPad(ldt.minute.toString(), 2, "0")
         val seconds = StringUtils.leftPad(ldt.second.toString(), 2, "0")
         val timeStamp = "$hours:$minutes:$seconds"
-        val newStatus = "$timeStamp : ${character.pseudo} - $text"
+        val newStatus = "$timeStamp : ${character.name} - $text"
         this.statusBarUIState.value = statusBarUIState.copy(oldMessages = newOldMessages, currentStatus = newStatus)
     }
 

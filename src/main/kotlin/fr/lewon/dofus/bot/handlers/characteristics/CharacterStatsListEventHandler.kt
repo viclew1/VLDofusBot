@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.handlers.characteristics
 
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.fight.CharacterStatsListMessage
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
@@ -12,6 +13,7 @@ object CharacterStatsListEventHandler : IEventHandler<CharacterStatsListMessage>
         val characteristics = socketResult.stats.characteristics
         gameInfo.playerBaseCharacteristics = characteristics.associateBy { it.characteristicId }
         gameInfo.updatePlayerFighter()
+        CharacterGlobalInformationUIUtil.updateCharacterKamas(gameInfo.character.name, socketResult.stats.kamas)
     }
 
 }

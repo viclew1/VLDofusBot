@@ -1,15 +1,23 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
+import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpells
 import fr.lewon.dofus.bot.model.characters.spells.SpellStore
 import fr.lewon.dofus.bot.util.filemanagers.FileManager
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterSpellManagerListener
+import fr.lewon.dofus.bot.util.listenable.ListenableByCharacter
+import java.util.concurrent.locks.ReentrantLock
 
-object CharacterSpellManager : FileManager<SpellStore>("spells", SpellStore()) {
+object CharacterSpellManager : ListenableByCharacter<CharacterSpellManagerListener>(), ToInitManager {
 
-    override fun getStoreClass(): Class<SpellStore> {
-        return SpellStore::class.java
+    private lateinit var fileManager: FileManager<SpellStore>
+    private val lock = ReentrantLock()
+
+    override fun initManager() {
+        fileManager = FileManager("spells", SpellStore())
     }
 
     override fun getNeededManagers(): List<ToInitManager> {
@@ -17,12 +25,44 @@ object CharacterSpellManager : FileManager<SpellStore>("spells", SpellStore()) {
     }
 
     fun getSpells(character: DofusCharacter): CharacterSpells {
-        return store.getCharacterSpells(character).deepCopy()
+        return getSpells(character.name)
     }
 
-    fun updateSpells(character: DofusCharacter, spells: CharacterSpells) {
-        store.setCharacterSpells(character, spells.deepCopy())
-        saveStore()
+    fun getSpells(characterName: String): CharacterSpells {
+        return LockUtils.executeSyncOperation(lock) {
+            fileManager.getElement { store ->
+                store.getCharacterSpells(characterName).deepCopy()
+            }
+        }
+    }
+
+    fun updateSpells(characterName: String, spells: CharacterSpells) {
+        LockUtils.executeSyncOperation(lock) {
+            fileManager.updateStore { store ->
+                store.setCharacterSpells(characterName, spells.deepCopy())
+            }
+            getListeners(characterName).forEach { it.onSpellsUpdate(characterName, spells) }
+        }
+    }
+
+    fun updateSpell(characterName: String, key: Char, ctrlModifier: Boolean, spellId: Int?) {
+        LockUtils.executeSyncOperation(lock) {
+            val spells = getSpells(characterName)
+            spells.removeIf { it.key == key && it.ctrlModifier == ctrlModifier }
+            spells.add(CharacterSpell(spellId, key, ctrlModifier))
+            fileManager.updateStore { store ->
+                store.setCharacterSpells(characterName, spells)
+            }
+            getListeners(characterName).forEach { it.onSpellsUpdate(characterName, spells) }
+        }
+    }
+
+    fun removeSpells(characterName: String) {
+        LockUtils.executeSyncOperation(lock) {
+            fileManager.updateStore { store ->
+                store.remove(characterName)
+            }
+        }
     }
 
 }
