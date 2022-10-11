@@ -30,6 +30,9 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
     }
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+        if (!MetamobMonstersUpdater.isMetamobConfigured()) {
+            error("Metamob settings aren't configured.")
+        }
         if (!AccessHavenBagChestTask().run(logItem, gameInfo)) {
             error("Couldn't access haven bag chest")
         }
@@ -38,7 +41,7 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
         updateMetamobMonsters(chestContent, gameInfo, logItem)
         val closeButtonBounds = UiUtil.getContainerBounds(DofusUIElement.STORAGE, "btn_close")
         MouseUtil.leftClick(gameInfo, closeButtonBounds.getCenter())
-        if (!WaitUtil.waitUntil({ !UiUtil.isWindowOpenedUsingCloseButton(gameInfo, DofusUIElement.STORAGE) })) {
+        if (!WaitUtil.waitUntil({ !UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.STORAGE) })) {
             error("Couldn't close chest")
         }
     }

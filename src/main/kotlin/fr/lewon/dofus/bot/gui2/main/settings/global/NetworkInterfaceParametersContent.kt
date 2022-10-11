@@ -14,8 +14,6 @@ import fr.lewon.dofus.bot.gui2.main.settings.ConfigLine
 import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiverUtil
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 private val networkInterfaces = mutableStateOf(emptyList<String>())
 
@@ -30,11 +28,9 @@ fun NetworkInterfaceParametersContent() {
         }
     }
     LaunchedEffect(true) {
-        GlobalScope.launch {
-            launch {
-                networkInterfaces.value = DofusMessageReceiverUtil.getNetworkInterfaceNames()
-            }
-        }
+        Thread {
+            networkInterfaces.value = DofusMessageReceiverUtil.getNetworkInterfaceNames()
+        }.start()
     }
 }
 

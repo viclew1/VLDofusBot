@@ -22,19 +22,19 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 fun ScriptsContent() {
     Box {
         Row(Modifier.padding(bottom = 30.dp)) {
-            Row(Modifier.width(240.dp)) {
+            Row(Modifier.width(180.dp)) {
                 CharactersListContent()
             }
-            Column(Modifier.width(500.dp)) {
+            Column(Modifier.weight(1f)) {
                 ScriptsTabsContent()
             }
             Divider(Modifier.fillMaxHeight().width(1.dp), color = AppColors.backgroundColor)
-            Column(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxHeight().width(503.dp)) {
                 AnimatedVisibility(
                     visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.INDIVIDUAL,
                     enter = expandVertically(expandFrom = Alignment.Top),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top),
-                    modifier = Modifier.heightIn(max = 500.dp)
+                    modifier = Modifier.heightIn(max = 410.dp)
                 ) {
                     CharacterEditionContent()
                 }

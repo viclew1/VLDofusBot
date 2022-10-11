@@ -14,8 +14,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 repositories {
     google()
     mavenCentral()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    maven("https://repo.maven.apache.org/maven2/")
+    maven("https://repo1.maven.org/maven2/")
 }
 
 dependencies {
@@ -24,7 +23,6 @@ dependencies {
     implementation("net.java.dev.jna:jna:5.10.0")
     implementation("net.java.dev.jna:jna-platform:5.10.0")
     implementation("com.github.kwhat:jnativehook:2.2.2")
-    implementation("org.jetbrains.compose.components:components-splitpane-desktop:1.1.1")
 }
 
 sourceSets.main {

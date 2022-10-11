@@ -45,7 +45,7 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
 
     private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {
         WaitUtil.waitForEvents(gameInfo, ZaapDestinationsMessage::class.java, BasicNoOperationMessage::class.java)
-        return WaitUtil.waitUntil({ UiUtil.isWindowOpenedUsingCloseButton(gameInfo, DofusUIElement.ZAAP_SELECTION) })
+        return WaitUtil.waitUntil({ UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.ZAAP_SELECTION) })
     }
 
     override fun onStarted(): String {

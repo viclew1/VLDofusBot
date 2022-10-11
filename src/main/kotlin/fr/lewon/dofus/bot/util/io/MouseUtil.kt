@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.util.io
 
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
+import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.jna.JNAUtil
@@ -17,15 +18,12 @@ object MouseUtil {
         gameInfo.executeThreadedSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            try {
-                SystemKeyLock.lockInterruptibly()
+            LockUtils.executeSyncOperation(SystemKeyLock) {
                 if (moveBeforeClick) {
                     moveAround(handle, position)
                     WaitUtil.sleep(120)
                 }
                 doLeftClick(handle, position)
-            } finally {
-                SystemKeyLock.unlock()
             }
             WaitUtil.sleep(millis)
         }
@@ -59,11 +57,8 @@ object MouseUtil {
         gameInfo.executeThreadedSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            try {
-                SystemKeyLock.lockInterruptibly()
+            LockUtils.executeSyncOperation(SystemKeyLock) {
                 doMove(handle, position)
-            } finally {
-                SystemKeyLock.unlock()
             }
             WaitUtil.sleep(millis)
         }

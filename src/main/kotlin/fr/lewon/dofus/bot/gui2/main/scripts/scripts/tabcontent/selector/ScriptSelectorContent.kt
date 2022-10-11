@@ -16,13 +16,13 @@ import fr.lewon.dofus.bot.gui2.custom.ComboBox
 import fr.lewon.dofus.bot.gui2.custom.CommonText
 import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
+import fr.lewon.dofus.bot.gui2.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun ScriptSelectorContent() {
@@ -46,10 +46,7 @@ fun ScriptSelectorContent() {
                 PlayScriptButton()
             }
         }
-        Box(
-            Modifier.fillMaxWidth().height(100.dp).padding(5.dp).border(BorderStroke(1.dp, Color.Gray))
-                .background(AppColors.DARK_BG_COLOR)
-        ) {
+        Box(Modifier.fillMaxWidth().height(100.dp).padding(5.dp).grayBoxStyle()) {
             val state = rememberScrollState()
             CommonText(
                 scriptBuilder.getDescription(),
@@ -90,9 +87,11 @@ private fun PlayScriptButton() {
             var modifier = Modifier.fillMaxSize()
             if (enabled) {
                 modifier = modifier.handPointerIcon().clickable {
-                    GlobalScope.launch {
+                    Thread {
                         ScriptSelectorUIUtil.uiState.value = uiState.copy(isStartButtonEnabled = false)
-                        val selectedCharacters = CharactersUIUtil.getSelectedCharacters()
+                        val selectedCharactersUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
+                        val selectedCharactersNames = selectedCharactersUIStates.map { it.value.name }
+                        val selectedCharacters = CharacterManager.getCharacters(selectedCharactersNames)
                         if (isStarted) {
                             selectedCharacters.forEach { ScriptRunner.stopScript(it) }
                         } else {
@@ -100,7 +99,7 @@ private fun PlayScriptButton() {
                             val scriptValues = ScriptParametersUIUtil.getScriptValuesStore().getValues(scriptBuilder)
                             selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, scriptValues) }
                         }
-                    }
+                    }.start()
                 }
             }
             Box(modifier)

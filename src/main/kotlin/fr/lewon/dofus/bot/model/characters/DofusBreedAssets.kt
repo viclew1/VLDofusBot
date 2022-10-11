@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.model.characters
 
 import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.model.charac.DofusBreed
+import fr.lewon.dofus.bot.gui2.util.ImageUtil
 import fr.lewon.dofus.bot.gui2.util.getBufferedImage
 
 
@@ -20,8 +21,10 @@ class DofusBreedAssets(val breed: DofusBreed) {
         ?: error("Couldn't find banner [$bannerFileName]")
     val simpleIcon = simpleIconData.getBufferedImage()
     val iconImage = iconData.getBufferedImage()
+    val blurredIconImage = ImageUtil.blurImage(iconImage, 0.6f)
     val bannerImage = bannerData.getBufferedImage()
     val simpleIconPainter = simpleIcon.toPainter()
     val iconPainter = iconImage.toPainter()
+    val blurredIconPainter = blurredIconImage.toPainter()
     val bannerPainter = bannerImage.toPainter()
 }

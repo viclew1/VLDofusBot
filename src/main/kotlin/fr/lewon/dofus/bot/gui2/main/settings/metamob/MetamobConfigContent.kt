@@ -1,22 +1,20 @@
 package fr.lewon.dofus.bot.gui2.main.settings.metamob
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fr.lewon.dofus.bot.gui2.main.settings.*
+import fr.lewon.dofus.bot.gui2.custom.RefreshButton
+import fr.lewon.dofus.bot.gui2.main.settings.ConfigLine
+import fr.lewon.dofus.bot.gui2.main.settings.ConfigSwitchLine
+import fr.lewon.dofus.bot.gui2.main.settings.ConfigTextField
+import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIUtil
+import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 
 @Composable
@@ -30,11 +28,11 @@ fun MetamobConfigContent() {
                     SettingsUIUtil.updateMetamobConfig { it.metamobUniqueID = value }
                 })
         }
-        ConfigLine("Metamob pseudo", "Needed to use Metamob, your Metamob pseudo", true) {
+        ConfigLine("Metamob username", "Needed to use Metamob, your Metamob username", true) {
             ConfigTextField(
-                metamobConfig.metamobPseudo ?: "",
+                metamobConfig.metamobUsername ?: "",
                 onValueChange = { value ->
-                    SettingsUIUtil.updateMetamobConfig { it.metamobPseudo = value }
+                    SettingsUIUtil.updateMetamobConfig { it.metamobUsername = value }
                 })
         }
         ConfigLine("Test metamob connection", "", true) {
@@ -42,7 +40,14 @@ fun MetamobConfigContent() {
                 val refreshing = remember { mutableStateOf(false) }
                 val connectionStatus = remember { mutableStateOf(ConnectionStatus.NOT_TESTED_YET) }
                 if (!refreshing.value && connectionStatus.value == ConnectionStatus.NOT_TESTED_YET) {
-                    updateConnectionStatus(refreshing, connectionStatus)
+                    LaunchedEffect(Unit) {
+                        Thread {
+                            connectionStatus.value = ConnectionStatus.PENDING
+                            refreshing.value = true
+                            updateConnectionStatus(connectionStatus)
+                            refreshing.value = false
+                        }.start()
+                    }
                 }
                 Text(
                     connectionStatus.value.label,
@@ -51,12 +56,16 @@ fun MetamobConfigContent() {
                     color = connectionStatus.value.color
                 )
                 Spacer(Modifier.width(5.dp))
-                IconButton(
-                    { updateConnectionStatus(refreshing, connectionStatus) },
-                    Icons.Default.Refresh,
-                    Modifier.align(Alignment.CenterVertically),
-                    !refreshing.value,
-                )
+                Row(Modifier.align(Alignment.CenterVertically).height(30.dp).padding(end = 10.dp)) {
+                    RefreshButton(
+                        { updateConnectionStatus(connectionStatus) },
+                        "",
+                        RoundedCornerShape(15),
+                        Color.Gray,
+                        width = 40.dp,
+                        refreshing = refreshing
+                    )
+                }
             }
         }
         ConfigSwitchLine(
@@ -86,20 +95,10 @@ fun MetamobConfigContent() {
     }
 }
 
-private fun updateConnectionStatus(
-    refreshing: MutableState<Boolean>,
-    connectionStatus: MutableState<ConnectionStatus>
-) {
+private fun updateConnectionStatus(connectionStatus: MutableState<ConnectionStatus>) {
     connectionStatus.value = ConnectionStatus.PENDING
-    refreshing.value = true
-    Thread {
-        connectionStatus.value = if (MetamobRequestProcessor.checkParameters()) {
-            ConnectionStatus.CONNECTION_OK
-        } else {
-            ConnectionStatus.CONNECTION_KO
-        }
-        refreshing.value = false
-    }.start()
+    val connectionOk = MetamobMonstersUpdater.isMetamobConfigured() && MetamobRequestProcessor.checkParameters()
+    connectionStatus.value = if (connectionOk) ConnectionStatus.CONNECTION_OK else ConnectionStatus.CONNECTION_KO
 }
 
 private enum class ConnectionStatus(val label: String, val color: Color) {

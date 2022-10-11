@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 class ScriptValuesStore : HashMap<String, CharacterScriptValues>() {
 
     fun getScriptValues(character: DofusCharacter): CharacterScriptValues {
-        return getScriptValues(character.pseudo)
+        return getScriptValues(character.name)
     }
 
     fun getScriptValues(characterName: String): CharacterScriptValues {

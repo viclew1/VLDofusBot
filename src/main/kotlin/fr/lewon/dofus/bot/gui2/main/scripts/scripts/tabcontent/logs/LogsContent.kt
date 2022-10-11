@@ -25,12 +25,14 @@ import fr.lewon.dofus.bot.gui2.custom.CustomShapes
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.gui2.util.UiResource
-import fr.lewon.dofus.bot.model.characters.DofusCharacter
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 
 @Composable
-fun LogsContent(loggerType: LoggerUIType, character: DofusCharacter) {
+fun LogsContent(loggerType: LoggerUIType, characterName: String) {
+    val character = CharacterManager.getCharacter(characterName)
+        ?: error("Character not found : $characterName")
     val logger = loggerType.loggerGetter(character)
-    val loggerUIState = LogsUIUtil.getLoggerUIState(character, loggerType)
+    val loggerUIState = LogsUIUtil.getLoggerUIState(characterName, loggerType)
     val logItems = loggerUIState.value.logs
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.height(30.dp)) {

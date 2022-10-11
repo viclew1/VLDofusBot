@@ -2,7 +2,8 @@ package fr.lewon.dofus.bot.util.external.metamob
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
-import fr.lewon.dofus.bot.gui2.main.metamob.monsters.MonsterListContainerPanel
+import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.gui2.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.ObjectItem
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.effect.ObjectEffectDice
 import fr.lewon.dofus.bot.sniffer.model.types.fight.result.entry.FightResultPlayerListEntry
@@ -11,41 +12,64 @@ import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdate
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdateState
+import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
+import java.util.concurrent.locks.ReentrantLock
 
 object MetamobMonstersUpdater {
 
     private val SOUL_STONE_ITEM_IDS = listOf(7010, 10417, 10418)
     private const val MONSTER_STONE_EFFECT_ACTION_ID = 623
+    private val lock = ReentrantLock()
+
+    fun isMetamobConfigured(): Boolean {
+        val metamobConfig = MetamobConfigManager.readConfig()
+        val username = metamobConfig.metamobUsername ?: ""
+        val uniqueId = metamobConfig.metamobUniqueID ?: ""
+        return username.isNotBlank() && uniqueId.isNotBlank()
+    }
 
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
-        if (playerResult.rewards.objects.any { SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
-            val allMetamobMonsters = getAllMonsters()
-            val amountToAddByMonster = HashMap<MetamobMonster, Int>()
-            for (monster in monsters) {
-                val metamobMonster = allMetamobMonsters
-                    .firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
-                if (metamobMonster != null) {
-                    val currentAmount = amountToAddByMonster.computeIfAbsent(metamobMonster) { 0 }
-                    amountToAddByMonster[metamobMonster] = currentAmount + 1
+        LockUtils.executeSyncOperation(lock) {
+            if (playerResult.rewards.objects.any { SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
+                val allMetamobMonsters = getAllMonsters()
+                val amountToAddByMonster = HashMap<MetamobMonster, Int>()
+                for (monster in monsters) {
+                    val metamobMonster = allMetamobMonsters
+                        .firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
+                    if (metamobMonster != null) {
+                        val currentAmount = amountToAddByMonster.computeIfAbsent(metamobMonster) { 0 }
+                        amountToAddByMonster[metamobMonster] = currentAmount + 1
+                    }
                 }
+                if (amountToAddByMonster.isEmpty()) {
+                    error("Couldn't add monsters : ${monsters.joinToString(", ") { it.name }}")
+                }
+                val monsterUpdates = amountToAddByMonster.entries.map {
+                    buildMonsterUpdate(it.key, it.value, UpdateOperation.ADD)
+                }
+                MetamobRequestProcessor.updateMonsters(monsterUpdates)
+                MetamobHelperUIUtil.refreshMonsters()
             }
-            if (amountToAddByMonster.isEmpty()) {
-                error("Couldn't add monsters : ${monsters.joinToString(", ") { it.name }}")
-            }
-            val monsterUpdates = amountToAddByMonster.entries.map {
-                buildMonsterUpdate(it.key, it.value, UpdateOperation.ADD)
-            }
-            MetamobRequestProcessor.updateMonsters(monsterUpdates)
-            MonsterListContainerPanel.refresh()
         }
     }
 
     fun addMonsters(objectItems: List<ObjectItem>) {
-        updateMonstersAmount(objectItems, UpdateOperation.ADD)
+        LockUtils.executeSyncOperation(lock) {
+            updateMonstersAmount(objectItems, UpdateOperation.ADD)
+        }
     }
 
     fun removeMonsters(objectItems: List<ObjectItem>) {
-        updateMonstersAmount(objectItems, UpdateOperation.REMOVE)
+        LockUtils.executeSyncOperation(lock) {
+            updateMonstersAmount(objectItems, UpdateOperation.REMOVE)
+        }
+    }
+
+    fun addAndRemoveMonsters(toAddObjectItems: List<ObjectItem>, toRemoveObjectItems: List<ObjectItem>) {
+        LockUtils.executeSyncOperation(lock) {
+            addMonsters(toAddObjectItems)
+            removeMonsters(toRemoveObjectItems)
+        }
     }
 
     private fun updateMonstersAmount(objectItems: List<ObjectItem>, updateOperation: UpdateOperation) {
@@ -58,18 +82,20 @@ object MetamobMonstersUpdater {
             buildMonsterUpdate(it.key, it.value, updateOperation)
         }
         MetamobRequestProcessor.updateMonsters(monsterUpdates)
-        MonsterListContainerPanel.refresh()
+        MetamobHelperUIUtil.refreshMonsters()
     }
 
     fun cleanAndUpdateMonsters(objectItems: List<ObjectItem>) {
-        val allMonsters = getAllMonsters()
-        val amountByMonster = getAmountByMonster(allMonsters, objectItems)
-        val monsterUpdates = allMonsters.map {
-            val amount = amountByMonster[it] ?: 0
-            buildMonsterUpdate(it, amount, UpdateOperation.REPLACE)
+        LockUtils.executeSyncOperation(lock) {
+            val allMonsters = getAllMonsters()
+            val amountByMonster = getAmountByMonster(allMonsters, objectItems)
+            val monsterUpdates = allMonsters.map {
+                val amount = amountByMonster[it] ?: 0
+                buildMonsterUpdate(it, amount, UpdateOperation.REPLACE)
+            }
+            MetamobRequestProcessor.updateMonsters(monsterUpdates)
+            MetamobHelperUIUtil.refreshMonsters()
         }
-        MetamobRequestProcessor.updateMonsters(monsterUpdates)
-        MonsterListContainerPanel.refresh()
     }
 
     private fun getAmountByMonster(

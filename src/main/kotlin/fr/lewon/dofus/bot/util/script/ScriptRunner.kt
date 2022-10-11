@@ -6,10 +6,10 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
-import fr.lewon.dofus.bot.util.ListenableByCharacter
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.jna.JNAUtil
+import fr.lewon.dofus.bot.util.listenable.ListenableByCharacter
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
@@ -25,11 +25,11 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
         // Nothing
     }
 
-    override fun onCharacterMove(character: DofusCharacter, toIndex: Int) {
+    override fun onCharacterDelete(character: DofusCharacter) {
         // Nothing
     }
 
-    override fun onCharacterDelete(character: DofusCharacter) {
+    override fun onCharacterUpdate(character: DofusCharacter) {
         // Nothing
     }
 
@@ -56,17 +56,17 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
             }
         }
         val runningScript = RunningScript(scriptBuilder, thread)
-        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo] = runningScript
-        getListeners(character.pseudo).forEach { it.onScriptStart(character, runningScript) }
+        RUNNING_SCRIPT_BY_CHARACTER_NAME[character.name] = runningScript
+        getListeners(character.name).forEach { it.onScriptStart(character, runningScript) }
         thread.start()
     }
 
     fun isScriptRunning(character: DofusCharacter): Boolean {
-        return RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo]?.thread?.isAlive == true
+        return RUNNING_SCRIPT_BY_CHARACTER_NAME[character.name]?.thread?.isAlive == true
     }
 
     fun getRunningScript(character: DofusCharacter): RunningScript? {
-        return RUNNING_SCRIPT_BY_CHARACTER_NAME[character.pseudo]
+        return RUNNING_SCRIPT_BY_CHARACTER_NAME[character.name]
             ?.takeIf { it.thread.isAlive }
     }
 
@@ -85,7 +85,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
 
     @Synchronized
     fun stopScript(character: DofusCharacter) {
-        RUNNING_SCRIPT_BY_CHARACTER_NAME.remove(character.pseudo)?.thread?.interrupt()
+        RUNNING_SCRIPT_BY_CHARACTER_NAME.remove(character.name)?.thread?.interrupt()
     }
 
     private fun onScriptKo(character: DofusCharacter, t: Throwable, logItem: LogItem) {
@@ -107,7 +107,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     }
 
     private fun onScriptEnd(character: DofusCharacter, endType: DofusBotScriptEndType) {
-        getListeners(character.pseudo).forEach { it.onScriptEnd(character, endType) }
+        getListeners(character.name).forEach { it.onScriptEnd(character, endType) }
     }
 
     class RunningScript(

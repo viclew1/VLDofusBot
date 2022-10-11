@@ -4,6 +4,7 @@ import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
+import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.event.KeyEvent
@@ -29,8 +30,7 @@ object KeyboardUtil {
     }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) {
-        try {
-            SystemKeyLock.lockInterruptibly()
+        LockUtils.executeSyncOperation(SystemKeyLock) {
             if (ctrlModifier) {
                 sendUser32Message(handle, WinUser.WM_KEYDOWN, KeyEvent.VK_CONTROL)
                 sendUser32Message(handle, WinUser.WM_CHAR, KeyEvent.VK_CONTROL)
@@ -41,8 +41,6 @@ object KeyboardUtil {
             if (ctrlModifier) {
                 sendUser32Message(handle, WinUser.WM_KEYUP, KeyEvent.VK_CONTROL)
             }
-        } finally {
-            SystemKeyLock.unlock()
         }
     }
 

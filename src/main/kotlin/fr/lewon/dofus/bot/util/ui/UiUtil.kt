@@ -14,7 +14,10 @@ object UiUtil {
     private val MIN_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MIN
     private val MAX_COLOR_BG = DofusColors.UI_BANNER_GREY_COLOR_MAX
 
-    fun isWindowOpenedUsingCloseButton(
+    /**
+     * Checks if the passed ui element is opened by checking if its close button is visible
+     */
+    fun isUiElementWindowOpened(
         gameInfo: GameInfo,
         uiElement: DofusUIElement,
         fightContext: Boolean = false

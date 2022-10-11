@@ -25,10 +25,12 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun MainContent() {
-    Row(Modifier.fillMaxSize()) {
-        MainNavigationRail()
-        Box(Modifier.fillMaxSize()) {
-            MainContentUIUtil.mainContentUIState.value.currentAppContent.content()
+    PressDraggable(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxSize()) {
+            MainNavigationRail()
+            Box(Modifier.fillMaxSize()) {
+                MainContentUIUtil.mainContentUIState.value.currentAppContent.content()
+            }
         }
     }
 }

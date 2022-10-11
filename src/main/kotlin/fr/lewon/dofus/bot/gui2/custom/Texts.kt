@@ -37,7 +37,8 @@ fun SubTitleText(
     overflow: TextOverflow = TextOverflow.Ellipsis,
     maxLines: Int = Int.MAX_VALUE,
     enabledColor: Color = Color.White,
-    disabledColor: Color = Color.Gray
+    disabledColor: Color = Color.Gray,
+    textAlign: TextAlign? = null
 ) {
     CustomCompositionLocalProvider {
         Text(
@@ -47,7 +48,8 @@ fun SubTitleText(
             fontSize,
             fontWeight = fontWeight,
             overflow = overflow,
-            maxLines = maxLines
+            maxLines = maxLines,
+            textAlign = textAlign
         )
     }
 }

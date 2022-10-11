@@ -29,10 +29,7 @@ enum class SoundType(private val soundFileName: String, private val playSoundCon
 
     fun playSound(forcePlay: Boolean = false) {
         if (forcePlay || playSoundCondition()) {
-            Thread {
-                val clip = buildClip()
-                clip.start()
-            }.start()
+            Thread { buildClip().start() }.start()
         }
     }
 

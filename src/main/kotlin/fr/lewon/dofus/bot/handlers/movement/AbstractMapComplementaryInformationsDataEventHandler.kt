@@ -40,6 +40,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
+        gameInfo.actors = socketResult.actors
         if (gameInfo.shouldInitBoard && !gameInfo.initRequested) {
             gameInfo.initRequested = true
         }

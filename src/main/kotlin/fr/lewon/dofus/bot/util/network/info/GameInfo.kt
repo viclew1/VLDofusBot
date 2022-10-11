@@ -13,6 +13,7 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
+import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.GameRolePlayActorInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
@@ -26,20 +27,23 @@ class GameInfo(val character: DofusCharacter) {
     var hp = 0
     var maxHp = 0
     private val lock = ReentrantLock(true)
-
     val logger = character.executionLogger
+
     val eventStore = EventStore()
     lateinit var connection: DofusConnection
     var gameBounds = Rectangle()
     var completeBounds = Rectangle()
-
+    
     var shouldInitBoard = true
     var initRequested = false
+
     val dofusBoard = DofusBoard()
+
     val fightBoard = FightBoard(this)
     val moveHistory = MoveHistory()
     var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
+    var actors: List<GameRolePlayActorInformations> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
     val entityIdByNpcId = HashMap<Int, Double>()
     val monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()
