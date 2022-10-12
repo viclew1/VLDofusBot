@@ -63,19 +63,37 @@ Most likely cases are :
 Once every loading operation succeeded, well done, the bot should be usable ! You'll arrived to the scrips screen. You
 can reach the other screens with the button on the left.
 
-#### Global
+#### Characters
+
+On the left, there's a characters list. New characters are automatically added to it when you log them into the game.
+They can have four different activity states :
+
+- Disconnected
+
+  ![img_2.png](demo/status_disconnected.png)
+- To initialize
+
+  ![img.png](demo/status_to_initialize.png)
+- Available
+
+  ![img_3.png](demo/status_available.png)
+- Busy
+
+  ![img_4.png](demo/status_busy.png)
+
+#### Global scripts
 
 The page is, by default, in **Global** mode. Meaning you can run a script for multiple characters at once. Here I have
-two
-characters selected on which the selected script will run.
+two characters selected on which the selected script will run.
 
 ![Scripts global](demo/scripts_screen_global.png)
 
-#### Individual
+#### Individual scripts
 
 If you select a character (by clicking on its card), you'll enter **Individual** mode. In this mode, you can edit
-your
-character's AI and run scripts only for him. Your script parameter values will be saved in individual mode.
+your character's AI and run scripts only for him. Your script parameter values will be saved in individual mode.
+
+On the right, you can edit the spells your character will use when fighting.
 
 ![Scripts individual](demo/scripts_screen_individual.png)
 
