@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -20,9 +19,6 @@ import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 fun ScriptParametersContent() {
     val builder = ScriptTabsUIUtil.getCurrentScriptBuilder()
     val parameters = ScriptParametersUIUtil.getCurrentScriptParameters()
-    LaunchedEffect(Unit) {
-        ScriptParametersUIUtil.updateParameters(builder)
-    }
     Column {
         CommonText(
             "Parameters",
@@ -33,6 +29,7 @@ fun ScriptParametersContent() {
             Box(Modifier.fillMaxSize().padding(5.dp)) {
                 val state = rememberScrollState()
                 Column(Modifier.verticalScroll(state).padding(end = 10.dp)) {
+                    ScriptParametersUIUtil.updateParameters(builder)
                     for (parameter in parameters) {
                         if (ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).displayed) {
                             Row(Modifier.padding(start = 5.dp, top = 5.dp, bottom = 10.dp)) {

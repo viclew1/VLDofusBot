@@ -111,19 +111,13 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             val subAreaParameterValue = scriptValues.getParamValue(subAreaParameter)
             SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
         }
-        val runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
-        val killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean()
-        val searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter)
-        val stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean()
-        val stopWhenWantedMonsterFound =
-            scriptValues.getParamValue(stopWhenWantedMonsterFoundParameter).toBoolean()
         ExploreSubAreaTask(
             subArea,
-            killEverything,
-            searchedMonsterName,
-            stopWhenArchMonsterFound,
-            stopWhenWantedMonsterFound,
-            runForever
+            killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
+            searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
+            stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
+            stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenWantedMonsterFoundParameter).toBoolean(),
+            runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
         ).run(logItem, gameInfo)
     }
 
