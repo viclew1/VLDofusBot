@@ -65,7 +65,9 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     }
 
     fun getConnections(character: DofusCharacter): List<DofusConnection> {
-        return CONNECTIONS_BY_CHARACTER_NAME[character.name] ?: emptyList()
+        return LockUtils.executeSyncOperation(LOCK) {
+            CONNECTIONS_BY_CHARACTER_NAME[character.name]?.toList() ?: emptyList()
+        }
     }
 
     private fun startSnifferIfNeeded() {

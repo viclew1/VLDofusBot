@@ -162,15 +162,24 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
 
     override fun onListenStart(character: DofusCharacter) {
         LockUtils.executeSyncOperation(lock) {
-            computeState(character)
+            val characterState = getCharacterUIState(character.name)
+            characterState.value = characterState.value.copy(
+                activityState = CharacterActivityState.TO_INITIALIZE
+            )
+            charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
         }
     }
 
     override fun onListenStop(character: DofusCharacter) {
         LockUtils.executeSyncOperation(lock) {
-            computeState(character)
             val characterState = getCharacterUIState(character.name)
-            characterState.value = characterState.value.copy(checked = false)
+            characterState.value = characterState.value.copy(
+                checked = false,
+                activityState = CharacterActivityState.DISCONNECTED,
+                entityLook = EntityLook(),
+                skinImage = null
+            )
+            charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
         }
     }
 

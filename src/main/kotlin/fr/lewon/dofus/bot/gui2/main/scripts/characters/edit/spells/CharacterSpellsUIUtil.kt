@@ -11,8 +11,8 @@ object CharacterSpellsUIUtil : CharacterSpellManagerListener {
 
     private val uiState = mutableStateOf(CharacterSpellsUIState())
 
-    fun getSpellId(key: Char, ctrlModifier: Boolean): CharacterSpell? {
-        return uiState.value.spellIdByKey[SpellKey(key, ctrlModifier)]
+    fun getCharacterSpell(key: Char, ctrlModifier: Boolean): CharacterSpell? {
+        return uiState.value.spellByKey[SpellKey(key, ctrlModifier)]
     }
 
     override fun onSpellsUpdate(characterName: String, spells: CharacterSpells) {
@@ -23,7 +23,7 @@ object CharacterSpellsUIUtil : CharacterSpellManagerListener {
 
     fun updateSpells(spells: CharacterSpells) {
         uiState.value = uiState.value.copy(
-            spellIdByKey = spells.associateBy { SpellKey(it.key, it.ctrlModifier) }
+            spellByKey = spells.associateBy { SpellKey(it.key, it.ctrlModifier) }
         )
     }
 
