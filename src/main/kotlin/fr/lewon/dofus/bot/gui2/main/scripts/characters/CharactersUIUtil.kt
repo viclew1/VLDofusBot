@@ -101,6 +101,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             addListeners(character)
             charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
             getCharacterUIState(character.name)
+            ScriptInfoUIUtil.getScriptInfoUIState(character.name)
         }
     }
 
@@ -173,13 +174,17 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     override fun onListenStop(character: DofusCharacter) {
         LockUtils.executeSyncOperation(lock) {
             val characterState = getCharacterUIState(character.name)
-            characterState.value = characterState.value.copy(
+            characterState.value = CharacterUIState(
+                name = character.name,
+                dofusClassId = character.dofusClassId,
                 checked = false,
                 activityState = CharacterActivityState.DISCONNECTED,
                 entityLook = EntityLook(),
                 skinImage = null
             )
-            charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
+            charactersUIState.value = charactersUIState.value.copy(
+                characterNames = getOrderedCharactersNames()
+            )
         }
     }
 
@@ -221,15 +226,10 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     private fun computeState(character: DofusCharacter) {
         val connection = GameSnifferUtil.getFirstConnection(character)
         val newActivityState = getNewActivityState(connection)
-        val removeSkinImage = newActivityState == CharacterActivityState.DISCONNECTED
         LockUtils.executeThreadedSyncOperation(lock) {
             val characterState = getCharacterUIState(character.name)
-            val newSkinImage = if (removeSkinImage) null else characterState.value.skinImage
-            val newEntityLook = if (removeSkinImage) EntityLook() else characterState.value.entityLook
             characterState.value = characterState.value.copy(
                 activityState = newActivityState,
-                skinImage = newSkinImage,
-                entityLook = newEntityLook
             )
             charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
         }

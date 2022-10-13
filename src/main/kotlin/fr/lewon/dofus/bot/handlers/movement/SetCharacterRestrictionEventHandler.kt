@@ -18,15 +18,15 @@ object SetCharacterRestrictionEventHandler : IEventHandler<SetCharacterRestricti
             gameInfo.shouldInitBoard = false
             gameInfo.initRequested = false
             CharactersUIUtil.updateState(gameInfo.character)
-            println("${gameInfo.character.name} initialized, ID : ${gameInfo.playerId}")
-        }
-        gameInfo.actors.firstOrNull { it.contextualId == gameInfo.playerId }?.let {
-            CharactersUIUtil.updateSkin(gameInfo.character, it.entityLook)
-            if (it is GameRolePlayCharacterInformations) {
-                it.humanoidInfo.options.filterIsInstance<HumanOptionOrnament>().firstOrNull()?.let { option ->
-                    CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, option.level)
+            gameInfo.actors.firstOrNull { it.contextualId == gameInfo.playerId }?.let {
+                CharactersUIUtil.updateSkin(gameInfo.character, it.entityLook)
+                if (it is GameRolePlayCharacterInformations) {
+                    it.humanoidInfo.options.filterIsInstance<HumanOptionOrnament>().firstOrNull()?.let { option ->
+                        CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, option.level)
+                    }
                 }
             }
+            println("${gameInfo.character.name} initialized, ID : ${gameInfo.playerId}")
         }
     }
 }

@@ -3,10 +3,14 @@ package fr.lewon.dofus.bot.handlers.movement
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarUIUtil
 import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.types.actor.human.options.HumanOptionOrnament
+import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.humanoid.GameRolePlayCharacterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTreasureHintInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc.GameRolePlayNpcInformations
@@ -43,6 +47,15 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         gameInfo.actors = socketResult.actors
         if (gameInfo.shouldInitBoard && !gameInfo.initRequested) {
             gameInfo.initRequested = true
+        } else if (!gameInfo.shouldInitBoard) {
+            gameInfo.actors.firstOrNull { it.contextualId == gameInfo.playerId }?.let {
+                CharactersUIUtil.updateSkin(gameInfo.character, it.entityLook)
+                if (it is GameRolePlayCharacterInformations) {
+                    it.humanoidInfo.options.filterIsInstance<HumanOptionOrnament>().firstOrNull()?.let { option ->
+                        CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, option.level)
+                    }
+                }
+            }
         }
         beepIfSpecialMonsterHere(gameInfo, socketResult.map)
     }
