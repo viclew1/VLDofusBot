@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.hunt
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFight
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFight
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.TreasureHuntUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -16,7 +16,7 @@ class ExecuteHuntTask : BooleanDofusBotTask() {
             return false
         }
         while (gameInfo.treasureHunt != null) {
-            val currentStep = TreasureHuntUtil.getTreasureHunt(gameInfo).huntSteps.last()
+            val currentStep = TreasureHuntUtil.getTreasureHunt(gameInfo).knownStepsList.last()
             if (!TreasureHuntUtil.executeStep(gameInfo, currentStep, logItem)) {
                 return false
             }
@@ -28,8 +28,8 @@ class ExecuteHuntTask : BooleanDofusBotTask() {
 
     private fun tickFlagIfNeeded(gameInfo: GameInfo) {
         val hunt = gameInfo.treasureHunt
-        if (hunt != null && hunt.huntSteps.last() !is TreasureHuntStepFight) {
-            val flagIndex = TreasureHuntUtil.getTreasureHunt(gameInfo).huntFlags.size
+        if (hunt != null && hunt.knownStepsList.last() !is TreasureHuntStepFight) {
+            val flagIndex = TreasureHuntUtil.getTreasureHunt(gameInfo).flags.size
             TreasureHuntUtil.tickFlag(gameInfo, flagIndex)
             MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
         }
@@ -37,7 +37,7 @@ class ExecuteHuntTask : BooleanDofusBotTask() {
 
     private fun clickSearchIfNeeded(gameInfo: GameInfo) {
         val hunt = gameInfo.treasureHunt
-        if (hunt != null && hunt.huntFlags.size == hunt.huntSteps.size && hunt.huntSteps.last() !is TreasureHuntStepFight) {
+        if (hunt != null && hunt.flags.size == hunt.knownStepsList.size && hunt.knownStepsList.last() !is TreasureHuntStepFight) {
             WaitUtil.sleep(600)
             TreasureHuntUtil.clickSearch(gameInfo)
             if (gameInfo.treasureHunt?.checkPointCurrent == hunt.checkPointCurrent) {

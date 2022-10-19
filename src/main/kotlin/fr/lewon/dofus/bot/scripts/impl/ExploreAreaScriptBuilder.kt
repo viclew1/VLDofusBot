@@ -77,8 +77,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     )
 
     private val stopWhenWantedMonsterFoundParameter = DofusBotParameter(
-        "Stop when wanted monster found",
-        "Stops exploration when you find a wanted monster",
+        "Stop when quest monster found",
+        "Stops exploration when you find a quest monster",
         "false",
         DofusBotParameterType.BOOLEAN
     )

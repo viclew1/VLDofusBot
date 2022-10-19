@@ -15,11 +15,16 @@ import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.INetworkMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.*
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.sequence.SequenceEndMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameEntitiesDispositionMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightEndMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightOptionStateUpdateMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightTurnEndMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightTurnStartPlayingMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.initialization.SetCharacterRestrictionsMessage
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
@@ -220,7 +225,7 @@ open class FightTask(
 
     private fun waitForMessage(
         gameInfo: GameInfo,
-        eventClass: Class<out INetworkMessage>,
+        eventClass: Class<out NetworkMessage>,
         timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
     ): Boolean {
         gameInfo.eventStore.clear(eventClass)

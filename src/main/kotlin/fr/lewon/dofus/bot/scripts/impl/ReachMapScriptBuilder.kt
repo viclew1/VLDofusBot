@@ -168,7 +168,9 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
 
     private fun getDestinationWorldMap(currentMap: DofusMap, scriptValues: ScriptValues): DofusWorldMap {
         if (scriptValues.getParamValue(useCurrentWorldMapParameter).toBoolean()) {
-            return currentMap.worldMap ?: error("No current world map")
+            return currentMap.worldMap
+                ?: WorldMapManager.getWorldMap(1)
+                ?: error("No world map found")
         }
         val worldMapStr = scriptValues.getParamValue(worldMapParameter)
         return WORLD_MAPS_BY_LABEL[worldMapStr]

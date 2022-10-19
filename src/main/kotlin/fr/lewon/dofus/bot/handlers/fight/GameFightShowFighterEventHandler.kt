@@ -4,11 +4,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightShowFighterMessage
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightFighterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightCharacterInformations
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.character.GameFightShowFighterMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightCharacterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightFighterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightMonsterInformations
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 

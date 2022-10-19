@@ -8,7 +8,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class ExploreSubAreaTask(

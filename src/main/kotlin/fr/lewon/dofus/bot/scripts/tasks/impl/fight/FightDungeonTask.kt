@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.model.dungeon.Dungeon
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.GameRolePlayShowActorMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.GameRolePlayShowActorMessage
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil

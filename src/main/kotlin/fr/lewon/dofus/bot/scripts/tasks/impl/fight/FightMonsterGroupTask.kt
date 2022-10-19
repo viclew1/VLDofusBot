@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameEntitiesDispositionMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameEntitiesDispositionMessage
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.RetryUtil

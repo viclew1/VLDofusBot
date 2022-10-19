@@ -8,10 +8,10 @@ import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.CurrentMapMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.SetCharacterRestrictionsMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.CurrentMapMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.initialization.SetCharacterRestrictionsMessage
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil

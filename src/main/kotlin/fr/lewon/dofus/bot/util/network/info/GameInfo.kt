@@ -12,12 +12,12 @@ import fr.lewon.dofus.bot.game.move.MoveHistory
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.GameRolePlayActorInformations
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
-import fr.lewon.dofus.bot.sniffer.model.types.item.breeding.PaddockItem
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayActorInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
+import fr.lewon.dofus.bot.sniffer.model.types.game.paddock.PaddockItem
 import fr.lewon.dofus.bot.sniffer.store.EventStore
 import java.awt.Rectangle
 import java.util.concurrent.locks.ReentrantLock
@@ -33,7 +33,7 @@ class GameInfo(val character: DofusCharacter) {
     lateinit var connection: DofusConnection
     var gameBounds = Rectangle()
     var completeBounds = Rectangle()
-    
+
     var shouldInitBoard = true
     var initRequested = false
 

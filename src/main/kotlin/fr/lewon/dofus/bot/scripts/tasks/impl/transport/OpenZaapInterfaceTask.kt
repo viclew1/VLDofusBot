@@ -1,12 +1,13 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.ZaapDestinationsMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.zaap.ZaapDestinationsMessage
 import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -40,7 +41,7 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
         val zaapDestMsg = getZaapDestMessageFun()
             ?: error("Zaap destinations not found")
 
-        return zaapDestMsg.destinations.map { it.map }
+        return zaapDestMsg.destinations.map { MapManager.getDofusMap(it.mapId) }
     }
 
     private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {

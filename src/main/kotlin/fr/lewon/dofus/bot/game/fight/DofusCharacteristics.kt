@@ -1,9 +1,9 @@
 package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.core.d2o.managers.characteristic.CharacteristicManager
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicDetailed
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicDetailed
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 
 enum class DofusCharacteristics(val id: Int) {
 

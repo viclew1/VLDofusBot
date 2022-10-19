@@ -12,8 +12,8 @@ import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
-import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElementSkill
+import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
+import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElementSkill
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info", true) {

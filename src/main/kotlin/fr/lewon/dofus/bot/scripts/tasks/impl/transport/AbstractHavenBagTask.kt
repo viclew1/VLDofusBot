@@ -2,9 +2,9 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.chat.TextInformationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataInHavenBagMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.TextInformationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataInHavenBagMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.io.KeyboardUtil

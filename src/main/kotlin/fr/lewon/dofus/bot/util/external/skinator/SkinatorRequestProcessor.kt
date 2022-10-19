@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.external.skinator
 
-import fr.lewon.dofus.bot.sniffer.model.types.actor.entity.EntityLook
+import fr.lewon.dofus.bot.sniffer.model.types.game.look.EntityLook
 import fr.lewon.dofus.bot.util.external.AbstractRequestProcessor
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream

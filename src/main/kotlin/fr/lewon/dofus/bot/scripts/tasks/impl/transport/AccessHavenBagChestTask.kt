@@ -5,8 +5,8 @@ import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementDat
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.storage.StorageInventoryContentMessage
-import fr.lewon.dofus.bot.sniffer.model.types.element.InteractiveElement
+import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.storage.StorageInventoryContentMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo

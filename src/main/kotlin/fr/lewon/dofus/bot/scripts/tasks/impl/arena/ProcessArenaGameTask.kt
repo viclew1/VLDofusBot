@@ -4,8 +4,8 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.arena.GameRolePlayArenaFightPropositionMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.fight.arena.GameRolePlayArenaFightPropositionMessage
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.KeyboardUtil

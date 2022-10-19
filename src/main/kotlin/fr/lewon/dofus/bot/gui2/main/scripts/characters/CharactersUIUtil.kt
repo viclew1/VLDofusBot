@@ -17,7 +17,7 @@ import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.scriptinfo.Script
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.selector.ScriptSelectorUIUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.sniffer.model.types.actor.entity.EntityLook
+import fr.lewon.dofus.bot.sniffer.model.types.game.look.EntityLook
 import fr.lewon.dofus.bot.util.external.skinator.SkinatorRequestProcessor
 import fr.lewon.dofus.bot.util.external.skinator.SkinatorUtil
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
@@ -101,7 +101,6 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             addListeners(character)
             charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
             getCharacterUIState(character.name)
-            ScriptInfoUIUtil.getScriptInfoUIState(character.name)
         }
     }
 
@@ -168,6 +167,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 activityState = CharacterActivityState.TO_INITIALIZE
             )
             charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
+            ScriptInfoUIUtil.getScriptInfoUIState(character.name)
         }
     }
 

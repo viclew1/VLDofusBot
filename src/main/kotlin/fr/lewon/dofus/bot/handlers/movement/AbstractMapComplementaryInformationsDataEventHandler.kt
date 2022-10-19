@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.handlers.movement
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
@@ -8,12 +9,8 @@ import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlob
 import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarUIUtil
 import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.sniffer.model.messages.move.MapComplementaryInformationsDataMessage
-import fr.lewon.dofus.bot.sniffer.model.types.actor.human.options.HumanOptionOrnament
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.humanoid.GameRolePlayCharacterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.hunt.GameRolePlayTreasureHintInformations
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.monster.GameRolePlayGroupMonsterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.npc.GameRolePlayNpcInformations
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.*
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
@@ -23,9 +20,10 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
 
     override fun onEventReceived(socketResult: T, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
-        gameInfo.currentMap = socketResult.map
+        val map = MapManager.getDofusMap(socketResult.mapId)
+        gameInfo.currentMap = map
         gameInfo.drhellerOnMap = socketResult.actors.firstOrNull { it is GameRolePlayTreasureHintInformations } != null
-        gameInfo.dofusBoard.updateStartCells(socketResult.fightStartPositions.positionsForChallenger)
+        gameInfo.dofusBoard.updateStartCells(socketResult.fightStartPositions.positionsForChallengers)
         gameInfo.fightBoard.resetFighters()
         gameInfo.entityPositionsOnMapByEntityId.clear()
         gameInfo.entityIdByNpcId.clear()
@@ -49,7 +47,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.initRequested = true
         } else if (!gameInfo.shouldInitBoard) {
             gameInfo.actors.firstOrNull { it.contextualId == gameInfo.playerId }?.let {
-                CharactersUIUtil.updateSkin(gameInfo.character, it.entityLook)
+                CharactersUIUtil.updateSkin(gameInfo.character, it.look)
                 if (it is GameRolePlayCharacterInformations) {
                     it.humanoidInfo.options.filterIsInstance<HumanOptionOrnament>().firstOrNull()?.let { option ->
                         CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, option.level)
@@ -57,7 +55,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
                 }
             }
         }
-        beepIfSpecialMonsterHere(gameInfo, socketResult.map)
+        beepIfSpecialMonsterHere(gameInfo, map)
     }
 
     private fun beepIfSpecialMonsterHere(gameInfo: GameInfo, map: DofusMap) {

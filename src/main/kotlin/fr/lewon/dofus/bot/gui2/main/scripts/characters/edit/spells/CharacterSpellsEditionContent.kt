@@ -2,10 +2,10 @@ package fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.spells
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +21,7 @@ import fr.lewon.dofus.bot.core.model.spell.DofusSpell
 import fr.lewon.dofus.bot.gui2.custom.CommonText
 import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
 import fr.lewon.dofus.bot.gui2.custom.defaultHoverManager
+import fr.lewon.dofus.bot.gui2.custom.rememberScrollbarAdapter
 import fr.lewon.dofus.bot.gui2.main.DragTarget
 import fr.lewon.dofus.bot.gui2.main.DropTarget
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharacterUIState
@@ -115,7 +116,6 @@ private fun BoxScope.SpellImage(spell: DofusSpell, spellKey: SpellKey?) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AvailableSpells(characterUIState: CharacterUIState) {
     val spells = SpellVariantManager.getSpellVariants(characterUIState.dofusClassId).sortedWith(compareBy(
@@ -128,11 +128,11 @@ private fun AvailableSpells(characterUIState: CharacterUIState) {
             CharacterSpellsUIUtil.updateSpellId(fromSpellKey.key, fromSpellKey.ctrlModifier, null)
         }
         Box(Modifier.fillMaxSize().background(sectionBackgroundColor).border(sectionBorder)) {
-            val state = rememberLazyListState()
+            val state = rememberLazyGridState()
             LazyVerticalGrid(
-                cells = GridCells.Fixed(8),
-                state = state,
-                modifier = Modifier.padding(start = 3.dp, end = 13.dp, top = 3.dp, bottom = 3.dp)
+                columns = GridCells.Fixed(8),
+                modifier = Modifier.padding(start = 3.dp, end = 13.dp, top = 3.dp, bottom = 3.dp),
+                state = state
             ) {
                 items(spells) {
                     SpellBox {

@@ -3,10 +3,10 @@ package fr.lewon.dofus.bot.handlers.fight
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.sniffer.model.messages.fight.GameFightEndMessage
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.result.entry.FightResultFighterListEntry
-import fr.lewon.dofus.bot.sniffer.model.types.fight.result.entry.FightResultPlayerListEntry
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightEndMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.FightResultFighterListEntry
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.FightResultPlayerListEntry
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightMonsterInformations
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager

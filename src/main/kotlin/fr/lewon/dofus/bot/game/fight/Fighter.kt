@@ -6,13 +6,8 @@ import fr.lewon.dofus.bot.core.fighter.PlayerType
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.CharacterCharacteristic
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightEntityInformation
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.GameFightFighterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightAIInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.ai.GameFightMonsterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightCharacterInformations
-import fr.lewon.dofus.bot.sniffer.model.types.fight.fighter.named.GameFightFighterNamedInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.*
 import kotlin.math.min
 
 class Fighter(

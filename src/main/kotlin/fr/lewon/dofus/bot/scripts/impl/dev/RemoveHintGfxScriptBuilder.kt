@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
-import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.filemanagers.impl.TreasureHintManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
@@ -43,7 +43,7 @@ object RemoveHintGfxScriptBuilder : DofusBotScriptBuilder("Remove hint GFX ID", 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val currentHintValue = scriptValues.getParamValue(currentHintParameter).toBoolean()
         val hintLabel = if (currentHintValue) {
-            val currentHint = gameInfo.treasureHunt?.huntSteps?.lastOrNull()
+            val currentHint = gameInfo.treasureHunt?.knownStepsList?.lastOrNull()
                 ?: error("No current hint found")
             if (currentHint !is TreasureHuntStepFollowDirectionToPOI) {
                 error("Current hint isn't a point of interest, impossible to register it")

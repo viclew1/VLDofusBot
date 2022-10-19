@@ -6,7 +6,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -65,7 +64,7 @@ fun <T> DragTarget(
                     draggedItemSize = draggedItemSize
                 )
             }, onDrag = { change, dragAmount ->
-                change.consumeAllChanges()
+                change.consume()
                 dragTargetInfo.value = dragTargetInfo.value.copy(
                     dragOffset = dragTargetInfo.value.dragOffset + Offset(dragAmount.x, dragAmount.y)
                 )

@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 import kotlin.math.abs
 import kotlin.math.max
 

@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.handlers.exchange
 
 import fr.lewon.dofus.bot.sniffer.DofusConnection
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.ObjectAddedMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.items.ObjectAddedMessage
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
@@ -13,7 +13,7 @@ object ObjectAddedEventHandler : IEventHandler<ObjectAddedMessage> {
         if (gameInfo.inShop && MetamobConfigManager.readConfig().shopAutoUpdate) {
             if (MetamobMonstersUpdater.isMetamobConfigured()) {
                 Thread {
-                    MetamobMonstersUpdater.addMonsters(listOf(socketResult.objectItem))
+                    MetamobMonstersUpdater.addMonsters(listOf(socketResult.obj))
                 }.start()
             }
         }

@@ -2,10 +2,10 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.npc
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.interactive.LeaveDialogMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.interactive.NpcDialogCreationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.interactive.NpcDialogQuestionMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.npc.NpcDialogCreationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.npc.NpcDialogQuestionMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.dialog.LeaveDialogMessage
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil

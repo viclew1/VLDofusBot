@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.sniffer.model.messages.breeding.GameDataPaddockObjectRemoveMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.mount.GameDataPaddockObjectRemoveMessage
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil

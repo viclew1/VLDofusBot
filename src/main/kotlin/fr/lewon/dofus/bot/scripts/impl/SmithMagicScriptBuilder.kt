@@ -14,11 +14,11 @@ import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicLine
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicStrategy
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicType
 import fr.lewon.dofus.bot.scripts.smithmagic.strategies.DrakeHeadStrategy
-import fr.lewon.dofus.bot.sniffer.model.messages.exchange.ExchangeObjectAddedMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.exchange.ExchangeStartOkCraftWithInformationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.smithmagic.ObjectModifiedMessage
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.ObjectItem
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.effect.ObjectEffectInteger
+import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeObjectAddedMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeStartOkCraftWithInformationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.items.ObjectModifiedMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.ObjectItem
+import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.effects.ObjectEffectInteger
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.KeyboardUtil
@@ -74,7 +74,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
             gameInfo.logger.addSubLog("Waiting for an item to be selected ...", logItem)
             WaitUtil.waitUntilMessageArrives(gameInfo, ExchangeObjectAddedMessage::class.java)
             val currentObjectItem =
-                gameInfo.eventStore.getLastEvent(ExchangeObjectAddedMessage::class.java)?.objectItem
+                gameInfo.eventStore.getLastEvent(ExchangeObjectAddedMessage::class.java)?.obj
                     ?: error("Missing message in store")
             val smithMagicLogItem = gameInfo.logger.addSubLog("Item selected ! Starting smithing ...", logItem)
             applyStrategyOnItem(gameInfo, currentObjectItem, strategy)
@@ -135,7 +135,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
     private fun waitForObjectModified(gameInfo: GameInfo): ObjectItem? {
         WaitUtil.waitUntil({ gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java) != null }, 10000)
         gameInfo.eventStore.clearUntilLast(ObjectModifiedMessage::class.java)
-        return gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java)?.objectItem
+        return gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java)?.obj
     }
 
     private fun getRuneClickPosition(lineIndex: Int, runeSize: Int): PointRelative {

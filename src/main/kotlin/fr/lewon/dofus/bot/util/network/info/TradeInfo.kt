@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.network.info
 
-import fr.lewon.dofus.bot.sniffer.model.types.actor.roleplay.`object`.ObjectItem
+import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.ObjectItem
 
 class TradeInfo {
 

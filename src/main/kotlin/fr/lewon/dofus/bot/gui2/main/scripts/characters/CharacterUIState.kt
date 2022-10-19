@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.gui2.main.scripts.characters
 
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
-import fr.lewon.dofus.bot.sniffer.model.types.actor.entity.EntityLook
+import fr.lewon.dofus.bot.sniffer.model.types.game.look.EntityLook
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.awt.image.BufferedImage
 

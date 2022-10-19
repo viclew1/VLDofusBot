@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.util.game
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
@@ -7,12 +8,12 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight.FightChestTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecutePoiHuntStepTask
-import fr.lewon.dofus.bot.sniffer.model.messages.misc.BasicNoOperationMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.treasurehunt.TreasureHuntMessage
-import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStep
-import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFight
-import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToHint
-import fr.lewon.dofus.bot.sniffer.model.types.hunt.TreasureHuntStepFollowDirectionToPOI
+import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStep
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFight
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFollowDirectionToHint
+import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -169,9 +170,9 @@ object TreasureHuntUtil {
 
     fun getLastHintMap(gameInfo: GameInfo): DofusMap {
         val treasureHunt = getTreasureHunt(gameInfo)
-        if (treasureHunt.huntFlags.isEmpty()) {
-            return treasureHunt.startMap
-        }
-        return treasureHunt.huntFlags.last().map
+        val mapId = if (treasureHunt.flags.isEmpty()) {
+            treasureHunt.startMapId
+        } else treasureHunt.flags.last().mapId
+        return MapManager.getDofusMap(mapId)
     }
 }

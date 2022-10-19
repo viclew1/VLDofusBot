@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
-import fr.lewon.dofus.bot.sniffer.model.types.fight.charac.impl.CharacterCharacteristicValue
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min

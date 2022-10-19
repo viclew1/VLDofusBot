@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.AccessHavenBagChestTask
-import fr.lewon.dofus.bot.sniffer.model.messages.storage.StorageInventoryContentMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.storage.StorageInventoryContentMessage
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -55,7 +55,7 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
             error("Failed to access Metamob. It might be down but it is more likely that your settings are wrong")
         }
         val metamobUpdateLogItem = gameInfo.logger.addSubLog("Computing owned monsters ... ", logItem)
-        MetamobMonstersUpdater.cleanAndUpdateMonsters(chestContent.objectItems)
+        MetamobMonstersUpdater.cleanAndUpdateMonsters(chestContent.objects)
         gameInfo.logger.closeLog("OK", metamobUpdateLogItem)
     }
 }

@@ -12,11 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.gui2.custom.ComboBox
-import fr.lewon.dofus.bot.gui2.custom.CommonText
-import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
-import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
-import fr.lewon.dofus.bot.gui2.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui2.custom.*
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIUtil
@@ -65,7 +61,8 @@ private fun PlayScriptButton() {
     val isStarted = ScriptTabsUIUtil.isScriptStarted()
     val dyRatio = if (isStarted) 0f else 0.5f
     val uiState = ScriptSelectorUIUtil.uiState.value
-    val enabled = uiState.isStartButtonEnabled
+    val selectedCharactersUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
+    val enabled = uiState.isStartButtonEnabled && selectedCharactersUIStates.isNotEmpty()
     val color = animateColorAsState(if (!enabled) Color.Gray else if (isStarted) AppColors.RED else AppColors.GREEN)
     val animatedDyRatio = animateFloatAsState(targetValue = dyRatio)
 
@@ -89,7 +86,6 @@ private fun PlayScriptButton() {
                 modifier = modifier.handPointerIcon().clickable {
                     Thread {
                         ScriptSelectorUIUtil.uiState.value = uiState.copy(isStartButtonEnabled = false)
-                        val selectedCharactersUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
                         val selectedCharactersNames = selectedCharactersUIStates.map { it.value.name }
                         val selectedCharacters = CharacterManager.getCharacters(selectedCharactersNames)
                         if (isStarted) {
