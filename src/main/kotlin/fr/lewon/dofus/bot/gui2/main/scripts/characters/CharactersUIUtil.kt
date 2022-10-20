@@ -184,6 +184,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             charactersUIState.value = charactersUIState.value.copy(
                 characterNames = getOrderedCharactersNames()
             )
+            ScriptRunner.stopScript(character)
         }
     }
 

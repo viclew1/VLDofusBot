@@ -29,15 +29,11 @@ object SkinatorRequestProcessor : AbstractRequestProcessor("https://www.dofusboo
         val colorsPart = getColors(realEntityLook)
             .mapIndexed { index, color -> index + 1 to color }
             .joinToString(",") { "${it.first}=${it.second}" }
-        val lookPart = getLook(realEntityLook)[3]
+        val lookPart = "140"
         val flashVars = "{1|$skinPart|$colorsPart|$lookPart}"
         return flashVars.toCharArray().joinToString("") {
             Integer.toHexString(it.code).padStart(2, '0')
         }
-    }
-
-    private fun getLook(entityLook: EntityLook): List<String> {
-        return listOf("1", "${entityLook.skins[0]}", "", "${entityLook.scales[0]}")
     }
 
     private fun getColors(entityLook: EntityLook): List<String> {
