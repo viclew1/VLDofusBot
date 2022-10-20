@@ -12,6 +12,6 @@ data class DofusCharacter(
     val executionLogger = VldbLogger()
 
     @JsonIgnore
-    val snifferLogger = VldbLogger(100)
+    val snifferLogger = VldbLogger()
 
 }

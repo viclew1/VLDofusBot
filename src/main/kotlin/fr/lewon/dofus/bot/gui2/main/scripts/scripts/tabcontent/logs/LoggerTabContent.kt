@@ -17,8 +17,7 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun LoggerTabContent(characterUIState: MutableState<CharacterUIState>) {
-    val characterLogsUIState = LogsUIUtil.getCharacterLogsUIState(characterUIState.value.name)
-    val selectedLoggerType = characterLogsUIState.value.loggerType
+    val selectedLoggerType = LogsUIUtil.currentLoggerUIState.value.loggerType
     Column {
         TabRow(
             selectedLoggerType.ordinal,
@@ -32,7 +31,11 @@ fun LoggerTabContent(characterUIState: MutableState<CharacterUIState>) {
                     modifier = Modifier.handPointerIcon(),
                     selected = selectedLoggerType == loggerType,
                     unselectedContentColor = Color.LightGray,
-                    onClick = { characterLogsUIState.value = characterLogsUIState.value.copy(loggerType = loggerType) },
+                    onClick = {
+                        LogsUIUtil.currentLoggerUIState.value = LogsUIUtil.currentLoggerUIState.value.copy(
+                            loggerType = loggerType
+                        )
+                    },
                     enabled = true
                 )
             }

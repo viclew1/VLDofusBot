@@ -119,8 +119,8 @@ enum class AppPage(
         { "${AppInfo.APP_NAME} - ${MainContentUIUtil.mainContentUIState.value.currentAppContent.title}" },
         Typography(FontFamily.SansSerif),
         true,
-        DpSize(1300.dp, 850.dp),
-        DpSize(1200.dp, 750.dp),
+        DpSize(1300.dp, 900.dp),
+        DpSize(1200.dp, 800.dp),
         pageContent = { MainContent() },
         bottomBarContent = {}
     );

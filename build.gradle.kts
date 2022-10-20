@@ -1,4 +1,3 @@
-import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,6 +22,7 @@ dependencies {
     implementation("net.java.dev.jna:jna:5.10.0")
     implementation("net.java.dev.jna:jna-platform:5.10.0")
     implementation("com.github.kwhat:jnativehook:2.2.2")
+    api(compose.materialIconsExtended)
 }
 
 sourceSets.main {

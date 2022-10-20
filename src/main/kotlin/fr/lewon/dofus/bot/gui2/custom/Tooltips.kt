@@ -93,6 +93,7 @@ fun ButtonWithTooltip(
     width: Dp = 30.dp,
     imageModifier: Modifier = Modifier,
     enabled: Boolean = true,
+    iconColor: Color = Color.White
 ) {
     ButtonWithTooltip(
         onClick,
@@ -109,7 +110,7 @@ fun ButtonWithTooltip(
                 imageVector,
                 "",
                 imageModifier.fillMaxSize(0.95f).align(iconAlignment),
-                colorFilter = ColorFilter.tint(Color.White),
+                colorFilter = ColorFilter.tint(iconColor),
             )
         }
     }

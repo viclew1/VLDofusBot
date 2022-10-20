@@ -7,7 +7,7 @@ data class LoggerUIState(
     val loggerType: LoggerUIType,
     val autoScroll: Boolean = true,
     val pauseLogs: Boolean = false,
-    val logs: List<LogItem> = emptyList(),
+    val logItems: List<LogItem> = emptyList(),
+    val expandedLogItem: LogItem? = null,
     val scrollState: ScrollState = ScrollState(0),
-    val expandedLogItems: List<LogItem> = emptyList()
 )

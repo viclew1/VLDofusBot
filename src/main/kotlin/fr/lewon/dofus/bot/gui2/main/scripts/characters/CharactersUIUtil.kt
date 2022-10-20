@@ -1,6 +1,5 @@
 package fr.lewon.dofus.bot.gui2.main.scripts.characters
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.core.logs.LogItem
@@ -188,7 +187,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
         }
     }
 
-    override fun onLogsChange(logger: VldbLogger, logs: List<LogItem>) {
+    override fun onLogUpdated(logger: VldbLogger, logItem: LogItem) {
         LockUtils.executeSyncOperation(lock) {
             val characterName = characterNameByLogger[logger]
                 ?: error("Unregistered logger character")
@@ -196,21 +195,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 ?: error("Character not found : $characterName")
             val loggerUIType = getCharacterLoggersWithTypes(character)[logger]
                 ?: error("Unregistered logger type")
-            val loggerUIState = LogsUIUtil.getLoggerUIState(characterName, loggerUIType)
-            if (!loggerUIState.value.pauseLogs) {
-                val autoScrollEnabled = loggerUIState.value.autoScroll
-                val pauseEnabled = loggerUIState.value.pauseLogs
-                val scrollState = if (autoScrollEnabled && !pauseEnabled) {
-                    ScrollState(Int.MAX_VALUE)
-                } else loggerUIState.value.scrollState
-                loggerUIState.value = loggerUIState.value.copy(
-                    logs = logs,
-                    expandedLogItems = loggerUIState.value.expandedLogItems.toMutableList().also {
-                        it.removeIf { logItem -> !logs.contains(logItem) }
-                    },
-                    scrollState = scrollState
-                )
-            }
+            LogsUIUtil.updateLogItem(characterName, loggerUIType, logItem)
         }
     }
 
