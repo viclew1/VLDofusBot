@@ -99,7 +99,7 @@ fun LogItemsContent(loggerUIState: MutableState<LoggerUIState>) {
         }
         val expandedLogItem = loggerUIState.value.expandedLogItem
         if (expandedLogItem != null && loggerUIState.value.logItems.contains(expandedLogItem)) {
-            ExpandedLogItemContent(expandedLogItem)
+            ExpandedLogItemContent(loggerUIState, expandedLogItem)
         }
     }
 }
@@ -112,6 +112,7 @@ private fun ExpandableLogItemContent(loggerUIState: MutableState<LoggerUIState>,
             val color = if (expanded) AppColors.primaryColor else Color.White
             Row(Modifier.height(12.dp)) {
                 val icon = if (expanded) Icons.Default.Remove else Icons.Default.Add
+                val isHovered = remember { mutableStateOf(false) }
                 ButtonWithTooltip(
                     {
                         loggerUIState.value = loggerUIState.value.copy(
@@ -122,7 +123,9 @@ private fun ExpandableLogItemContent(loggerUIState: MutableState<LoggerUIState>,
                     imageVector = icon,
                     shape = RoundedCornerShape(percent = 5),
                     width = 20.dp,
-                    iconColor = color
+                    iconColor = if (isHovered.value) Color.Black else Color.White,
+                    hoverBackgroundColor = AppColors.primaryColor,
+                    isHovered = isHovered
                 )
             }
             Spacer(Modifier.width(5.dp))
@@ -134,25 +137,43 @@ private fun ExpandableLogItemContent(loggerUIState: MutableState<LoggerUIState>,
 }
 
 @Composable
-private fun ExpandedLogItemContent(logItem: LogItem) {
+private fun ExpandedLogItemContent(loggerUIState: MutableState<LoggerUIState>, logItem: LogItem) {
     val descriptionScrollState = remember(logItem) { ScrollState(0) }
-    val height = remember { mutableStateOf(10.dp) }
-    Box(Modifier.fillMaxWidth().height(min(height.value, 130.dp)).background(AppColors.backgroundColor).padding(5.dp)) {
-        Column(
-            Modifier.verticalScroll(descriptionScrollState).padding(end = 10.dp)
-                .onGloballyPositioned { height.value = it.size.height.dp + 10.dp }
-        ) {
-            SelectionContainer {
-                CommonText(logItem.toString(), fontWeight = FontWeight.Bold, modifier = Modifier.padding(5.dp))
-            }
-            HorizontalSeparator()
-            SelectionContainer {
-                CommonText(logItem.description, modifier = Modifier.padding(5.dp))
+    val height = remember { mutableStateOf(40.dp) }
+    Column(
+        Modifier.fillMaxWidth().height(min(height.value, 130.dp)).background(AppColors.backgroundColor).border(
+            BorderStroke(1.dp, Color.Gray)
+        )
+    ) {
+        Row(Modifier.height(25.dp)) {
+            ButtonWithTooltip(
+                { loggerUIState.value = loggerUIState.value.copy(expandedLogItem = null) },
+                title = "Reduce",
+                imageVector = Icons.Default.Remove,
+                shape = CustomShapes.buildTrapezoidShape(),
+                width = 30.dp,
+                defaultBackgroundColor = AppColors.primaryColor,
+                hoverBackgroundColor = AppColors.primaryColor,
+                iconColor = Color.Black
+            )
+            Spacer(Modifier.width(5.dp))
+            Row(Modifier.align(Alignment.CenterVertically)) {
+                SelectionContainer {
+                    CommonText(logItem.toString(), fontWeight = FontWeight.Bold)
+                }
             }
         }
-        VerticalScrollbar(
-            modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
-            adapter = rememberScrollbarAdapter(descriptionScrollState),
-        )
+        HorizontalSeparator()
+        Box(Modifier.fillMaxSize().padding(5.dp)) {
+            Column(Modifier.onGloballyPositioned { height.value = it.size.height.dp + 40.dp }.padding(end = 14.dp)) {
+                SelectionContainer(Modifier.verticalScroll(descriptionScrollState)) {
+                    CommonText(logItem.description, modifier = Modifier.padding(5.dp))
+                }
+            }
+            VerticalScrollbar(
+                modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
+                adapter = rememberScrollbarAdapter(descriptionScrollState),
+            )
+        }
     }
 }

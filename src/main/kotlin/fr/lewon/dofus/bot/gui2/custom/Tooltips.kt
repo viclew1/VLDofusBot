@@ -93,6 +93,7 @@ fun ButtonWithTooltip(
     width: Dp = 30.dp,
     imageModifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
     iconColor: Color = Color.White
 ) {
     ButtonWithTooltip(
@@ -103,7 +104,8 @@ fun ButtonWithTooltip(
         defaultBackgroundColor,
         hoverAnimation,
         width,
-        enabled
+        enabled,
+        isHovered
     ) {
         Box(Modifier.fillMaxSize()) {
             Image(
@@ -129,6 +131,7 @@ fun ButtonWithTooltip(
     width: Dp = 30.dp,
     imageModifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
 ) {
     ButtonWithTooltip(
         onClick,
@@ -138,7 +141,8 @@ fun ButtonWithTooltip(
         defaultBackgroundColor,
         hoverAnimation,
         width,
-        enabled
+        enabled,
+        isHovered
     ) {
         Box(Modifier.fillMaxSize()) {
             Image(
@@ -160,9 +164,9 @@ private fun ButtonWithTooltip(
     hoverAnimation: Boolean = false,
     width: Dp = 30.dp,
     enabled: Boolean = true,
+    isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
     content: @Composable () -> Unit
 ) {
-    val isHovered = remember { mutableStateOf(false) }
     val angle = animateFloatAsState(
         targetValue = if (hoverAnimation && isHovered.value && enabled) 360f else 0f,
         animationSpec = tween(
