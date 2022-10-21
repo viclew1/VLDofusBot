@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock
 object OverlayManager {
 
     private var displayedOverlay: OverlayInfo? = null
-    private val lock = ReentrantLock(true)
+    private val lock = ReentrantLock()
     private val toToggleOverlays = LinkedBlockingDeque<OverlayInfo>()
     private val overlayManagerTimer = Timer()
 

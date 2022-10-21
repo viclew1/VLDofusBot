@@ -68,6 +68,9 @@ private fun LogsTabsRow() {
                 }
             }
         }
-        LoggerTabContent(selectedCharactersUIStates[selectedIndex])
+        val displayedCharacter = selectedCharactersUIStates.getOrNull(selectedIndex)
+        if (displayedCharacter != null) {
+            LoggerTabContent(displayedCharacter)
+        }
     }
 }
