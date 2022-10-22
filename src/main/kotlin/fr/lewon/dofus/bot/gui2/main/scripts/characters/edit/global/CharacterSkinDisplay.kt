@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toPainter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.CommonText
@@ -18,15 +17,15 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 @Composable
 fun CharacterSkinDisplay(characterUIState: CharacterUIState) {
     Box(Modifier.height(200.dp).padding(5.dp)) {
-        val skinImage = characterUIState.skinImage
+        val skinImagePainter = characterUIState.skinImage
         Column(Modifier.align(Alignment.BottomCenter)) {
-            if (skinImage == null) {
+            if (skinImagePainter == null) {
                 CommonText("Initialize character to load its skin", textAlign = TextAlign.Center)
             }
             Image(BreedAssetManager.getAssets(characterUIState.dofusClassId).blurredIconPainter, "")
         }
-        if (skinImage != null) {
-            Image(skinImage.toPainter(), "", Modifier.align(Alignment.Center))
+        if (skinImagePainter != null) {
+            Image(skinImagePainter, "", Modifier.align(Alignment.Center))
         }
     }
 }

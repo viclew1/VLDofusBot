@@ -48,6 +48,8 @@ fun RefreshButton(
     width: Dp = 30.dp,
     imageModifier: Modifier = Modifier,
     enabled: Boolean = true,
+    iconColor: Color = Color.White,
+    isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
     refreshing: MutableState<Boolean> = remember { mutableStateOf(false) }
 ) {
     val angle = animateFloatAsState(
@@ -76,7 +78,9 @@ fun RefreshButton(
         hoverAnimation = hoverAnimation,
         width = width,
         imageModifier = imageModifier.rotate(angle.value),
-        enabled = !refreshing.value && enabled
+        enabled = !refreshing.value && enabled,
+        isHovered = isHovered,
+        iconColor = iconColor
     )
 }
 

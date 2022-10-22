@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.gui2.main.scripts.characters
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.logs.VldbLoggerListener
@@ -262,7 +263,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 LockUtils.executeSyncOperation(lock) {
                     val uiState = getCharacterUIState(character.name)
                     uiState.value = uiState.value.copy(
-                        skinImage = newSkinImage,
+                        skinImage = newSkinImage.toPainter(),
                         entityLook = entityLook
                     )
                 }
