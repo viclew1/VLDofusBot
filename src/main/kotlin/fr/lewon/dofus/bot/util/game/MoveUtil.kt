@@ -9,8 +9,11 @@ import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.ChangeMapMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.CurrentMapMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapInformationsRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.initialization.SetCharacterRestrictionsMessage
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
@@ -19,9 +22,8 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object MoveUtil {
 
-    fun buildDirectionalPath(gameInfo: GameInfo, direction: Direction, amount: Int): List<Transition>? {
-        return buildDirectionalPath(gameInfo, direction, { _, count -> count == amount }, amount)
-    }
+    fun buildDirectionalPath(gameInfo: GameInfo, direction: Direction, amount: Int): List<Transition>? =
+        buildDirectionalPath(gameInfo, direction, { _, count -> count == amount }, amount)
 
     fun buildDirectionalPath(
         gameInfo: GameInfo, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int
@@ -70,13 +72,11 @@ object MoveUtil {
             ?: error("No path found")
     }
 
-    private fun getIdealDestination(direction: Direction, fromMap: DofusMap): DofusCoordinates {
-        return when (direction) {
-            Direction.LEFT -> DofusCoordinates(fromMap.posX - 1, fromMap.posY)
-            Direction.RIGHT -> DofusCoordinates(fromMap.posX + 1, fromMap.posY)
-            Direction.TOP -> DofusCoordinates(fromMap.posX, fromMap.posY - 1)
-            Direction.BOTTOM -> DofusCoordinates(fromMap.posX, fromMap.posY + 1)
-        }
+    private fun getIdealDestination(direction: Direction, fromMap: DofusMap): DofusCoordinates = when (direction) {
+        Direction.LEFT -> DofusCoordinates(fromMap.posX - 1, fromMap.posY)
+        Direction.RIGHT -> DofusCoordinates(fromMap.posX + 1, fromMap.posY)
+        Direction.TOP -> DofusCoordinates(fromMap.posX, fromMap.posY - 1)
+        Direction.BOTTOM -> DofusCoordinates(fromMap.posX, fromMap.posY + 1)
     }
 
     private fun getPotentialTransitions(
@@ -103,45 +103,45 @@ object MoveUtil {
         }
     }
 
-    fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean {
-        return processMove(gameInfo, InteractiveUtil.getCellClickPosition(gameInfo, cellId))
-    }
+    fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean =
+        processMove(gameInfo, InteractiveUtil.getCellClickPosition(gameInfo, cellId))
 
     fun processInteractiveMove(gameInfo: GameInfo, elementId: Int, skillId: Int): Boolean {
         gameInfo.eventStore.clear()
         InteractiveUtil.useInteractive(gameInfo, elementId, skillId)
-        waitUntilMoveClickProcessed(gameInfo)
-        waitForMapChange(gameInfo)
+        waitForMapChangeFinished(gameInfo)
         return true
     }
 
     fun processMove(gameInfo: GameInfo, clickLocation: PointRelative): Boolean {
         gameInfo.eventStore.clear()
-        MouseUtil.leftClick(gameInfo, clickLocation)
-        waitUntilMoveClickProcessed(gameInfo)
-        waitForMapChange(gameInfo)
+        clickUntilMapChangeRequested(gameInfo, clickLocation)
+        waitForMapChangeFinished(gameInfo)
         return true
     }
 
-    private fun waitUntilMoveClickProcessed(gameInfo: GameInfo) {
-        WaitUtil.waitUntilMultipleMessagesArrive(
-            gameInfo,
-            CurrentMapMessage::class.java,
-            MapComplementaryInformationsDataMessage::class.java,
-            SetCharacterRestrictionsMessage::class.java
+    private fun clickUntilMapChangeRequested(gameInfo: GameInfo, clickLocation: PointRelative) {
+        RetryUtil.tryUntilSuccess(
+            { MouseUtil.leftClick(gameInfo, clickLocation) },
+            { waitUntilMapChangeRequested(gameInfo) },
+            4,
         )
     }
+
+    private fun waitUntilMapChangeRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+        gameInfo.eventStore.getLastEvent(ChangeMapMessage::class.java) != null
+                || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+                || gameInfo.eventStore.getLastEvent(MapInformationsRequestMessage::class.java) != null
+    }, 1500)
 
     fun isMapChanged(
         gameInfo: GameInfo,
         complementaryInformationClass: Class<out MapComplementaryInformationsDataMessage> = MapComplementaryInformationsDataMessage::class.java
-    ): Boolean {
-        return gameInfo.eventStore.getAllEvents(SetCharacterRestrictionsMessage::class.java).isNotEmpty()
-                && gameInfo.eventStore.getAllEvents(CurrentMapMessage::class.java).isNotEmpty()
-                && gameInfo.eventStore.getAllEvents(complementaryInformationClass).isNotEmpty()
-    }
+    ): Boolean = gameInfo.eventStore.getAllEvents(SetCharacterRestrictionsMessage::class.java).isNotEmpty()
+            && gameInfo.eventStore.getAllEvents(CurrentMapMessage::class.java).isNotEmpty()
+            && gameInfo.eventStore.getAllEvents(complementaryInformationClass).isNotEmpty()
 
-    fun waitForMapChange(
+    fun waitForMapChangeFinished(
         gameInfo: GameInfo,
         complementaryInformationClass: Class<out MapComplementaryInformationsDataMessage> = MapComplementaryInformationsDataMessage::class.java
     ) {

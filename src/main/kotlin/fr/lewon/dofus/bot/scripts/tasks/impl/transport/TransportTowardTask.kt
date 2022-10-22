@@ -17,7 +17,7 @@ class TransportTowardTask(private val transporter: ITransporter) : BooleanDofusB
         }
         WaitUtil.sleep(2000)
         NpcSpeakTask(transporter.getNpcId(), listOf(transporter.getOptionIndex())).run(logItem, gameInfo)
-        MoveUtil.waitForMapChange(gameInfo)
+        MoveUtil.waitForMapChangeFinished(gameInfo)
         return WaitUtil.waitUntil({ GeneralUIGameUtil.isGameReadyToUse(gameInfo) })
     }
 

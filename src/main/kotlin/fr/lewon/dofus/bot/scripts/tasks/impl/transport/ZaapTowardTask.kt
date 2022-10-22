@@ -56,7 +56,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         gameInfo.eventStore.clear()
         WaitUtil.sleep(300)
         MouseUtil.tripleLeftClick(gameInfo, zaapLocation)
-        MoveUtil.waitForMapChange(gameInfo)
+        MoveUtil.waitForMapChangeFinished(gameInfo)
     }
 
     private fun getOrderedZaapDestinations(zaapDestinations: List<DofusMap>): List<DofusMap> {

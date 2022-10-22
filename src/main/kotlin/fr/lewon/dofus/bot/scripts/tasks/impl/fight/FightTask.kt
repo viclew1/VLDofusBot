@@ -16,9 +16,12 @@ import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.fight.GameActionFightCastOnTargetRequestMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.fight.GameActionFightCastRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.sequence.SequenceEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameEntitiesDispositionMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightOptionStateUpdateMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightTurnEndMessage
@@ -190,28 +193,38 @@ open class FightTask(
         gameInfo.eventStore.clear(SequenceEndMessage::class.java)
         gameInfo.eventStore.clear(BasicNoOperationMessage::class.java)
         RetryUtil.tryUntilSuccess(
-            { MouseUtil.tripleLeftClick(gameInfo, target.getCenter()) },
-            { waitForSequenceCompleteEnd(gameInfo, 2000) },
-            5
+            { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
+            { waitUntilMoveRequested(gameInfo) },
+            4
         )
-        waitForSequenceCompleteEnd(gameInfo, 5000)
+        waitForSequenceCompleteEnd(gameInfo)
     }
 
-    private fun castSpell(gameInfo: GameInfo, characterSpell: CharacterSpell, target: DofusCell): Boolean {
+    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+        gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+    }, 2000)
+
+    private fun castSpell(gameInfo: GameInfo, characterSpell: CharacterSpell, target: DofusCell) {
         gameInfo.eventStore.clear(SequenceEndMessage::class.java)
         gameInfo.eventStore.clear(BasicNoOperationMessage::class.java)
-        return RetryUtil.tryUntilSuccess(
+        RetryUtil.tryUntilSuccess(
             {
                 val keyEvent = KeyEvent.getExtendedKeyCodeForChar(characterSpell.key.code)
                 KeyboardUtil.sendKey(gameInfo, keyEvent, 300, characterSpell.ctrlModifier)
                 MouseUtil.leftClick(gameInfo, target.getCenter())
-                waitForSequenceCompleteEnd(gameInfo, 4000)
-            }, 4
+            },
+            { waitUntilSpellCastRequested(gameInfo) },
+            4
         )
     }
 
-    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo, waitTime: Int): Boolean {
-        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceComplete(gameInfo) }, waitTime)
+    private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+        gameInfo.eventStore.getLastEvent(GameActionFightCastOnTargetRequestMessage::class.java) != null
+                || gameInfo.eventStore.getLastEvent(GameActionFightCastRequestMessage::class.java) != null
+    }, 2000)
+
+    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo): Boolean {
+        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceComplete(gameInfo) }, 5000)
     }
 
     private fun isSequenceComplete(gameInfo: GameInfo): Boolean {

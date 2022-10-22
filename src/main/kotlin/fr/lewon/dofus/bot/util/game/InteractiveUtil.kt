@@ -3,6 +3,9 @@ package fr.lewon.dofus.bot.util.game
 import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
 import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementData
 import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseRequestMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElementSkill
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -74,6 +77,25 @@ object InteractiveUtil {
             error("No skill available on interactive : $skillId on element : $elementId")
         }
 
+        gameInfo.eventStore.clear()
+        RetryUtil.tryUntilSuccess(
+            { doUseInteractive(gameInfo, elementClickLocation, skills, skillIndex) },
+            { waitUntilInteractiveUseRequestSent(gameInfo) },
+            4
+        )
+    }
+
+    private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+        gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java) != null
+                || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+    }, 1500)
+
+    private fun doUseInteractive(
+        gameInfo: GameInfo,
+        elementClickLocation: PointRelative,
+        skills: List<InteractiveElementSkill>,
+        skillIndex: Int
+    ) {
         if (skills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }.size > 1) {
             if (!RetryUtil.tryUntilSuccess({ clickOption(gameInfo, elementClickLocation, skillIndex) }, 10)) {
                 error("Couldn't use interactive")

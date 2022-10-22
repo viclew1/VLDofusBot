@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.DofusMessageReceiver
+import fr.lewon.dofus.bot.sniffer.Host
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.io.WaitUtil
@@ -97,10 +98,8 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     private fun parseDofusConnection(matchResult: MatchResult): DofusConnection {
         return DofusConnection(
-            matchResult.groupValues[1].trim(),
-            matchResult.groupValues[2].trim(),
-            matchResult.groupValues[3].trim(),
-            matchResult.groupValues[4].trim(),
+            Host(matchResult.groupValues[1].trim(), matchResult.groupValues[2].trim()),
+            Host(matchResult.groupValues[3].trim(), matchResult.groupValues[4].trim()),
             matchResult.groupValues[5].trim().toLong()
         )
     }
@@ -108,7 +107,7 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     private fun stopListeningToDeadConnections(deadConnections: List<DofusConnection>) {
         val removedCharacters = HashSet<DofusCharacter>()
         for (connection in deadConnections) {
-            MESSAGE_RECEIVER.stopListening(connection.hostPort)
+            MESSAGE_RECEIVER.stopListening(connection.client)
             CONNECTIONS_BY_CHARACTER_NAME.entries.filter { it.value.contains(connection) }
                 .forEach { it.value.remove(connection) }
             val toRemove = CONNECTIONS_BY_CHARACTER_NAME.entries.filter { it.value.isEmpty() }

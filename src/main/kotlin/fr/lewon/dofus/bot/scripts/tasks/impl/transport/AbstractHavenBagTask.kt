@@ -28,7 +28,7 @@ abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : 
         }
 
         val reachedHavenBag = isReachHavenBagSuccess(gameInfo)
-        MoveUtil.waitForMapChange(gameInfo, getComplementaryInformationClass(reachedHavenBag))
+        MoveUtil.waitForMapChangeFinished(gameInfo, getComplementaryInformationClass(reachedHavenBag))
 
         if (shouldReachHavenBag && !reachedHavenBag) {
             gameInfo.logger.addSubLog("Left haven bag instead, trying again...", logItem)

@@ -20,7 +20,7 @@ class FightDungeonTask(private val dungeon: Dungeon, private val shouldExit: Boo
         WaitUtil.sleep(2000)
         gameInfo.eventStore.clear()
         NpcSpeakTask(dungeon.npcEnterId, dungeon.npcEnterOptions).run(logItem, gameInfo)
-        MoveUtil.waitForMapChange(gameInfo)
+        MoveUtil.waitForMapChangeFinished(gameInfo)
         while (!gameInfo.entityIdByNpcId.keys.contains(dungeon.npcExitId)) {
             val monsterGroupPassed = RetryUtil.tryUntilSuccess(
                 { FightMonsterGroupTask().run(logItem, gameInfo) },
@@ -35,7 +35,7 @@ class FightDungeonTask(private val dungeon: Dungeon, private val shouldExit: Boo
             WaitUtil.sleep(2000)
             gameInfo.eventStore.clear()
             NpcSpeakTask(dungeon.npcExitId, dungeon.npcExitOptions).run(logItem, gameInfo)
-            MoveUtil.waitForMapChange(gameInfo)
+            MoveUtil.waitForMapChangeFinished(gameInfo)
         }
         return true
     }
