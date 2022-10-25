@@ -17,14 +17,14 @@ object SkinatorRequestProcessor : AbstractRequestProcessor("https://www.dofusboo
     }
 
     @Synchronized
-    fun getSkinImage(entityLook: EntityLook): BufferedImage {
-        val request = "$FLASH_IMAGE_PREFIX${getFlashVars(entityLook)}$FLASH_IMAGE_SUFFIX"
+    fun getSkinImage(flashVars: String): BufferedImage {
+        val request = "$FLASH_IMAGE_PREFIX$flashVars$FLASH_IMAGE_SUFFIX"
         val imageByteArray = get(request) ?: error("Couldn't find an image for this entity")
         return ImageIO.read(ByteArrayInputStream(imageByteArray))
     }
 
-    private fun getFlashVars(entityLook: EntityLook): String {
-        val realEntityLook = SkinatorUtil.getRealEntityLook(entityLook)
+    fun getFlashVars(entityLook: EntityLook): String {
+        val realEntityLook = getRealEntityLook(entityLook)
         val skinPart = realEntityLook.skins.joinToString(",")
         val colorsPart = getColors(realEntityLook)
             .mapIndexed { index, color -> index + 1 to color }
@@ -34,6 +34,13 @@ object SkinatorRequestProcessor : AbstractRequestProcessor("https://www.dofusboo
         return flashVars.toCharArray().joinToString("") {
             Integer.toHexString(it.code).padStart(2, '0')
         }
+    }
+
+    private fun getRealEntityLook(entityLook: EntityLook): EntityLook {
+        if (entityLook.skins.isEmpty() && entityLook.subentities.isNotEmpty()) {
+            return entityLook.subentities.first().subEntityLook
+        }
+        return entityLook
     }
 
     private fun getColors(entityLook: EntityLook): List<String> {

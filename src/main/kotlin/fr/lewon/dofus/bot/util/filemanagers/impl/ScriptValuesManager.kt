@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.model.characters.scriptvalues.CharacterScriptValues
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValuesStore
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
@@ -23,7 +23,7 @@ object ScriptValuesManager : ToInitManager {
     }
 
     fun getCharacterScriptValues(characterName: String): CharacterScriptValues {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             fileManager.getElement { store ->
                 store.getScriptValues(characterName).deepCopy()
             }
@@ -36,7 +36,7 @@ object ScriptValuesManager : ToInitManager {
         parameter: DofusBotParameter,
         value: String
     ) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             fileManager.updateStore { store ->
                 store.getScriptValues(characterName).getValues(scriptBuilder).updateParamValue(parameter, value)
             }
@@ -44,7 +44,7 @@ object ScriptValuesManager : ToInitManager {
     }
 
     fun removeScriptValues(characterName: String) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             fileManager.updateStore { store ->
                 store.remove(characterName)
             }

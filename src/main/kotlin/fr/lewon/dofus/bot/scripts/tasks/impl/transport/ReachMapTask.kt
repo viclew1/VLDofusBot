@@ -13,34 +13,19 @@ open class ReachMapTask(private val dofusMaps: List<DofusMap>) : BooleanDofusBot
         if (dofusMaps.contains(gameInfo.currentMap)) {
             return true
         }
-        val zaaps = TravelUtil.getAllZaapMaps()
-        val transporters = TravelUtil.getTransporters()
 
         val zaapWithDist = TravelUtil.getClosestZaap(gameInfo, dofusMaps)
-        val transporterWithDist = TravelUtil.getClosestTransporter(gameInfo, transporters, dofusMaps)
-        val transporterToZaapDist = transporterWithDist?.first?.let {
-            TravelUtil.getPath(transporterWithDist.first.getTransporterMap(), 1, zaaps, gameInfo)?.size
-        } ?: Int.MAX_VALUE
         val path = TravelUtil.getPath(gameInfo, dofusMaps)
 
-
-        val transporterDist = transporterWithDist?.second?.plus(transporterToZaapDist) ?: Int.MAX_VALUE
-        val zaapDist = zaapWithDist?.second ?: Int.MAX_VALUE
-        val travelDist = path?.size ?: Int.MAX_VALUE
-
-        val minDist = minOf(transporterDist, zaapDist, travelDist)
-
-        val transportResult = when {
-            path != null && minDist == travelDist ->
-                true
-            transporterWithDist != null && transporterDist == minDist ->
-                TransportTowardTask(transporterWithDist.first).run(logItem, gameInfo)
-            zaapWithDist != null && zaapDist == minDist ->
-                ZaapTowardTask(zaapWithDist.first).run(logItem, gameInfo)
-            else ->
-                error("No travel element found")
+        if (zaapWithDist == null && path == null) {
+            error("No travel element found")
         }
-        return transportResult && TravelTask(dofusMaps).run(logItem, gameInfo)
+
+        val travelDist = path?.size ?: Int.MAX_VALUE
+        val zaapOk = if (zaapWithDist != null && zaapWithDist.second < travelDist - 1) {
+            ZaapTowardTask(zaapWithDist.first).run(logItem, gameInfo)
+        } else true
+        return zaapOk && TravelTask(dofusMaps).run(logItem, gameInfo)
     }
 
     override fun onStarted(): String {

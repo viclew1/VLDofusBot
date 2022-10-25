@@ -6,9 +6,6 @@ import fr.lewon.dofus.bot.core.model.maps.DofusCoordinates
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
-import fr.lewon.dofus.bot.game.move.transporters.FrigostTransporter
-import fr.lewon.dofus.bot.game.move.transporters.ITransporter
-import fr.lewon.dofus.bot.game.move.transporters.OtomaiTransporter
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object TravelUtil {
@@ -19,21 +16,6 @@ object TravelUtil {
             .filter { !it.subArea.isConquestVillage }
     }
 
-    fun getTransporters(): List<ITransporter> {
-        return listOf<ITransporter>(
-            *OtomaiTransporter.values(),
-            *FrigostTransporter.values()
-        )
-    }
-
-    fun getClosestTransporter(
-        gameInfo: GameInfo,
-        transporters: List<ITransporter>,
-        maps: List<DofusMap>
-    ): Pair<ITransporter, Int>? {
-        return getClosest(gameInfo, transporters, maps) { it.getMap() }
-    }
-
     fun getClosestZaap(gameInfo: GameInfo, maps: List<DofusMap>): Pair<DofusMap, Int>? {
         val zaaps = getAllZaapMaps().sortedBy { minDistance(it, maps) }
         val zaapsSubList = zaaps.takeIf { it.size > 3 }?.subList(0, 3) ?: zaaps
@@ -41,7 +23,7 @@ object TravelUtil {
     }
 
     private fun minDistance(fromMap: DofusMap, toMaps: List<DofusMap>): Int {
-        return toMaps.map { getDistance(fromMap, it) }.minOrNull() ?: Int.MAX_VALUE
+        return toMaps.minOfOrNull { getDistance(fromMap, it) } ?: Int.MAX_VALUE
     }
 
     private fun getDistance(fromMap: DofusMap, toMap: DofusMap): Int {

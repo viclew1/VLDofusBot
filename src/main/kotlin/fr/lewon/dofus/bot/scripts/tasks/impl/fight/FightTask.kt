@@ -36,6 +36,7 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
 import fr.lewon.dofus.bot.util.network.info.GameInfo
+import fr.lewon.dofus.bot.util.ui.UiUtil
 import java.awt.event.KeyEvent
 
 open class FightTask(
@@ -96,8 +97,10 @@ open class FightTask(
     }
 
     private fun isLvlUp(gameInfo: GameInfo): Boolean {
-        return ScreenUtil.isBetween(gameInfo, LVL_UP_OK_BUTTON_POINT, MIN_COLOR, MAX_COLOR)
+        return ScreenUtil.colorCount(gameInfo, getLvlUpCloseButtonBounds(), MIN_COLOR, MAX_COLOR) != 0
     }
+
+    private fun getLvlUpCloseButtonBounds() = UiUtil.getContainerBounds(DofusUIElement.LVL_UP, "btn_close_main")
 
     private fun isFightEnded(gameInfo: GameInfo): Boolean {
         return gameInfo.eventStore.getLastEvent(GameFightEndMessage::class.java) != null
@@ -124,9 +127,7 @@ open class FightTask(
         selectInitialPosition(gameInfo, fightBoard, ai)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
-        gameInfo.eventStore.clear(GameFightEndMessage::class.java)
-        gameInfo.eventStore.clear(MapComplementaryInformationsDataMessage::class.java)
-        gameInfo.eventStore.clear(SetCharacterRestrictionsMessage::class.java)
+        gameInfo.eventStore.clear()
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, 60 * 1000)
 
@@ -169,7 +170,7 @@ open class FightTask(
             error("Close button not found")
         }
         if (isLvlUp(gameInfo)) {
-            MouseUtil.leftClick(gameInfo, LVL_UP_OK_BUTTON_POINT)
+            MouseUtil.leftClick(gameInfo, getLvlUpCloseButtonBounds().getCenter())
             WaitUtil.waitUntil({ !isLvlUp(gameInfo) })
         }
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
@@ -190,8 +191,7 @@ open class FightTask(
     }
 
     private fun processMove(gameInfo: GameInfo, target: DofusCell) {
-        gameInfo.eventStore.clear(SequenceEndMessage::class.java)
-        gameInfo.eventStore.clear(BasicNoOperationMessage::class.java)
+        gameInfo.eventStore.clear()
         RetryUtil.tryUntilSuccess(
             { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
             { waitUntilMoveRequested(gameInfo) },
@@ -205,8 +205,7 @@ open class FightTask(
     }, 2000)
 
     private fun castSpell(gameInfo: GameInfo, characterSpell: CharacterSpell, target: DofusCell) {
-        gameInfo.eventStore.clear(SequenceEndMessage::class.java)
-        gameInfo.eventStore.clear(BasicNoOperationMessage::class.java)
+        gameInfo.eventStore.clear()
         RetryUtil.tryUntilSuccess(
             {
                 val keyEvent = KeyEvent.getExtendedKeyCodeForChar(characterSpell.key.code)
@@ -241,7 +240,6 @@ open class FightTask(
         eventClass: Class<out NetworkMessage>,
         timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
     ): Boolean {
-        gameInfo.eventStore.clear(eventClass)
         return WaitUtil.waitUntil(
             { isFightEnded(gameInfo) || gameInfo.eventStore.getLastEvent(eventClass) != null }, timeOutMillis
         )

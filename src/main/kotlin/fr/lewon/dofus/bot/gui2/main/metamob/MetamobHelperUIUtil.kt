@@ -4,7 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toPainter
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui2.main.metamob.filter.MonsterFilter
 import fr.lewon.dofus.bot.gui2.main.metamob.monsters.MonsterPainterState
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
@@ -56,13 +56,13 @@ object MetamobHelperUIUtil {
     }
 
     fun getPainter(monster: MetamobMonster): Painter? {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             getMonsterPainterState(monster).value.painter
         }
     }
 
     private fun getMonsterPainterState(monster: MetamobMonster): MutableState<MonsterPainterState> {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             painterByImageUrl.computeIfAbsent(monster.imageUrl) { mutableStateOf(MonsterPainterState()) }
         }
     }
@@ -70,7 +70,7 @@ object MetamobHelperUIUtil {
     fun loadImagePainter(monster: MetamobMonster) {
         val state = getMonsterPainterState(monster)
         val shouldLoad = !state.value.loaded
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             if (shouldLoad) {
                 state.value = state.value.copy(loaded = true)
             }
@@ -78,7 +78,7 @@ object MetamobHelperUIUtil {
         if (shouldLoad) {
             Thread {
                 val painter = doLoadImage(monster)?.toPainter()
-                LockUtils.executeSyncOperation(lock) {
+                lock.executeSyncOperation {
                     state.value = state.value.copy(
                         loaded = true,
                         painter = painter

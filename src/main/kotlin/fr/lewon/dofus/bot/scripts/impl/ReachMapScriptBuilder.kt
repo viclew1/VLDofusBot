@@ -92,9 +92,9 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_DUNGEON.label }
     )
 
-    private val useTeleportsParameter = DofusBotParameter(
-        "Use teleports",
-        "Check if you want to allow teleports for the travel",
+    private val useZaapsParameter = DofusBotParameter(
+        "Use zaaps",
+        "Check if you want to allow zaaps for the travel",
         "true",
         DofusBotParameterType.BOOLEAN
     )
@@ -108,7 +108,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
             useCurrentWorldMapParameter,
             worldMapParameter,
             dungeonParameter,
-            useTeleportsParameter
+            useZaapsParameter
         )
     }
 
@@ -117,13 +117,13 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
     }
 
     override fun getDescription(): String {
-        return "Reaches the destination using zaaps or transporters if needed."
+        return "Reaches the destination using zaaps, transporters or NPCs if needed."
     }
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
-        val useTeleports = scriptValues.getParamValue(useTeleportsParameter).toBoolean()
+        val useZaaps = scriptValues.getParamValue(useZaapsParameter).toBoolean()
         val destMaps = getDestMaps(gameInfo, scriptValues)
-        val travelOk = if (useTeleports) {
+        val travelOk = if (useZaaps) {
             ReachMapTask(destMaps).run(logItem, gameInfo)
         } else {
             TravelTask(destMaps).run(logItem, gameInfo)

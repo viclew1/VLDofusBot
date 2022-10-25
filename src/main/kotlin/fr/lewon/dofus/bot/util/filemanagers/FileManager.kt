@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.util.filemanagers
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
@@ -27,14 +27,14 @@ class FileManager<T : Any>(fileName: String, defaultStore: T) {
     }
 
     fun updateStore(update: (T) -> Unit) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             update(store)
             saveStore()
         }
     }
 
     fun <R> getElement(get: (T) -> R): R {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             get(store)
         }
     }

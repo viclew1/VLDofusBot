@@ -5,10 +5,8 @@ import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.core.utils.LockUtils
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
-import fr.lewon.dofus.bot.game.move.MoveHistory
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
@@ -26,7 +24,7 @@ class GameInfo(val character: DofusCharacter) {
 
     var hp = 0
     var maxHp = 0
-    private val lock = ReentrantLock()
+    val lock = ReentrantLock()
     val logger = character.executionLogger
 
     val eventStore = EventStore()
@@ -40,7 +38,6 @@ class GameInfo(val character: DofusCharacter) {
     val dofusBoard = DofusBoard()
 
     val fightBoard = FightBoard(this)
-    val moveHistory = MoveHistory()
     var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
     var actors: List<GameRolePlayActorInformations> = ArrayList()
@@ -76,20 +73,13 @@ class GameInfo(val character: DofusCharacter) {
 
     fun buildCharacterBasicInfo(): DofusCharacterBasicInfo {
         return DofusCharacterBasicInfo(
+            character.name,
             character.dofusClassId,
             finishedQuestIds,
             activeQuestIds,
             finishedObjectiveIds,
             activeObjectiveIds
         )
-    }
-
-    fun executeThreadedSyncOperation(operation: () -> Unit) {
-        LockUtils.executeThreadedSyncOperation(lock, operation)
-    }
-
-    fun <T> executeSyncOperation(operation: () -> T): T {
-        return LockUtils.executeSyncOperation(lock, operation)
     }
 
     @Synchronized

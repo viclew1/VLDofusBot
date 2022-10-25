@@ -1,8 +1,9 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.HintManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
-import fr.lewon.dofus.bot.model.dungeon.Dungeons
+import fr.lewon.dofus.bot.model.dungeon.Dungeon
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -14,13 +15,8 @@ object FightDungeonScriptBuilder : DofusBotScriptBuilder("Fight dungeon") {
 
     private var count = 0
 
-    private val DUNGEON_BY_NAME = mapOf(
-        "Rats Brakmar" to Dungeons.BRAKMAR_RATS_DUNGEON,
-        "Draegnerys" to Dungeons.DRAEGNERYS_DUNGEON,
-        "Bouftou" to Dungeons.BOUFTOU_DUNGEON,
-        "Champs" to Dungeons.CHAMPS_DUNGEON,
-        "Ensablé" to Dungeons.ENSABLE_DUNGEON
-    )
+    private val DUNGEON_HINTS = HintManager.getHints(HintManager.HintType.DUNGEON)
+    private val DUNGEON_BY_NAME = Dungeon.values().associateBy { it.name }
 
     private val dungeonParameter = DofusBotParameter(
         "Dungeon",

@@ -6,6 +6,7 @@ import com.sun.jna.platform.win32.*
 import com.sun.jna.platform.win32.WinDef.HWND
 import com.sun.jna.ptr.IntByReference
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Point
 import java.awt.Rectangle
@@ -45,7 +46,7 @@ object JNAUtil {
     }
 
     fun updateGameBounds(gameInfo: GameInfo) {
-        gameInfo.executeSyncOperation {
+        gameInfo.lock.executeSyncOperation {
             val rect = WinDef.RECT()
             User32.INSTANCE.GetClientRect(findByPID(gameInfo.connection.pid), rect)
 
@@ -94,7 +95,7 @@ object JNAUtil {
     }
 
     fun takeCapture(gameInfo: GameInfo): BufferedImage {
-        return gameInfo.executeSyncOperation {
+        return gameInfo.lock.executeSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = findByPID(pid) ?: error("Can't take capture, no handle for PID : $pid")
             val hdcWindow = User32.INSTANCE.GetDC(handle)

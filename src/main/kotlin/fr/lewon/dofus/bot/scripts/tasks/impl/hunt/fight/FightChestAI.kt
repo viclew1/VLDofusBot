@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight
 
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectGlobalType
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellTargetType
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
@@ -47,7 +48,12 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
     }
 
     private fun isSingleAttackSpell(spell: DofusSpellLevel): Boolean {
-        return spell.effects.count { it.effectType.globalType == DofusSpellEffectGlobalType.ATTACK } == 1
+        return spell.effects.count {
+            val targetTypes = it.targets.map { target -> target.type }
+            it.effectType.globalType == DofusSpellEffectGlobalType.ATTACK
+                    && !targetTypes.contains(DofusSpellTargetType.WITH_STATE)
+                    && targetTypes.contains(DofusSpellTargetType.ENEMIES)
+        } == 1
     }
 
 }

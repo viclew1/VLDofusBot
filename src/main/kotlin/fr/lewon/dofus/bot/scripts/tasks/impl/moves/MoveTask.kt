@@ -9,7 +9,11 @@ import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
+import fr.lewon.dofus.bot.model.transition.NpcTransition
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.ConverterUtil
@@ -28,7 +32,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         for ((i, transition) in transitions.withIndex()) {
             gameInfo.logger.closeLog("[${getTransitionDescription(transition)}] $i/${transitions.size}", logItem, true)
-            if (!processTransition(gameInfo, transition)) {
+            if (!processTransition(gameInfo, logItem, transition)) {
                 return false
             }
         }
@@ -40,12 +44,20 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             TransitionType.SCROLL, TransitionType.SCROLL_ACTION -> Direction.fromInt(transition.direction).toString()
             TransitionType.MAP_ACTION -> "Cell ${transition.cellId} (${transition.id})"
             TransitionType.INTERACTIVE -> "Element ${transition.id.toInt()} (${transition.id})"
+            TransitionType.UNSPECIFIED -> getCustomTransitionDescription(transition)
             else -> error("Transition not implemented yet : ${transition.type}")
         }
     }
 
-    private fun processTransition(gameInfo: GameInfo, transition: Transition): Boolean {
-        if (!doProcessTransition(gameInfo, transition)) {
+    private fun getCustomTransitionDescription(transition: Transition): String {
+        return when (transition) {
+            is NpcTransition -> "NPC ${transition.npcId}"
+            else -> error("Transition not implemented yet : ${transition::class.java.simpleName}")
+        }
+    }
+
+    private fun processTransition(gameInfo: GameInfo, logItem: LogItem, transition: Transition): Boolean {
+        if (!doProcessTransition(gameInfo, logItem, transition)) {
             return false
         }
         if (gameInfo.currentMap.id != transition.edge.to.mapId) {
@@ -55,7 +67,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
         return true
     }
 
-    private fun doProcessTransition(gameInfo: GameInfo, transition: Transition): Boolean {
+    private fun doProcessTransition(gameInfo: GameInfo, logItem: LogItem, transition: Transition): Boolean {
         return when (transition.type) {
             TransitionType.SCROLL, TransitionType.SCROLL_ACTION ->
                 processDefaultMove(gameInfo, Direction.fromInt(transition.direction), transition.cellId)
@@ -63,20 +75,28 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
                 MoveUtil.processCellMove(gameInfo, transition.cellId)
             TransitionType.INTERACTIVE ->
                 MoveUtil.processInteractiveMove(gameInfo, transition.id.toInt(), transition.skillId)
+            TransitionType.UNSPECIFIED ->
+                processCustomTransitionMove(gameInfo, logItem, transition)
             else -> error("Transition not implemented yet : ${transition.type}")
         }
+    }
+
+    private fun processCustomTransitionMove(gameInfo: GameInfo, logItem: LogItem, transition: Transition): Boolean {
+        return when (transition) {
+            is NpcTransition -> NpcSpeakTask(transition.npcId, transition.npcTalkIds).run(logItem, gameInfo)
+            else -> error("Transition not implemented yet : ${transition::class.java.simpleName}")
+        }.also { MoveUtil.waitForMapChangeFinished(gameInfo, MapComplementaryInformationsDataMessage::class.java) }
+                && WaitUtil.waitUntil({ GeneralUIGameUtil.isGameReadyToUse(gameInfo) })
     }
 
     private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {
         val moveCellId = getMoveCellId(gameInfo, direction, linkedZoneCellId)
             ?: return false
 
-        val previousMapId = gameInfo.currentMap.id
         val clickLoc = getStandardClickLoc(gameInfo, direction, moveCellId)
         if (!MoveUtil.processMove(gameInfo, clickLoc)) {
             error("Failed to move toward [$direction]")
         }
-        gameInfo.moveHistory.addMap(previousMapId)
         return true
     }
 

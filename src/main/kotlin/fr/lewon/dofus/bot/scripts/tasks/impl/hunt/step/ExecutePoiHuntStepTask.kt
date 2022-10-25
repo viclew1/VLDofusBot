@@ -26,7 +26,7 @@ class ExecutePoiHuntStepTask(private val huntStep: TreasureHuntStepFollowDirecti
     }
 
     override fun onStarted(): String {
-        return "Hunt step : [${huntStep.direction}] - ${pointOfInterest.label} ..."
+        return "Hunt step : [${Direction.fromInt(huntStep.direction)}] - ${pointOfInterest.label} ..."
     }
 
 }

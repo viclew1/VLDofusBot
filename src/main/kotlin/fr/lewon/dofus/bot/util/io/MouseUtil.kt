@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.util.io
 
 import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.jna.JNAUtil
@@ -15,10 +15,10 @@ object MouseUtil {
     private const val WM_MOUSEMOVE = 0x0200
 
     fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100, moveBeforeClick: Boolean = true) {
-        gameInfo.executeThreadedSyncOperation {
+        gameInfo.lock.executeSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            LockUtils.executeSyncOperation(SystemKeyLock) {
+            SystemKeyLock.executeSyncOperation {
                 if (moveBeforeClick) {
                     moveAround(handle, position)
                     WaitUtil.sleep(120)
@@ -54,10 +54,10 @@ object MouseUtil {
     }
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
-        gameInfo.executeThreadedSyncOperation {
+        gameInfo.lock.executeSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
-            LockUtils.executeSyncOperation(SystemKeyLock) {
+            SystemKeyLock.executeSyncOperation {
                 doMove(handle, position)
             }
             WaitUtil.sleep(millis)

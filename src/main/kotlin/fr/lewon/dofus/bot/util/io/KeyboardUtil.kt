@@ -4,7 +4,7 @@ import com.sun.jna.platform.win32.User32
 import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.event.KeyEvent
@@ -18,7 +18,7 @@ object KeyboardUtil {
     }
 
     fun sendKey(gameInfo: GameInfo, keyEvent: Int, time: Int = 100, ctrlModifier: Boolean = false) {
-        gameInfo.executeThreadedSyncOperation {
+        gameInfo.lock.executeSyncOperation {
             val handle = getHandle(gameInfo)
             doSendKey(handle, keyEvent, ctrlModifier)
             WaitUtil.sleep(time)
@@ -30,7 +30,7 @@ object KeyboardUtil {
     }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) {
-        LockUtils.executeSyncOperation(SystemKeyLock) {
+        SystemKeyLock.executeSyncOperation {
             if (ctrlModifier) {
                 sendUser32Message(handle, WinUser.WM_KEYDOWN, KeyEvent.VK_CONTROL)
                 sendUser32Message(handle, WinUser.WM_CHAR, KeyEvent.VK_CONTROL)
@@ -45,7 +45,7 @@ object KeyboardUtil {
     }
 
     fun writeKeyboard(gameInfo: GameInfo, text: String, time: Int = 500) {
-        gameInfo.executeThreadedSyncOperation {
+        gameInfo.lock.executeSyncOperation {
             val handle = getHandle(gameInfo)
             text.forEach {
                 doSendKey(handle, it.code, false)

@@ -23,14 +23,22 @@ private class ScrollableScrollbarAdapter(
     private val scrollState: LazyGridState
 ) : ScrollbarAdapter {
     override val scrollOffset: Float
-        get() = scrollState.firstVisibleItemIndex / 4 * averageItemSize + scrollState.firstVisibleItemScrollOffset
+        get() = scrollState.firstVisibleItemIndex / columnCount() * averageItemSize + scrollState.firstVisibleItemScrollOffset
+
+    private fun columnCount(): Int {
+        val visibleItems = scrollState.layoutInfo.visibleItemsInfo
+        if (visibleItems.isEmpty()) {
+            return 1
+        }
+        return visibleItems.maxOf { it.column + 1 }
+    }
 
     override suspend fun scrollTo(containerSize: Int, scrollOffset: Float) {
         scrollState.scrollBy(scrollOffset - this.scrollOffset)
     }
 
     override fun maxScrollOffset(containerSize: Int) =
-        (averageItemSize * itemCount / 4 - containerSize).coerceAtLeast(0f)
+        (averageItemSize * itemCount / columnCount() - containerSize).coerceAtLeast(0f)
 
     private val itemCount get() = scrollState.layoutInfo.totalItemsCount
 

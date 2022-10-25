@@ -42,6 +42,13 @@ install the bot and type these commands :
 
 Then, you can launch the built jar located in VLDofusBot\build\libs\VLDofusBot-X.jar
 
+### Setup your game UI
+
+You now need to avoid having elements in the way of clicks the bot can make, that means leaving all cells of the game
+grid free of any UI element.
+
+![ui.png](demo/ui.png)
+
 ## Tabs
 
 ### Loading

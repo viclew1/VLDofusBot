@@ -1,9 +1,15 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
+import fr.lewon.dofus.bot.core.criterion.DofusCriterionParser
+import fr.lewon.dofus.bot.core.world.Edge
 import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
+import fr.lewon.dofus.bot.model.criterion.DofusCustomCriterion
+import fr.lewon.dofus.bot.model.criterion.impl.IsOtomaiTransporterAvailableCriterion
+import fr.lewon.dofus.bot.model.transition.NpcTransition
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
+import org.reflections.Reflections
 
 object CustomTransitionManager : ToInitManager {
 
@@ -49,13 +55,9 @@ object CustomTransitionManager : ToInitManager {
             { it.criterion = IMPOSSIBLE_CRITERION }), // 1;-8 to 1;-7
     )
 
-    private val TO_CREATE_TRANSITION = listOf(
-        1
-    )
-
     override fun initManager() {
         TO_DISABLE_TRANSITION_IDS.forEach {
-            WorldGraphUtil.addInvalidTransitionId(it)
+            WorldGraphUtil.addInvalidInteractiveId(it)
         }
         TO_DISABLE_MAP_IDS.forEach {
             WorldGraphUtil.addInvalidMapId(it)
@@ -65,6 +67,62 @@ object CustomTransitionManager : ToInitManager {
                 .filter { transitionUpdate.updateIf(it) }
                 .forEach { transitionUpdate.update(it) }
         }
+        registerCustomCriteria()
+        listOf(
+            NpcTransition(getEdge(205261569.0, 206831621.0), 4102, listOf(34493)), // 27;-27 -> 34;-40
+            NpcTransition(getEdge(206831621.0, 205261569.0), 4102, listOf(34495)), // 34:-40 -> 27;-27
+            NpcTransition(getEdge(159744.0, 160513.0), 928, listOf(3616)), // -56;0 -> -57;-1
+            NpcTransition(getEdge(161029.0, 162055.0), 927, listOf(3632)), // -58;-5 -> -60;-7
+            NpcTransition(getEdge(167381514.0, 153360.0), 770, listOf(2776, 2777, 2865)), // -36;-10 -> -43;-16
+            NpcTransition(getEdge(153360.0, 167381514.0), 770, listOf(2866, 35631)), // -43;-16 -> -36;-10
+            NpcTransition(getEdge(54176040.0, 140510209.0), 2632, listOf(22670, 22669)), // -84;-40 -> -83;-58
+            NpcTransition(getEdge(140510209.0, 54176040.0), 2632, listOf(22740)), // -83;-58 -> -84;-40
+            NpcTransition(getEdge(199230724.0, 198181888.0), 789, listOf(2876)), // -4;24 -> Drake sanctuary
+            NpcTransition(getEdge(181928961.0, 181929473.0), 983, listOf(4012)), // -22;13 -> -4;12
+            NpcTransition(getEdge(181929473.0, 181928961.0), 983, listOf(4012)), // -4;12 -> -22;13
+            NpcTransition(
+                getEdge(164102659.0, 179307526.0), 3732, listOf(32280, 32277, 32288, 32293, 32292)
+            ), // -28;-31 -> -65;34
+            NpcTransition(getEdge(179307526.0, 164102659.0), 3732, listOf(32276)), // -65;34 -> -28;-31
+            *getOtomaiTransportersTransitions().toTypedArray(),
+            *getFrigostTransportersTransitions().toTypedArray(),
+        ).forEach { it.edge.transitions.add(it) }
+    }
+
+    private fun registerCustomCriteria() {
+        Reflections(DofusCustomCriterion::class.java.packageName)
+            .getSubTypesOf(DofusCustomCriterion::class.java)
+            .mapNotNull { it.kotlin.objectInstance }
+            .forEach { DofusCriterionParser.registerCustomCriterion(it.generateKey()) { _, _ -> it } }
+    }
+
+    private fun getOtomaiTransportersTransitions(): List<Transition> {
+        val criterionStr = "${IsOtomaiTransporterAvailableCriterion.generateKey()}=1"
+        return listOf(
+            NpcTransition(getEdge(20973058.0, 159766.0), 935, listOf(64326), criterionStr), // -54;19 -> -56;22
+            NpcTransition(getEdge(20973058.0, 156174.0), 935, listOf(64327), criterionStr), // -54;19 -> -49;14
+            NpcTransition(getEdge(20973058.0, 160260.0), 935, listOf(64328), criterionStr), // -54;19 -> -57;4
+        )
+    }
+
+    private fun getFrigostTransportersTransitions(): List<Transition> {
+        return listOf(
+            NpcTransition(getEdge(60035079.0, 54167842.0), 1286, listOf(8133)), // -76;-66 -> -68;-34
+            NpcTransition(getEdge(60035079.0, 54161738.0), 1286, listOf(8135)), // -76;-66 -> -56;-74
+            NpcTransition(getEdge(60035079.0, 54168407.0), 1286, listOf(8136)), // -76;-66 -> -69;-87
+            NpcTransition(getEdge(60035079.0, 54173010.0), 1286, listOf(8137)), // -76;-66 -> -78;-82
+            NpcTransition(getEdge(60035079.0, 54166849.0), 1286, listOf(8473)), // -76;-66 -> -66;-65
+            NpcTransition(getEdge(60035079.0, 54165320.0), 1286, listOf(8532)), // -76;-66 -> -63;-72
+            NpcTransition(getEdge(60035079.0, 54161193.0), 1286, listOf(17862)), // -76;-66 -> -55;-41
+        )
+    }
+
+    private fun getEdge(fromMapId: Double, toMapId: Double): Edge {
+        val fromVertex = WorldGraphUtil.getVertex(fromMapId, 1)
+            ?: error("Couldn't find vertex for map : $fromMapId")
+        val toVertex = WorldGraphUtil.getVertex(toMapId, 1)
+            ?: error("Couldn't find vertex for map : $toMapId")
+        return WorldGraphUtil.addEdge(fromVertex, toVertex)
     }
 
     override fun getNeededManagers(): List<ToInitManager> {

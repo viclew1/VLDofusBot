@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.util.listeners
 import com.github.kwhat.jnativehook.GlobalScreen
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
 import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Level
@@ -27,7 +27,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
     override fun nativeKeyTyped(e: NativeKeyEvent) {}
 
     override fun nativeKeyPressed(e: NativeKeyEvent) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             keysPressed.add(e.keyCode)
             if (!modifierPressed && e.modifiers != 0) {
                 modifierPressed = true
@@ -38,7 +38,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
     }
 
     override fun nativeKeyReleased(e: NativeKeyEvent) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             keysPressed.remove(e.keyCode)
             if (modifierPressed && e.modifiers == 0) {
                 modifierPressed = false

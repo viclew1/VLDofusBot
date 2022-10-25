@@ -127,11 +127,11 @@ private fun AvailableSpells(characterUIState: CharacterUIState) {
             val fromSpellKey = draggedSpell.fromSpellKey
             CharacterSpellsUIUtil.updateSpellId(fromSpellKey.key, fromSpellKey.ctrlModifier, null)
         }
-        Box(Modifier.fillMaxSize().background(sectionBackgroundColor).border(sectionBorder)) {
+        Box(Modifier.fillMaxSize().background(sectionBackgroundColor).border(sectionBorder).padding(5.dp)) {
             val state = rememberLazyGridState()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(8),
-                modifier = Modifier.padding(start = 3.dp, end = 13.dp, top = 3.dp, bottom = 3.dp),
+                modifier = Modifier.padding(end = 8.dp),
                 state = state
             ) {
                 items(spells) {

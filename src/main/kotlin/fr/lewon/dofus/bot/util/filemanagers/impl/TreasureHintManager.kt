@@ -63,12 +63,12 @@ object TreasureHintManager : ToInitManager {
         val mapWidth = DofusBoard.MAP_WIDTH
         val cellHalfHeight = D2PMapsAdapter.CELL_HALF_HEIGHT
         val cellHalfWidth = D2PMapsAdapter.CELL_HALF_WIDTH
-        val topOk = cellId >= mapWidth * 2 || ge.pixelOffset.y >= 0
+        val topOk = cellId >= mapWidth * 2 || ge.pixelOffset.y >= -2 * cellHalfHeight
         val bottomOk = cellId <= mapCellsCount - mapWidth * 2 || ge.pixelOffset.y <= cellHalfHeight
         val divideLeftover = cellId % (mapWidth * 2)
         val leftOk = divideLeftover != 0 && divideLeftover != mapWidth
-                || divideLeftover == 0 && ge.pixelOffset.x >= -cellHalfWidth
-                || divideLeftover == mapWidth && ge.pixelOffset.x >= -2 * cellHalfWidth
+                || divideLeftover == 0 && ge.pixelOffset.x >= -1.2 * cellHalfWidth
+                || divideLeftover == mapWidth && ge.pixelOffset.x >= -2.4 * cellHalfWidth
         val rightOk = divideLeftover != mapWidth * 2 - 1 && divideLeftover != mapWidth - 1
                 || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 1.5f
                 || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 2.5f

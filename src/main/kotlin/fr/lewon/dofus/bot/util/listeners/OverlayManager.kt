@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.listeners
 
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
@@ -20,7 +20,7 @@ object OverlayManager {
         toToggleOverlays.add(toToggleOverlay)
         overlayManagerTimer.schedule(object : TimerTask() {
             override fun run() {
-                LockUtils.executeSyncOperation(lock) {
+                lock.executeSyncOperation {
                     toggleOverlay(toToggleOverlays.pollFirst())
                 }
             }

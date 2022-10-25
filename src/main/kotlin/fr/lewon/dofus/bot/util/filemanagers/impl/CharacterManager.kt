@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
@@ -27,19 +27,19 @@ object CharacterManager : ToInitManager {
     }
 
     fun addListener(listener: CharacterManagerListener) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             listeners.add(listener)
         }
     }
 
     fun removeListener(listener: CharacterManagerListener) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             listeners.remove(listener)
         }
     }
 
     fun getCharacter(name: String): DofusCharacter? {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             fileManager.getElement { store ->
                 store.characters.firstOrNull {
                     it.name.lowercase() == name.lowercase()
@@ -49,7 +49,7 @@ object CharacterManager : ToInitManager {
     }
 
     fun getCharacters(): List<DofusCharacter> {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             fileManager.getElement { store ->
                 store.characters.toList()
             }
@@ -57,7 +57,7 @@ object CharacterManager : ToInitManager {
     }
 
     fun getCharacters(selectedCharactersNames: List<String>): List<DofusCharacter> {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             fileManager.getElement { store ->
                 store.characters.filter { it.name in selectedCharactersNames }
             }
@@ -65,7 +65,7 @@ object CharacterManager : ToInitManager {
     }
 
     fun addCharacter(name: String, dofusClassId: Int, spells: List<CharacterSpell>): DofusCharacter {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             getCharacter(name)?.let {
                 error("Character already registered : [$name]")
             }
@@ -94,10 +94,13 @@ object CharacterManager : ToInitManager {
         listeners.toList().forEach { it.onCharacterDelete(character) }
     }
 
-    fun updateCharacter(name: String, dofusClassId: Int? = null) {
+    fun updateCharacter(name: String, dofusClassId: Int? = null, isOtomaiTransportAvailable: Boolean? = null) {
         val storedCharacter = getCharacter(name)
             ?: error("Character not found in store : $name")
-        storedCharacter.dofusClassId = dofusClassId ?: storedCharacter.dofusClassId
+        storedCharacter.dofusClassId = dofusClassId
+            ?: storedCharacter.dofusClassId
+        storedCharacter.isOtomaiTransportAvailable = isOtomaiTransportAvailable
+            ?: storedCharacter.isOtomaiTransportAvailable
         fileManager.updateStore { }
         listeners.toList().forEach { it.onCharacterUpdate(storedCharacter) }
     }

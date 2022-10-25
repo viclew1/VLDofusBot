@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.gui2.main.metamob.monsters
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,9 @@ fun MonsterCardContent(monster: MetamobMonster) {
             }
             Row(Modifier.fillMaxSize()) {
                 Column(Modifier.fillMaxWidth().padding(top = 5.dp)) {
-                    CommonText(monster.name, Modifier.padding(4.dp), enabledColor = Color.Black)
+                    SelectionContainer {
+                        CommonText(monster.name, Modifier.padding(4.dp), enabledColor = Color.Black)
+                    }
                     CommonText("Owned : ${monster.amount}", Modifier.padding(4.dp), enabledColor = Color.Black)
                     val status = if (monster.searched > 0) "Searched" else if (monster.offered > 0) "Offered" else "/"
                     CommonText("Status : $status", Modifier.padding(4.dp), enabledColor = Color.Black)

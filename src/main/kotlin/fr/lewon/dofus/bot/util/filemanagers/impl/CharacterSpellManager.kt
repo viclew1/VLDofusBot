@@ -1,6 +1,6 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpells
@@ -29,7 +29,7 @@ object CharacterSpellManager : ListenableByCharacter<CharacterSpellManagerListen
     }
 
     fun getSpells(characterName: String): CharacterSpells {
-        return LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             fileManager.getElement { store ->
                 store.getCharacterSpells(characterName).deepCopy()
             }
@@ -37,7 +37,7 @@ object CharacterSpellManager : ListenableByCharacter<CharacterSpellManagerListen
     }
 
     fun updateSpells(characterName: String, spells: CharacterSpells) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             fileManager.updateStore { store ->
                 store.setCharacterSpells(characterName, spells.deepCopy())
             }
@@ -46,7 +46,7 @@ object CharacterSpellManager : ListenableByCharacter<CharacterSpellManagerListen
     }
 
     fun updateSpell(characterName: String, key: Char, ctrlModifier: Boolean, spellId: Int?) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             val spells = getSpells(characterName)
             spells.removeIf { it.key == key && it.ctrlModifier == ctrlModifier }
             spells.add(CharacterSpell(spellId, key, ctrlModifier))
@@ -58,7 +58,7 @@ object CharacterSpellManager : ListenableByCharacter<CharacterSpellManagerListen
     }
 
     fun removeSpells(characterName: String) {
-        LockUtils.executeSyncOperation(lock) {
+        lock.executeSyncOperation {
             fileManager.updateStore { store ->
                 store.remove(characterName)
             }

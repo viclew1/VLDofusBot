@@ -34,7 +34,7 @@ fun ScriptsContent() {
                     visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.INDIVIDUAL,
                     enter = expandVertically(expandFrom = Alignment.Top),
                     exit = shrinkVertically(shrinkTowards = Alignment.Top),
-                    modifier = Modifier.heightIn(max = 410.dp)
+                    modifier = Modifier.heightIn(max = 430.dp)
                 ) {
                     CharacterEditionContent()
                 }

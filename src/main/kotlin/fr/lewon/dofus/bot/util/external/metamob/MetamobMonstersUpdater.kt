@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.util.external.metamob
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
-import fr.lewon.dofus.bot.core.utils.LockUtils
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui2.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.FightResultPlayerListEntry
 import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.ObjectItem
@@ -29,7 +29,7 @@ object MetamobMonstersUpdater {
     }
 
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             if (playerResult.rewards.objects.any { SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
                 val allMetamobMonsters = getAllMonsters()
                 val amountToAddByMonster = HashMap<MetamobMonster, Int>()
@@ -41,32 +41,31 @@ object MetamobMonstersUpdater {
                         amountToAddByMonster[metamobMonster] = currentAmount + 1
                     }
                 }
-                if (amountToAddByMonster.isEmpty()) {
-                    error("Couldn't add monsters : ${monsters.joinToString(", ") { it.name }}")
+                if (amountToAddByMonster.isNotEmpty()) {
+                    val monsterUpdates = amountToAddByMonster.entries.map {
+                        buildMonsterUpdate(it.key, it.value, UpdateOperation.ADD)
+                    }
+                    MetamobRequestProcessor.updateMonsters(monsterUpdates)
+                    MetamobHelperUIUtil.refreshMonsters()
                 }
-                val monsterUpdates = amountToAddByMonster.entries.map {
-                    buildMonsterUpdate(it.key, it.value, UpdateOperation.ADD)
-                }
-                MetamobRequestProcessor.updateMonsters(monsterUpdates)
-                MetamobHelperUIUtil.refreshMonsters()
             }
         }
     }
 
     fun addMonsters(objectItems: List<ObjectItem>) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             updateMonstersAmount(objectItems, UpdateOperation.ADD)
         }
     }
 
     fun removeMonsters(objectItems: List<ObjectItem>) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             updateMonstersAmount(objectItems, UpdateOperation.REMOVE)
         }
     }
 
     fun addAndRemoveMonsters(toAddObjectItems: List<ObjectItem>, toRemoveObjectItems: List<ObjectItem>) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             addMonsters(toAddObjectItems)
             removeMonsters(toRemoveObjectItems)
         }
@@ -86,7 +85,7 @@ object MetamobMonstersUpdater {
     }
 
     fun cleanAndUpdateMonsters(objectItems: List<ObjectItem>) {
-        LockUtils.executeSyncOperation(lock) {
+        return lock.executeSyncOperation {
             val allMonsters = getAllMonsters()
             val amountByMonster = getAmountByMonster(allMonsters, objectItems)
             val monsterUpdates = allMonsters.map {
