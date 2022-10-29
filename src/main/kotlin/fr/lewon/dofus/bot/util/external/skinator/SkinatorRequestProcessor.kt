@@ -37,8 +37,8 @@ object SkinatorRequestProcessor : AbstractRequestProcessor("https://www.dofusboo
     }
 
     private fun getRealEntityLook(entityLook: EntityLook): EntityLook {
-        if (entityLook.skins.isEmpty() && entityLook.subentities.isNotEmpty()) {
-            return entityLook.subentities.first().subEntityLook
+        if (entityLook.bonesId > 10 && entityLook.subentities.isNotEmpty()) {
+            return getRealEntityLook(entityLook.subentities.first().subEntityLook)
         }
         return entityLook
     }

@@ -68,10 +68,10 @@ object TreasureHintManager : ToInitManager {
         val divideLeftover = cellId % (mapWidth * 2)
         val leftOk = divideLeftover != 0 && divideLeftover != mapWidth
                 || divideLeftover == 0 && ge.pixelOffset.x >= -1.2 * cellHalfWidth
-                || divideLeftover == mapWidth && ge.pixelOffset.x >= -2.4 * cellHalfWidth
+                || divideLeftover == mapWidth && ge.pixelOffset.x >= -2.3 * cellHalfWidth
         val rightOk = divideLeftover != mapWidth * 2 - 1 && divideLeftover != mapWidth - 1
-                || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 1.5f
-                || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 2.5f
+                || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 1.2f
+                || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 2.3f
         return topOk && bottomOk && leftOk && rightOk
     }
 

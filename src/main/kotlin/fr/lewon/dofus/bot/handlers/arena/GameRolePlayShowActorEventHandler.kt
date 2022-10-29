@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.handlers.arena
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.GameRolePlayShowActorMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
@@ -19,6 +20,8 @@ object GameRolePlayShowActorEventHandler : IEventHandler<GameRolePlayShowActorMe
             gameInfo.mainMonstersByGroupOnMap[entityInfo] = MonsterManager.getMonster(
                 entityInfo.staticInfos.mainCreatureLightInfos.genericId.toDouble()
             )
+        } else if (entityInfo.contextualId == gameInfo.playerId) {
+            CharactersUIUtil.updateSkin(gameInfo.character, entityInfo.look)
         }
         gameInfo.entityPositionsOnMapByEntityId[entityInfo.contextualId] = entityInfo.disposition.cellId
     }

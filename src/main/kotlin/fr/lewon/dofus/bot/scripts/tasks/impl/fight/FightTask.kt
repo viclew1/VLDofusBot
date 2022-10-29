@@ -96,11 +96,21 @@ open class FightTask(
         return null
     }
 
-    private fun isLvlUp(gameInfo: GameInfo): Boolean {
-        return ScreenUtil.colorCount(gameInfo, getLvlUpCloseButtonBounds(), MIN_COLOR, MAX_COLOR) != 0
-    }
 
-    private fun getLvlUpCloseButtonBounds() = UiUtil.getContainerBounds(DofusUIElement.LVL_UP, "btn_close_main")
+    private fun getLvlUpCloseButtonBounds(gameInfo: GameInfo): RectangleRelative? {
+        val lvlUpUiElements = listOf(
+            DofusUIElement.LVL_UP,
+            DofusUIElement.LVL_UP_OMEGA,
+            DofusUIElement.LVL_UP_WITH_SPELL
+        )
+        for (uiElement in lvlUpUiElements) {
+            val closeButtonBounds = UiUtil.getContainerBounds(uiElement, "btn_close_main")
+            if (ScreenUtil.colorCount(gameInfo, closeButtonBounds, MIN_COLOR, MAX_COLOR) != 0) {
+                return closeButtonBounds
+            }
+        }
+        return null
+    }
 
     private fun isFightEnded(gameInfo: GameInfo): Boolean {
         return gameInfo.eventStore.getLastEvent(GameFightEndMessage::class.java) != null
@@ -166,12 +176,13 @@ open class FightTask(
         gameInfo.fightBoard.resetFighters()
 
         WaitUtil.sleep(800)
-        if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null || isLvlUp(gameInfo) })) {
+        if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null || getLvlUpCloseButtonBounds(gameInfo) != null })) {
             error("Close button not found")
         }
-        if (isLvlUp(gameInfo)) {
-            MouseUtil.leftClick(gameInfo, getLvlUpCloseButtonBounds().getCenter())
-            WaitUtil.waitUntil({ !isLvlUp(gameInfo) })
+        val lvlUpCloseButtonBounds = getLvlUpCloseButtonBounds(gameInfo)
+        if (lvlUpCloseButtonBounds != null) {
+            MouseUtil.leftClick(gameInfo, lvlUpCloseButtonBounds.getCenter())
+            WaitUtil.waitUntil({ getLvlUpCloseButtonBounds(gameInfo) == null })
         }
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)

@@ -5,6 +5,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.Divider
@@ -25,7 +27,10 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun MainContent() {
-    PressDraggable(Modifier.fillMaxSize()) {
+    PressDraggable(
+        Modifier.fillMaxSize()
+            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {}
+    ) {
         Row(Modifier.fillMaxSize()) {
             MainNavigationRail()
             Box(Modifier.fillMaxSize()) {

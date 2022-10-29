@@ -91,13 +91,11 @@ fun SmallText(
 }
 
 @Composable
-fun CustomCompositionLocalProvider(content: @Composable () -> Unit) {
-    CompositionLocalProvider(
-        LocalTextSelectionColors provides TextSelectionColors(
-            backgroundColor = Color.Gray,
-            handleColor = AppColors.primaryDarkColor
-        ),
-    ) {
-        content()
-    }
+fun CustomCompositionLocalProvider(content: @Composable () -> Unit) = CompositionLocalProvider(
+    LocalTextSelectionColors provides TextSelectionColors(
+        backgroundColor = Color.Gray,
+        handleColor = AppColors.primaryDarkColor
+    ),
+) {
+    content()
 }

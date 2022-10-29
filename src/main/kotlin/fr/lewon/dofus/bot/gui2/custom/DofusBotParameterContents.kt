@@ -22,7 +22,7 @@ fun ParameterLine(
     getParamValue: (DofusBotParameter) -> String,
     onParamUpdate: (String) -> Unit
 ) {
-    Row(Modifier.height(40.dp)) {
+    Row {
         Column(Modifier.fillMaxWidth(0.5f).align(Alignment.CenterVertically)) {
             if (parameter.description.isEmpty()) {
                 SubTitleText(parameter.key)

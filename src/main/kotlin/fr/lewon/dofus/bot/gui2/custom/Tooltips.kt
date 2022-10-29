@@ -300,7 +300,7 @@ fun CustomTooltipArea(
     }
 }
 
-private suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
+suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
     while (true) {
         awaitPointerEventScope {
             val event = awaitPointerEvent(PointerEventPass.Initial)
