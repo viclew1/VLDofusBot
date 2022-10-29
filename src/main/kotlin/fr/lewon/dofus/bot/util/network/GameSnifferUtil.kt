@@ -19,32 +19,28 @@ import java.util.concurrent.locks.ReentrantLock
 
 object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
-    private const val NETSTAT_COMMAND = "cmd.exe /c netstat -aop TCP -n | findstr :5555"
-    private val NETSTAT_DOFUS_REGEX = Regex(
+    private const val netstatCommand = "cmd.exe /c netstat -aop TCP -n | findstr :5555"
+    private val netstatDofusRegex = Regex(
         "\\s+TCP" +
                 "\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)" +
                 "\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+):(5555)" +
                 "\\s+ESTABLISHED" +
                 "\\s+(\\d+)"
     )
-    private val FRAME_NAME_REGEX = Regex("(.*?) - Dofus.*?")
+    private val frameNameRegex = Regex("(.*?) - Dofus.*?")
 
     private val lock = ReentrantLock()
-
-    private val CONNECTIONS_BY_CHARACTER_NAME = HashMap<String, ArrayList<DofusConnection>>()
-    private val CONNECTIONS_BY_GAME_INFO = HashMap<GameInfo, ArrayList<DofusConnection>>()
-    private var MESSAGE_RECEIVER = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
+    private val connectionsByCharacterName = HashMap<String, ArrayList<DofusConnection>>()
+    private val connectionsByGameInfo = HashMap<GameInfo, ArrayList<DofusConnection>>()
+    private var messageReceiver = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
 
     fun updateNetworkInterface() {
         lock.executeSyncOperation {
-            MESSAGE_RECEIVER.interrupt()
-            MESSAGE_RECEIVER.join()
-
-            CONNECTIONS_BY_CHARACTER_NAME.clear()
-            CONNECTIONS_BY_GAME_INFO.clear()
-
-            MESSAGE_RECEIVER = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
-            MESSAGE_RECEIVER.start()
+            messageReceiver.kill()
+            connectionsByCharacterName.clear()
+            connectionsByGameInfo.clear()
+            messageReceiver = DofusMessageReceiver(GlobalConfigManager.readConfig().networkInterfaceName)
+            messageReceiver.start()
         }
     }
 
@@ -55,7 +51,7 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     fun getGameInfoByConnection(connection: DofusConnection): GameInfo {
         return lock.executeSyncOperation {
-            CONNECTIONS_BY_GAME_INFO.entries.firstOrNull { it.value.contains(connection) }?.key
+            connectionsByGameInfo.entries.firstOrNull { it.value.contains(connection) }?.key
                 ?: error("There is no game info associated to connection : ${connection.pid}")
         }
     }
@@ -66,15 +62,15 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     fun getConnections(character: DofusCharacter): List<DofusConnection> {
         return lock.executeSyncOperation {
-            CONNECTIONS_BY_CHARACTER_NAME[character.name]?.toList() ?: emptyList()
+            connectionsByCharacterName[character.name]?.toList() ?: emptyList()
         }
     }
 
     private fun startSnifferIfNeeded() {
         lock.executeSyncOperation {
-            if (!MESSAGE_RECEIVER.isSnifferRunning()) {
-                MESSAGE_RECEIVER.start()
-                if (!WaitUtil.waitUntil({ MESSAGE_RECEIVER.isSnifferRunning() })) {
+            if (!messageReceiver.isSnifferRunning()) {
+                messageReceiver.start()
+                if (!WaitUtil.waitUntil({ messageReceiver.isSnifferRunning() })) {
                     error("Couldn't start sniffer")
                 }
             }
@@ -82,32 +78,36 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     }
 
     private fun updateCurrentConnections() {
-        val findConnectionsProcessBuilder = ProcessBuilder(NETSTAT_COMMAND.split(" "))
+        val findConnectionsProcessBuilder = ProcessBuilder(netstatCommand.split(" "))
         val process = findConnectionsProcessBuilder.start()
         if (process.waitFor(5L, TimeUnit.SECONDS)) {
             val runningConnections = BufferedReader(InputStreamReader(process.inputStream)).readLines()
-                .mapNotNull { NETSTAT_DOFUS_REGEX.matchEntire(it) }
-                .map { parseDofusConnection(it) }
+                .mapNotNull { netstatDofusRegex.matchEntire(it) }
+                .mapNotNull { parseDofusConnection(it) }
             val storedConnections = lock.executeSyncOperation {
-                CONNECTIONS_BY_CHARACTER_NAME.values.flatten()
+                connectionsByCharacterName.values.flatten()
             }
             stopListeningToDeadConnections(storedConnections.filter { !runningConnections.contains(it) })
             listenToConnections(runningConnections.filter { !storedConnections.contains(it) })
         }
     }
 
-    private fun parseDofusConnection(matchResult: MatchResult): DofusConnection {
-        return DofusConnection(
-            Host(matchResult.groupValues[1].trim(), matchResult.groupValues[2].trim()),
-            Host(matchResult.groupValues[3].trim(), matchResult.groupValues[4].trim()),
-            matchResult.groupValues[5].trim().toLong()
-        )
+    private fun parseDofusConnection(matchResult: MatchResult): DofusConnection? {
+        val pid = matchResult.groupValues[5].trim().toLong()
+        val characterName = getCharacterNameFromFrame(pid) ?: return null
+        val client = Host(matchResult.groupValues[1].trim(), matchResult.groupValues[2].trim())
+        val server = Host(matchResult.groupValues[3].trim(), matchResult.groupValues[4].trim())
+        return DofusConnection(characterName, client, server, pid)
+    }
+
+    private fun getCharacterNameFromFrame(pid: Long): String? {
+        return frameNameRegex.matchEntire(JNAUtil.getFrameName(pid))?.destructured?.component1()
     }
 
     private fun stopListeningToDeadConnections(deadConnections: List<DofusConnection>) {
         val removedCharacters = HashSet<DofusCharacter>()
         for (connection in deadConnections) {
-            MESSAGE_RECEIVER.stopListening(connection.client)
+            messageReceiver.stopListening(connection.client)
             removedCharacters.addAll(removeConnection(connection))
         }
         removedCharacters.forEach { character ->
@@ -120,23 +120,22 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     private fun removeConnection(connection: DofusConnection): List<DofusCharacter> {
         return lock.executeSyncOperation {
-            CONNECTIONS_BY_CHARACTER_NAME.entries.filter { it.value.contains(connection) }
+            connectionsByCharacterName.entries.filter { it.value.contains(connection) }
                 .forEach { it.value.remove(connection) }
-            val toRemove = CONNECTIONS_BY_CHARACTER_NAME.entries.filter { it.value.isEmpty() }
-            CONNECTIONS_BY_CHARACTER_NAME.entries.removeAll(toRemove.toSet())
-            CONNECTIONS_BY_GAME_INFO.entries.filter { it.value.contains(connection) }
+            val toRemove = connectionsByCharacterName.entries.filter { it.value.isEmpty() }
+            connectionsByCharacterName.entries.removeAll(toRemove.toSet())
+            connectionsByGameInfo.entries.filter { it.value.contains(connection) }
                 .forEach { it.value.remove(connection) }
-            CONNECTIONS_BY_GAME_INFO.entries.removeIf { it.value.isEmpty() }
+            connectionsByGameInfo.entries.removeIf { it.value.isEmpty() }
             toRemove.mapNotNull { CharacterManager.getCharacter(it.key) }
         }
     }
 
     private fun listenToConnections(newConnections: List<DofusConnection>) {
         for (connection in newConnections) {
-            val characterName = getCharacterNameFromFrame(connection.pid) ?: continue
-            val character = CharacterManager.getCharacter(characterName)
-                ?: CharacterManager.addCharacter(characterName, 1, emptyList())
-            val gameInfo = CONNECTIONS_BY_GAME_INFO.keys.firstOrNull { it.character == character }
+            val character = CharacterManager.getCharacter(connection.characterName)
+                ?: CharacterManager.addCharacter(connection.characterName, 1, emptyList())
+            val gameInfo = connectionsByGameInfo.keys.firstOrNull { it.character == character }
                 ?: GameInfo(character).also { it.connection = connection }
             listenToConnection(gameInfo, character, connection)
         }
@@ -144,19 +143,15 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     private fun listenToConnection(gameInfo: GameInfo, character: DofusCharacter, connection: DofusConnection) {
         gameInfo.shouldInitBoard = true
-        MESSAGE_RECEIVER.startListening(connection, gameInfo.eventStore, character.snifferLogger)
+        messageReceiver.startListening(connection, gameInfo.eventStore, character.snifferLogger)
         lock.executeSyncOperation {
-            CONNECTIONS_BY_CHARACTER_NAME.computeIfAbsent(character.name) { ArrayList() }.add(connection)
-            CONNECTIONS_BY_GAME_INFO.computeIfAbsent(gameInfo) { ArrayList() }.add(connection)
+            connectionsByCharacterName.computeIfAbsent(character.name) { ArrayList() }.add(connection)
+            connectionsByGameInfo.computeIfAbsent(gameInfo) { ArrayList() }.add(connection)
         }
         println("start listening (${GlobalConfigManager.readConfig().networkInterfaceName}) : ${character.name} ($connection)")
         getListeners(character).forEach { listener ->
             listener.onListenStart(character)
         }
-    }
-
-    private fun getCharacterNameFromFrame(pid: Long): String? {
-        return FRAME_NAME_REGEX.matchEntire(JNAUtil.getFrameName(pid))?.destructured?.component1()
     }
 
 }
