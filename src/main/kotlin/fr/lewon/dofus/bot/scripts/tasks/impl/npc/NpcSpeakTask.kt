@@ -41,6 +41,9 @@ class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : D
             }
             val displayedReplies = visibleReplies.subList(showMorePressCount * 4, visibleReplies.size)
             val optionIndex = displayedReplies.indexOf(optionId)
+            if (optionIndex == -1) {
+                error("Missing option ID : $optionId")
+            }
             val optionCount = min(MAX_OPTION_COUNT, dialogQuestionMessage.visibleReplies.size)
             val optionLocation =
                 BOTTOM_OPTION_LOCATION.getSum(PointRelative(0f, (optionIndex - optionCount + 1) * DELTA_OPTION))
