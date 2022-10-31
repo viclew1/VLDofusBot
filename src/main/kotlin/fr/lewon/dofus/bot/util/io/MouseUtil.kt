@@ -7,7 +7,8 @@ import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
-
+import java.util.Timer
+import kotlin.concurrent.schedule
 object MouseUtil {
 
     private const val WM_LBUTTONDOWN = 0x0201
@@ -37,11 +38,12 @@ object MouseUtil {
         cornerPoints.forEach { doMove(handle, it) }
         doMove(handle, position)
     }
-
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
         val wParam = makeWParam(0, 0)
-        doPostMouseMessages(handle, WM_LBUTTONDOWN, WM_LBUTTONUP, wParam = wParam, lParam = lParam)
+        User32.INSTANCE.SendMessage(handle, WM_LBUTTONDOWN, wParam, lParam)
+        WaitUtil.sleep((5..15).random())
+        User32.INSTANCE.SendMessage(handle, WM_LBUTTONUP, wParam, lParam)
     }
 
     private fun doPostMouseMessages(
@@ -90,7 +92,7 @@ object MouseUtil {
         move(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
     }
 
-    fun doubleLeftClick(
+    private fun doubleLeftClick(
         gameInfo: GameInfo,
         position: PointAbsolute,
         millis: Int = 100
@@ -103,7 +105,7 @@ object MouseUtil {
         doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
     }
 
-    fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
+    private fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
         leftClick(gameInfo, position, 100)
         leftClick(gameInfo, position, 100, moveBeforeClick = false)
         leftClick(gameInfo, position, millis, moveBeforeClick = false)
