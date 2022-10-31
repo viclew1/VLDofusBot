@@ -1,11 +1,10 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight
 
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectGlobalType
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
-import fr.lewon.dofus.bot.core.model.spell.DofusSpellTargetType
+import fr.lewon.dofus.bot.core.model.spell.*
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
+import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.game.fight.ai.FightState
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.impl.DefaultFightAI
@@ -34,7 +33,7 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
             it.targetCellId == toHitMonster.cell.cellId
                     && it.type == FightOperationType.SPELL
                     && it.spell != null
-                    && isSingleAttackSpell(it.spell)
+                    && isSingleAttackSpell(it.spell, playerFighter, toHitMonster)
         }
         var chosenOperations = hitOperations.filter { it.targetCellId == toHitMonster.cell.cellId }
         if (chosenOperations.isEmpty()) {
@@ -47,12 +46,10 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
             ?: FightOperation(FightOperationType.PASS_TURN)
     }
 
-    private fun isSingleAttackSpell(spell: DofusSpellLevel): Boolean {
+    private fun isSingleAttackSpell(spell: DofusSpellLevel, playerFighter: Fighter, toHitMonster: Fighter): Boolean {
         return spell.effects.count {
-            val targetTypes = it.targets.map { target -> target.type }
             it.effectType.globalType == DofusSpellEffectGlobalType.ATTACK
-                    && !targetTypes.contains(DofusSpellTargetType.WITH_STATE)
-                    && targetTypes.contains(DofusSpellTargetType.ENEMIES)
+                    && it.targets.any { target -> target.canHitTarget(playerFighter, toHitMonster) }
         } == 1
     }
 
