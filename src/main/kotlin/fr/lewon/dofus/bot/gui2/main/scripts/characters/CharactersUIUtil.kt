@@ -28,6 +28,7 @@ import fr.lewon.dofus.bot.util.network.NetworkAutoUpdater
 import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
+import java.io.IOException
 import java.util.concurrent.locks.ReentrantLock
 
 object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSnifferListener, VldbLoggerListener {
@@ -255,7 +256,9 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     }
 
     private fun getCheckedCharactersUIStates(): List<MutableState<CharacterUIState>> {
-        return uiStateByCharacterName.values.filter { it.value.checked }
+        return lock.executeSyncOperation {
+            uiStateByCharacterName.values.filter { it.value.checked }
+        }
     }
 
     fun getSelectedCharacterUIState(): MutableState<CharacterUIState>? {
@@ -264,17 +267,21 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
 
     fun updateSkin(character: DofusCharacter, entityLook: EntityLook) {
         Thread {
-            val characterUIState = getCharacterUIState(character.name).value
-            val newFlashVars = SkinatorRequestProcessor.getFlashVars(entityLook)
-            if (newFlashVars != characterUIState.flashVars) {
-                val newSkinImage = SkinatorRequestProcessor.getSkinImage(newFlashVars)
-                lock.executeSyncOperation {
-                    val uiState = getCharacterUIState(character.name)
-                    uiState.value = uiState.value.copy(
-                        skinImage = newSkinImage.toPainter(),
-                        flashVars = newFlashVars
-                    )
+            try {
+                val characterUIState = getCharacterUIState(character.name).value
+                val newFlashVars = SkinatorRequestProcessor.getFlashVars(entityLook)
+                if (newFlashVars != characterUIState.flashVars) {
+                    val newSkinImage = SkinatorRequestProcessor.getSkinImage(newFlashVars)
+                    lock.executeSyncOperation {
+                        val uiState = getCharacterUIState(character.name)
+                        uiState.value = uiState.value.copy(
+                            skinImage = newSkinImage.toPainter(),
+                            flashVars = newFlashVars
+                        )
+                    }
                 }
+            } catch (e: IOException) {
+                println("Failed to retrieve skin image : ${e.message}")
             }
         }.start()
     }

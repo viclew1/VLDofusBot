@@ -1,44 +1,55 @@
 package fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.selector
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material.Surface
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.gui2.custom.*
+import fr.lewon.dofus.bot.gui2.custom.ButtonWithTooltip
+import fr.lewon.dofus.bot.gui2.custom.ComboBox
+import fr.lewon.dofus.bot.gui2.custom.CommonText
+import fr.lewon.dofus.bot.gui2.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
-import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
-import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
 fun ScriptSelectorContent() {
     val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder()
     Column {
+        Spacer(Modifier.height(5.dp))
         Row(Modifier.height(40.dp)) {
             CommonText(
                 "Script : ",
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
                 fontWeight = FontWeight.SemiBold
             )
-            Row(Modifier.padding(end = 30.dp, top = 5.dp, bottom = 5.dp).weight(1f)) {
+            Row(Modifier.align(Alignment.CenterVertically).padding(end = 30.dp, top = 5.dp, bottom = 5.dp).weight(1f)) {
                 ComboBox(
                     Modifier.fillMaxWidth().height(30.dp),
                     scriptBuilder,
                     ScriptTabsUIUtil.scripts,
                     { ScriptTabsUIUtil.updateCurrentScriptBuilder(it) },
-                    { (if (it.isDev) "DEV - " else "") + it.name })
+                    { (if (it.isDev) "DEV - " else "") + it.name },
+                    colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.DARK_BG_COLOR),
+                    borderColor = Color.Gray
+                )
             }
-            Row(Modifier.align(Alignment.CenterVertically).width(40.dp).fillMaxHeight().padding(10.dp)) {
+            Row(Modifier.align(Alignment.CenterVertically).fillMaxHeight().padding(5.dp)) {
                 PlayScriptButton()
             }
         }
@@ -59,46 +70,35 @@ fun ScriptSelectorContent() {
 @Composable
 private fun PlayScriptButton() {
     val isStarted = ScriptTabsUIUtil.isScriptStarted()
-    val dyRatio = if (isStarted) 0f else 0.5f
     val uiState = ScriptSelectorUIUtil.uiState.value
     val selectedCharactersUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
     val enabled = uiState.isStartButtonEnabled && selectedCharactersUIStates.isNotEmpty()
-    val color = animateColorAsState(if (!enabled) Color.Gray else if (isStarted) AppColors.RED else AppColors.GREEN)
-    val animatedDyRatio = animateFloatAsState(targetValue = dyRatio)
-
-    val text = if (isStarted) "Stop" else "Start"
-    DefaultTooltipArea(text, tooltipHeight = 20.dp, delayMillis = 1000) {
-
-        val shape = GenericShape { size, _ ->
-            moveTo(0f, 0f)
-            lineTo(size.width, animatedDyRatio.value * size.height)
-            lineTo(size.width, size.height - animatedDyRatio.value * size.height)
-            lineTo(0f, size.height)
-        }
-        Surface(
-            Modifier.fillMaxSize(),
-            shape = shape,
-            elevation = 5.dp,
-            color = color.value
+    val color = animateColorAsState(
+        targetValue = if (!enabled) Color.Gray else if (isStarted) AppColors.RED else AppColors.GREEN,
+        animationSpec = tween(durationMillis = 250, easing = LinearEasing)
+    )
+    val angle = animateFloatAsState(
+        targetValue = if (isStarted) 180f else 0f,
+        animationSpec = tween(durationMillis = 250, easing = LinearEasing)
+    )
+    Row(Modifier.fillMaxHeight()) {
+        ButtonWithTooltip(
+            onClick = { ScriptTabsUIUtil.toggleScript() },
+            title = if (isStarted) "Stop" else "Start",
+            shape = RoundedCornerShape(15),
+            hoverBackgroundColor = Color.Gray,
+            defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+            hoverAnimation = false,
+            enabled = enabled
         ) {
-            var modifier = Modifier.fillMaxSize()
-            if (enabled) {
-                modifier = modifier.handPointerIcon().clickable {
-                    Thread {
-                        ScriptSelectorUIUtil.uiState.value = uiState.copy(isStartButtonEnabled = false)
-                        val selectedCharactersNames = selectedCharactersUIStates.map { it.value.name }
-                        val selectedCharacters = CharacterManager.getCharacters(selectedCharactersNames)
-                        if (isStarted) {
-                            selectedCharacters.forEach { ScriptRunner.stopScript(it) }
-                        } else {
-                            val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder()
-                            val scriptValues = ScriptParametersUIUtil.getScriptValuesStore().getValues(scriptBuilder)
-                            selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, scriptValues) }
-                        }
-                    }.start()
-                }
+            Box(Modifier.fillMaxSize().rotate(angle.value)) {
+                Image(
+                    if (isStarted) Icons.Default.Stop else Icons.Default.PlayArrow,
+                    "",
+                    modifier = Modifier.fillMaxSize(),
+                    colorFilter = ColorFilter.tint(color.value)
+                )
             }
-            Box(modifier)
         }
     }
 }

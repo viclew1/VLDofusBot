@@ -3,12 +3,16 @@ package fr.lewon.dofus.bot.gui2.custom
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
@@ -60,4 +64,12 @@ fun Modifier.onTabChangeFocus(focusManager: FocusManager) = this.onPreviewKeyEve
     } else {
         false
     }
+}
+
+@Composable
+fun Modifier.onFocusHighlight(): Modifier {
+    val backgroundColor = remember { mutableStateOf(Color.Transparent) }
+    return this.onFocusChanged {
+        backgroundColor.value = if (it.isFocused) Color.White else Color.Transparent
+    }.border(BorderStroke(1.dp, backgroundColor.value))
 }

@@ -2,10 +2,7 @@ package fr.lewon.dofus.bot.gui2.custom
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -40,7 +37,9 @@ fun <T> ComboBox(
     items: List<T>,
     onItemSelect: (item: T) -> Unit,
     getItemText: (item: T) -> String,
-    maxDropDownHeight: Dp = Dp.Infinity
+    maxDropDownHeight: Dp = Dp.Infinity,
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    borderColor: Color = Color.DarkGray
 ) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
@@ -53,6 +52,7 @@ fun <T> ComboBox(
     Column {
         OutlinedButton(
             onClick = { focusRequester.requestFocus() },
+            colors = colors,
             modifier = modifier.fillMaxWidth()
                 .focusRequester(focusRequester)
                 .onGloballyPositioned { coordinates -> textFieldSize = coordinates.size.toSize() }
@@ -73,7 +73,8 @@ fun <T> ComboBox(
                         expanded = !expanded
                     }
                 },
-            contentPadding = PaddingValues(horizontal = 5.dp)
+            contentPadding = PaddingValues(horizontal = 5.dp),
+            border = BorderStroke(1.dp, borderColor)
         ) {
             Row {
                 Row(Modifier.weight(1f).align(Alignment.CenterVertically).padding(start = 5.dp)) {

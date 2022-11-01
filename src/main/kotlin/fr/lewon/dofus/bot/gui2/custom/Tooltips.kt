@@ -159,7 +159,7 @@ fun ButtonWithTooltip(
 }
 
 @Composable
-private fun ButtonWithTooltip(
+fun ButtonWithTooltip(
     onClick: () -> Unit,
     title: String,
     shape: Shape,

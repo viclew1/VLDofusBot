@@ -1,16 +1,11 @@
 package fr.lewon.dofus.bot.gui2.custom
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Switch
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -20,9 +15,11 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 fun ParameterLine(
     parameter: DofusBotParameter,
     getParamValue: (DofusBotParameter) -> String,
-    onParamUpdate: (String) -> Unit
+    onParamUpdate: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    inputModifier: Modifier = Modifier
 ) {
-    Row {
+    Row(modifier) {
         Column(Modifier.fillMaxWidth(0.5f).align(Alignment.CenterVertically)) {
             if (parameter.description.isEmpty()) {
                 SubTitleText(parameter.key)
@@ -33,13 +30,14 @@ fun ParameterLine(
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
         Row(Modifier.align(Alignment.CenterVertically)) {
-            ParameterInput(parameter, getParamValue, onParamUpdate)
+            ParameterInput(inputModifier, parameter, getParamValue, onParamUpdate)
         }
     }
 }
 
 @Composable
 fun ParameterInput(
+    modifier: Modifier,
     parameter: DofusBotParameter,
     getParamValue: (DofusBotParameter) -> String,
     onParamUpdate: (String) -> Unit
@@ -47,10 +45,7 @@ fun ParameterInput(
     val parameterValue = getParamValue(parameter)
     val possibleValues = parameter.possibleValues
     val focusManager = LocalFocusManager.current
-    val backgroundColor = remember { mutableStateOf(Color.Transparent) }
-    Box(Modifier.onTabChangeFocus(focusManager).onFocusChanged {
-        backgroundColor.value = if (it.isFocused) Color.White else Color.Transparent
-    }.border(BorderStroke(1.dp, backgroundColor.value))) {
+    Box(modifier.onTabChangeFocus(focusManager).onFocusHighlight()) {
         when (parameter.type) {
             DofusBotParameterType.BOOLEAN ->
                 Switch(

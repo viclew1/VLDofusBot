@@ -2,8 +2,12 @@ package fr.lewon.dofus.bot.gui2.main.scripts.scripts
 
 import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIUtil
+import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.selector.ScriptSelectorUIUtil
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilders
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 object ScriptTabsUIUtil {
 
@@ -42,6 +46,24 @@ object ScriptTabsUIUtil {
 
     fun updateCurrentTab(scriptTab: ScriptTab) {
         uiState.value = uiState.value.copy(currentTab = scriptTab)
+    }
+
+    fun toggleScript() {
+        val isStarted = isScriptStarted()
+        val uiState = ScriptSelectorUIUtil.uiState.value
+        val selectedCharactersUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
+        Thread {
+            ScriptSelectorUIUtil.uiState.value = uiState.copy(isStartButtonEnabled = false)
+            val selectedCharactersNames = selectedCharactersUIStates.map { it.value.name }
+            val selectedCharacters = CharacterManager.getCharacters(selectedCharactersNames)
+            if (isStarted) {
+                selectedCharacters.forEach { ScriptRunner.stopScript(it) }
+            } else {
+                val scriptBuilder = getCurrentScriptBuilder()
+                val scriptValues = ScriptParametersUIUtil.getScriptValuesStore().getValues(scriptBuilder)
+                selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, scriptValues) }
+            }
+        }.start()
     }
 
 }

@@ -15,7 +15,7 @@ object CustomTransitionManager : ToInitManager {
 
     private const val IMPOSSIBLE_CRITERION = "(PG=-1)"
 
-    private val TO_DISABLE_TRANSITION_IDS = listOf(
+    private val TO_DISABLE_INTERACTIVE_IDS = listOf(
         519634.0, // 25;-24
         484905.0, // -5;-52
         517173.0, // -1;24
@@ -23,6 +23,8 @@ object CustomTransitionManager : ToInitManager {
         473696.0, // 15;21
         523764.0, // -21;37
         472865.0, // 22;19
+        473019.0, // 11;10
+        516693.0, // -5;-9
     )
 
     private val TO_DISABLE_MAP_IDS = listOf(
@@ -56,7 +58,7 @@ object CustomTransitionManager : ToInitManager {
     )
 
     override fun initManager() {
-        TO_DISABLE_TRANSITION_IDS.forEach {
+        TO_DISABLE_INTERACTIVE_IDS.forEach {
             WorldGraphUtil.addInvalidInteractiveId(it)
         }
         TO_DISABLE_MAP_IDS.forEach {

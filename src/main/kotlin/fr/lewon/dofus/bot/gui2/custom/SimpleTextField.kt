@@ -11,23 +11,26 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.awtEventOrNull
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.gui2.util.AppColors
-import java.awt.event.KeyEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SimpleTextField(
     value: String,
@@ -59,12 +62,8 @@ fun SimpleTextField(
                     onValueChange(previousText.value)
                 }
             },
-            modifier = modifier.onFocusSelectAll(textFieldValueState).onKeyEvent {
-                val awtEvent = it.awtEventOrNull
-                if (awtEvent != null && it.isCtrlPressed && awtEvent.keyCode == KeyEvent.VK_BACK_SPACE) {
-                    println("BAM")
-                }
-                false
+            modifier = modifier.onFocusSelectAll(textFieldValueState).onPreviewKeyEvent {
+                it.isCtrlPressed && it.key == Key.Backspace && textFieldValue.text.isEmpty()
             },
             cursorBrush = SolidColor(Color.White),
             textStyle = TextStyle(fontSize = 13.sp, color = Color.White),
@@ -83,27 +82,18 @@ fun SimpleTextField(
     }
 }
 
-private fun Modifier.onFocusSelectAll(textFieldValueState: MutableState<TextFieldValue>): Modifier =
-    composed(
-        inspectorInfo = debugInspectorInfo {
-            name = "textFieldValueState"
-            properties["textFieldValueState"] = textFieldValueState
-        }
-    ) {
-        var triggerEffect by remember {
-            mutableStateOf<Boolean?>(null)
-        }
-        if (triggerEffect != null) {
-            LaunchedEffect(triggerEffect) {
-                val tfv = textFieldValueState.value
-                textFieldValueState.value = tfv.copy(selection = TextRange(0, tfv.text.length))
-            }
-        }
-        onFocusChanged { focusState ->
-            if (focusState.isFocused) {
-                triggerEffect = triggerEffect?.let { bool ->
-                    !bool
-                } ?: true
-            }
+@Composable
+private fun Modifier.onFocusSelectAll(
+    textFieldValueState: MutableState<TextFieldValue>,
+    scope: CoroutineScope = rememberCoroutineScope()
+): Modifier = onFocusChanged {
+    if (it.isFocused || it.hasFocus) {
+        scope.launch {
+            delay(20)
+            val text = textFieldValueState.value.text
+            textFieldValueState.value = textFieldValueState.value.copy(
+                selection = TextRange(0, text.length)
+            )
         }
     }
+}

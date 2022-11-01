@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.*
 import fr.lewon.dofus.bot.gui2.util.AppColors
@@ -23,7 +24,7 @@ fun TestSoundButton(soundType: SoundType, modifier: Modifier = Modifier, enabled
             imageVector = Icons.Default.PlayArrow,
             RoundedCornerShape(15),
             Color.Gray,
-            AppColors.DARK_BG_COLOR,
+            AppColors.VERY_DARK_BG_COLOR,
             enabled = enabled
         )
     }
@@ -64,6 +65,8 @@ fun ConfigLine(title: String, description: String, enabled: Boolean, content: @C
             }
         }
         Spacer(Modifier.weight(1f))
-        content()
+        Box(Modifier.onTabChangeFocus(LocalFocusManager.current).onFocusHighlight()) {
+            content()
+        }
     }
 }

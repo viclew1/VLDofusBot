@@ -58,6 +58,17 @@ enum class MonsterFilter(
             OwnedParameterValues.fromLabel(value).monsterMatchesFun(monster)
         }
     ),
+    MINIMAL_AMOUNT(
+        DofusBotParameter(
+            key = "Minimal amount",
+            description = "Minimal amount owned",
+            defaultValue = "0",
+            type = DofusBotParameterType.INTEGER,
+        ),
+        { value, monster ->
+            monster.amount >= (value.toIntOrNull() ?: 0)
+        }
+    )
     ;
 
     fun isMonsterValid(filterValue: String, monster: MetamobMonster): Boolean {

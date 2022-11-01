@@ -119,7 +119,7 @@ object InitUIUtil {
             val defaultNetworkInterface = DofusMessageReceiverUtil.getNetworkInterfaceNames().firstOrNull()
                 ?: error("No valid network interface found, check your internet connection")
             GlobalConfigManager.editConfig { it.networkInterfaceName = defaultNetworkInterface }
+            GameSnifferUtil.updateNetworkInterface()
         }
-        GameSnifferUtil.updateNetworkInterface()
     }
 }

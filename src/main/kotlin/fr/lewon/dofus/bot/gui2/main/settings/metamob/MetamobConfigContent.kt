@@ -14,6 +14,7 @@ import fr.lewon.dofus.bot.gui2.main.settings.ConfigLine
 import fr.lewon.dofus.bot.gui2.main.settings.ConfigSwitchLine
 import fr.lewon.dofus.bot.gui2.main.settings.ConfigTextField
 import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIUtil
+import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 
@@ -62,6 +63,7 @@ fun MetamobConfigContent() {
                         "",
                         RoundedCornerShape(15),
                         Color.Gray,
+                        defaultBackgroundColor = AppColors.VERY_DARK_BG_COLOR,
                         width = 40.dp,
                         refreshing = refreshing
                     )

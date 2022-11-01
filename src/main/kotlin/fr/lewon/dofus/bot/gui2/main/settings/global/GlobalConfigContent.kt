@@ -1,18 +1,16 @@
 package fr.lewon.dofus.bot.gui2.main.settings.global
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import fr.lewon.dofus.bot.gui2.custom.HorizontalSeparator
 
 @Composable
 fun GlobalConfigContent() {
     Column {
         NotificationSoundsParametersContent()
-        Divider(Modifier.fillMaxWidth())
+        HorizontalSeparator()
         NetworkInterfaceParametersContent()
-        Divider(Modifier.fillMaxWidth())
+        HorizontalSeparator()
         OverlayParametersContent()
     }
 }

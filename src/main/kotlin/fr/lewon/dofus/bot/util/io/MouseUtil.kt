@@ -7,8 +7,7 @@ import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
-import java.util.Timer
-import kotlin.concurrent.schedule
+
 object MouseUtil {
 
     private const val WM_LBUTTONDOWN = 0x0201
@@ -38,21 +37,13 @@ object MouseUtil {
         cornerPoints.forEach { doMove(handle, it) }
         doMove(handle, position)
     }
+
     private fun doLeftClick(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
         val wParam = makeWParam(0, 0)
         User32.INSTANCE.SendMessage(handle, WM_LBUTTONDOWN, wParam, lParam)
         WaitUtil.sleep((5..15).random())
         User32.INSTANCE.SendMessage(handle, WM_LBUTTONUP, wParam, lParam)
-    }
-
-    private fun doPostMouseMessages(
-        handle: WinDef.HWND,
-        vararg messages: Int,
-        wParam: WinDef.WPARAM,
-        lParam: WinDef.LPARAM
-    ) {
-        messages.forEach { User32.INSTANCE.SendMessage(handle, it, wParam, lParam) }
     }
 
     fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
@@ -69,7 +60,7 @@ object MouseUtil {
     private fun doMove(handle: WinDef.HWND, position: PointAbsolute) {
         val lParam = makeLParam(position.x, position.y)
         val wParam = makeWParam(0, 0)
-        doPostMouseMessages(handle, WM_MOUSEMOVE, wParam = wParam, lParam = lParam)
+        User32.INSTANCE.SendMessage(handle, WM_MOUSEMOVE, wParam, lParam)
     }
 
     private fun makeLParam(low: Int, high: Int): WinDef.LPARAM {
