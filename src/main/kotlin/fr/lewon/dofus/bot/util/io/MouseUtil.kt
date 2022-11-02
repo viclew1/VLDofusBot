@@ -14,7 +14,7 @@ object MouseUtil {
     private const val WM_LBUTTONUP = 0x0202
     private const val WM_MOUSEMOVE = 0x0200
 
-    fun leftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100, moveBeforeClick: Boolean = true) {
+    fun leftClick(gameInfo: GameInfo, position: PointAbsolute, sleepTime: Int = 100, moveBeforeClick: Boolean = true) {
         gameInfo.lock.executeSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
@@ -25,7 +25,7 @@ object MouseUtil {
                 }
                 doLeftClick(handle, position)
             }
-            WaitUtil.sleep(millis)
+            WaitUtil.sleep(sleepTime)
         }
     }
 
@@ -46,14 +46,14 @@ object MouseUtil {
         User32.INSTANCE.SendMessage(handle, WM_LBUTTONUP, wParam, lParam)
     }
 
-    fun move(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
+    fun move(gameInfo: GameInfo, position: PointAbsolute, sleepTime: Int = 100) {
         gameInfo.lock.executeSyncOperation {
             val pid = gameInfo.connection.pid
             val handle = JNAUtil.findByPID(pid) ?: error("Couldn't click, no handle for PID : $pid")
             SystemKeyLock.executeSyncOperation {
                 doMove(handle, position)
             }
-            WaitUtil.sleep(millis)
+            WaitUtil.sleep(sleepTime)
         }
     }
 
@@ -75,35 +75,35 @@ object MouseUtil {
         return ((high shl 16) or (low and 0xFFFF)).toLong()
     }
 
-    fun leftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100, moveBeforeClick: Boolean = true) {
-        leftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis, moveBeforeClick)
+    fun leftClick(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100, moveBeforeClick: Boolean = true) {
+        leftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime, moveBeforeClick)
     }
 
-    fun move(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
-        move(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
+    fun move(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100) {
+        move(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime)
     }
 
     private fun doubleLeftClick(
         gameInfo: GameInfo,
         position: PointAbsolute,
-        millis: Int = 100
+        sleepTime: Int = 100
     ) {
         leftClick(gameInfo, position, 100)
-        leftClick(gameInfo, position, millis, moveBeforeClick = false)
+        leftClick(gameInfo, position, sleepTime, moveBeforeClick = false)
     }
 
-    fun doubleLeftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
-        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
+    fun doubleLeftClick(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100) {
+        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime)
     }
 
-    private fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, millis: Int = 100) {
+    private fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, sleepTime: Int = 100) {
         leftClick(gameInfo, position, 100)
         leftClick(gameInfo, position, 100, moveBeforeClick = false)
-        leftClick(gameInfo, position, millis, moveBeforeClick = false)
+        leftClick(gameInfo, position, sleepTime, moveBeforeClick = false)
     }
 
-    fun tripleLeftClick(gameInfo: GameInfo, position: PointRelative, millis: Int = 100) {
-        tripleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), millis)
+    fun tripleLeftClick(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100) {
+        tripleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime)
     }
 
 }

@@ -19,15 +19,24 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val zaapDestinations = OpenZaapInterfaceTask().run(logItem, gameInfo)
-        val zaapDestination = zaapDestinations
-            .firstOrNull { it.getCoordinates() == zaap.getCoordinates() }
-            ?: error("Could not find zaap destination [${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]. Did you explore it with this character ?")
-
-        zaapToDestination(gameInfo, zaapDestination, zaapDestinations)
+        if (!zaapDestinations.contains(zaap)) {
+            error("Could not find zaap destination [${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]. Did you explore it with this character ?")
+        }
+        val searchButtonLocation = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "searchInput1").getCenter()
+        WaitUtil.sleep(500)
+        val destName = zaap.subArea.name
+        KeyboardUtil.pasteText(gameInfo, destName, 0, searchButtonLocation)
+        val filteredDestinations = zaapDestinations.filter {
+            it.subArea.name.contains(destName, true) || it.subArea.area.name.contains(destName, true)
+        }
+        zaapToDestination(gameInfo, filteredDestinations)
+        if (zaap.id != gameInfo.currentMap.id) {
+            error("Did not reach expected map ([${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]).")
+        }
         return true
     }
 
-    private fun zaapToDestination(gameInfo: GameInfo, zaapDestination: DofusMap, zaapDestinations: List<DofusMap>) {
+    private fun zaapToDestination(gameInfo: GameInfo, zaapDestinations: List<DofusMap>) {
         val sortingMode = TransportSortingUtil.getZaapSortingMode()
         val regionButtonLocation = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "lbl_tabAreaName")
             .getCenter()
@@ -39,7 +48,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         }
         WaitUtil.sleep(1000)
         val orderedZaaps = getOrderedZaapDestinations(zaapDestinations)
-        val zaapDestinationIndex = orderedZaaps.indexOf(zaapDestination)
+        val zaapDestinationIndex = orderedZaaps.indexOf(zaap)
         val firstElementBounds = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "btn_zaapCoord")
         val firstElementLocation = firstElementBounds.getCenter()
         val totalElementsHeight = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "gd_zaap").height

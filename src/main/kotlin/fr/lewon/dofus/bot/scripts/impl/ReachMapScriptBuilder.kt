@@ -162,8 +162,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
             error("Can't find a map with coordinates ($x, $y) in world map [${worldMap.name}]")
         }
         return mapsOnWorldMap.filter { it.hasPriorityOnWorldMap }
-            .takeIf { it.isNotEmpty() }
-            ?: mapsOnWorldMap
+            .ifEmpty { mapsOnWorldMap }
     }
 
     private fun getDestinationWorldMap(currentMap: DofusMap, scriptValues: ScriptValues): DofusWorldMap {
