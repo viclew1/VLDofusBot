@@ -28,7 +28,6 @@ object KeyboardUtil {
     fun sendKey(gameInfo: GameInfo, key: Char, sleepTime: Int = 100, ctrlModifier: Boolean = false) =
         sendKey(gameInfo, key.code, sleepTime, ctrlModifier)
 
-    @Synchronized
     fun pasteText(
         gameInfo: GameInfo,
         text: String,
@@ -39,14 +38,17 @@ object KeyboardUtil {
         WaitUtil.sleep(sleepTime)
     }
 
+    @Synchronized
     private fun doPasteText(gameInfo: GameInfo, text: String, clickLocationBeforePaste: PointRelative?) {
         val selection = StringSelection(text)
         val clipboard = Toolkit.getDefaultToolkit().systemClipboard
         val previousClipboardContent = clipboard.getContents(null)
         clipboard.setContents(selection, selection)
+        WaitUtil.sleep(50)
         clickLocationBeforePaste?.let { MouseUtil.leftClick(gameInfo, it, 0) }
         sendKey(gameInfo, 'V', 0, true)
         clipboard.setContents(previousClipboardContent, null)
+        WaitUtil.sleep(50)
     }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) =
