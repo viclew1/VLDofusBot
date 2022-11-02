@@ -20,7 +20,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val zaapDestinations = OpenZaapInterfaceTask().run(logItem, gameInfo)
         if (!zaapDestinations.contains(zaap)) {
-            error("Could not find zaap destination [${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]. Did you explore it with this character ?")
+            error("Could not find zaap destination [${zaap.getCoordinates().x};${zaap.getCoordinates().y}]. Did you explore it with this character ?")
         }
         val searchButtonLocation = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "searchInput1").getCenter()
         WaitUtil.sleep(500)
@@ -31,7 +31,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         }
         zaapToDestination(gameInfo, filteredDestinations)
         if (zaap.id != gameInfo.currentMap.id) {
-            error("Did not reach expected map ([${zaap.getCoordinates().x} ; ${zaap.getCoordinates().y}]).")
+            error("Did not reach expected map ([${zaap.getCoordinates().x};${zaap.getCoordinates().y}]).")
         }
         return true
     }

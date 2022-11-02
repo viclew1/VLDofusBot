@@ -42,9 +42,11 @@ object KeyboardUtil {
     private fun doPasteText(gameInfo: GameInfo, text: String, clickLocationBeforePaste: PointRelative?) {
         val selection = StringSelection(text)
         val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+        val previousClipboardContent = clipboard.getContents(null)
         clipboard.setContents(selection, selection)
         clickLocationBeforePaste?.let { MouseUtil.leftClick(gameInfo, it, 0) }
         sendKey(gameInfo, 'V', 0, true)
+        clipboard.setContents(previousClipboardContent, null)
     }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) =
