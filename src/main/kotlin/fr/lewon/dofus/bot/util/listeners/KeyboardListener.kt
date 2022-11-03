@@ -24,7 +24,10 @@ object KeyboardListener : Thread(), NativeKeyListener {
         GlobalScreen.addNativeKeyListener(this)
     }
 
-    override fun nativeKeyTyped(e: NativeKeyEvent) {}
+    override fun nativeKeyTyped(e: NativeKeyEvent) {
+        nativeKeyPressed(e)
+        nativeKeyReleased(e)
+    }
 
     override fun nativeKeyPressed(e: NativeKeyEvent) {
         return lock.executeSyncOperation {

@@ -5,11 +5,8 @@ import com.sun.jna.platform.win32.WinDef
 import com.sun.jna.platform.win32.WinDef.LPARAM
 import com.sun.jna.platform.win32.WinUser
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
-import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.jna.JNAUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
 import java.awt.event.KeyEvent
 
 object KeyboardUtil {
@@ -27,29 +24,6 @@ object KeyboardUtil {
 
     fun sendKey(gameInfo: GameInfo, key: Char, sleepTime: Int = 100, ctrlModifier: Boolean = false) =
         sendKey(gameInfo, key.code, sleepTime, ctrlModifier)
-
-    fun pasteText(
-        gameInfo: GameInfo,
-        text: String,
-        sleepTime: Int = 100,
-        clickLocationBeforePaste: PointRelative? = null
-    ) = gameInfo.lock.executeSyncOperation {
-        doPasteText(gameInfo, text, clickLocationBeforePaste)
-        WaitUtil.sleep(sleepTime)
-    }
-
-    @Synchronized
-    private fun doPasteText(gameInfo: GameInfo, text: String, clickLocationBeforePaste: PointRelative?) {
-        val selection = StringSelection(text)
-        val clipboard = Toolkit.getDefaultToolkit().systemClipboard
-        val previousClipboardContent = clipboard.getContents(null)
-        clipboard.setContents(selection, selection)
-        WaitUtil.sleep(50)
-        clickLocationBeforePaste?.let { MouseUtil.leftClick(gameInfo, it, 0) }
-        sendKey(gameInfo, 'V', 0, true)
-        clipboard.setContents(previousClipboardContent, null)
-        WaitUtil.sleep(50)
-    }
 
     private fun doSendKey(handle: WinDef.HWND, keyEvent: Int, ctrlModifier: Boolean) =
         SystemKeyLock.executeSyncOperation {
