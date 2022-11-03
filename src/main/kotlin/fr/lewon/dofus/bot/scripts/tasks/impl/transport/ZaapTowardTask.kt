@@ -48,11 +48,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     }
 
     private fun forceScroll(gameInfo: GameInfo, clickLocation: PointRelative) {
-        for (i in 0 until 3) {
-            MouseUtil.leftClick(gameInfo, clickLocation, 0, false)
-            MouseUtil.leftClick(gameInfo, clickLocation, 0, false)
-            MouseUtil.leftClick(gameInfo, clickLocation, 100, false)
-        }
+        MouseUtil.doubleLeftClick(gameInfo, clickLocation, 100)
     }
 
     private fun zaapToDestination(gameInfo: GameInfo, zaapDestinations: List<DofusMap>) {
