@@ -5,8 +5,10 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.core.ui.managers.TransportSortingUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.zaap.TeleportRequestMessage
 import fr.lewon.dofus.bot.util.StringUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
+import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
@@ -68,11 +70,24 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         val totalElementsHeight = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "gd_zaap").height
         val dy = totalElementsHeight / 10f
         val zaapLocation = firstElementLocation.getSum(PointRelative(0f, dy * zaapDestinationIndex))
+        val validateButtonBounds = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "btn_validate")
         gameInfo.eventStore.clear()
-        WaitUtil.sleep(300)
-        MouseUtil.tripleLeftClick(gameInfo, zaapLocation)
+        RetryUtil.tryUntilSuccess(
+            toTry = {
+                MouseUtil.leftClick(gameInfo, zaapLocation)
+                MouseUtil.leftClick(gameInfo, validateButtonBounds.getCenter())
+            },
+            successChecker = {
+                waitUntilZaapRequestSent(gameInfo)
+            },
+            tryCount = 4
+        ) ?: error("Couldn't use zaap")
         MoveUtil.waitForMapChangeFinished(gameInfo)
     }
+
+    private fun waitUntilZaapRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+        gameInfo.eventStore.getLastEvent(TeleportRequestMessage::class.java) != null
+    }, 3000)
 
     private fun getOrderedZaapDestinations(zaapDestinations: List<DofusMap>): List<DofusMap> {
         val favoriteZaaps = TransportSortingUtil.getFavoriteZaapMapIds().map { it.toInt() }

@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameCautiousMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.ChangeMapMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.CurrentMapMessage
@@ -125,12 +126,13 @@ object MoveUtil {
             { MouseUtil.leftClick(gameInfo, clickLocation) },
             { waitUntilMapChangeRequested(gameInfo) },
             4,
-        )
+        ) ?: error("No map change requested")
     }
 
     private fun waitUntilMapChangeRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
         gameInfo.eventStore.getLastEvent(ChangeMapMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+                || gameInfo.eventStore.getLastEvent(GameCautiousMapMovementRequestMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(MapInformationsRequestMessage::class.java) != null
     }, 1500)
 

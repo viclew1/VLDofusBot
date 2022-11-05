@@ -3,14 +3,14 @@ package fr.lewon.dofus.bot.util.game
 object RetryUtil {
 
     fun <T> tryUntilSuccess(
-        function: () -> T?,
+        toTry: () -> T?,
         successChecker: (T?) -> Boolean,
         tryCount: Int,
         toCallAfterFail: () -> Unit = {}
     ): T? {
         var currentTryCount = 0
         while (currentTryCount++ < tryCount) {
-            val result = function()
+            val result = toTry()
             if (successChecker(result)) {
                 return result
             }

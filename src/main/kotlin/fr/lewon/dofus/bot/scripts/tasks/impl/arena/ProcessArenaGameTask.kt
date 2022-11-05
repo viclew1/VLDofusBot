@@ -13,7 +13,6 @@ import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import fr.lewon.dofus.bot.util.ui.UiUtil
-import java.awt.event.KeyEvent
 
 class ProcessArenaGameTask : BooleanDofusBotTask() {
 
@@ -51,14 +50,21 @@ class ProcessArenaGameTask : BooleanDofusBotTask() {
         return UiUtil.getContainerBounds(DofusUIElement.ARENA, "btn_1v1Queue")
     }
 
+    private fun getCloseArenaFrameButtonButtons(): RectangleRelative {
+        return UiUtil.getContainerBounds(DofusUIElement.ARENA, "btn_close")
+    }
+
     private fun findingArenaGame(logItem: LogItem, gameInfo: GameInfo) {
+        gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getFindMatchRectangle().getCenter())
-        KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
-        WaitUtil.waitUntilMessageArrives(
-            gameInfo,
-            GameRolePlayArenaFightPropositionMessage::class.java,
-            6 * 60 * 1000
-        )
+        MouseUtil.leftClick(gameInfo, getCloseArenaFrameButtonButtons().getCenter())
+        if (gameInfo.eventStore.getLastEvent(GameRolePlayArenaFightPropositionMessage::class.java) == null) {
+            WaitUtil.waitUntilMessageArrives(
+                gameInfo,
+                GameRolePlayArenaFightPropositionMessage::class.java,
+                6 * 60 * 1000
+            )
+        }
         gameInfo.logger.addSubLog("Arena game found. Waiting for it to launch ...", logItem)
         launchArenaMatch(logItem, gameInfo)
     }

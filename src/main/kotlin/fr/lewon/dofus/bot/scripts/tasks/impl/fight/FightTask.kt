@@ -207,7 +207,7 @@ open class FightTask(
             { MouseUtil.doubleLeftClick(gameInfo, target.getCenter()) },
             { waitUntilMoveRequested(gameInfo) },
             4
-        )
+        ) ?: error("Couldn't request move")
         waitForSequenceCompleteEnd(gameInfo)
     }
 
@@ -225,7 +225,7 @@ open class FightTask(
             },
             { waitUntilSpellCastRequested(gameInfo) },
             4
-        )
+        ) ?: error("Couldn't cast spell")
     }
 
     private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({

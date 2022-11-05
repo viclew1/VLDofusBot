@@ -82,7 +82,7 @@ object InteractiveUtil {
             { doUseInteractive(gameInfo, elementClickLocation, skills, skillIndex) },
             { waitUntilInteractiveUseRequestSent(gameInfo) },
             4
-        )
+        ) ?: error("No interactive used")
     }
 
     private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({

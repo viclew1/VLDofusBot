@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
@@ -9,12 +10,10 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.OpenZaapInterfaceTask
-import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.TravelUtil
-import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
-import java.awt.event.KeyEvent
+import fr.lewon.dofus.bot.util.ui.UiUtil
 
 object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps") {
 
@@ -34,8 +33,8 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val registeredZaaps = OpenZaapInterfaceTask().run(logItem, gameInfo)
-        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
-        KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
+        val closeZaapInterfaceButtonBounds = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "btn_close")
+        MouseUtil.leftClick(gameInfo, closeZaapInterfaceButtonBounds.getCenter())
         LeaveHavenBagTask().run(logItem, gameInfo)
         val zaaps = TravelUtil.getAllZaapMaps()
             .filter { shouldExploreZaap(gameInfo, it, registeredZaaps) }
