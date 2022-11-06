@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
-import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarUIUtil
+import fr.lewon.dofus.bot.gui2.main.status.StatusBarUIUtil
 import fr.lewon.dofus.bot.gui2.util.SoundType
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage

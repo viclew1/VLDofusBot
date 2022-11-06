@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui2.main.scripts.status
+package fr.lewon.dofus.bot.gui2.main.status
 
 import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
@@ -26,7 +26,8 @@ object StatusBarUIUtil {
         val seconds = StringUtils.leftPad(ldt.second.toString(), 2, "0")
         val timeStamp = "$hours:$minutes:$seconds"
         val newStatus = "$timeStamp : ${character.name} - $text"
-        this.statusBarUIState.value = statusBarUIState.copy(oldMessages = newOldMessages, currentStatus = newStatus)
+        StatusBarUIUtil.statusBarUIState.value =
+            statusBarUIState.copy(oldMessages = newOldMessages, currentStatus = newStatus)
     }
 
 }

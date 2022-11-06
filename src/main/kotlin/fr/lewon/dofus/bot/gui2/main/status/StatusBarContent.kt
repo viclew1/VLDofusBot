@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui2.main.scripts.status
+package fr.lewon.dofus.bot.gui2.main.status
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically

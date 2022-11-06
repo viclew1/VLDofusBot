@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.*
+import fr.lewon.dofus.bot.gui2.main.TooltipTarget
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
@@ -52,8 +53,9 @@ private fun CharacterStateIndicator(characterUIState: MutableState<CharacterUISt
     val color = characterUIState.value.activityState.color
     val character = CharacterManager.getCharacter(characterUIState.value.name)
         ?: error("Character not found : ${characterUIState.value.name}")
+    val label = characterUIState.value.activityState.labelBuilder(character)
     Row(Modifier.width(6.dp).fillMaxHeight()) {
-        DefaultTooltipArea(characterUIState.value.activityState.labelBuilder(character), 20.dp) {
+        TooltipTarget(label, 20.dp, modifier = Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxSize().background(color)) { }
         }
     }

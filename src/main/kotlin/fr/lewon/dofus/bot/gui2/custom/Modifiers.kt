@@ -21,8 +21,9 @@ import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.util.AppColors
 import java.awt.Cursor
 
+@Composable
 fun Modifier.defaultHoverManager(
-    isHovered: MutableState<Boolean>,
+    isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
     onHover: () -> Unit = {},
     onExit: () -> Unit = {}
 ): Modifier = composed {

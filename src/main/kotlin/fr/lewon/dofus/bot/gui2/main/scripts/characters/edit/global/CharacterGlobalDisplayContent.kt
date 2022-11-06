@@ -8,7 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fr.lewon.dofus.bot.gui2.custom.*
+import fr.lewon.dofus.bot.gui2.custom.CommonText
+import fr.lewon.dofus.bot.gui2.custom.HorizontalSeparator
+import fr.lewon.dofus.bot.gui2.custom.SubTitleText
+import fr.lewon.dofus.bot.gui2.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui2.main.TooltipTarget
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui2.util.UiResource
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
@@ -57,7 +61,7 @@ fun CharacterCharacteristicInformationContent(characterUIState: CharacterUIState
         Column {
             Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.size(20.dp)) {
-                    DefaultTooltipArea("Level", 20.dp) {
+                    TooltipTarget("Level", 20.dp, modifier = Modifier.fillMaxSize()) {
                         Image(UiResource.LEVEL.imagePainter, "")
                     }
                 }
@@ -66,7 +70,7 @@ fun CharacterCharacteristicInformationContent(characterUIState: CharacterUIState
             }
             Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.size(20.dp)) {
-                    DefaultTooltipArea("Kamas", 20.dp) {
+                    TooltipTarget("Kamas", 20.dp, modifier = Modifier.fillMaxSize()) {
                         Image(UiResource.KAMAS.imagePainter, "")
                     }
                 }
@@ -75,7 +79,7 @@ fun CharacterCharacteristicInformationContent(characterUIState: CharacterUIState
             }
             Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.size(20.dp)) {
-                    DefaultTooltipArea("Weight", 20.dp) {
+                    TooltipTarget("Weight", 20.dp, modifier = Modifier.fillMaxSize()) {
                         Image(UiResource.WEIGHT.imagePainter, "")
                     }
                 }

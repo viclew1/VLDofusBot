@@ -15,36 +15,30 @@ import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptsTabsContent
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.logs.LogsCharacterTabContent
-import fr.lewon.dofus.bot.gui2.main.scripts.status.StatusBarContent
 import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun ScriptsContent() {
-    Box {
-        Row(Modifier.padding(bottom = 30.dp)) {
-            Row(Modifier.width(180.dp)) {
-                CharactersListContent()
-            }
-            Column(Modifier.weight(1f)) {
-                ScriptsTabsContent()
-            }
-            Divider(Modifier.fillMaxHeight().width(1.dp), color = AppColors.backgroundColor)
-            Column(Modifier.fillMaxHeight().width(503.dp)) {
-                AnimatedVisibility(
-                    visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.INDIVIDUAL,
-                    enter = expandVertically(expandFrom = Alignment.Top),
-                    exit = shrinkVertically(shrinkTowards = Alignment.Top),
-                    modifier = Modifier.heightIn(max = 430.dp)
-                ) {
-                    CharacterEditionContent()
-                }
-                Row(Modifier.fillMaxHeight()) {
-                    LogsCharacterTabContent()
-                }
-            }
+    Row(Modifier.fillMaxSize()) {
+        Row(Modifier.width(180.dp)) {
+            CharactersListContent()
         }
-        Row(Modifier.align(Alignment.BottomCenter)) {
-            StatusBarContent()
+        Column(Modifier.weight(1f)) {
+            ScriptsTabsContent()
+        }
+        Divider(Modifier.fillMaxHeight().width(1.dp), color = AppColors.backgroundColor)
+        Column(Modifier.fillMaxHeight().width(503.dp)) {
+            AnimatedVisibility(
+                visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.INDIVIDUAL,
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top),
+                modifier = Modifier.heightIn(max = 430.dp)
+            ) {
+                CharacterEditionContent()
+            }
+            Row(Modifier.fillMaxHeight()) {
+                LogsCharacterTabContent()
+            }
         }
     }
 }

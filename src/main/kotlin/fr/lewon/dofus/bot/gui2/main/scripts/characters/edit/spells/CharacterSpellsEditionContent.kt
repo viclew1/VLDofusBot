@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,11 +18,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
 import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellVariantManager
 import fr.lewon.dofus.bot.core.model.spell.DofusSpell
 import fr.lewon.dofus.bot.gui2.custom.CommonText
-import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
 import fr.lewon.dofus.bot.gui2.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui2.custom.rememberScrollbarAdapter
 import fr.lewon.dofus.bot.gui2.main.DragTarget
 import fr.lewon.dofus.bot.gui2.main.DropTarget
+import fr.lewon.dofus.bot.gui2.main.TooltipTarget
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
@@ -136,11 +135,7 @@ private fun AvailableSpells(characterUIState: CharacterUIState) {
             ) {
                 items(spells) {
                     SpellBox {
-                        DefaultTooltipArea(
-                            it.name,
-                            tooltipAlignment = Alignment.CenterStart,
-                            shape = CutCornerShape(5, 25, 25, 5)
-                        ) {
+                        TooltipTarget(it.name, modifier = Modifier.fillMaxSize()) {
                             SpellImage(it, null)
                         }
                     }

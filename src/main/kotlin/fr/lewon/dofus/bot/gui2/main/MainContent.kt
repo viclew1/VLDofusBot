@@ -20,21 +20,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.gui2.custom.DefaultTooltipArea
 import fr.lewon.dofus.bot.gui2.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui2.custom.handPointerIcon
+import fr.lewon.dofus.bot.gui2.main.status.StatusBarContent
 import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun MainContent() {
-    PressDraggable(
-        Modifier.fillMaxSize()
-            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {}
-    ) {
-        Row(Modifier.fillMaxSize()) {
-            MainNavigationRail()
-            Box(Modifier.fillMaxSize()) {
-                MainContentUIUtil.mainContentUIState.value.currentAppContent.content()
+    val modifier = Modifier.fillMaxSize()
+        .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {}
+    PressDraggable(modifier) {
+        TooltipManageable {
+            Row(Modifier.fillMaxSize()) {
+                MainNavigationRail()
+                Box(Modifier.fillMaxSize()) {
+                    Row(Modifier.padding(bottom = 30.dp)) {
+                        MainContentUIUtil.mainContentUIState.value.currentAppContent.content()
+                    }
+                    Row(Modifier.align(Alignment.BottomCenter)) {
+                        StatusBarContent()
+                    }
+                }
             }
         }
     }
@@ -55,8 +61,8 @@ private fun MainNavigationRail() {
                 icon = {
                     val iconPainter = appContent.uiResource.imagePainter
                     val backgroundColor = Color.Transparent
-                    Row(modifier = Modifier.height(64.dp).fillMaxWidth()) {
-                        DefaultTooltipArea(appContent.title) {
+                    TooltipTarget(appContent.title, modifier = Modifier.fillMaxSize()) {
+                        Row(modifier = Modifier.height(64.dp).fillMaxWidth()) {
                             SelectedIndicator(Modifier.align(Alignment.CenterVertically), selected, isHovered.value)
                             Image(iconPainter, "", Modifier.fillMaxSize().background(backgroundColor))
                         }
