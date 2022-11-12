@@ -14,5 +14,10 @@ data class CharacterUIState(
     val runningScript: ScriptRunner.RunningScript? = null,
     val scriptBuilder: DofusBotScriptBuilder = ScriptTabsUIUtil.scripts.first(),
     val flashVars: String? = null,
-    val skinImage: Painter? = null
+    val skinImage: Painter? = null,
+    val skinImageState: SkinImageState = SkinImageState.NOT_LOADED
 )
+
+enum class SkinImageState {
+    NOT_LOADED, LOADING, BROKEN, LOADED
+}

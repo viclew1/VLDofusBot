@@ -68,8 +68,7 @@ object MoveUtil {
             .filter { it.type == TransitionType.INTERACTIVE || it.type == TransitionType.MAP_ACTION }
 
         val potentialTransitions = getPotentialTransitions(direction, specialTransitions, fromMap)
-        val idealDestination = getIdealDestination(direction, fromMap)
-        return getClosestTransition(potentialTransitions, idealDestination.x, idealDestination.y)
+        return getClosestTransition(potentialTransitions, getIdealDestination(direction, fromMap))
             ?: error("No path found")
     }
 
@@ -97,8 +96,7 @@ object MoveUtil {
         }
     }
 
-    private fun getClosestTransition(transitions: List<Transition>, x: Int, y: Int): Transition? {
-        val targetCoordinates = DofusCoordinates(x, y)
+    private fun getClosestTransition(transitions: List<Transition>, targetCoordinates: DofusCoordinates): Transition? {
         return transitions.minByOrNull {
             MapManager.getDofusMap(it.edge.to.mapId).getCoordinates().distanceTo(targetCoordinates)
         }

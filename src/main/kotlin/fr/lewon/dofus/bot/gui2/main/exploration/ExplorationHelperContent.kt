@@ -4,12 +4,16 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -44,18 +48,20 @@ fun ExplorationHelperContent() {
             }
             colorByMap.value = newColorByMap
         }
+        computeColors()
         LaunchedEffect(Unit) {
             while (true) {
-                computeColors()
                 delay(10000)
+                computeColors()
             }
         }
-        var scale by remember { mutableStateOf(1f) }
-        var offset by remember { mutableStateOf(Offset.Zero) }
         Canvas(Modifier.pointerInput(Unit) {
             detectDragGestures(
                 onDrag = { _, dragAmount ->
-                    offset += dragAmount / scale
+                    val currentUIState = ExplorationUIUtil.uiState.value
+                    ExplorationUIUtil.uiState.value = currentUIState.copy(
+                        offset = currentUIState.offset + dragAmount / currentUIState.scale
+                    )
                 }
             )
         }.pointerInput(Unit) {
@@ -63,14 +69,17 @@ fun ExplorationHelperContent() {
                 while (true) {
                     val event = awaitPointerEvent()
                     if (event.type == PointerEventType.Scroll && event.changes.isNotEmpty() && event.changes.all { !it.isConsumed }) {
+                        val currentUIState = ExplorationUIUtil.uiState.value
                         val delta = event.changes.sumOf { it.scrollDelta.y.toInt() }
-                        scale = min(4f, max(0.5f, scale * (1 - delta.toFloat() / 10)))
+                        ExplorationUIUtil.uiState.value = currentUIState.copy(
+                            scale = min(4f, max(0.5f, currentUIState.scale * (1 - delta.toFloat() / 10)))
+                        )
                     }
                 }
             }
         }.fillMaxSize().align(Alignment.Center).graphicsLayer {
-            scaleX = scale
-            scaleY = scale
+            scaleX = ExplorationUIUtil.uiState.value.scale
+            scaleY = ExplorationUIUtil.uiState.value.scale
         }) {
             val size = Size(5f, 5f)
             for ((subArea, mapDrawCells) in mapDrawCellsBySubArea) {
@@ -79,16 +88,33 @@ fun ExplorationHelperContent() {
                     val color = colorByMap.value[map.id] ?: Color.Red
                     val realX = map.posX - minPosX
                     val realY = map.posY - minPosY
-                    val topLeft = Offset(realX * 5f, realY * 5f) + offset
-                    val topRight = Offset((realX + 1) * 5f, realY * 5f) + offset
-                    val bottomLeft = Offset(realX * 5f, (realY + 1) * 5f) + offset
-                    val bottomRight = Offset((realX + 1) * 5f, (realY + 1) * 5f) + offset
-                    this.drawRect(color, topLeft = topLeft, size = size)
-                    this.drawRect(color, topLeft = topLeft, size = size, style = Stroke(1f))
-                    if (mapDrawCell.leftWall) drawLine(Color.Black, topLeft, bottomLeft, strokeWidth = 1f)
-                    if (mapDrawCell.bottomWall) drawLine(Color.Black, bottomLeft, bottomRight, strokeWidth = 1f)
-                    if (mapDrawCell.rightWall) drawLine(Color.Black, bottomRight, topRight, strokeWidth = 1f)
-                    if (mapDrawCell.topWall) drawLine(Color.Black, topRight, topLeft, strokeWidth = 1f)
+                    val topLeft = Offset(realX * 5f, realY * 5f) + ExplorationUIUtil.uiState.value.offset
+                    this.drawRect(color, topLeft, size, blendMode = BlendMode.Src)
+                    this.drawRect(color, topLeft, size, style = Stroke(1f), blendMode = BlendMode.Src)
+                    this.drawRect(Color.Black, topLeft, size, style = Stroke(0.1f), blendMode = BlendMode.Src)
+                }
+            }
+            mapDrawCellsBySubArea.flatMap { it.value }.filter {
+                it.leftWall || it.bottomWall || it.rightWall || it.topWall
+            }.forEach { borderCell ->
+                val map = borderCell.map
+                val realX = map.posX - minPosX
+                val realY = map.posY - minPosY
+                val topLeft = Offset(realX * 5f, realY * 5f) + ExplorationUIUtil.uiState.value.offset
+                val topRight = Offset((realX + 1) * 5f, realY * 5f) + ExplorationUIUtil.uiState.value.offset
+                val bottomLeft = Offset(realX * 5f, (realY + 1) * 5f) + ExplorationUIUtil.uiState.value.offset
+                val bottomRight = Offset((realX + 1) * 5f, (realY + 1) * 5f) + ExplorationUIUtil.uiState.value.offset
+                if (borderCell.leftWall) {
+                    drawLine(Color.Black, topLeft, bottomLeft, strokeWidth = 1f, blendMode = BlendMode.Src)
+                }
+                if (borderCell.bottomWall) {
+                    drawLine(Color.Black, bottomLeft, bottomRight, strokeWidth = 1f, blendMode = BlendMode.Src)
+                }
+                if (borderCell.rightWall) {
+                    drawLine(Color.Black, bottomRight, topRight, strokeWidth = 1f, blendMode = BlendMode.Src)
+                }
+                if (borderCell.topWall) {
+                    drawLine(Color.Black, topRight, topLeft, strokeWidth = 1f, blendMode = BlendMode.Src)
                 }
             }
         }

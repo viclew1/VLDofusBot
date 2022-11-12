@@ -1,31 +1,55 @@
 package fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.CommonText
+import fr.lewon.dofus.bot.gui2.custom.CustomShapes
+import fr.lewon.dofus.bot.gui2.custom.RefreshButton
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharacterUIState
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui2.main.scripts.characters.SkinImageState
+import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 
 @Composable
 fun CharacterSkinDisplay(characterUIState: CharacterUIState) {
-    Box(Modifier.height(200.dp).padding(5.dp)) {
+    Box(Modifier.height(200.dp)) {
         val skinImagePainter = characterUIState.skinImage
-        Column(Modifier.align(Alignment.BottomCenter)) {
-            if (skinImagePainter == null) {
-                CommonText("Initialize character to load its skin", textAlign = TextAlign.Center)
+        val skinImageState = characterUIState.skinImageState
+        Column(Modifier.padding(5.dp).align(Alignment.BottomCenter).padding(5.dp)) {
+            val imageStateText = when (skinImageState) {
+                SkinImageState.NOT_LOADED -> "Initialize character to load its skin"
+                SkinImageState.BROKEN -> "Failed to load skin, Dofusbook might be unreachable"
+                SkinImageState.LOADING -> "Loading skin ..."
+                else -> ""
+            }
+            if (imageStateText.isNotBlank()) {
+                CommonText(imageStateText, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
             Image(BreedAssetManager.getAssets(characterUIState.dofusClassId).blurredIconPainter, "")
         }
         if (skinImagePainter != null) {
-            Image(skinImagePainter, "", Modifier.align(Alignment.Center))
+            Image(skinImagePainter, "", Modifier.padding(5.dp).align(Alignment.Center))
+        } else if (skinImageState == SkinImageState.LOADING) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth(0.9f).align(Alignment.BottomCenter),
+                color = AppColors.primaryColor
+            )
+        } else if (skinImageState == SkinImageState.BROKEN) {
+            Row(Modifier.align(Alignment.BottomCenter).height(20.dp)) {
+                RefreshButton(
+                    { CharactersUIUtil.refreshSkin(characterUIState.name) },
+                    "",
+                    CustomShapes.buildTrapezoidShape(topLeftDeltaRatio = 0.15f, topRightDeltaRatio = 0.15f),
+                    width = 60.dp
+                )
+            }
         }
     }
 }

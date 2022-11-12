@@ -266,24 +266,46 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
     }
 
     fun updateSkin(character: DofusCharacter, entityLook: EntityLook) {
-        Thread {
-            try {
-                val characterUIState = getCharacterUIState(character.name).value
-                val newFlashVars = SkinatorRequestProcessor.getFlashVars(entityLook)
-                if (newFlashVars != characterUIState.flashVars) {
-                    val newSkinImage = SkinatorRequestProcessor.getSkinImage(newFlashVars)
-                    lock.executeSyncOperation {
-                        val uiState = getCharacterUIState(character.name)
-                        uiState.value = uiState.value.copy(
-                            skinImage = newSkinImage.toPainter(),
-                            flashVars = newFlashVars
-                        )
-                    }
-                }
-            } catch (e: IOException) {
-                println("Failed to retrieve skin image : ${e.message}")
+        lock.executeSyncOperation {
+            val characterUIState = getCharacterUIState(character.name)
+            val newFlashVars = SkinatorRequestProcessor.getFlashVars(entityLook)
+            if (newFlashVars != characterUIState.value.flashVars) {
+                characterUIState.value = characterUIState.value.copy(
+                    flashVars = newFlashVars,
+                )
+                refreshSkin(characterUIState.value.name)
             }
-        }.start()
+        }
+    }
+
+    fun refreshSkin(characterName: String) {
+        val characterUIState = getCharacterUIState(characterName)
+        lock.executeSyncOperation {
+            characterUIState.value = characterUIState.value.copy(
+                skinImageState = SkinImageState.LOADING
+            )
+            Thread {
+                val flashVars = characterUIState.value.flashVars
+                    ?: error("Flash vars not initialized for ${characterUIState.value.name}")
+                doRefreshSkin(characterUIState.value.name, flashVars)
+            }.start()
+        }
+    }
+
+    private fun doRefreshSkin(characterName: String, newFlashVars: String) {
+        val newSkinImagePainter = try {
+            SkinatorRequestProcessor.getSkinImage(newFlashVars).toPainter()
+        } catch (e: IOException) {
+            println("Failed to retrieve skin image : ${e.message}")
+            null
+        }
+        lock.executeSyncOperation {
+            val characterUIState = getCharacterUIState(characterName)
+            characterUIState.value = characterUIState.value.copy(
+                skinImage = newSkinImagePainter,
+                skinImageState = if (newSkinImagePainter == null) SkinImageState.BROKEN else SkinImageState.LOADED
+            )
+        }
     }
 
 }
