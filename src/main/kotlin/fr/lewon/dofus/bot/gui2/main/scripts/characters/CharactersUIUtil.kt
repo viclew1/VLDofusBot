@@ -207,7 +207,7 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             charactersUIState.value = charactersUIState.value.copy(
                 characterNames = getOrderedCharactersNames()
             )
-            ScriptRunner.stopScript(character)
+            ScriptRunner.stopScript(character.name)
             ExplorationUIUtil.removeAvailableCharacter(character.name)
         }
     }

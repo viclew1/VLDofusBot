@@ -48,6 +48,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             if (gameInfo.shouldInitBoard) {
                 gameInfo.shouldInitBoard = false
                 gameInfo.playerId = playerInfo.contextualId
+                gameInfo.updateCellData(socketResult.mapId)
                 CharactersUIUtil.updateState(gameInfo.character)
                 println("${gameInfo.character.name} initialized, ID : ${gameInfo.playerId}")
             }

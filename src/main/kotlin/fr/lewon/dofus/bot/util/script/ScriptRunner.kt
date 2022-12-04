@@ -84,8 +84,8 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     }
 
     @Synchronized
-    fun stopScript(character: DofusCharacter) {
-        RUNNING_SCRIPT_BY_CHARACTER_NAME.remove(character.name)?.thread?.interrupt()
+    fun stopScript(characterName: String) {
+        RUNNING_SCRIPT_BY_CHARACTER_NAME.remove(characterName)?.thread?.interrupt()
     }
 
     private fun onScriptKo(character: DofusCharacter, t: Throwable, logItem: LogItem) {

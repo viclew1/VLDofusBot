@@ -58,7 +58,7 @@ object ScriptTabsUIUtil : ComposeUIUtil() {
             val selectedCharactersNames = selectedCharactersUIStates.map { it.value.name }
             val selectedCharacters = CharacterManager.getCharacters(selectedCharactersNames)
             if (isStarted) {
-                selectedCharacters.forEach { ScriptRunner.stopScript(it) }
+                selectedCharacters.forEach { ScriptRunner.stopScript(it.name) }
             } else {
                 val scriptBuilder = getCurrentScriptBuilder()
                 val scriptValues = ScriptParametersUIUtil.getScriptValuesStore().getValues(scriptBuilder)

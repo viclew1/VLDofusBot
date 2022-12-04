@@ -5,6 +5,7 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -121,7 +123,7 @@ private fun RowScope.OwnedIndicatorContent(monster: DofusMonster) {
 fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
     Column(Modifier.fillMaxWidth().darkGrayBoxStyle().padding(5.dp)) {
         CommonText("Explore Area", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 10.dp))
-        Row {
+        Row(Modifier.padding(start = 5.dp)) {
             Column {
                 CommonText("Area", fontWeight = FontWeight.Bold)
                 CommonText("Sub Area", fontWeight = FontWeight.Bold)
@@ -138,7 +140,47 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp)
             )
         } else {
-            Row(Modifier.padding(bottom = 10.dp)) {
+            Row(Modifier.padding(bottom = 5.dp)) {
+                CommonText(
+                    "Start exploration",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Spacer(Modifier.fillMaxWidth().weight(1f))
+                Row(Modifier.size(25.dp)) {
+                    ButtonWithTooltip(
+                        onClick = {
+                            ExplorationUIUtil.explorerUIState.value.selectedCharacterName?.let { characterName ->
+                                CharacterManager.getCharacter(characterName)?.let { character ->
+                                    val scriptValues = ScriptValues()
+                                    ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName.forEach {
+                                        scriptValues.updateParamValue(it.key, it.value)
+                                    }
+                                    scriptValues.updateParamValue(
+                                        ExploreAreaScriptBuilder.subAreaParameter,
+                                        subArea.label
+                                    )
+                                    ScriptRunner.runScript(character, ExploreAreaScriptBuilder, scriptValues)
+                                }
+                            }
+                        },
+                        title = "",
+                        shape = RoundedCornerShape(15),
+                        hoverBackgroundColor = Color.Gray,
+                        defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                    ) {
+                        Box(Modifier.fillMaxSize()) {
+                            Image(
+                                Icons.Default.PlayArrow,
+                                "",
+                                modifier = Modifier.fillMaxSize(),
+                                colorFilter = ColorFilter.tint(AppColors.GREEN)
+                            )
+                        }
+                    }
+                }
+            }
+            Row(Modifier.padding(bottom = 5.dp)) {
                 CommonText("Character used", Modifier.fillMaxWidth(0.5f).align(Alignment.CenterVertically))
                 ComboBox(
                     Modifier.fillMaxWidth(),
@@ -158,6 +200,7 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                     }
                 )
             }
+            HorizontalSeparator()
             for ((parameter, value) in ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName) {
                 Row {
                     Column(Modifier.fillMaxWidth(0.7f).align(Alignment.CenterVertically)) {
@@ -179,24 +222,6 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                     }
                 }
             }
-            Spacer(Modifier.height(10.dp))
-            AnimatedButton(
-                {
-                    ExplorationUIUtil.explorerUIState.value.selectedCharacterName?.let { characterName ->
-                        CharacterManager.getCharacter(characterName)?.let { character ->
-                            val scriptValues = ScriptValues()
-                            ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName.forEach {
-                                scriptValues.updateParamValue(it.key, it.value)
-                            }
-                            scriptValues.updateParamValue(ExploreAreaScriptBuilder.subAreaParameter, subArea.label)
-                            ScriptRunner.runScript(character, ExploreAreaScriptBuilder, scriptValues)
-                        }
-                    }
-                },
-                "Start Exploration",
-                Icons.Default.PlayArrow,
-                Modifier.fillMaxWidth().height(25.dp)
-            )
         }
     }
 }
