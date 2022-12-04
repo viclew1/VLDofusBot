@@ -2,10 +2,11 @@ package fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.scriptinfo
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.util.FormatUtil
 
-object ScriptInfoUIUtil {
+object ScriptInfoUIUtil : ComposeUIUtil() {
 
     private val scriptInfoUIStateByCharacterName = HashMap<String, MutableState<ScriptInfoUIState>>()
 

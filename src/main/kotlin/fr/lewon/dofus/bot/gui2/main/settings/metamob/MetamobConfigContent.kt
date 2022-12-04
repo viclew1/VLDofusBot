@@ -15,7 +15,7 @@ import fr.lewon.dofus.bot.gui2.main.settings.ConfigSwitchLine
 import fr.lewon.dofus.bot.gui2.main.settings.ConfigTextField
 import fr.lewon.dofus.bot.gui2.main.settings.SettingsUIUtil
 import fr.lewon.dofus.bot.gui2.util.AppColors
-import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersUpdater
+import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 
 @Composable
@@ -99,7 +99,7 @@ fun MetamobConfigContent() {
 
 private fun updateConnectionStatus(connectionStatus: MutableState<ConnectionStatus>) {
     connectionStatus.value = ConnectionStatus.PENDING
-    val connectionOk = MetamobMonstersUpdater.isMetamobConfigured() && MetamobRequestProcessor.checkParameters()
+    val connectionOk = MetamobMonstersHelper.isMetamobConfigured() && MetamobRequestProcessor.checkParameters()
     connectionStatus.value = if (connectionOk) ConnectionStatus.CONNECTION_OK else ConnectionStatus.CONNECTION_KO
 }
 

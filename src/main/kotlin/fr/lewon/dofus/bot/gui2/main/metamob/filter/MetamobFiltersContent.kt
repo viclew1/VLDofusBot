@@ -19,7 +19,7 @@ fun MetamobFiltersContent() {
         CommonText("Filters", modifier = Modifier.padding(10.dp), fontWeight = FontWeight.SemiBold)
         HorizontalSeparator()
         Column(Modifier.padding(10.dp)) {
-            for ((filter, value) in MetamobHelperUIUtil.getValueByFilter()) {
+            for ((filter, value) in MetamobHelperUIUtil.uiState.value.valueByFilter) {
                 ParameterLine(filter.parameter,
                     getParamValue = { value },
                     onParamUpdate = { MetamobHelperUIUtil.updateFilter(filter, it) }

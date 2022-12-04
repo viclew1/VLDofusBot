@@ -2,10 +2,11 @@ package fr.lewon.dofus.bot.gui2.main.scripts.characters.edit
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 
-object CharacterEditionUIUtil {
+object CharacterEditionUIUtil : ComposeUIUtil() {
 
     private val uiState = mutableStateOf(CharacterEditionUIState())
 

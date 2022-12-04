@@ -12,6 +12,7 @@ object AppColors {
 
     val DARK_BG_COLOR = Color(0xFF222222)
     val VERY_DARK_BG_COLOR = Color(0xFF111111)
+
     val GREEN = Color(80, 219, 61)
     val RED = Color(217, 40, 12)
     val ORANGE = Color(255, 168, 37)

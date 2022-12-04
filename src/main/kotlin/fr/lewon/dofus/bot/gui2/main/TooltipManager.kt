@@ -113,7 +113,7 @@ fun TooltipTarget(
         tooltipInfo.value = null
     }
 
-    Box(modifier = modifier.defaultHoverManager(onHover = show, onExit = hide).onGloballyPositioned {
+    Box(modifier = modifier.defaultHoverManager(onHover = show, onExit = hide, key = text).onGloballyPositioned {
         elementPosition = it.localToWindow(Offset.Zero)
         elementSize = it.size
     }.pointerInput(Unit) {

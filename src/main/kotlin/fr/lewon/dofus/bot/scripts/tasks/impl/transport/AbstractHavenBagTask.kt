@@ -1,5 +1,8 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.transport
 
+import fr.lewon.dofus.bot.core.VldbCoreInitializer
+import fr.lewon.dofus.bot.core.d2o.D2OUtil
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.TextInformationMessage
@@ -68,4 +71,17 @@ abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : 
                 && MoveUtil.isMapChanged(gameInfo, getComplementaryInformationClass(false))
     }
 
+}
+
+fun main() {
+    VldbCoreInitializer.initAll()
+    D2OUtil.getObjects("MapPositions").firstOrNull {
+        it["id"].toString().toDouble() == 1.861248E8.toDouble()
+    }?.let {
+        println(it)
+        val map = MapManager.getDofusMap(it["id"].toString().toDouble())
+        println(map.canReachHavenBag)
+        println(map.subArea)
+        println(map.name)
+    }
 }

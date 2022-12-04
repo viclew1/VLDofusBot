@@ -1,13 +1,14 @@
 package fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.spells
 
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.CharacterEditionUIUtil
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpells
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterSpellManagerListener
 
-object CharacterSpellsUIUtil : CharacterSpellManagerListener {
+object CharacterSpellsUIUtil : ComposeUIUtil(), CharacterSpellManagerListener {
 
     private val uiState = mutableStateOf(CharacterSpellsUIState())
 

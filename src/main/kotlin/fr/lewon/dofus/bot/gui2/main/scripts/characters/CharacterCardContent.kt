@@ -1,10 +1,7 @@
 package fr.lewon.dofus.bot.gui2.main.scripts.characters
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults
@@ -15,13 +12,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isPrimaryPressed
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui2.custom.*
@@ -61,15 +53,11 @@ private fun CharacterStateIndicator(characterUIState: MutableState<CharacterUISt
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CardMainContent(characterUIState: MutableState<CharacterUIState>, selected: Boolean) {
     val breedAssets = BreedAssetManager.getAssets(characterUIState.value.dofusClassId)
-    Row(Modifier.onPointerEvent(PointerEventType.Press, PointerEventPass.Main) { event ->
-        if (event.buttons.isPrimaryPressed) {
-            CharactersUIUtil.selectCharacter(characterUIState.value.name)
-        }
-    }.fillMaxWidth()) {
+    Row(Modifier.onClick { CharactersUIUtil.selectCharacter(characterUIState.value.name) }.fillMaxWidth()) {
         Image(painter = breedAssets.simpleIconPainter, "", contentScale = ContentScale.FillHeight)
         Spacer(Modifier.width(10.dp))
         val textColor = getTextColor(selected)

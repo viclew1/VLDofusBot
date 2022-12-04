@@ -3,9 +3,10 @@ package fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import java.util.concurrent.locks.ReentrantLock
 
-object CharacterGlobalInformationUIUtil {
+object CharacterGlobalInformationUIUtil : ComposeUIUtil() {
 
     private val lock = ReentrantLock()
     private val uiStateByCharacterName = HashMap<String, MutableState<CharacterGlobalInformationUIState>>()

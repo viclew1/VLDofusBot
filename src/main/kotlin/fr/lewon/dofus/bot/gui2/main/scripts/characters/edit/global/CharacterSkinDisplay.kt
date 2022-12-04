@@ -20,23 +20,30 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 @Composable
 fun CharacterSkinDisplay(characterUIState: CharacterUIState) {
     Box(Modifier.height(200.dp)) {
+        Image(
+            BreedAssetManager.getAssets(characterUIState.dofusClassId).blurredIconPainter,
+            "",
+            Modifier.align(Alignment.BottomCenter)
+        )
         val skinImagePainter = characterUIState.skinImage
-        val skinImageState = characterUIState.skinImageState
-        Column(Modifier.padding(5.dp).align(Alignment.BottomCenter).padding(5.dp)) {
-            val imageStateText = when (skinImageState) {
-                SkinImageState.NOT_LOADED -> "Initialize character to load its skin"
-                SkinImageState.BROKEN -> "Failed to load skin, Dofusbook might be unreachable"
-                SkinImageState.LOADING -> "Loading skin ..."
-                else -> ""
-            }
-            if (imageStateText.isNotBlank()) {
-                CommonText(imageStateText, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-            }
-            Image(BreedAssetManager.getAssets(characterUIState.dofusClassId).blurredIconPainter, "")
-        }
         if (skinImagePainter != null) {
             Image(skinImagePainter, "", Modifier.padding(5.dp).align(Alignment.Center))
-        } else if (skinImageState == SkinImageState.LOADING) {
+        }
+        val skinImageState = characterUIState.skinImageState
+        val imageStateText = when (skinImageState) {
+            SkinImageState.NOT_LOADED -> "Initialize character to load its skin"
+            SkinImageState.BROKEN -> "Failed to load skin, Dofusbook might be unreachable"
+            SkinImageState.LOADING -> "Loading skin ..."
+            else -> ""
+        }
+        if (imageStateText.isNotBlank()) {
+            CommonText(
+                imageStateText,
+                modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(5.dp).padding(top = 30.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+        if (skinImageState == SkinImageState.LOADING) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(0.9f).align(Alignment.BottomCenter),
                 color = AppColors.primaryColor

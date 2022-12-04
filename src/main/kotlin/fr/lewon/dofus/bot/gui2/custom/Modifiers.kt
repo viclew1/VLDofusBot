@@ -25,9 +25,10 @@ import java.awt.Cursor
 fun Modifier.defaultHoverManager(
     isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
     onHover: () -> Unit = {},
-    onExit: () -> Unit = {}
+    onExit: () -> Unit = {},
+    key: Any = ""
 ): Modifier = composed {
-    this.pointerInput("") {
+    this.pointerInput(key) {
         awaitPointerEventScope {
             while (true) {
                 val pass = PointerEventPass.Initial
@@ -48,13 +49,15 @@ fun Modifier.defaultHoverManager(
     }
 }
 
-fun Modifier.handPointerIcon(): Modifier = pointerHoverIcon(
-    PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
-)
+fun Modifier.handPointerIcon(): Modifier = pointerHoverIcon(PointerIcon(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)))
 
-fun Modifier.grayBoxStyle(): Modifier {
-    return background(AppColors.DARK_BG_COLOR).border(BorderStroke(1.dp, Color.Gray))
-}
+fun Modifier.grayBoxStyle(): Modifier = background(AppColors.DARK_BG_COLOR).border(BorderStroke(1.dp, Color.Gray))
+
+
+private val darkGrayBoxBackgroundColor = Color(0xFF1b1b1b)
+private val darkGrayBoxBorder = BorderStroke(2.dp, Color(0xFF101010))
+
+fun Modifier.darkGrayBoxStyle(): Modifier = background(darkGrayBoxBackgroundColor).border(darkGrayBoxBorder)
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.onTabChangeFocus(focusManager: FocusManager) = this.onPreviewKeyEvent {

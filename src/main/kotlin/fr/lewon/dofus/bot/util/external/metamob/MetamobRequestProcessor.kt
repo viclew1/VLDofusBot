@@ -50,7 +50,7 @@ object MetamobRequestProcessor : AbstractRequestProcessor("https://api.metamob.f
     }
 
     override fun setRequestProperties(co: HttpURLConnection) {
-        co.setRequestProperty("HTTP-X-APIKEY", "59f661-004e81-cf6352-478f78-01f8df")
+        co.setRequestProperty("HTTP-X-APIKEY", "6eb485-077d8b-0146bb-09f17e-f4a3e7")
         co.setRequestProperty("HTTP-X-USERKEY", getMetamobUniqueId())
     }
 

@@ -15,6 +15,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -37,17 +38,19 @@ fun <T> ComboBox(
     items: List<T>,
     onItemSelect: (item: T) -> Unit,
     getItemText: (item: T) -> String,
-    maxDropDownHeight: Dp = Dp.Infinity,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
-    borderColor: Color = Color.DarkGray
+    borderColor: Color = Color.DarkGray,
+    maxDropDownHeight: Dp = Dp.Infinity,
+    getItemIconPainter: (item: T) -> Painter? = { null }
 ) {
     val focusRequester = remember { FocusRequester() }
     var expanded by remember { mutableStateOf(false) }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
-    val icon = if (expanded)
+    val icon = if (expanded) {
         Icons.Filled.KeyboardArrowUp
-    else
+    } else {
         Icons.Filled.KeyboardArrowDown
+    }
 
     Column {
         OutlinedButton(
@@ -78,12 +81,16 @@ fun <T> ComboBox(
         ) {
             Row {
                 Row(Modifier.weight(1f).align(Alignment.CenterVertically).padding(start = 5.dp)) {
+                    getItemIconPainter(selectedItem)?.let {
+                        Image(it, "", Modifier.height(23.dp).align(Alignment.CenterVertically).padding(end = 5.dp))
+                    }
                     Text(
                         getItemText(selectedItem),
                         fontSize = 12.sp,
                         color = Color.White,
                         maxLines = 1,
-                        overflow = TextOverflow.Visible
+                        overflow = TextOverflow.Visible,
+                        modifier = Modifier.align(Alignment.CenterVertically),
                     )
                 }
                 Icon(icon, "", Modifier.width(16.dp), tint = Color.White)
@@ -137,7 +144,22 @@ fun <T> ComboBox(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val color = if (selectedItem == item) AppColors.primaryColor else Color.White
-                            Text(getItemText(item), fontSize = 13.sp, color = color, maxLines = 1)
+                            Row {
+                                getItemIconPainter(item)?.let {
+                                    Image(
+                                        it,
+                                        "",
+                                        Modifier.height(25.dp).align(Alignment.CenterVertically).padding(end = 5.dp)
+                                    )
+                                }
+                                Text(
+                                    getItemText(item),
+                                    fontSize = 13.sp,
+                                    color = color,
+                                    maxLines = 1,
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                )
+                            }
                         }
                     }
                 }

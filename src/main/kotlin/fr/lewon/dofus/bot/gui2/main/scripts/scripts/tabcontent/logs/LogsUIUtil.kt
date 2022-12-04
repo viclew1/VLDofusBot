@@ -4,9 +4,10 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import java.util.*
 
-object LogsUIUtil {
+object LogsUIUtil : ComposeUIUtil() {
 
     private val loggerUIStateByLoggerTypeByCharacterName =
         HashMap<String, EnumMap<LoggerUIType, MutableState<LoggerUIState>>>()

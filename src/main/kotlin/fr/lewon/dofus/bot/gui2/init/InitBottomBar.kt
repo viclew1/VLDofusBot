@@ -23,11 +23,11 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 
 @Composable
 fun InitBottomBar() {
-    val initUIState = InitUIUtil.INIT_UI_STATE.value
-    if (initUIState.initSuccess) {
-        successBottomBar()
-    } else if (initUIState.errorsOnInit) {
+    val initUIState = InitUIUtil.initUiState.value
+    if (initUIState.error.isNotBlank()) {
         errorBottomBar()
+    } else if (!initUIState.executing) {
+        successBottomBar()
     }
 }
 
@@ -45,7 +45,7 @@ private fun successBottomBar() {
 
 @Composable
 private fun errorBottomBar() {
-    val initUIState = InitUIUtil.INIT_UI_STATE.value
+    val initUIState = InitUIUtil.initUiState.value
     Column {
         retryButton()
         BottomAppBar(modifier = Modifier.height(210.dp), cutoutShape = CircleShape) {
@@ -54,7 +54,7 @@ private fun errorBottomBar() {
                     val state = rememberScrollState()
                     SelectionContainer {
                         Text(
-                            text = "Initialization KO : ${initUIState.errors.joinToString("") { "\n - $it" }}",
+                            text = "Initialization KO : ${initUIState.error}",
                             color = Color.Red,
                             modifier = Modifier.fillMaxSize().padding(end = 10.dp).verticalScroll(state)
                         )

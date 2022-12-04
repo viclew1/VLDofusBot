@@ -20,12 +20,12 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val zaapDestinations = OpenZaapInterfaceTask().run(logItem, gameInfo)
         if (!zaapDestinations.contains(zaap)) {
-            error("Could not find zaap destination [${zaap.getCoordinates().x};${zaap.getCoordinates().y}]. Did you explore it with this character ?")
+            error("Could not find zaap destination [${zaap.coordinates.x};${zaap.coordinates.y}]. Did you explore it with this character ?")
         }
         val filteredDestinations = getFilteredZaapDestinations(gameInfo, zaapDestinations)
         zaapToDestination(gameInfo, filteredDestinations)
         if (zaap.id != gameInfo.currentMap.id) {
-            error("Did not reach expected map : [${zaap.getCoordinates().x};${zaap.getCoordinates().y}]")
+            error("Did not reach expected map : [${zaap.coordinates.x};${zaap.coordinates.y}]")
         }
         return true
     }
@@ -38,12 +38,12 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         return if (zaapIndex < 10) {
             sortedZaapDestinations
         } else if (zaapIndex >= sortedZaapDestinations.size - 10) {
-            forceScroll(gameInfo, zaapBounds.getBottomRight().getDifference(PointRelative(0.001f, 0.001f)))
+            forceScroll(gameInfo, zaapBounds.getBottomRight().getDifference(PointRelative(0.005f, 0.005f)))
             sortedZaapDestinations.subList(sortedZaapDestinations.size - 10, sortedZaapDestinations.size)
         } else {
             val scrollbarHeightPerItem = totalElementsHeight / zaapDestinations.size
             val scrollPoint = zaapBounds.getTopRight()
-                .getSum(PointRelative(-0.001f, scrollbarHeightPerItem * (zaapIndex + 0.5f)))
+                .getSum(PointRelative(-0.005f, scrollbarHeightPerItem * (zaapIndex + 0.5f)))
             forceScroll(gameInfo, scrollPoint)
             listOf(zaap)
         }
@@ -95,8 +95,5 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         return zaapDestinations.sortedBy { StringUtil.removeAccents(favoriteIndexFunc(it) + it.subArea.area.name + it.subArea.name) }
     }
 
-    override fun onStarted(): String {
-        val coordinates = zaap.getCoordinates()
-        return "Zapping toward [${coordinates.x}, ${coordinates.y}] ..."
-    }
+    override fun onStarted(): String = "Zapping toward [${zaap.coordinates.x}, ${zaap.coordinates.y}] ..."
 }

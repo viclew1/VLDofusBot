@@ -29,17 +29,17 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         return subArea.monsters.none { it.isBoss }
     }
 
-    private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { "${it.area.name} (${it.name})" }
+    private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { it.label }
     private val SUB_AREA_LABELS = SUB_AREA_BY_LABEL.keys.sortedBy { StringUtil.removeAccents(it) }
 
-    private val currentAreaParameter = DofusBotParameter(
+    val currentAreaParameter = DofusBotParameter(
         "Run in current area",
         "If checked, ignores sub area parameter and explores current area",
         "false",
         DofusBotParameterType.BOOLEAN
     )
 
-    private val subAreaParameter = DofusBotParameter(
+    val subAreaParameter = DofusBotParameter(
         "Sub area",
         "Dofus sub area",
         SUB_AREA_LABELS.firstOrNull() ?: "",
@@ -48,35 +48,35 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         displayCondition = { it.getParamValue(currentAreaParameter) == "false" }
     )
 
-    private val runForeverParameter = DofusBotParameter(
+    val runForeverParameter = DofusBotParameter(
         "Run forever",
         "Explores this area until you manually stop",
         "false",
         DofusBotParameterType.BOOLEAN
     )
 
-    private val killEverythingParameter = DofusBotParameter(
+    val killEverythingParameter = DofusBotParameter(
         "Kill everything",
         "Fights every group of monsters present on the maps",
         "false",
         DofusBotParameterType.BOOLEAN
     )
 
-    private val searchedMonsterParameter = DofusBotParameter(
+    val searchedMonsterParameter = DofusBotParameter(
         "Searched monster",
         "Monster which will stop exploration when found. Leave empty if you're not seeking a monster",
         "",
         DofusBotParameterType.STRING
     )
 
-    private val stopWhenArchMonsterFoundParameter = DofusBotParameter(
+    val stopWhenArchMonsterFoundParameter = DofusBotParameter(
         "Stop when arch monster found",
         "Stops exploration when you find an arch monster",
         "false",
         DofusBotParameterType.BOOLEAN
     )
 
-    private val stopWhenWantedMonsterFoundParameter = DofusBotParameter(
+    val stopWhenQuestMonsterFoundParameter = DofusBotParameter(
         "Stop when quest monster found",
         "Stops exploration when you find a quest monster",
         "false",
@@ -88,7 +88,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             currentAreaParameter,
             subAreaParameter,
             stopWhenArchMonsterFoundParameter,
-            stopWhenWantedMonsterFoundParameter,
+            stopWhenQuestMonsterFoundParameter,
             searchedMonsterParameter,
             runForeverParameter,
             killEverythingParameter,
@@ -116,7 +116,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
             searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
-            stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenWantedMonsterFoundParameter).toBoolean(),
+            stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
             runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
         ).run(logItem, gameInfo)
     }

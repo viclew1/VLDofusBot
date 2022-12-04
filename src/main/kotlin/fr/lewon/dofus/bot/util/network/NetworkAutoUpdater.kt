@@ -7,8 +7,7 @@ object NetworkAutoUpdater {
     private val timer = Timer()
     private var started = false
 
-    fun start() {
-        GameSnifferUtil.updateNetwork()
+    fun startIfNeeded() {
         if (!started) {
             timer.schedule(object : TimerTask() {
                 override fun run() {

@@ -38,7 +38,7 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
         LeaveHavenBagTask().run(logItem, gameInfo)
         val zaaps = TravelUtil.getAllZaapMaps()
             .filter { shouldExploreZaap(gameInfo, it, registeredZaaps) }
-            .sortedBy { it.getCoordinates().distanceTo(gameInfo.currentMap.getCoordinates()) }
+            .sortedBy { it.coordinates.distanceTo(gameInfo.currentMap.coordinates) }
             .toMutableList()
         val totalSize = zaaps.size
         exploredStat.value = "0 / $totalSize"

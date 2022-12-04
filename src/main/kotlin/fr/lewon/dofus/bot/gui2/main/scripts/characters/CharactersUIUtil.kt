@@ -6,7 +6,10 @@ import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.logs.VldbLogger
 import fr.lewon.dofus.bot.core.logs.VldbLoggerListener
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
+import fr.lewon.dofus.bot.gui2.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.CharacterEditionUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.spells.CharacterSpellsUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
@@ -31,19 +34,24 @@ import fr.lewon.dofus.bot.util.script.ScriptRunnerListener
 import java.io.IOException
 import java.util.concurrent.locks.ReentrantLock
 
-object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSnifferListener, VldbLoggerListener {
+object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunnerListener, GameSnifferListener,
+    VldbLoggerListener {
 
     private val lock = ReentrantLock()
     private val uiStateByCharacterName = HashMap<String, MutableState<CharacterUIState>>()
     private val charactersUIState = mutableStateOf(CharactersUIState(getOrderedCharactersNames()))
     private val characterNameByLogger = HashMap<VldbLogger, String>()
 
-    fun initListeners() {
+    override fun init() {
         CharacterManager.addListener(this)
+        characterNameByLogger.clear()
         for (character in getOrderedCharacters()) {
+            removeListeners(character.name)
             addListeners(character)
+            getCharacterUIState(character.name)
         }
-        NetworkAutoUpdater.start()
+        GameSnifferUtil.updateNetwork()
+        NetworkAutoUpdater.startIfNeeded()
     }
 
     private fun getOrderedCharacters(): List<DofusCharacter> {
@@ -156,6 +164,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             )
             ScriptInfoUIUtil.updateState(character.name)
             ScriptSelectorUIUtil.uiState.value = ScriptSelectorUIUtil.uiState.value.copy(isStartButtonEnabled = true)
+            ExplorationUIUtil.removeAvailableCharacter(character.name)
         }
     }
 
@@ -166,6 +175,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             computeState(character)
             ScriptInfoUIUtil.updateState(character.name)
             ScriptSelectorUIUtil.uiState.value = ScriptSelectorUIUtil.uiState.value.copy(isStartButtonEnabled = true)
+            ExplorationUIUtil.addAvailableCharacter(character.name)
         }
     }
 
@@ -177,6 +187,7 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
             )
             charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
             ScriptInfoUIUtil.getScriptInfoUIState(character.name)
+            ExplorationUIUtil.addAvailableCharacter(character.name)
         }
     }
 
@@ -190,12 +201,14 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 checked = false,
                 activityState = CharacterActivityState.DISCONNECTED,
                 flashVars = null,
-                skinImage = null
+                skinImage = null,
+                currentMap = null
             )
             charactersUIState.value = charactersUIState.value.copy(
                 characterNames = getOrderedCharactersNames()
             )
             ScriptRunner.stopScript(character)
+            ExplorationUIUtil.removeAvailableCharacter(character.name)
         }
     }
 
@@ -275,6 +288,14 @@ object CharactersUIUtil : CharacterManagerListener, ScriptRunnerListener, GameSn
                 )
                 refreshSkin(characterUIState.value.name)
             }
+        }
+    }
+
+    fun updateMap(character: DofusCharacter, map: DofusMap) {
+        lock.executeSyncOperation {
+            val uiState = getCharacterUIState(character.name)
+            uiState.value = uiState.value.copy(currentMap = map)
+            ExplorationUIUtil.exploreMap(map.id)
         }
     }
 

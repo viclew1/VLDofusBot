@@ -19,8 +19,8 @@ fun InitContent() {
         modifier = Modifier.background(AppColors.VERY_DARK_BG_COLOR).fillMaxSize().padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        for (initTask in InitUIUtil.INIT_TASKS_UI_STATES) {
-            initTaskLine(initTask.value)
+        for (initTask in InitUIUtil.initTasks) {
+            initTaskLine(initTask)
             Divider(Modifier.fillMaxWidth(0.95f).align(Alignment.CenterHorizontally))
         }
         Spacer(Modifier.fillMaxHeight().weight(1f))
@@ -28,27 +28,28 @@ fun InitContent() {
 }
 
 @Composable
-private fun initTaskLine(initTaskUIState: InitTaskUIState) {
+private fun initTaskLine(initTask: InitTask) {
+    val uiState = InitUIUtil.initUiState.value
     Row(modifier = Modifier.fillMaxWidth()) {
         val color = when {
-            initTaskUIState.success -> Color.Green
-            initTaskUIState.executed -> Color.Red
-            initTaskUIState.executing -> AppColors.primaryLightColor
+            initTask.success -> Color.Green
+            uiState.currentInitTask == initTask && !uiState.executing -> Color.Red
+            uiState.currentInitTask == initTask && uiState.executing -> AppColors.primaryLightColor
             else -> Color.LightGray
         }
         Text(
-            text = initTaskUIState.label,
+            text = initTask.label,
             modifier = Modifier.width(200.dp),
             color = color,
             fontSize = 13.sp
         )
 
-        if (initTaskUIState.executing) {
+        if (uiState.currentInitTask == initTask && uiState.executing) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(0.9f).align(Alignment.CenterVertically),
                 color = color
             )
-        } else if (initTaskUIState.executed) {
+        } else if (InitUIUtil.initTasks.indexOf(initTask) <= InitUIUtil.initTasks.indexOf(uiState.currentInitTask)) {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(0.9f).align(Alignment.CenterVertically),
                 color = color,

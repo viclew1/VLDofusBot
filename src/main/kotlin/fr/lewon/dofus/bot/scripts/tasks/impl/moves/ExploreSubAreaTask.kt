@@ -106,7 +106,7 @@ class ExploreSubAreaTask(
     }
 
     override fun onStarted(): String {
-        return "Exploring sub area [${subArea.area.name} (${subArea.name})]"
+        return "Exploring sub area [${subArea.label})]"
     }
 
 }

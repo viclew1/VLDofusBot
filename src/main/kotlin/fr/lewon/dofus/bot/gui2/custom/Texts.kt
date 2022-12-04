@@ -63,7 +63,9 @@ fun CommonText(
     fontWeight: FontWeight? = null,
     enabledColor: Color = Color.White,
     disabledColor: Color = Color.Gray,
-    textAlign: TextAlign? = null
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     CustomCompositionLocalProvider {
         Text(
@@ -72,7 +74,9 @@ fun CommonText(
             if (enabled) enabledColor else disabledColor,
             fontSize,
             fontWeight = fontWeight,
-            textAlign = textAlign
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines
         )
     }
 }

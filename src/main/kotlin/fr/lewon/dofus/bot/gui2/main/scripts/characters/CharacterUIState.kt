@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.gui2.main.scripts.characters
 
 import androidx.compose.ui.graphics.painter.Painter
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.util.script.ScriptRunner
@@ -9,6 +10,7 @@ data class CharacterUIState(
     val name: String,
     val dofusClassId: Int,
     val isOtomaiTransportAvailable: Boolean,
+    val currentMap: DofusMap? = null,
     val activityState: CharacterActivityState = CharacterActivityState.DISCONNECTED,
     val checked: Boolean = false,
     val runningScript: ScriptRunner.RunningScript? = null,

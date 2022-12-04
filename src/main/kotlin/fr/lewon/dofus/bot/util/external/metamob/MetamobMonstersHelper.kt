@@ -15,10 +15,17 @@ import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdateState
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import java.util.concurrent.locks.ReentrantLock
 
-object MetamobMonstersUpdater {
+object MetamobMonstersHelper {
 
-    private val SOUL_STONE_ITEM_IDS = listOf(7010, 10417, 10418)
-    private const val MONSTER_STONE_EFFECT_ACTION_ID = 623
+    const val MONSTER_STONE_EFFECT_ACTION_ID = 623
+    const val ARCHMONSTER_SOUL_STONE_ITEM_ID = 10418
+    private const val BOSS_SOUL_STONE_ITEM_ID = 10417
+    private const val MONSTER_SOUL_STONE_ITEM_ID = 7010
+    private val SOUL_STONE_ITEM_IDS = listOf(
+        MONSTER_SOUL_STONE_ITEM_ID,
+        BOSS_SOUL_STONE_ITEM_ID,
+        ARCHMONSTER_SOUL_STONE_ITEM_ID
+    )
     private val lock = ReentrantLock()
 
     fun isMetamobConfigured(): Boolean {
@@ -28,14 +35,17 @@ object MetamobMonstersUpdater {
         return username.isNotBlank() && uniqueId.isNotBlank()
     }
 
+    fun getMetamobMonster(monster: DofusMonster, metamobMonsters: List<MetamobMonster>): MetamobMonster? {
+        return metamobMonsters.firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
+    }
+
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
         return lock.executeSyncOperation {
             if (playerResult.rewards.objects.any { SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
                 val allMetamobMonsters = getAllMonsters()
                 val amountToAddByMonster = HashMap<MetamobMonster, Int>()
                 for (monster in monsters) {
-                    val metamobMonster = allMetamobMonsters
-                        .firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
+                    val metamobMonster = getMetamobMonster(monster, allMetamobMonsters)
                     if (metamobMonster != null) {
                         val currentAmount = amountToAddByMonster.computeIfAbsent(metamobMonster) { 0 }
                         amountToAddByMonster[metamobMonster] = currentAmount + 1

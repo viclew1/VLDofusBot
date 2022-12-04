@@ -4,7 +4,6 @@ import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.gui2.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.gui2.main.status.StatusBarUIUtil
@@ -43,21 +42,21 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
             gameInfo.entityPositionsOnMapByEntityId[it.contextualId] = it.disposition.cellId
         }
         gameInfo.interactiveElements = socketResult.interactiveElements
-        gameInfo.actors = socketResult.actors
-        if (gameInfo.shouldInitBoard && !gameInfo.initRequested) {
-            gameInfo.initRequested = true
-        } else if (!gameInfo.shouldInitBoard) {
-            gameInfo.actors.firstOrNull { it.contextualId == gameInfo.playerId }?.let {
-                CharactersUIUtil.updateSkin(gameInfo.character, it.look)
-                if (it is GameRolePlayCharacterInformations) {
-                    it.humanoidInfo.options.filterIsInstance<HumanOptionOrnament>().firstOrNull()?.let { option ->
-                        CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, option.level)
-                    }
-                }
+        val playerInfo = socketResult.actors.filterIsInstance<GameRolePlayCharacterInformations>()
+            .firstOrNull { it.name == gameInfo.character.name }
+        if (playerInfo != null) {
+            if (gameInfo.shouldInitBoard) {
+                gameInfo.shouldInitBoard = false
+                gameInfo.playerId = playerInfo.contextualId
+                CharactersUIUtil.updateState(gameInfo.character)
+                println("${gameInfo.character.name} initialized, ID : ${gameInfo.playerId}")
+            }
+            playerInfo.humanoidInfo.options.filterIsInstance<HumanOptionOrnament>().firstOrNull()?.let { option ->
+                CharacterGlobalInformationUIUtil.updateCharacterLevel(gameInfo.character.name, option.level)
             }
         }
         beepIfSpecialMonsterHere(gameInfo, map)
-        ExplorationUIUtil.exploreMap(map.id)
+        CharactersUIUtil.updateMap(gameInfo.character, map)
     }
 
     private fun beepIfSpecialMonsterHere(gameInfo: GameInfo, map: DofusMap) {

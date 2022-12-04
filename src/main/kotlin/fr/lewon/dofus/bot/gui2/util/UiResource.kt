@@ -18,6 +18,7 @@ enum class UiResource(path: String) {
     WEIGHT("/icon/ui/weight.png"),
     SPELLS("/icon/ui/spells.png"),
     CHAT("/icon/ui/chat.png"),
+    ZAAP("/icon/ui/zaap.png")
     ;
 
     val imageData = javaClass.getResourceAsStream(path)?.readAllBytes()

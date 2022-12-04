@@ -18,6 +18,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
 import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellVariantManager
 import fr.lewon.dofus.bot.core.model.spell.DofusSpell
 import fr.lewon.dofus.bot.gui2.custom.CommonText
+import fr.lewon.dofus.bot.gui2.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui2.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui2.custom.rememberScrollbarAdapter
 import fr.lewon.dofus.bot.gui2.main.DragTarget
@@ -28,9 +29,6 @@ import fr.lewon.dofus.bot.gui2.util.AppColors
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.util.filemanagers.impl.SpellAssetManager
 
-private val sectionBackgroundColor = Color(0xFF1b1b1b)
-private val sectionBorderColor = Color(0xFF101010)
-private val sectionBorder = BorderStroke(2.dp, sectionBorderColor)
 private val keys = listOf('1', '2', '3', '4', '5', '6', '7', '8', '9', '0')
 
 @Composable
@@ -47,7 +45,7 @@ fun CharacterSpellsEditionContent(characterUIState: CharacterUIState) {
 
 @Composable
 fun CharacterSpellBar() {
-    Column(Modifier.fillMaxWidth().background(sectionBackgroundColor).border(sectionBorder).padding(4.dp)) {
+    Column(Modifier.fillMaxWidth().darkGrayBoxStyle().padding(4.dp)) {
         SpellsRow(getSpellLine(false))
         SpellsRow(getSpellLine(true))
     }
@@ -78,7 +76,7 @@ private fun SpellBox(content: @Composable () -> Unit) {
     val bgColor = if (isHovered.value) Color.Gray else AppColors.backgroundColor
     Box(
         Modifier.fillMaxSize().background(bgColor).defaultHoverManager(isHovered)
-            .border(BorderStroke(1.dp, sectionBorderColor)).padding(1.dp)
+            .border(BorderStroke(1.dp, AppColors.VERY_DARK_BG_COLOR)).padding(1.dp)
     ) {
         content()
     }
@@ -126,7 +124,7 @@ private fun AvailableSpells(characterUIState: CharacterUIState) {
             val fromSpellKey = draggedSpell.fromSpellKey
             CharacterSpellsUIUtil.updateSpellId(fromSpellKey.key, fromSpellKey.ctrlModifier, null)
         }
-        Box(Modifier.fillMaxSize().background(sectionBackgroundColor).border(sectionBorder).padding(5.dp)) {
+        Box(Modifier.fillMaxSize().darkGrayBoxStyle().padding(5.dp)) {
             val state = rememberLazyGridState()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(8),

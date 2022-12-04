@@ -110,7 +110,7 @@ private fun ExpandableLogItemContent(loggerUIState: MutableState<LoggerUIState>,
     Column {
         Row {
             val color = if (expanded) AppColors.primaryColor else Color.White
-            Row(Modifier.height(12.dp)) {
+            Row(Modifier.height(12.dp).align(Alignment.CenterVertically)) {
                 val icon = if (expanded) Icons.Default.Remove else Icons.Default.Add
                 val isHovered = remember { mutableStateOf(false) }
                 ButtonWithTooltip(

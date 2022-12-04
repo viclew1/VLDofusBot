@@ -12,7 +12,6 @@ import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
-import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayActorInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.game.paddock.PaddockItem
@@ -33,14 +32,12 @@ class GameInfo(val character: DofusCharacter) {
     var completeBounds = Rectangle()
 
     var shouldInitBoard = true
-    var initRequested = false
 
     val dofusBoard = DofusBoard()
 
     val fightBoard = FightBoard(this)
     var isCreatureModeToggled = false
     var interactiveElements: List<InteractiveElement> = ArrayList()
-    var actors: List<GameRolePlayActorInformations> = ArrayList()
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
     val entityIdByNpcId = HashMap<Int, Double>()
     val monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()

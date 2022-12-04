@@ -67,7 +67,7 @@ object MoveUtil {
         val specialTransitions = transitions
             .filter { it.type == TransitionType.INTERACTIVE || it.type == TransitionType.MAP_ACTION }
 
-        val potentialTransitions = getPotentialTransitions(direction, specialTransitions, fromMap)
+        val potentialTransitions = getPotentialDirectionalTransitions(direction, specialTransitions, fromMap)
         return getClosestTransition(potentialTransitions, getIdealDestination(direction, fromMap))
             ?: error("No path found")
     }
@@ -79,26 +79,23 @@ object MoveUtil {
         Direction.BOTTOM -> DofusCoordinates(fromMap.posX, fromMap.posY + 1)
     }
 
-    private fun getPotentialTransitions(
+    private fun getPotentialDirectionalTransitions(
         direction: Direction,
         transitions: List<Transition>,
         fromMap: DofusMap
-    ): List<Transition> {
-        val fromMapCoordinates = fromMap.getCoordinates()
-        return transitions.filter {
-            val destMapCoordinates = MapManager.getDofusMap(it.edge.to.mapId).getCoordinates()
-            when (direction) {
-                Direction.LEFT -> destMapCoordinates.x < fromMapCoordinates.x
-                Direction.RIGHT -> destMapCoordinates.x > fromMapCoordinates.x
-                Direction.TOP -> destMapCoordinates.y < fromMapCoordinates.y
-                Direction.BOTTOM -> destMapCoordinates.y > fromMapCoordinates.y
-            }
+    ): List<Transition> = transitions.filter {
+        val destMapCoordinates = MapManager.getDofusMap(it.edge.to.mapId).coordinates
+        when (direction) {
+            Direction.LEFT -> destMapCoordinates.x < fromMap.coordinates.x
+            Direction.RIGHT -> destMapCoordinates.x > fromMap.coordinates.x
+            Direction.TOP -> destMapCoordinates.y < fromMap.coordinates.y
+            Direction.BOTTOM -> destMapCoordinates.y > fromMap.coordinates.y
         }
     }
 
     private fun getClosestTransition(transitions: List<Transition>, targetCoordinates: DofusCoordinates): Transition? {
         return transitions.minByOrNull {
-            MapManager.getDofusMap(it.edge.to.mapId).getCoordinates().distanceTo(targetCoordinates)
+            MapManager.getDofusMap(it.edge.to.mapId).coordinates.distanceTo(targetCoordinates)
         }
     }
 

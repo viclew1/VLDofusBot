@@ -12,7 +12,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
-private val dragTargetInfo = mutableStateOf(DragTargetInfo())
+val dragTargetInfo = mutableStateOf(DragTargetInfo())
 
 @Composable
 fun PressDraggable(

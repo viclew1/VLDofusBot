@@ -1,11 +1,12 @@
 package fr.lewon.dofus.bot.gui2.main.status
 
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import org.apache.commons.lang3.StringUtils
 import java.time.LocalDateTime
 
-object StatusBarUIUtil {
+object StatusBarUIUtil : ComposeUIUtil() {
 
     private const val MAX_HISTORY_SIZE = 10
     val statusBarUIState = mutableStateOf(StatusBarUIState())

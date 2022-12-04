@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.gui2.main.scripts.scripts.tabcontent.parameters
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.gui2.ComposeUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui2.main.scripts.scripts.ScriptTabsUIUtil
@@ -10,7 +11,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.util.filemanagers.impl.ScriptValuesManager
 
-object ScriptParametersUIUtil {
+object ScriptParametersUIUtil : ComposeUIUtil() {
 
     private val uiStateByParameterByScript = HashMap<DofusBotScriptBuilder, MutableState<ScriptBuilderUIState>>()
     private val globalScriptValues = CharacterScriptValues()
