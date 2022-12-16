@@ -7,7 +7,13 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import java.awt.image.BufferedImage
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import javax.imageio.ImageIO
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.X509TrustManager
 
 object MetamobRequestProcessor : AbstractRequestProcessor("https://api.metamob.fr") {
 
@@ -33,6 +39,21 @@ object MetamobRequestProcessor : AbstractRequestProcessor("https://api.metamob.f
         putForObject<HashMap<*, *>>("$USERS${getMetamobUsername()}$MONSTERS", monsterUpdates)
     }
 
+    override fun buildConnection(uri: String): HttpURLConnection =
+        super.buildConnection(uri).also { co ->
+            if (co is HttpsURLConnection) {
+                co.hostnameVerifier = HostnameVerifier { _, _ -> true }
+                co.sslSocketFactory = SSLContext.getInstance("SSL").also { context ->
+                    val trustManager = object : X509TrustManager {
+                        override fun checkClientTrusted(certs: Array<out X509Certificate>, authType: String) {}
+                        override fun checkServerTrusted(certs: Array<out X509Certificate>, authType: String) {}
+                        override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
+                    }
+                    context.init(null, arrayOf(trustManager), SecureRandom())
+                }.socketFactory
+            }
+        }
+
     @Synchronized
     override fun checkParameters(): Boolean {
         val co = buildConnection("$USERS${getMetamobUsername()}$MONSTERS")
@@ -50,7 +71,7 @@ object MetamobRequestProcessor : AbstractRequestProcessor("https://api.metamob.f
     }
 
     override fun setRequestProperties(co: HttpURLConnection) {
-        co.setRequestProperty("HTTP-X-APIKEY", "6eb485-077d8b-0146bb-09f17e-f4a3e7")
+        co.setRequestProperty("HTTP-X-APIKEY", "59f661-004e81-cf6352-478f78-01f8df")
         co.setRequestProperty("HTTP-X-USERKEY", getMetamobUniqueId())
     }
 

@@ -50,7 +50,7 @@ abstract class AbstractRequestProcessor(private val baseUri: String) {
         }
     }
 
-    protected fun buildConnection(uri: String): HttpURLConnection {
+    protected open fun buildConnection(uri: String): HttpURLConnection {
         val slash = if (!baseUri.endsWith("/") && !uri.startsWith("/")) "/" else ""
         return (URL("$baseUri$slash$uri").openConnection() as HttpURLConnection)
             .also { setRequestProperties(it) }
