@@ -10,8 +10,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -120,8 +122,12 @@ private fun copyOffer() {
 }
 
 private fun getMonsterStr(monster: MetamobMonster): String {
+    val allMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
     val price = MetamobHelperUIUtil.getPrice(monster) ?: 0L
-    return "${monster.name} ${price / 1000}k"
+    val monsterDisplayName = monster.name.split(" ").firstOrNull()
+        ?.takeIf { name -> allMonsters.none { it.name != name && it.name.startsWith(name) } }
+        ?: monster.name
+    return "$monsterDisplayName ${price / 1000}k"
 }
 
 @Composable
@@ -150,10 +156,17 @@ fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
                 )
             } else {
                 SelectionContainer {
-                    Column {
-                        for (monster in tradeMonstersState.value) {
-                            TradeMonsterLine(monster, tradeMonstersState)
+                    Box(Modifier.fillMaxSize()) {
+                        val scrollState = rememberScrollState()
+                        Column(Modifier.verticalScroll(scrollState).padding(end = 8.dp)) {
+                            for (monster in tradeMonstersState.value) {
+                                TradeMonsterLine(monster, tradeMonstersState)
+                            }
                         }
+                        VerticalScrollbar(
+                            modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
+                            adapter = androidx.compose.foundation.rememberScrollbarAdapter(scrollState),
+                        )
                     }
                 }
             }

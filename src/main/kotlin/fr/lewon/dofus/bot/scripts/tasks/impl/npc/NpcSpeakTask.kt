@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
+import kotlin.math.max
 import kotlin.math.min
 
 class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : DofusBotTask<Boolean>() {
@@ -40,11 +41,11 @@ class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : D
                 WaitUtil.sleep(300)
             }
             val displayedReplies = visibleReplies.subList(showMorePressCount * 4, visibleReplies.size)
-            val optionIndex = displayedReplies.indexOf(optionId)
+            val optionIndex = if (optionId < 0) 0 else displayedReplies.indexOf(optionId)
             if (optionIndex == -1) {
                 error("Missing option ID : $optionId")
             }
-            val optionCount = min(MAX_OPTION_COUNT, dialogQuestionMessage.visibleReplies.size)
+            val optionCount = max(1, min(MAX_OPTION_COUNT, dialogQuestionMessage.visibleReplies.size))
             val optionLocation =
                 BOTTOM_OPTION_LOCATION.getSum(PointRelative(0f, (optionIndex - optionCount + 1) * DELTA_OPTION))
             gameInfo.eventStore.clear()
