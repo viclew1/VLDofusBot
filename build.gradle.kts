@@ -1,3 +1,4 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -45,4 +46,19 @@ tasks.withType<Jar> {
     from({
         configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
     })
+}
+
+compose.desktop {
+    application {
+        mainClass = "fr.lewon.dofus.bot.VLDofusBotKt"
+        nativeDistributions {
+            includeAllModules = true
+            targetFormats(TargetFormat.Exe)
+            windows {
+                iconFile.set(File("src/main/resources/icon/global_logo.png"))
+            }
+            packageName = "VLDofusBot"
+            packageVersion = "$version"
+        }
+    }
 }

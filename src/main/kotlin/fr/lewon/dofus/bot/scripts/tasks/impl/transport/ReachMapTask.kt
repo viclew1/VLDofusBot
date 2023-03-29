@@ -23,7 +23,7 @@ open class ReachMapTask(private val destMaps: List<DofusMap>) : BooleanDofusBotT
         }
         val allZaapMapIds = allZaapMaps.map { it.id }
         val currentVertex = getCurrentVertex(gameInfo)
-        val fromVertices = allZaapMapIds.mapNotNull { WorldGraphUtil.getVertex(it, 1) }.plus(currentVertex)
+        val fromVertices = allZaapMapIds.map { WorldGraphUtil.getVertex(it, 1) }.plus(currentVertex).filterNotNull()
         val path = WorldGraphUtil.getPath(fromVertices, destMaps, gameInfo.buildCharacterBasicInfo())
         if (path == null) {
             val mapsStr = destMaps.map { it.coordinates }.distinct().joinToString(", ") { "(${it.x}; ${it.y})" }
@@ -41,13 +41,12 @@ open class ReachMapTask(private val destMaps: List<DofusMap>) : BooleanDofusBotT
         }
     }
 
-    private fun getCurrentVertex(gameInfo: GameInfo): Vertex {
+    private fun getCurrentVertex(gameInfo: GameInfo): Vertex? {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player cell id (player ID : ${gameInfo.playerId})")
         val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
             ?: error("Couldn't find cell data (cell ID : $playerCellId)")
         return WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
-            ?: error("Couldn't find current vertex")
     }
 
     override fun onStarted(): String {
