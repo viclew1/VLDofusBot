@@ -1,0 +1,20 @@
+package fr.lewon.dofus.bot.sniffer.model.messages.game.chat.smiley
+
+import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
+import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
+import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
+import fr.lewon.dofus.bot.sniffer.model.ProtocolTypeManager
+import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
+
+open class ChatSmileyMessage : NetworkMessage() {
+	var entityId: Double = 0.0
+	var smileyId: Int = 0
+	var accountId: Int = 0
+	override fun deserialize(stream: ByteArrayReader) {
+		super.deserialize(stream)
+		entityId = stream.readDouble().toDouble()
+		smileyId = stream.readVarShort().toInt()
+		accountId = stream.readInt().toInt()
+	}
+	override fun getNetworkMessageId(): Int = 9869
+}
