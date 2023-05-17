@@ -1,0 +1,9 @@
+/.idea/
+/debug/
+/target/
+/build/
+/.gradle/
+/gradle/
+gradlew
+gradlew.bat
+VLDofusBotSniffer.iml

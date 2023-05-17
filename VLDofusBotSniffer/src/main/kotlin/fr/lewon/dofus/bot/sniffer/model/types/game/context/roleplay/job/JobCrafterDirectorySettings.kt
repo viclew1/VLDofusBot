@@ -1,0 +1,19 @@
+package fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.job
+
+import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
+import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
+import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
+import fr.lewon.dofus.bot.sniffer.model.ProtocolTypeManager
+import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
+
+open class JobCrafterDirectorySettings : NetworkType() {
+	var jobId: Int = 0
+	var minLevel: Int = 0
+	var free: Boolean = false
+	override fun deserialize(stream: ByteArrayReader) {
+		super.deserialize(stream)
+		jobId = stream.readUnsignedByte().toInt()
+		minLevel = stream.readUnsignedByte().toInt()
+		free = stream.readBoolean()
+	}
+}
