@@ -10,6 +10,11 @@ repositories {
     }
 }
 
+group = rootProject.group
+version = rootProject.version
+description = "$group:${project.name}"
+java.sourceCompatibility = rootProject.java.sourceCompatibility
+
 dependencies {
     api(project(":DofusProtocolUpdater"))
     api(project(":VLDofusBotCore"))
@@ -17,10 +22,6 @@ dependencies {
     implementation("org.pcap4j:pcap4j-packetfactory-static:1.8.2")
     implementation("commons-codec:commons-codec:1.15")
 }
-
-group = "fr.lewon"
-version = "1.3.0"
-description = "$group:${rootProject.name}"
 
 sourceSets.getByName("main") {
     java.srcDir("src/main/kotlin")

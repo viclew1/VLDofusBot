@@ -1,6 +1,6 @@
 # DofusProtocolUpdater
 
-Dofus protocol updater is a [jpexs-decompiler](https://github.com/jindrapetrik/jpexs-decompiler) fork. Its use is to
+Dofus protocol updater is based on [jpexs-decompiler](https://github.com/jindrapetrik/jpexs-decompiler). Its use is to
 decompile Dofus and get variable information. For example, the network messages IDs sometimes changing on tuesday
 updates.
 

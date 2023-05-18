@@ -6,6 +6,11 @@ repositories {
     maven { url = uri("https://repo.maven.apache.org/maven2/") }
 }
 
+group = rootProject.group
+version = rootProject.version
+description = "$group:${project.name}"
+java.sourceCompatibility = rootProject.java.sourceCompatibility
+
 dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.2")
