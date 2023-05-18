@@ -63,7 +63,7 @@ install the bot and type these commands :
 - ```cd VLDofusBot```
 - ```gradlew build```
 
-Then, you can launch the built jar located in VLDofusBot\VLDofusBotApp\build\libs\VLDofusBotApp.jar
+Then, you can launch the built jar located in VLDofusBot\VLDofusBotApp\build\libs\VLDofusBotApp-xxx.jar
 
 ### Set up your game UI
 

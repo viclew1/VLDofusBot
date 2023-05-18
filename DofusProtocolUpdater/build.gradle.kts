@@ -7,6 +7,11 @@ repositories {
     maven { url = uri("https://repo.maven.apache.org/maven2/") }
 }
 
+group = rootProject.group
+version = rootProject.version
+description = "$group:${project.name}"
+java.sourceCompatibility = rootProject.java.sourceCompatibility
+
 dependencies {
     implementation("org.b1.pack:lzma-sdk-4j:9.22.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2")

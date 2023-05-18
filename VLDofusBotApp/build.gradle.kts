@@ -11,6 +11,11 @@ repositories {
     maven("https://repo1.maven.org/maven2/")
 }
 
+group = rootProject.group
+version = rootProject.version
+description = "$group:${project.name}"
+java.sourceCompatibility = rootProject.java.sourceCompatibility
+
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(project(":VLDofusBotSniffer"))
@@ -51,7 +56,7 @@ compose.desktop {
             windows {
                 iconFile.set(File("src/main/resources/icon/global_logo.png"))
             }
-            packageName = "VLDofusBot"
+            packageName = "VLDofusBotApp"
             packageVersion = "$version"
         }
     }
