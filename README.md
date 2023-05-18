@@ -1,10 +1,31 @@
 # VLDofusBot
 
-Welcome to VLDofusBot, this bot's goal is to help you automatize tedious tasks in the game. This is not a socket bot, it
+Welcome to VLDofusBot, its goal is to help you automatize tedious tasks in the game. This is not a socket bot, it
 will sniff the network to read the game's packets and will simulate clicks on the game window. No message will be sent
 to the game server directly by the bot.
 
 You can suggest new features or find help on discord : https://discord.gg/v45AA3dtYz
+
+## Table of contents
+
+* [Features](#features)
+* [Getting started](#getting-started)
+    - [Requirements](#requirements)
+    - [Install the bot](#install-the-bot)
+    - [Set up your game UI](#set-up-your-game-ui)
+* [Tabs](#tabs)
+    - [Loading](#loading)
+    - [Scripts](#scripts)
+        - [Characters](#characters)
+        - [Global Scripts](#global-scripts)
+        - [Individual Scripts](#individual-scripts)
+    - [Settings](#settings)
+    - [Metamob Helper](#metamob-helper)
+        - [How to use](#how-to-use)
+        - [Monsters display](#monsters-display)
+        - [Trade Helper](#trade-helper)
+    - [Exploration](#exploration)
+    - [Auction House Item Finder](#auction-house-item-finder)
 
 ## Features
 
@@ -15,6 +36,7 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 - [x] Treasure hunts (this one should be half checked as it works but is not finished. You can
   check [this issue](https://github.com/viclew1/VLDofusBot/issues/8) to learn how to use it).
 - [x] Smith magic (only 1 recipe for now, but everything's ready to implement more)
+- [x] Filter items available in equipments auction house
 - [ ] Raise mounts
 - [ ] Fight in arena
 - [ ] Harvest jobs resources
@@ -25,10 +47,14 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 
 ## Getting started
 
+### Requirements
+
 To get started, you'll first need to install the bot. For this, you'll need :
 
 - Git : [Download](https://git-scm.com/downloads)
 - Npcap to use the sniffer : [Download](https://npcap.com/#download)
+
+### Install the bot
 
 To install or work on this project, you'll need to clone and build this project. Open a cmd where you want to
 install the bot and type these commands :
@@ -46,7 +72,7 @@ grid free of any UI element.
 
 ![ui.png](demo/ui.png)
 
-Another important thing is to disable display of all monsters in a group.
+Another important thing is to **disable display of every monster in a group**.
 
 ## Tabs
 
@@ -59,11 +85,12 @@ When starting VLDofusBot, you'll be greeted by this window :
 If one of the operations fail, you'll get an error message describing what went wrong.
 Most likely cases are :
 
-- You don't have npcap installed (refer to [Getting started](#getting-started))
+- The game has been updated and the sniffer is not up-to-date
+- You don't have npcap installed (refer to [Requirements](#requirements))
 - You don't have the game installed, or it is installed in a custom location
   (not C:/users/your_profile/AppData/Local/Ankama/Dofus), the fix would be to install it in the default location or to
   put this location in your path variable.
-- One of the bot's files (stored in C:/users/your_profile/.VLDofusBot) is badly formatted
+- One of the bot files (stored in C:/users/your_profile/.VLDofusBot) is badly formatted
 
 ### Scripts
 
@@ -134,4 +161,33 @@ You can dynamically view your metamob monsters in this tab. You can filter the l
 you're missing, etc. It will be automatically updated every time a monster event is received (capture, trade,
 purchase) but you can also manually refresh it if needed.
 
+The soul's price will also be displayed for every archmonster (and updated every time you open the auction house
+archmonsters soul stone offers).
+
 ![MetamobHelper](demo/metamob_screen.png)
+
+#### Trade Helper
+
+If you click on the arrow on the right of the metamob helper, the trade helper will open. Here, you can simulate a trade
+to easily calculate what trade you want to offer (or to check if you're getting scammed). You can even copy a trade
+offer by clicking on the copy button at the bottom (the message is only with the monsters in French at the moment and,
+for my example bellow, will be "*Bambouské le Camouflé 190k, Maître Amboat le Moqueur 305k VS Minsinistre l'Elu 97k,
+Minoskour le Sauveur 305k*").
+
+![TradeHelper](demo/trade_helper.png)
+
+### Exploration
+
+You can see here which maps you went through in the last 2 hours. The bluer the cell, the more recently the map has been
+explored. If it's red, it means it's been explored at least 2 hours ago (or never).
+
+When you click on an area, you'll select it and be able to send characters to explore it using the tool on the right.
+You'll also see which monsters you've already captured or not.
+
+If you click on the button on the top left of the screen, you will display some hidden areas.
+
+![ExplorationScreen](demo/exploration_screen.png)
+
+### Auction House Item Finder
+
+TODO
