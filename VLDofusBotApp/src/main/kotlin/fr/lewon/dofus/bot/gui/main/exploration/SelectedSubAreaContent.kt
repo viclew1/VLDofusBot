@@ -191,14 +191,13 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                             ExplorationUIUtil.explorerUIState.value.copy(selectedCharacterName = it)
                     },
                     getItemText = { it },
-                    maxDropDownHeight = 500.dp,
-                    getItemIconPainter = {
-                        if (it.isNotBlank()) {
-                            val breedId = CharactersUIUtil.getCharacterUIState(it).value.dofusClassId
-                            BreedAssetManager.getAssets(breedId).simpleIconPainter
-                        } else null
-                    }
-                )
+                    maxDropDownHeight = 500.dp
+                ) {
+                    if (it.isNotBlank()) {
+                        val breedId = CharactersUIUtil.getCharacterUIState(it).value.dofusClassId
+                        BreedAssetManager.getAssets(breedId).simpleIconPainter
+                    } else null
+                }
             }
             HorizontalSeparator()
             for ((parameter, value) in ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName) {

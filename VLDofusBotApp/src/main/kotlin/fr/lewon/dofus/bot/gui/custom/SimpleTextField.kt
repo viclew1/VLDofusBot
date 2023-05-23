@@ -1,9 +1,12 @@
 package fr.lewon.dofus.bot.gui.custom
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -15,11 +18,10 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,7 +39,12 @@ fun SimpleTextField(
     onValueChange: (value: String) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isContentValid: (value: String) -> Boolean = { true }
+    isContentValid: (value: String) -> Boolean = { true },
+    backgroundColor: Color = AppColors.VERY_DARK_BG_COLOR,
+    borderColor: Color = AppColors.VERY_DARK_BG_COLOR,
+    leadingIcon: Painter? = null,
+    trailingIcon: Painter? = null,
+    inputHandlers: List<KeyHandler> = emptyList()
 ) {
     val textFieldValueState = remember { mutableStateOf(TextFieldValue(text = value)) }
     val textFieldValue = textFieldValueState.value.copy(text = value)
@@ -62,19 +69,33 @@ fun SimpleTextField(
                     onValueChange(previousText.value)
                 }
             },
-            modifier = modifier.onFocusSelectAll(textFieldValueState).onPreviewKeyEvent {
-                it.isCtrlPressed && it.key == Key.Backspace && textFieldValue.text.isEmpty()
+            maxLines = 1,
+            modifier = modifier.onFocusSelectAll(textFieldValueState).onPreviewKeyEvent { keyEvent ->
+                keyEvent.isCtrlPressed && keyEvent.key == Key.Backspace && textFieldValue.text.isEmpty()
+                        || keyEvent.type == KeyEventType.KeyDown
+                        && inputHandlers.filter { it.checkKey(keyEvent) }.onEach { it.handleKeyEvent() }.isNotEmpty()
             },
             cursorBrush = SolidColor(Color.White),
             textStyle = TextStyle(fontSize = 13.sp, color = Color.White),
             decorationBox = { innerTextField ->
                 Row(
-                    Modifier.background(AppColors.VERY_DARK_BG_COLOR, RoundedCornerShape(5.dp))
+                    Modifier.background(backgroundColor, RoundedCornerShape(5.dp))
                         .padding(3.dp)
-                        .border(BorderStroke(1.dp, AppColors.VERY_DARK_BG_COLOR)).padding(horizontal = 5.dp)
+                        .border(BorderStroke(1.dp, borderColor)).padding(horizontal = 5.dp)
                 ) {
-                    Row(Modifier.align(Alignment.CenterVertically)) {
+                    leadingIcon?.let {
+                        Image(it, "", Modifier.height(23.dp).align(Alignment.CenterVertically).padding(end = 5.dp))
+                    }
+                    Row(Modifier.align(Alignment.CenterVertically).fillMaxWidth().weight(1f)) {
                         innerTextField()
+                    }
+                    trailingIcon?.let {
+                        Image(
+                            it,
+                            "",
+                            Modifier.height(23.dp).align(Alignment.CenterVertically),
+                            colorFilter = ColorFilter.tint(Color.White)
+                        )
                     }
                 }
             },

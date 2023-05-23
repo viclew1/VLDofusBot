@@ -7,9 +7,7 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.CommonText
@@ -39,7 +37,7 @@ fun ScriptParametersContent() {
                                     ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).parameterValue
                                 }, onParamUpdate = {
                                     ScriptParametersUIUtil.updateParamValue(builder, parameter, it)
-                                }, inputModifier = Modifier.onEnterStartScript())
+                                })
                             }
                         }
                     }
@@ -50,17 +48,5 @@ fun ScriptParametersContent() {
                 )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-private fun Modifier.onEnterStartScript() = this.onPreviewKeyEvent {
-    if ((it.key == Key.Enter || it.key == Key.NumPadEnter) && it.type == KeyEventType.KeyDown) {
-        if (!ScriptTabsUIUtil.isScriptStarted()) {
-            ScriptTabsUIUtil.toggleScript()
-        }
-        true
-    } else {
-        false
     }
 }

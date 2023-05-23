@@ -1,9 +1,10 @@
 package fr.lewon.dofus.bot.core.model.item
 
-import fr.lewon.dofus.bot.core.model.charac.DofusCharacteristic
-
 data class DofusItemEffect(
     val min: Int,
     val max: Int,
-    val characteristic: DofusCharacteristic
-)
+    val effect: DofusEffect
+) {
+    val realMaxValue = (if (effect.operator == "-") -min else max).takeIf { it != 0 }
+    val realMinValue = (if (effect.operator == "-") -max else min).takeIf { it != 0 }
+}

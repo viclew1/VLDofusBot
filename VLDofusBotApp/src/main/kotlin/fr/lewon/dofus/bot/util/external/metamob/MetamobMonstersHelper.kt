@@ -13,19 +13,12 @@ import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdate
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdateState
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
+import fr.lewon.dofus.bot.util.ids.EffectIds
+import fr.lewon.dofus.bot.util.ids.ItemIds
 import java.util.concurrent.locks.ReentrantLock
 
 object MetamobMonstersHelper {
 
-    const val MONSTER_STONE_EFFECT_ACTION_ID = 623
-    const val ARCHMONSTER_SOUL_STONE_ITEM_ID = 10418
-    private const val BOSS_SOUL_STONE_ITEM_ID = 10417
-    private const val MONSTER_SOUL_STONE_ITEM_ID = 7010
-    private val SOUL_STONE_ITEM_IDS = listOf(
-        MONSTER_SOUL_STONE_ITEM_ID,
-        BOSS_SOUL_STONE_ITEM_ID,
-        ARCHMONSTER_SOUL_STONE_ITEM_ID
-    )
     private val lock = ReentrantLock()
 
     fun isMetamobConfigured(): Boolean {
@@ -41,7 +34,7 @@ object MetamobMonstersHelper {
 
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
         return lock.executeSyncOperation {
-            if (playerResult.rewards.objects.any { SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
+            if (playerResult.rewards.objects.any { ItemIds.SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
                 val allMetamobMonsters = getAllMonsters()
                 val amountToAddByMonster = HashMap<MetamobMonster, Int>()
                 for (monster in monsters) {
@@ -114,7 +107,7 @@ object MetamobMonstersHelper {
         val amountByMonster = HashMap<MetamobMonster, Int>()
         for (objectItem in objectItems) {
             val monstersStored = objectItem.effects.filterIsInstance<ObjectEffectDice>()
-                .filter { it.actionId == MONSTER_STONE_EFFECT_ACTION_ID }
+                .filter { it.actionId == EffectIds.MONSTER_STONE_EFFECT_EFFECT_ID }
             for (monsterStored in monstersStored) {
                 val monsterName = MonsterManager.getMonster(monsterStored.diceConst.toDouble()).name.lowercase()
                 val monster = monsters.firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monsterName) }

@@ -2,7 +2,8 @@ package fr.lewon.dofus.bot.core
 
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
-import fr.lewon.dofus.bot.core.d2p.gfx.D2PGfxAdapter
+import fr.lewon.dofus.bot.core.d2p.gfx.D2PItemsGfxAdapter
+import fr.lewon.dofus.bot.core.d2p.gfx.D2PWorldGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
@@ -47,8 +48,13 @@ object VldbCoreInitializer {
         val worldGfxPath = "${VldbFilesUtil.getDofusDirectory()}/content/gfx/world"
         File(worldGfxPath).listFiles()
             ?.filter { it.absolutePath.endsWith(".d2p") }
-            ?.forEach { D2PGfxAdapter.initStream(it.absolutePath) }
+            ?.forEach { D2PWorldGfxAdapter.initStream(it.absolutePath) }
             ?: error("World gfx directory not found : $worldGfxPath}")
+        val itemsGfxPath = "${VldbFilesUtil.getDofusDirectory()}/content/gfx/items"
+        File(itemsGfxPath).listFiles()
+            ?.filter { it.absolutePath.endsWith(".d2p") }
+            ?.forEach { D2PItemsGfxAdapter.initStream(it.absolutePath) }
+            ?: error("Items gfx directory not found : $worldGfxPath}")
     }
 
     private fun initVldbManagers() {

@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.overlay.impl
 
 import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
 import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementData
-import fr.lewon.dofus.bot.core.d2p.gfx.D2PGfxAdapter
+import fr.lewon.dofus.bot.core.d2p.gfx.D2PWorldGfxAdapter
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.gui.util.ImageUtil
 import fr.lewon.dofus.bot.overlay.AbstractMapOverlay
@@ -52,7 +52,7 @@ object GfxOverlay : AbstractMapOverlay() {
                 val element = D2PElementsAdapter.getElement(graphicalElement.elementId)
                 if (element is NormalGraphicalElementData) {
                     val gfxId = element.gfxId
-                    val gfxImageData = D2PGfxAdapter.getGfxImageDataById(gfxId.toDouble())
+                    val gfxImageData = D2PWorldGfxAdapter.getWorldGfxImageData(gfxId.toDouble())
                     lines.add(OverlayTextLine("GFX ID : $gfxId", 14))
                     val image = ImageUtil.getScaledImageKeepHeight(gfxImageData, 60)
                     lines.add(OverlayImageLine(image))

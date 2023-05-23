@@ -32,9 +32,9 @@ abstract class AbstractLinkedD2PUrlLoaderAdapter(
             val fileLength = stream.readInt()
             val id = getId(indexKey)
             val index = if (cacheStreams) {
-                D2PIndex(fileOffset + dataOffset, fileLength, path, stream)
+                D2PIndex(indexKey, fileOffset + dataOffset, fileLength, path, stream)
             } else {
-                D2PIndex(fileOffset + dataOffset, fileLength, path)
+                D2PIndex(indexKey, fileOffset + dataOffset, fileLength, path)
             }
             indexes[id] = index
         }

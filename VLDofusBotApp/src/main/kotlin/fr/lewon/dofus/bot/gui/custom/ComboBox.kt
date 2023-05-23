@@ -10,25 +10,29 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.*
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isPrimaryPressed
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.util.StringUtil
 import kotlinx.coroutines.launch
+
+private data class ComboBoxState<T>(
+    val preSelectedItem: T,
+    val selectedText: String,
+    val textFieldSize: Size = Size.Zero,
+    val expanded: Boolean = false,
+    val filterItems: Boolean = false,
+    val initialChange: Boolean = true,
+)
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -39,113 +43,137 @@ fun <T> ComboBox(
     onItemSelect: (item: T) -> Unit,
     getItemText: (item: T) -> String,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
-    borderColor: Color = Color.DarkGray,
     maxDropDownHeight: Dp = Dp.Infinity,
     getItemIconPainter: (item: T) -> Painter? = { null }
 ) {
-    val focusRequester = remember { FocusRequester() }
-    var expanded by remember { mutableStateOf(false) }
-    var textFieldSize by remember { mutableStateOf(Size.Zero) }
-    val icon = if (expanded) {
+    var state by remember(selectedItem) { mutableStateOf(ComboBoxState(selectedItem, getItemText(selectedItem))) }
+
+    val icon = if (state.expanded) {
         Icons.Filled.KeyboardArrowUp
     } else {
         Icons.Filled.KeyboardArrowDown
     }
+    val filteringOptions = items.filter {
+        state.expanded && (!state.filterItems || StringUtil.removeAccents(getItemText(it))
+            .contains(StringUtil.removeAccents(state.selectedText), ignoreCase = true))
+    }
+    if (!filteringOptions.contains(state.preSelectedItem)) {
+        state = state.copy(preSelectedItem = filteringOptions.firstOrNull() ?: selectedItem)
+    }
 
-    Column {
-        OutlinedButton(
-            onClick = { focusRequester.requestFocus() },
-            colors = colors,
-            modifier = modifier.fillMaxWidth()
-                .focusRequester(focusRequester)
-                .onGloballyPositioned { coordinates -> textFieldSize = coordinates.size.toSize() }
-                .onKeyEvent {
-                    if (it.type == KeyEventType.KeyDown) {
-                        val consumed = when (it.key) {
-                            Key.Spacebar -> {
-                                expanded = !expanded
-                                true
-                            }
-                            else -> false
-                        }
-                        consumed
-                    } else false
-                }.handPointerIcon()
-                .onPointerEvent(PointerEventType.Press, PointerEventPass.Initial) {
-                    if (it.buttons.isPrimaryPressed) {
-                        expanded = !expanded
-                    }
-                },
-            contentPadding = PaddingValues(horizontal = 5.dp),
-            border = BorderStroke(1.dp, borderColor)
-        ) {
-            Row {
-                Row(Modifier.weight(1f).align(Alignment.CenterVertically).padding(start = 5.dp)) {
-                    getItemIconPainter(selectedItem)?.let {
-                        Image(it, "", Modifier.height(23.dp).align(Alignment.CenterVertically).padding(end = 5.dp))
-                    }
-                    Text(
-                        getItemText(selectedItem),
-                        fontSize = 12.sp,
-                        color = Color.White,
-                        maxLines = 1,
-                        overflow = TextOverflow.Visible,
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                    )
+    val selectNewItem = { newItem: T ->
+        state = state.copy(
+            preSelectedItem = newItem,
+            selectedText = getItemText(newItem),
+            filterItems = false,
+            initialChange = true,
+            expanded = false
+        )
+        onItemSelect(newItem)
+    }
+
+    fun resetState(
+        preSelectedItem: T = selectedItem,
+        selectedText: String = getItemText(preSelectedItem),
+        filterItems: Boolean = false,
+        initialChange: Boolean = true,
+        expanded: Boolean = true
+    ) {
+        state = state.copy(
+            preSelectedItem = preSelectedItem,
+            selectedText = selectedText,
+            filterItems = filterItems,
+            initialChange = initialChange,
+            expanded = expanded
+        )
+    }
+
+    SimpleTextField(
+        value = state.selectedText,
+        onValueChange = {
+            resetState(
+                preSelectedItem = selectedItem,
+                selectedText = it,
+                filterItems = !state.initialChange,
+                initialChange = false,
+                expanded = true
+            )
+        },
+        modifier = modifier.fillMaxWidth()
+            .onGloballyPositioned { coordinates -> state = state.copy(textFieldSize = coordinates.size.toSize()) }
+            .onTabChangeFocus(LocalFocusManager.current)
+            .onFocusHighlight()
+            .handPointerIcon()
+            .onFocusChanged {
+                if (it.hasFocus || it.isFocused) {
+                    resetState()
+                } else if (state.expanded) {
+                    selectNewItem(state.preSelectedItem)
                 }
-                Icon(icon, "", Modifier.width(16.dp), tint = Color.White)
-            }
-        }
-        val scrollState = rememberScrollState()
+            },
+        backgroundColor = colors.backgroundColor(true).value,
+        borderColor = colors.backgroundColor(true).value,
+        trailingIcon = rememberVectorPainter(icon),
+        leadingIcon = getItemIconPainter(selectedItem),
+        inputHandlers = listOf(
+            KeyHandler(checkKey = { it.key == Key.DirectionUp }, handleKeyEvent = {
+                val index = filteringOptions.indexOf(state.preSelectedItem)
+                if (index > 0) {
+                    state = state.copy(preSelectedItem = filteringOptions[index - 1])
+                }
+            }),
+            KeyHandler(checkKey = { it.key == Key.DirectionDown }, handleKeyEvent = {
+                val index = filteringOptions.indexOf(state.preSelectedItem)
+                if (index < filteringOptions.size - 1) {
+                    state = state.copy(preSelectedItem = filteringOptions[index + 1])
+                }
+            }),
+            KeyHandler(checkKey = { it.key == Key.Enter || it.key == Key.NumPadEnter }, handleKeyEvent = {
+                if (state.expanded) {
+                    selectNewItem(state.preSelectedItem)
+                } else {
+                    resetState()
+                }
+            }),
+            KeyHandler(checkKey = { it.key == Key.Escape }, handleKeyEvent = {
+                if (state.expanded) {
+                    selectNewItem(selectedItem)
+                }
+            })
+        )
+    )
+
+    val scrollState = rememberScrollState()
+    if (filteringOptions.isNotEmpty()) {
+        val itemHeight = 20
         DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
+            expanded = state.expanded,
+            onDismissRequest = { },
+            focusable = false,
             modifier = Modifier.widthIn(
-                with(LocalDensity.current) { textFieldSize.width.toDp() },
+                with(LocalDensity.current) { state.textFieldSize.width.toDp() },
                 Short.MAX_VALUE.toInt().dp
             )
         ) {
-            val itemHeight = 20
-            Box(Modifier.height(min(maxDropDownHeight, (items.size * itemHeight).dp))) {
-                rememberCoroutineScope().launch {
-                    scrollState.scrollTo(items.indexOf(selectedItem) * (itemHeight))
-                }
+            rememberCoroutineScope().launch {
+                scrollState.scrollTo(filteringOptions.indexOf(selectedItem) * (itemHeight))
+            }
+            Box(Modifier.height(min(maxDropDownHeight, (filteringOptions.size * itemHeight.dp)))) {
                 Column(Modifier.verticalScroll(scrollState).padding(end = 10.dp)) {
-                    val popupFocusManager = LocalFocusManager.current
-                    val opened = remember { mutableStateOf(false) }
-                    items.forEach { item ->
-                        val popupFocusRequester = remember { FocusRequester() }
-                        Row(
+                    filteringOptions.forEach { selectionOption ->
+                        val color = if (selectedItem == selectionOption) {
+                            AppColors.primaryColor
+                        } else Color.White
+                        val bgColor = if (state.preSelectedItem == selectionOption) {
+                            Color.Gray
+                        } else Color.Transparent
+                        DropdownMenuItem(
+                            onClick = { selectNewItem(selectionOption) },
                             modifier = Modifier.handPointerIcon().fillMaxWidth().padding(horizontal = 5.dp)
-                                .height(itemHeight.dp)
-                                .focusRequester(popupFocusRequester)
-                                .onPlaced {
-                                    if (!opened.value && item == selectedItem) {
-                                        popupFocusRequester.requestFocus()
-                                        opened.value = true
-                                    }
-                                }
-                                .onKeyEvent {
-                                    if (it.type == KeyEventType.KeyDown) {
-                                        val consumed = when (it.key) {
-                                            Key.DirectionDown -> popupFocusManager.moveFocus(FocusDirection.Next)
-                                            Key.DirectionUp -> popupFocusManager.moveFocus(FocusDirection.Previous)
-                                            else -> false
-                                        }
-                                        consumed
-                                    } else false
-                                }
-                                .clickable(
-                                    onClick = {
-                                        onItemSelect(item)
-                                        expanded = false
-                                    },
-                                ),
-                            verticalAlignment = Alignment.CenterVertically
+                                .height(itemHeight.dp).background(bgColor)
                         ) {
-                            val color = if (selectedItem == item) AppColors.primaryColor else Color.White
                             Row {
-                                getItemIconPainter(item)?.let {
+                                getItemIconPainter(selectionOption)?.let {
                                     Image(
                                         it,
                                         "",
@@ -153,7 +181,7 @@ fun <T> ComboBox(
                                     )
                                 }
                                 Text(
-                                    getItemText(item),
+                                    getItemText(selectionOption),
                                     fontSize = 13.sp,
                                     color = color,
                                     maxLines = 1,
