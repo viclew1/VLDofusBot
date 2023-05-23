@@ -46,7 +46,6 @@ fun ScriptSelectorContent() {
                     { ScriptTabsUIUtil.updateCurrentScriptBuilder(it) },
                     { (if (it.isDev) "DEV - " else "") + it.name },
                     colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.DARK_BG_COLOR),
-                    borderColor = Color.Gray
                 )
             }
             Row(Modifier.align(Alignment.CenterVertically).fillMaxHeight().padding(5.dp)) {

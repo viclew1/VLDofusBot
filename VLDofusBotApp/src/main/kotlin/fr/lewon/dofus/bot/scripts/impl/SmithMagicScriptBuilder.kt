@@ -152,9 +152,12 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
     private fun buildSmithMagicLines(item: ObjectItem): List<SmithMagicLine> {
         val genericItem = ItemManager.getItem(item.objectGID.toDouble())
         val lines = ArrayList<SmithMagicLine>()
-        for (effect in genericItem.effects) {
-            val order = effect.characteristic.categoryId * Short.MAX_VALUE.toInt() + effect.characteristic.order
-            lines.add(SmithMagicLine(effect.min, effect.max, effect.characteristic.keyWord, order))
+        for (itemEffect in genericItem.effects) {
+            val characteristic = itemEffect.effect.characteristic
+            if (characteristic != null) {
+                val order = characteristic.categoryId * Short.MAX_VALUE.toInt() + characteristic.order
+                lines.add(SmithMagicLine(itemEffect.min, itemEffect.max, characteristic.keyWord, order))
+            }
         }
         return lines
     }
@@ -163,7 +166,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         linesByKeyword.values.forEach { it.current = 0 }
         for (effect in item.effects) {
             if (effect is ObjectEffectInteger) {
-                val characteristic = EffectManager.getCharacteristicByEffectId(effect.actionId.toDouble())
+                val characteristic = EffectManager.getEffect(effect.actionId).characteristic
                 if (characteristic != null) {
                     val line = linesByKeyword.computeIfAbsent(characteristic.keyWord) {
                         SmithMagicLine(0, 1000, it)

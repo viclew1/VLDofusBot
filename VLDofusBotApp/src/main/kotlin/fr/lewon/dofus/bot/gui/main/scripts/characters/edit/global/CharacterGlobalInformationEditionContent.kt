@@ -17,8 +17,6 @@ fun CharacterGlobalInformationEditionContent(characterUIState: CharacterUIState)
     val breed = BreedManager.getBreed(characterUIState.dofusClassId)
     Column(Modifier.padding(horizontal = 5.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            CommonText("Class")
-            Spacer(Modifier.widthIn(10.dp))
             ComboBox(
                 selectedItem = breed,
                 items = BreedManager.getAllBreeds(),

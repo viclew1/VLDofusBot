@@ -14,6 +14,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.effects.ObjectEffe
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
+import fr.lewon.dofus.bot.util.ids.EffectIds
 import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -85,7 +86,7 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
         for (itemTypeDescription in objectBidsMessage.itemTypeDescriptions) {
             val price = itemTypeDescription.prices.filter { it > 0 }.min().toLong()
             val summonedMetamobMonsters = itemTypeDescription.effects
-                .filter { it.actionId == MetamobMonstersHelper.MONSTER_STONE_EFFECT_ACTION_ID }
+                .filter { it.actionId == EffectIds.MONSTER_STONE_EFFECT_EFFECT_ID }
                 .filterIsInstance(ObjectEffectDice::class.java)
             for (summonedMetamobMonster in summonedMetamobMonsters) {
                 val currentPrice = priceByMonsterId[summonedMetamobMonster.diceConst] ?: Long.MAX_VALUE

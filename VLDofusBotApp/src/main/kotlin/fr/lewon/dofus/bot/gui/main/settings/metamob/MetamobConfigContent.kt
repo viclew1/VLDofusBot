@@ -3,7 +3,10 @@ package fr.lewon.dofus.bot.gui.main.settings.metamob
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,16 +43,6 @@ fun MetamobConfigContent() {
             Row {
                 val refreshing = remember { mutableStateOf(false) }
                 val connectionStatus = remember { mutableStateOf(ConnectionStatus.NOT_TESTED_YET) }
-                if (!refreshing.value && connectionStatus.value == ConnectionStatus.NOT_TESTED_YET) {
-                    LaunchedEffect(Unit) {
-                        Thread {
-                            connectionStatus.value = ConnectionStatus.PENDING
-                            refreshing.value = true
-                            updateConnectionStatus(connectionStatus)
-                            refreshing.value = false
-                        }.start()
-                    }
-                }
                 Text(
                     connectionStatus.value.label,
                     Modifier.align(Alignment.CenterVertically),
