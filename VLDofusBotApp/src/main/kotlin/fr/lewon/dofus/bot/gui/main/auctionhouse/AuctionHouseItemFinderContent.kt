@@ -69,14 +69,15 @@ private fun Header(item: DofusItem?) {
             CommonText(AuctionHouseItemFinderUIUtil.getLastPriceUpdateTime(), modifier = Modifier.padding(10.dp))
         }
         Spacer(Modifier.fillMaxWidth().weight(1f))
-        Box(
-            Modifier.size(50.dp).border(BorderStroke(1.dp, Color.LightGray)).align(Alignment.CenterVertically)
-                .padding(end = 5.dp)
-        ) {
-            if (item != null) {
-                val gfxId = item.iconId
-                val gfxImageData = D2PItemsGfxAdapter.getItemGfxImageData(gfxId.toDouble())
-                Image(gfxImageData.toPainter(), "", Modifier.fillMaxSize())
+        if (false) { // Enable when swf images decompiling will be implemented
+            Box(
+                Modifier.size(50.dp).border(BorderStroke(1.dp, Color.LightGray)).align(Alignment.CenterVertically)
+                    .padding(end = 5.dp)
+            ) {
+                if (item != null) {
+                    val gfxImageData = D2PItemsGfxAdapter.getItemGfxImageData(item.iconId.toDouble())
+                    Image(gfxImageData.toPainter(), "", Modifier.fillMaxSize())
+                }
             }
         }
     }
