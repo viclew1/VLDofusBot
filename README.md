@@ -4,6 +4,8 @@ Welcome to VLDofusBot, this bot's goal is to help you automatize tedious tasks i
 will sniff the network to read the game's packets and will simulate clicks on the game window. No message will be sent
 to the game server directly by the bot.
 
+You can suggest new features or find help on discord : https://discord.gg/v45AA3dtYz
+
 ## Features
 
 - [x] Move multiple characters at once using zaaps if needed, see it as an improved autopilot.
