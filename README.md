@@ -26,6 +26,7 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
         - [Trade Helper](#trade-helper)
     - [Exploration](#exploration)
     - [Auction House Item Finder](#auction-house-item-finder)
+    - [Dev Tools](#dev-tools)
 
 ## Features
 
@@ -189,5 +190,9 @@ If you click on the button on the top left of the screen, you will display some 
 ![ExplorationScreen](demo/exploration_screen.png)
 
 ### Auction House Item Finder
+
+TODO
+
+### Dev Tools
 
 TODO

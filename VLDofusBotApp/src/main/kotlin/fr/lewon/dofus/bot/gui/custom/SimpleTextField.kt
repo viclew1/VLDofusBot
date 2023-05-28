@@ -41,7 +41,7 @@ fun SimpleTextField(
     enabled: Boolean = true,
     isContentValid: (value: String) -> Boolean = { true },
     backgroundColor: Color = AppColors.VERY_DARK_BG_COLOR,
-    borderColor: Color = AppColors.VERY_DARK_BG_COLOR,
+    borderColor: Color = backgroundColor,
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
     inputHandlers: List<KeyHandler> = emptyList()

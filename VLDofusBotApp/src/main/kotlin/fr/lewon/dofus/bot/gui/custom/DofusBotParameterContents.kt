@@ -5,7 +5,6 @@ import androidx.compose.material.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -61,13 +60,7 @@ fun ParameterInput(
                     maxDropDownHeight = 300.dp,
                 )
             DofusBotParameterType.INTEGER ->
-                SimpleTextField(parameterValue, onParamUpdate, isContentValid = { value ->
-                    value.isEmpty() || value == "-" || value.toIntOrNull() != null
-                }, modifier = Modifier.onFocusChanged {
-                    if (!it.isFocused && parameterValue.toIntOrNull() == null) {
-                        onParamUpdate("0")
-                    }
-                })
+                IntegerTextField(parameterValue, onParamUpdate)
             DofusBotParameterType.STRING ->
                 SimpleTextField(parameterValue, onParamUpdate)
         }

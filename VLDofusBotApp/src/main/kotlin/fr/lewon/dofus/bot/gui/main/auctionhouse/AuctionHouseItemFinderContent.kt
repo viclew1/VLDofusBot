@@ -37,7 +37,7 @@ import kotlin.math.abs
 
 @Composable
 fun AuctionHouseItemFinderContent() {
-    Row(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle().padding(5.dp)) {
+    Row(Modifier.fillMaxSize()) {
         Column(Modifier.width(300.dp).fillMaxHeight()) {
             ItemFiltersContent()
         }

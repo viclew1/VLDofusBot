@@ -10,6 +10,7 @@ enum class UiResource(path: String) {
     METAMOB_HELPER_LOGO("/icon/metamob_helper.png"),
     EXPLORATION_HELPER_LOGO("/icon/exploration_helper.png"),
     AH_ITEM_FINDER_LOGO("/icon/auction_house_item_finder.png"),
+    DEV_TOOLS_LOGO("/icon/dev_tools_logo.png"),
     SETTINGS_LOGO("/icon/settings_logo.png"),
     PAUSE("/icon/ui/pause.png"),
     AUTO_SCROLL("/icon/ui/auto_scroll.png"),

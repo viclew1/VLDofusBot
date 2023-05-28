@@ -17,9 +17,7 @@ enum class DofusBotScriptBuilders(val builder: DofusBotScriptBuilder) {
     REGISTER_HINT_GFX(RegisterHintGfxScriptBuilder),
     REMOVE_HINT_GFX(RemoveHintGfxScriptBuilder),
     PRINT_ALL_MAP_INFO(PrintAllMapInfoScriptBuilder),
-    SHOW_D20_CONTENT(ReadD2OFileScriptBuilder),
     READ_SPELL_INFO(ReadSpellInfoScriptBuilder),
-    READ_LABEL(ReadLabelScriptBuilder),
     TEST(TestScriptBuilder);
 
 }

@@ -98,7 +98,16 @@ fun LogItemsContent(loggerUIState: MutableState<LoggerUIState>) {
                         if (logItem.description.isEmpty()) {
                             CommonText(logItem.text)
                         } else {
-                            ExpandableLogItemContent(loggerUIState, logItem)
+                            val expanded = loggerUIState.value.expandedLogItem == logItem
+                            ExpandableText(
+                                text = logItem.text,
+                                expanded = loggerUIState.value.expandedLogItem == logItem,
+                                onExpandButtonClick = {
+                                    loggerUIState.value = loggerUIState.value.copy(
+                                        expandedLogItem = if (expanded) null else logItem
+                                    )
+                                }
+                            )
                         }
                     })
                 }
@@ -110,12 +119,18 @@ fun LogItemsContent(loggerUIState: MutableState<LoggerUIState>) {
         }
         LaunchedEffect(loggerUIStateValue.autoScroll, loggerUIStateValue.logItems) {
             if (listState.canScrollForward && loggerUIStateValue.autoScroll && loggerUIStateValue.logItems.isNotEmpty()) {
-                listState.animateScrollToItem(loggerUIStateValue.logItems.size - 1)
+                listState.scrollToItem(loggerUIStateValue.logItems.size - 1)
             }
         }
         val expandedLogItem = loggerUIStateValue.expandedLogItem
         if (expandedLogItem != null && loggerUIStateValue.logItems.contains(expandedLogItem)) {
-            ExpandedLogItemContent(loggerUIState, expandedLogItem)
+            ExpandedContent(
+                title = expandedLogItem.text,
+                onReduceButtonClick = { loggerUIState.value = loggerUIState.value.copy(expandedLogItem = null) },
+                key = expandedLogItem,
+            ) {
+                CommonText(expandedLogItem.description, modifier = Modifier.padding(5.dp))
+            }
         }
     }
 }
