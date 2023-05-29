@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.harvest
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.harvest.JobSkillsManager
+import fr.lewon.dofus.bot.scripts.harvest.JobSkills
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameEntitiesDispositionMessage
@@ -22,28 +22,27 @@ class HarvestResourceTask(
             if (stopIfNoResourcePresent && gameInfo.interactiveElements.any { it.enabledSkills.isEmpty() }) {
                 error("No resource on map")
             }
-            WaitUtil.waitUntil({ gameInfo.interactiveElements.any { it.enabledSkills.isNotEmpty() } }, 60000)
+           gameInfo.interactiveElements.any { it.enabledSkills.isNotEmpty() }
         })
         if (!couldHarvest) {
             error("Couldn't find or collect a resource on map")
         }
-
         return true
     }
 
     private fun harvestAnyResource(logItem: LogItem, gameInfo: GameInfo, harvestJob: String): Boolean {
-        val skillList = JobSkillsManager()
 
         val interactive = gameInfo.interactiveElements
             .filter { interactive ->
                 interactive.enabledSkills.isNotEmpty() &&
                         interactive.enabledSkills.any { skill ->
-                            skillList.checkSkillExists(harvestJob, skill.skillId)
+                            JobSkills.checkSkillExists(harvestJob, skill.skillId)
                         }
             }
             .firstOrNull()
 
         if (interactive != null) {
+            gameInfo.eventStore.clear()
             InteractiveUtil.useInteractive(
                 gameInfo = gameInfo,
                 elementId = interactive.elementId,

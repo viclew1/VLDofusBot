@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
-import fr.lewon.dofus.bot.scripts.harvest.JobSkillsManager
+import fr.lewon.dofus.bot.scripts.harvest.JobSkills
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
@@ -115,17 +115,15 @@ class ExploreSubAreaTask(
     }
 
     private fun harvest(logItem: LogItem, gameInfo: GameInfo, harvestJob : String) {
-        val skillList = JobSkillsManager()
         while (gameInfo.interactiveElements.any { interactive ->
                 interactive.enabledSkills.isNotEmpty()  && interactive.enabledSkills.any { skill ->
-                    skillList.checkSkillExists(harvestJob, skill.skillId) }
+                    JobSkills.checkSkillExists(harvestJob, skill.skillId) }
                 }) {
             if (!HarvestResourceTask(harvestJob = harvestJob, stopIfNoResourcePresent = true).run(logItem, gameInfo)) {
                 return
             }
         }
     }
-
 
     override fun onStarted(): String {
         return "Exploring sub area [${subArea.label})]"

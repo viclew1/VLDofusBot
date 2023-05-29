@@ -7,6 +7,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
+import fr.lewon.dofus.bot.scripts.harvest.JobSkills
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
@@ -91,19 +92,19 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     )
 
     val harvestAllParameter = DofusBotParameter(
-        "All harvest tasks",
-        "         ",
+        "All harvest job",
+        "Use all your abilities to harvest",
         "false",
         DofusBotParameterType.BOOLEAN,
         displayCondition = { it.getParamValue(harvestParameter) == "true" }
     )
 
     val harvestJobParameter = DofusBotParameter(
-        "Harvest task",
-        "         ",
+        "Harvest job",
+        "Use only one ability to harvest",
         "Chop",
         DofusBotParameterType.CHOICE,
-        listOf("Chop", "Collect", "Fish", "Gather", "Mow"),
+        JobSkills.getJobList(),
         displayCondition = { it.getParamValue(harvestAllParameter) == "false" && it.getParamValue(harvestParameter) == "true"}
     )
 
