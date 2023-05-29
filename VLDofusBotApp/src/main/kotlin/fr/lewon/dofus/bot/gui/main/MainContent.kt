@@ -19,11 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui.main.status.StatusBarContent
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.gui.util.UiResource
+import java.awt.Desktop
+import java.net.URI
 
 @Composable
 fun MainContent() {
@@ -48,29 +52,61 @@ fun MainContent() {
 
 @Composable
 private fun MainNavigationRail() {
-    NavigationRail(modifier = Modifier.fillMaxHeight().width(64.dp)) {
-        for (appContent in MainAppContent.values()) {
-            Divider(Modifier.fillMaxWidth(0.8f).height(2.dp).align(Alignment.CenterHorizontally))
-            val uiState = MainContentUIUtil.mainContentUIState.value
-            val selected = uiState.currentAppContent == appContent
-            val isHovered = remember { mutableStateOf(false) }
-            NavigationRailItem(selected,
-                { MainContentUIUtil.mainContentUIState.value = uiState.copy(currentAppContent = appContent) },
-                modifier = Modifier.defaultHoverManager(isHovered).handPointerIcon().fillMaxWidth()
-                    .padding(vertical = 3.dp),
-                icon = {
-                    val iconPainter = appContent.uiResource.imagePainter
-                    val backgroundColor = Color.Transparent
-                    TooltipTarget(appContent.title, modifier = Modifier.fillMaxSize()) {
-                        Row(modifier = Modifier.height(64.dp).fillMaxWidth()) {
-                            SelectedIndicator(Modifier.align(Alignment.CenterVertically), selected, isHovered.value)
-                            Image(iconPainter, "", Modifier.fillMaxSize().background(backgroundColor))
-                        }
-                    }
-                }
+    Column(modifier = Modifier.fillMaxHeight().width(64.dp)) {
+        NavigationRail(modifier = Modifier.fillMaxSize().weight(1f)) {
+            for (appContent in MainAppContent.values()) {
+                Divider(Modifier.fillMaxWidth(0.8f).height(2.dp).align(Alignment.CenterHorizontally))
+                val uiState = MainContentUIUtil.mainContentUIState
+                val selected = uiState.value.currentAppContent == appContent
+                NavigationButton(
+                    selected = selected,
+                    onClick = { uiState.value = uiState.value.copy(currentAppContent = appContent) },
+                    title = appContent.title,
+                    iconPainter = appContent.uiResource.imagePainter
+                )
+            }
+            Spacer(Modifier.fillMaxHeight().weight(1f))
+            NavigationButton(
+                selected = false,
+                onClick = { Desktop.getDesktop().browse(URI("https://discord.gg/v45AA3dtYz")) },
+                title = "Discord",
+                iconPainter = UiResource.DISCORD.imagePainter,
+                imageModifier = Modifier.padding(horizontal = 12.dp)
+            )
+            NavigationButton(
+                selected = false,
+                onClick = { Desktop.getDesktop().browse(URI("https://github.com/viclew1/VLDofusBot")) },
+                title = "Github",
+                iconPainter = UiResource.GITHUB.imagePainter,
+                imageModifier = Modifier.padding(horizontal = 12.dp)
             )
         }
     }
+}
+
+@Composable
+private fun NavigationButton(
+    selected: Boolean,
+    onClick: () -> Unit,
+    title: String,
+    iconPainter: Painter,
+    imageModifier: Modifier = Modifier
+) {
+    val isHovered = remember { mutableStateOf(false) }
+    NavigationRailItem(selected,
+        onClick = onClick,
+        modifier = Modifier.defaultHoverManager(isHovered).handPointerIcon().fillMaxWidth()
+            .padding(vertical = 3.dp),
+        icon = {
+            val backgroundColor = Color.Transparent
+            TooltipTarget(title, modifier = Modifier.fillMaxSize()) {
+                Row(modifier = Modifier.height(64.dp).fillMaxWidth()) {
+                    SelectedIndicator(Modifier.align(Alignment.CenterVertically), selected, isHovered.value)
+                    Image(iconPainter, "", imageModifier.fillMaxSize().background(backgroundColor))
+                }
+            }
+        }
+    )
 }
 
 @Composable

@@ -12,6 +12,8 @@ enum class UiResource(path: String) {
     AH_ITEM_FINDER_LOGO("/icon/auction_house_item_finder.png"),
     DEV_TOOLS_LOGO("/icon/dev_tools_logo.png"),
     SETTINGS_LOGO("/icon/settings_logo.png"),
+    GITHUB("/icon/github.png"),
+    DISCORD("/icon/discord.png"),
     PAUSE("/icon/ui/pause.png"),
     AUTO_SCROLL("/icon/ui/auto_scroll.png"),
     ERASE("/icon/ui/erase.png"),
@@ -20,7 +22,7 @@ enum class UiResource(path: String) {
     WEIGHT("/icon/ui/weight.png"),
     SPELLS("/icon/ui/spells.png"),
     CHAT("/icon/ui/chat.png"),
-    ZAAP("/icon/ui/zaap.png")
+    ZAAP("/icon/ui/zaap.png"),
     ;
 
     val imageData = javaClass.getResourceAsStream(path)?.readAllBytes()
