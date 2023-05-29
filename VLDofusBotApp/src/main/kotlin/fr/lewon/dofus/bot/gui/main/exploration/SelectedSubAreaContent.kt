@@ -182,21 +182,23 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
             }
             Row(Modifier.padding(bottom = 5.dp)) {
                 CommonText("Character used", Modifier.fillMaxWidth(0.5f).align(Alignment.CenterVertically))
-                ComboBox(
-                    Modifier.fillMaxWidth(),
-                    selectedItem = ExplorationUIUtil.explorerUIState.value.selectedCharacterName ?: "",
-                    items = ExplorationUIUtil.explorerUIState.value.availableCharacters,
-                    onItemSelect = {
-                        ExplorationUIUtil.explorerUIState.value =
-                            ExplorationUIUtil.explorerUIState.value.copy(selectedCharacterName = it)
-                    },
-                    getItemText = { it },
-                    maxDropDownHeight = 500.dp
-                ) {
-                    if (it.isNotBlank()) {
-                        val breedId = CharactersUIUtil.getCharacterUIState(it).value.dofusClassId
-                        BreedAssetManager.getAssets(breedId).simpleIconPainter
-                    } else null
+                Row(Modifier.fillMaxWidth()) {
+                    ComboBox(
+                        Modifier.fillMaxWidth(),
+                        selectedItem = ExplorationUIUtil.explorerUIState.value.selectedCharacterName ?: "",
+                        items = ExplorationUIUtil.explorerUIState.value.availableCharacters,
+                        onItemSelect = {
+                            ExplorationUIUtil.explorerUIState.value =
+                                ExplorationUIUtil.explorerUIState.value.copy(selectedCharacterName = it)
+                        },
+                        getItemText = { it },
+                        maxDropDownHeight = 500.dp
+                    ) {
+                        if (it.isNotBlank()) {
+                            val breedId = CharactersUIUtil.getCharacterUIState(it).value.dofusClassId
+                            BreedAssetManager.getAssets(breedId).simpleIconPainter
+                        } else null
+                    }
                 }
             }
             HorizontalSeparator()

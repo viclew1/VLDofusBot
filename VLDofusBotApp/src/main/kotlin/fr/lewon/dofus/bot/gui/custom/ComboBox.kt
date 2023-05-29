@@ -10,13 +10,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -31,7 +34,7 @@ private data class ComboBoxState<T>(
     val textFieldSize: Size = Size.Zero,
     val expanded: Boolean = false,
     val filterItems: Boolean = false,
-    val initialChange: Boolean = true,
+    val lastUpdateTime: Long = System.currentTimeMillis()
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -66,8 +69,8 @@ fun <T> ComboBox(
             preSelectedItem = newItem,
             selectedText = getItemText(newItem),
             filterItems = false,
-            initialChange = true,
-            expanded = false
+            expanded = false,
+            lastUpdateTime = System.currentTimeMillis()
         )
         onItemSelect(newItem)
     }
@@ -76,39 +79,46 @@ fun <T> ComboBox(
         preSelectedItem: T = selectedItem,
         selectedText: String = getItemText(preSelectedItem),
         filterItems: Boolean = false,
-        initialChange: Boolean = true,
-        expanded: Boolean = true
+        expanded: Boolean = true,
     ) {
         state = state.copy(
             preSelectedItem = preSelectedItem,
             selectedText = selectedText,
             filterItems = filterItems,
-            initialChange = initialChange,
-            expanded = expanded
+            expanded = expanded,
+            lastUpdateTime = System.currentTimeMillis()
         )
     }
 
     SimpleTextField(
         value = state.selectedText,
         onValueChange = {
-            resetState(
-                preSelectedItem = selectedItem,
-                selectedText = it,
-                filterItems = !state.initialChange,
-                initialChange = false,
-                expanded = true
-            )
+            if (it != state.selectedText) {
+                resetState(
+                    preSelectedItem = selectedItem,
+                    selectedText = it,
+                    expanded = true,
+                    filterItems = true
+                )
+            }
         },
         modifier = modifier.fillMaxWidth()
             .onGloballyPositioned { coordinates -> state = state.copy(textFieldSize = coordinates.size.toSize()) }
             .onTabChangeFocus(LocalFocusManager.current)
             .onFocusHighlight()
             .handPointerIcon()
-            .onFocusChanged {
-                if (it.hasFocus || it.isFocused) {
-                    resetState()
-                } else if (state.expanded) {
+            .onPointerEvent(PointerEventType.Press) {
+                if (state.expanded && it.buttons.isPrimaryPressed && System.currentTimeMillis() - state.lastUpdateTime > 50) {
                     selectNewItem(state.preSelectedItem)
+                }
+            }
+            .onFocusEvent {
+                if (System.currentTimeMillis() - state.lastUpdateTime > 50) {
+                    if (state.expanded && !it.isFocused && !it.hasFocus) {
+                        selectNewItem(state.preSelectedItem)
+                    } else if (it.isFocused && it.hasFocus && !state.expanded) {
+                        resetState()
+                    }
                 }
             },
         backgroundColor = colors.backgroundColor(true).value,

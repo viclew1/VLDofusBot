@@ -43,8 +43,10 @@ private fun NetworkInterfaceDropDownMenu() {
         currentNetworkInterface,
         networkInterfaces.value,
         { item ->
-            SettingsUIUtil.updateGlobalConfig { it.networkInterfaceName = item }
-            GameSnifferUtil.updateNetworkInterface()
+            Thread {
+                SettingsUIUtil.updateGlobalConfig { it.networkInterfaceName = item }
+                GameSnifferUtil.updateNetworkInterface()
+            }.start()
         },
         { item -> item }
     )
