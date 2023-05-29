@@ -106,5 +106,5 @@ object AuctionHouseItemFinderUIUtil : ComposeUIUtil() {
         EffectIds.AP_EFFECT_ID,
         EffectIds.MP_EFFECT_ID,
         EffectIds.RANGE_EFFECT_ID
-    ).map { AdditionalFilter(EffectManager.getEffect(it), null) }
+    ).map { AdditionalFilter(EffectManager.getEffect(it) ?: error("No effect for ID : $it"), null) }
 }

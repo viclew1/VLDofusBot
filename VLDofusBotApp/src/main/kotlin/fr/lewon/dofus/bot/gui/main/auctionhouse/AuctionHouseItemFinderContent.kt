@@ -266,7 +266,7 @@ private fun AvailableItemCardContent(item: DofusItem, availableItem: BidExchange
             } ?: "?"
             CommonText(" $priceStr", modifier = Modifier.align(Alignment.CenterVertically))
         }
-        val allItemEffects = availableItem.effects.map { EffectManager.getEffect(it.actionId) }
+        val allItemEffects = availableItem.effects.mapNotNull { EffectManager.getEffect(it.actionId) }
         val effectsToDisplay = getSortedEffectsToDisplay(item, allItemEffects)
         for (effect in effectsToDisplay) {
             val itemEffect = availableItem.effects.filterIsInstance<ObjectEffectInteger>()

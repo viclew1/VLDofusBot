@@ -20,6 +20,7 @@ object ItemManager : VldbManager {
             val possibleEffects = (it["possibleEffects"] as List<Map<String, Any>>).map { possibleEffect ->
                 val effectId = possibleEffect["effectId"].toString().toInt()
                 val effect = EffectManager.getEffect(effectId)
+                    ?: error("No effect for ID : $effectId")
                 val min = possibleEffect["diceNum"].toString().toInt()
                 val max = possibleEffect["diceSide"].toString().toInt()
                 DofusItemEffect(min, max, effect)

@@ -29,7 +29,7 @@ object EffectManager : VldbManager {
         return listOf(CharacteristicManager)
     }
 
-    fun getEffect(effectId: Int) = effectById[effectId] ?: error("No effect for ID : $effectId")
+    fun getEffect(effectId: Int) = effectById[effectId]
 
     fun getEffects() = effectById.values.toList()
 

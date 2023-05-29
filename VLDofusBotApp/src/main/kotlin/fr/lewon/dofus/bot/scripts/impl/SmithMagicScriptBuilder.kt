@@ -166,7 +166,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         linesByKeyword.values.forEach { it.current = 0 }
         for (effect in item.effects) {
             if (effect is ObjectEffectInteger) {
-                val characteristic = EffectManager.getEffect(effect.actionId).characteristic
+                val characteristic = EffectManager.getEffect(effect.actionId)?.characteristic
                 if (characteristic != null) {
                     val line = linesByKeyword.computeIfAbsent(characteristic.keyWord) {
                         SmithMagicLine(0, 1000, it)
