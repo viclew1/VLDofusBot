@@ -5,9 +5,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
+import fr.lewon.dofus.bot.scripts.harvest.JobSkillsManager
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestResourceTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
@@ -17,7 +19,9 @@ class ExploreSubAreaTask(
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
-    private val runForever: Boolean
+    private val runForever: Boolean,
+    private val harvestResource: Boolean,
+    private val harvestJob: String
 ) : BooleanDofusBotTask() {
 
     companion object {
@@ -27,6 +31,8 @@ class ExploreSubAreaTask(
             813.0, // Shadow dimension
         )
     }
+
+
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val initialExploreMapsList = MapManager.getDofusMaps(subArea)
@@ -46,6 +52,9 @@ class ExploreSubAreaTask(
             }
             if (killEverything) {
                 killMonsters(logItem, gameInfo)
+            }
+            if (harvestResource) {
+                harvest(logItem, gameInfo, harvestJob)
             }
             if (!TravelTask(toExploreMaps).run(logItem, gameInfo)) {
                 if (success && runForever) {
@@ -104,6 +113,19 @@ class ExploreSubAreaTask(
             }
         }
     }
+
+    private fun harvest(logItem: LogItem, gameInfo: GameInfo, harvestJob : String) {
+        val skillList = JobSkillsManager()
+        while (gameInfo.interactiveElements.any { interactive ->
+                interactive.enabledSkills.isNotEmpty()  && interactive.enabledSkills.any { skill ->
+                    skillList.checkSkillExists(harvestJob, skill.skillId) }
+                }) {
+            if (!HarvestResourceTask(harvestJob = harvestJob, stopIfNoResourcePresent = true).run(logItem, gameInfo)) {
+                return
+            }
+        }
+    }
+
 
     override fun onStarted(): String {
         return "Exploring sub area [${subArea.label})]"

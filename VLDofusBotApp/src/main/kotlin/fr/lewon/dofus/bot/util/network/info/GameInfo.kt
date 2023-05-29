@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
@@ -37,7 +38,11 @@ class GameInfo(val character: DofusCharacter) {
 
     val fightBoard = FightBoard(this)
     var isCreatureModeToggled = false
-    var interactiveElements: List<InteractiveElement> = ArrayList()
+
+    private val interactiveElementsLock = ReentrantLock()
+    var interactiveElements: List<InteractiveElement> = emptyList()
+        get() = interactiveElementsLock.executeSyncOperation { field }
+        set(value) = interactiveElementsLock.executeSyncOperation { field = value }
     var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
     val entityIdByNpcId = HashMap<Int, Double>()
     val monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()

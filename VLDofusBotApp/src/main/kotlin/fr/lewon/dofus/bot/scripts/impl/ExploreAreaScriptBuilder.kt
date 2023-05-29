@@ -83,6 +83,31 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         DofusBotParameterType.BOOLEAN
     )
 
+    val harvestParameter = DofusBotParameter(
+        "Harvest resources",
+        "Harvest any resource found",
+        "false",
+        DofusBotParameterType.BOOLEAN
+    )
+
+    val harvestAllParameter = DofusBotParameter(
+        "All harvest tasks",
+        "         ",
+        "false",
+        DofusBotParameterType.BOOLEAN,
+        displayCondition = { it.getParamValue(harvestParameter) == "true" }
+    )
+
+    val harvestJobParameter = DofusBotParameter(
+        "Harvest task",
+        "         ",
+        "Chop",
+        DofusBotParameterType.CHOICE,
+        listOf("Chop", "Collect", "Fish", "Gather", "Mow"),
+        displayCondition = { it.getParamValue(harvestAllParameter) == "false" && it.getParamValue(harvestParameter) == "true"}
+    )
+
+
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
             currentAreaParameter,
@@ -92,6 +117,9 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             searchedMonsterParameter,
             runForeverParameter,
             killEverythingParameter,
+            harvestParameter,
+            harvestAllParameter,
+            harvestJobParameter,
         )
     }
 
@@ -105,6 +133,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val currentAreaParameterValue = scriptValues.getParamValue(currentAreaParameter).toBoolean()
+        val harvestAllParameterValue = scriptValues.getParamValue(harvestAllParameter).toBoolean()
         val subArea = if (currentAreaParameterValue) {
             gameInfo.currentMap.subArea
         } else {
@@ -117,7 +146,14 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
             stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
-            runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
+            runForever = scriptValues.getParamValue(runForeverParameter).toBoolean(),
+            harvestResource = scriptValues.getParamValue(harvestParameter).toBoolean(),
+            harvestJob = if (harvestAllParameterValue) {
+                ""
+            } else {
+                scriptValues.getParamValue(harvestJobParameter)
+            }
+
         ).run(logItem, gameInfo)
     }
 

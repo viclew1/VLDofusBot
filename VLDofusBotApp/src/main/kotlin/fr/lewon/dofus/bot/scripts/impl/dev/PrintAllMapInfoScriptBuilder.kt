@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.impl.dev
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.entity.NpcManager
@@ -75,6 +76,7 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
     private fun logInteractiveElement(elementsLogItem: LogItem, gameInfo: GameInfo, element: InteractiveElement) {
         val elementLogItem = gameInfo.logger.addSubLog("Element ${element.elementId} :", elementsLogItem, 100)
         gameInfo.logger.addSubLog("Element type ID : ${element.elementTypeId}", elementLogItem)
+        gameInfo.logger.addSubLog(ObjectMapper().writeValueAsString(element), elementLogItem)
         val enabledSkillsLogItem = gameInfo.logger.addSubLog("Enabled skills : ", elementLogItem)
         logSkills(gameInfo, element.enabledSkills, enabledSkillsLogItem)
         val disabledSkillsLogItem = gameInfo.logger.addSubLog("Disabled skills : ", elementLogItem)
