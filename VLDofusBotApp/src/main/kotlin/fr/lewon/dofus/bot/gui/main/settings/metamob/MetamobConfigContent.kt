@@ -13,13 +13,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.gui.custom.RefreshButton
-import fr.lewon.dofus.bot.gui.main.settings.ConfigLine
-import fr.lewon.dofus.bot.gui.main.settings.ConfigSwitchLine
-import fr.lewon.dofus.bot.gui.main.settings.ConfigTextField
-import fr.lewon.dofus.bot.gui.main.settings.SettingsUIUtil
+import fr.lewon.dofus.bot.gui.main.settings.*
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
+import kotlin.math.max
 
 @Composable
 fun MetamobConfigContent() {
@@ -53,6 +51,44 @@ fun MetamobConfigContent() {
                 Row(Modifier.align(Alignment.CenterVertically).height(30.dp).padding(end = 10.dp)) {
                     RefreshButton(
                         { updateConnectionStatus(connectionStatus) },
+                        "",
+                        RoundedCornerShape(15),
+                        Color.Gray,
+                        defaultBackgroundColor = AppColors.VERY_DARK_BG_COLOR,
+                        width = 40.dp,
+                        refreshing = refreshing
+                    )
+                }
+            }
+        }
+        ConfigLine(
+            "Simultaneous ochers",
+            "The amount of ochers you're doing simultaneously (Minimum : 1) STATUSES WILL ONLY BE UPDATED IF YOU PRESS BUTTON BELOW",
+            true
+        ) {
+            ConfigIntegerField(
+                metamobConfig.simultaneousOchers.toString(),
+                onValueChange = { value ->
+                    SettingsUIUtil.updateMetamobConfig { it.simultaneousOchers = max(1, value.toIntOrNull() ?: 1) }
+                })
+        }
+        ConfigLine(
+            "Update Metamob archmonsters statuses",
+            "Update your Metamob archmonsters statuses. If you have less than the simultaneous ochers amount, it will be set to SEARCHED, if you have more : OFFERED, else : NONE",
+            true
+        ) {
+            Row {
+                val refreshing = remember { mutableStateOf(false) }
+                Text(
+                    if (refreshing.value) "..." else "Update",
+                    Modifier.align(Alignment.CenterVertically),
+                    fontSize = 13.sp,
+                    color = Color.LightGray
+                )
+                Spacer(Modifier.width(5.dp))
+                Row(Modifier.align(Alignment.CenterVertically).height(30.dp).padding(end = 10.dp)) {
+                    RefreshButton(
+                        { MetamobMonstersHelper.updateMonstersStatuses() },
                         "",
                         RoundedCornerShape(15),
                         Color.Gray,

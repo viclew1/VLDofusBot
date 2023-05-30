@@ -16,6 +16,7 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import fr.lewon.dofus.bot.util.ids.EffectIds
 import fr.lewon.dofus.bot.util.ids.ItemIds
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.math.max
 
 object MetamobMonstersHelper {
 
@@ -100,6 +101,15 @@ object MetamobMonstersHelper {
         }
     }
 
+    fun updateMonstersStatuses() = lock.executeSyncOperation {
+        val allMonsters = getAllMonsters()
+        val monsterUpdates = allMonsters.map {
+            buildMonsterUpdate(it, it.amount, UpdateOperation.REPLACE)
+        }
+        MetamobRequestProcessor.updateMonsters(monsterUpdates)
+        MetamobHelperUIUtil.refreshMonsters()
+    }
+
     private fun getAmountByMonster(
         monsters: List<MetamobMonster>,
         objectItems: List<ObjectItem>,
@@ -134,11 +144,12 @@ object MetamobMonstersHelper {
         amount: Int,
         updateOperation: UpdateOperation
     ): MetamobMonsterUpdate {
+        val simultaneousOchers = max(MetamobConfigManager.readConfig().simultaneousOchers, 1)
         val totalAmount = updateOperation.getTotalAmount(monster, amount)
         val state = when {
             monster.type != MetamobMonsterType.ARCHMONSTER -> MetamobMonsterUpdateState.NONE
-            totalAmount == 0 -> MetamobMonsterUpdateState.SEARCH
-            totalAmount > 1 -> MetamobMonsterUpdateState.OFFER
+            totalAmount < simultaneousOchers -> MetamobMonsterUpdateState.SEARCH
+            totalAmount > simultaneousOchers -> MetamobMonsterUpdateState.OFFER
             else -> MetamobMonsterUpdateState.NONE
         }
         return MetamobMonsterUpdate(monster.id, state, "${updateOperation.prefix}$amount")

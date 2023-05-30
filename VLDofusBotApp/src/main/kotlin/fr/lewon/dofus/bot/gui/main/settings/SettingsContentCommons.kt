@@ -41,6 +41,15 @@ fun ConfigTextField(
 }
 
 @Composable
+fun ConfigIntegerField(
+    value: String,
+    onValueChange: (newValue: String) -> Unit,
+    modifier: Modifier = Modifier.width(260.dp),
+) {
+    IntegerTextField(value, onValueChange, modifier)
+}
+
+@Composable
 fun ConfigSwitchLine(
     title: String,
     description: String,

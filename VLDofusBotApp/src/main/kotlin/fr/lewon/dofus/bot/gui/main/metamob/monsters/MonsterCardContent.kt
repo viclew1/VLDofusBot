@@ -18,6 +18,7 @@ import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
+import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import kotlinx.coroutines.delay
 
 private val backgroundColor = Color(0xFFf5ecdd)
@@ -76,7 +77,12 @@ fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
                         }
                     }
                 }
-                val color = if (monster.amount > 0) AppColors.GREEN else AppColors.RED
+                val simultaneousOchers = MetamobConfigManager.readConfig().simultaneousOchers
+                val color = when {
+                    monster.amount >= simultaneousOchers -> AppColors.GREEN
+                    monster.amount > 0 -> AppColors.ORANGE
+                    else -> AppColors.RED
+                }
                 Row(Modifier.fillMaxWidth().height(6.dp).background(color)) { }
             }
         }

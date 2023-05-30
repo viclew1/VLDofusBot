@@ -32,6 +32,7 @@ import fr.lewon.dofus.bot.scripts.impl.ExploreAreaScriptBuilder
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -107,11 +108,13 @@ private fun RowScope.OwnedIndicatorContent(monster: DofusMonster) {
             CircularProgressIndicator(Modifier.fillMaxSize(), color = AppColors.primaryColor)
         }
     } else {
+        val simultaneousOchers = MetamobConfigManager.readConfig().simultaneousOchers
         val allMetamobMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
         val metamobMonster = MetamobMonstersHelper.getMetamobMonster(monster, allMetamobMonsters)
         val color = when {
             metamobMonster == null -> Color.White
-            metamobMonster.amount > 0 -> AppColors.GREEN
+            metamobMonster.amount >= simultaneousOchers -> AppColors.GREEN
+            metamobMonster.amount > 0 -> AppColors.ORANGE
             else -> AppColors.RED
         }
         CommonText(metamobMonster?.amount?.toString() ?: "/", enabledColor = color)
