@@ -176,7 +176,9 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             computeState(character)
             ScriptInfoUIUtil.updateState(character.name)
             ScriptSelectorUIUtil.uiState.value = ScriptSelectorUIUtil.uiState.value.copy(isStartButtonEnabled = true)
-            ExplorationUIUtil.addAvailableCharacter(character.name)
+            if (GameSnifferUtil.getFirstConnection(character) != null) {
+                ExplorationUIUtil.addAvailableCharacter(character.name)
+            }
         }
     }
 
