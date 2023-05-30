@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui.main.exploration.map
+package fr.lewon.dofus.bot.gui.main.exploration
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -24,7 +24,6 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.*
-import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -51,7 +50,7 @@ fun RowScope.SelectedSubAreaContent() {
                 Thread { MetamobHelperUIUtil.refreshMonsters() }.start()
             }
         }
-        Column(Modifier.width(300.dp).fillMaxHeight().grayBoxStyle().padding(10.dp)) {
+        Column(Modifier.width(320.dp).fillMaxHeight().grayBoxStyle().padding(10.dp)) {
             selectedSubAreaId?.let { subAreaState.value = SubAreaManager.getSubArea(it) }
             val subArea = subAreaState.value
             if (subArea != null) {
@@ -203,24 +202,23 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
             }
             HorizontalSeparator()
             for ((parameter, value) in ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName) {
-                Row {
+                Row(Modifier.padding(vertical = 5.dp)) {
                     Column(Modifier.fillMaxWidth(0.7f).align(Alignment.CenterVertically)) {
                         CommonText(parameter.key)
                     }
+                    Spacer(Modifier.width(10.dp))
                     Spacer(Modifier.fillMaxWidth().weight(1f))
-                    Row(Modifier.align(Alignment.CenterVertically)) {
-                        ParameterInput(
-                            Modifier,
-                            parameter,
-                            getParamValue = { value },
-                            onParamUpdate = {
-                                ExplorationUIUtil.explorerUIState.value = ExplorationUIUtil.explorerUIState.value.copy(
-                                    explorationParameterValuesByName = ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName
-                                        .plus(parameter to it)
-                                )
-                            }
-                        )
-                    }
+                    ParameterInput(
+                        Modifier,
+                        parameter,
+                        getParamValue = { value },
+                        onParamUpdate = {
+                            ExplorationUIUtil.explorerUIState.value = ExplorationUIUtil.explorerUIState.value.copy(
+                                explorationParameterValuesByName = ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName
+                                    .plus(parameter to it)
+                            )
+                        }
+                    )
                 }
             }
         }

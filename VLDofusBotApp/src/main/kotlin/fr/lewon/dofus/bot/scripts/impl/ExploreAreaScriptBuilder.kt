@@ -83,6 +83,13 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         DofusBotParameterType.BOOLEAN
     )
 
+    val ignoreMapsExploredRecentlyParameter = DofusBotParameter(
+        "Ignore maps you explored in the last X min. (0 to explore all)",
+        "Ignore maps any of your character explored less than the passed value (in minutes). Set to 0 or less to ignore.",
+        "0",
+        DofusBotParameterType.INTEGER
+    )
+
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
             currentAreaParameter,
@@ -92,6 +99,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             searchedMonsterParameter,
             runForeverParameter,
             killEverythingParameter,
+            ignoreMapsExploredRecentlyParameter
         )
     }
 
@@ -117,7 +125,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
             stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
-            runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
+            runForever = scriptValues.getParamValue(runForeverParameter).toBoolean(),
+            explorationThresholdMinutes = scriptValues.getParamValue(ignoreMapsExploredRecentlyParameter).toInt()
         ).run(logItem, gameInfo)
     }
 

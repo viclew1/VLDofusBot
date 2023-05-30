@@ -11,6 +11,7 @@ data class ExplorationExplorerUIState(
         ExploreAreaScriptBuilder.stopWhenQuestMonsterFoundParameter to false.toString(),
         ExploreAreaScriptBuilder.killEverythingParameter to false.toString(),
         ExploreAreaScriptBuilder.runForeverParameter to false.toString(),
-        ExploreAreaScriptBuilder.searchedMonsterParameter to ""
+        ExploreAreaScriptBuilder.searchedMonsterParameter to "",
+        ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter to "0"
     )
 )

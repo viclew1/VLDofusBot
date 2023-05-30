@@ -1,10 +1,12 @@
 package fr.lewon.dofus.bot.gui.main.exploration
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.HiddenWorldMapHelper
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.MainWorldMapHelper
+import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 
 object ExplorationUIUtil : ComposeUIUtil() {
 
@@ -25,7 +27,7 @@ object ExplorationUIUtil : ComposeUIUtil() {
     val explorerUIState = mutableStateOf(ExplorationExplorerUIState())
     private val worldMapHelpers = listOf(MainWorldMapHelper, HiddenWorldMapHelper)
     val worldMapHelper = mutableStateOf(worldMapHelpers.first())
-    val exploredTimeByMap = mutableStateOf<Map<Double, Long>>(HashMap())
+    val colorByMapId = mutableStateOf(HashMap<Double, Color>())
 
     fun setNextWorldMapHelper() {
         val nextIndex = worldMapHelpers.indexOf(worldMapHelper.value) + 1
@@ -39,10 +41,6 @@ object ExplorationUIUtil : ComposeUIUtil() {
             selectedSubAreaId = null
         )
         worldMapHelper.value = newWorldMapHelper
-    }
-
-    fun exploreMap(mapId: Double) {
-        exploredTimeByMap.value = exploredTimeByMap.value.plus(mapId to System.currentTimeMillis())
     }
 
     fun addAvailableCharacter(characterName: String) {
@@ -64,6 +62,21 @@ object ExplorationUIUtil : ComposeUIUtil() {
             } else explorerUIState.value.selectedCharacterName,
             availableCharacters = newAvailable
         )
+    }
+
+    @Synchronized
+    fun refreshColors() {
+        val newColorByMap = HashMap<Double, Color>()
+        val now = System.currentTimeMillis()
+        val maxExplorationAge = 2 * 3600 * 1000
+        val oldestExplorationTime = now - maxExplorationAge
+        for ((mapId, time) in ExplorationRecordManager.getExploredTimeByMapId()) {
+            val lastExploreTime = maxOf(oldestExplorationTime, time)
+            val red = 255 * (now - lastExploreTime) / maxExplorationAge
+            val blue = 255 - red
+            newColorByMap[mapId] = Color(red.toInt(), 0, blue.toInt())
+        }
+        colorByMapId.value = newColorByMap
     }
 
 }

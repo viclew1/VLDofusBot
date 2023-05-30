@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
+import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class ExploreSubAreaTask(
@@ -17,7 +18,8 @@ class ExploreSubAreaTask(
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
-    private val runForever: Boolean
+    private val runForever: Boolean,
+    private val explorationThresholdMinutes: Int,
 ) : BooleanDofusBotTask() {
 
     companion object {
@@ -31,6 +33,7 @@ class ExploreSubAreaTask(
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val initialExploreMapsList = MapManager.getDofusMaps(subArea)
             .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
+            .filter { explorationThresholdMinutes <= 0 || getMinutesSinceLastExploration(it.id) > explorationThresholdMinutes }
         if (initialExploreMapsList.isEmpty()) {
             error("Nothing to explore in this area")
         }
@@ -61,6 +64,12 @@ class ExploreSubAreaTask(
             }
         }
         return success
+    }
+
+    private fun getMinutesSinceLastExploration(mapId: Double): Long {
+        val lastExplorationTime = ExplorationRecordManager.getLastExplorationTime(mapId) ?: 0L
+        val millisSinceLastExploration = System.currentTimeMillis() - lastExplorationTime
+        return millisSinceLastExploration / (60_000)
     }
 
     private fun foundSearchedMonster(gameInfo: GameInfo): Boolean {

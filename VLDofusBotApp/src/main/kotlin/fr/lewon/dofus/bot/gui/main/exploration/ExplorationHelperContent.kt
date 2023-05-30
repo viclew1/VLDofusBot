@@ -9,8 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.AnimatedButton
 import fr.lewon.dofus.bot.gui.main.exploration.map.ExplorationMapContent
-import fr.lewon.dofus.bot.gui.main.exploration.map.SelectedSubAreaContent
-import fr.lewon.dofus.bot.gui.main.exploration.map.helper.ConnectedCharactersContent
 
 @Composable
 fun ExplorationHelperContent() {

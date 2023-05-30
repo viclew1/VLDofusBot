@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui.main.exploration.map.helper
+package fr.lewon.dofus.bot.gui.main.exploration
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.CommonText
+import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
 import fr.lewon.dofus.bot.gui.custom.ParameterLine
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
@@ -32,13 +33,14 @@ fun ScriptParametersContent() {
                     ScriptParametersUIUtil.updateParameters(builder)
                     for (parameter in parameters) {
                         if (ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).displayed) {
-                            Row(Modifier.padding(start = 5.dp, top = 5.dp, bottom = 10.dp)) {
+                            Row(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 5.dp)) {
                                 ParameterLine(parameter, getParamValue = {
                                     ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).parameterValue
                                 }, onParamUpdate = {
                                     ScriptParametersUIUtil.updateParamValue(builder, parameter, it)
                                 })
                             }
+                            HorizontalSeparator(modifier = Modifier.padding(start = 2.dp))
                         }
                     }
                 }

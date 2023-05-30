@@ -27,10 +27,9 @@ fun ParameterLine(
                 SmallText(parameter.description)
             }
         }
+        Spacer(Modifier.width(10.dp))
         Spacer(Modifier.fillMaxWidth().weight(1f))
-        Row(Modifier.align(Alignment.CenterVertically)) {
-            ParameterInput(inputModifier, parameter, getParamValue, onParamUpdate)
-        }
+        ParameterInput(inputModifier, parameter, getParamValue, onParamUpdate)
     }
 }
 
@@ -50,6 +49,7 @@ fun ParameterInput(
                 Switch(
                     parameterValue.toBoolean(),
                     { onParamUpdate(it.toString()) },
+                    modifier = Modifier.height(20.dp)
                 )
             DofusBotParameterType.CHOICE ->
                 ComboBox(

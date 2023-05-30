@@ -24,6 +24,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.game.look.EntityLook
 import fr.lewon.dofus.bot.util.external.skinator.SkinatorRequestProcessor
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.network.GameSnifferListener
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
@@ -292,7 +293,10 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
         lock.executeSyncOperation {
             val uiState = getCharacterUIState(character.name)
             uiState.value = uiState.value.copy(currentMap = map)
-            ExplorationUIUtil.exploreMap(map.id)
+            Thread {
+                ExplorationRecordManager.exploreMap(map.id)
+                ExplorationUIUtil.refreshColors()
+            }.start()
         }
     }
 

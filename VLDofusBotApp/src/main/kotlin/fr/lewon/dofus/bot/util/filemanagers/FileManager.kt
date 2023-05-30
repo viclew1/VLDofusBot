@@ -26,24 +26,20 @@ class FileManager<T : Any>(fileName: String, defaultStore: T) {
         }
     }
 
-    fun updateStore(update: (T) -> Unit) {
-        lock.executeSyncOperation {
-            update(store)
-            saveStore()
-        }
+    fun getStore(): T = store
+
+    fun updateStore(update: (T) -> Unit) = lock.executeSyncOperation {
+        update(store)
+        saveStore()
     }
 
-    fun <R> getElement(get: (T) -> R): R {
-        return lock.executeSyncOperation {
-            get(store)
-        }
+    fun <R> getElement(get: (T) -> R): R = lock.executeSyncOperation {
+        get(store)
     }
 
-    private fun saveStore() {
-        with(OutputStreamWriter(FileOutputStream(storeFile, false), StandardCharsets.UTF_8)) {
-            write(ObjectMapper().writeValueAsString(store))
-            close()
-        }
+    private fun saveStore() = with(OutputStreamWriter(FileOutputStream(storeFile, false), StandardCharsets.UTF_8)) {
+        write(ObjectMapper().writeValueAsString(store))
+        close()
     }
 
 }

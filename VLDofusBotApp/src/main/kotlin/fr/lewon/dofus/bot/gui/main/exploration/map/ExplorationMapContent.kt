@@ -46,7 +46,6 @@ import kotlin.math.min
 
 private val cap = StrokeCap.Square
 private val blendMode = BlendMode.Src
-private val colorByMapId = mutableStateOf(HashMap<Double, Color>())
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -82,24 +81,11 @@ fun ExplorationMapContent() {
         mapAvailableSize.value = it.size.toSize()
         calculateOffset(Offset.Zero, it.size.toSize())
     }) {
-        val computeColors = {
-            val newColorByMap = HashMap<Double, Color>()
-            val now = System.currentTimeMillis()
-            val maxExplorationAge = 2 * 3600 * 1000
-            val oldestExplorationTime = now - maxExplorationAge
-            for ((mapId, time) in ExplorationUIUtil.exploredTimeByMap.value) {
-                val lastExploreTime = maxOf(oldestExplorationTime, time)
-                val red = 255 * (now - lastExploreTime) / maxExplorationAge
-                val blue = 255 - red
-                newColorByMap[mapId] = Color(red.toInt(), 0, blue.toInt())
-            }
-            colorByMapId.value = newColorByMap
-        }
-        computeColors()
+        ExplorationUIUtil.refreshColors()
         LaunchedEffect(Unit) {
             while (true) {
                 delay(10000)
-                computeColors()
+                ExplorationUIUtil.refreshColors()
             }
         }
         val scale = ExplorationUIUtil.mapUIState.value.scale
@@ -179,7 +165,7 @@ private fun getMapDrawCell(position: Offset): MapDrawCell? =
         ExplorationUIUtil.minPosY + (position.y / ExplorationUIUtil.CELL_SIZE).toInt(),
     )
 
-private fun getColor(mapId: Double): Color = colorByMapId.value[mapId] ?: Color.Red
+private fun getColor(mapId: Double): Color = ExplorationUIUtil.colorByMapId.value[mapId] ?: Color.Red
 
 @Composable
 private fun SelectedSubAreaOverlay() {
