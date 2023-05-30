@@ -18,8 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,7 +28,6 @@ import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
-import fr.lewon.dofus.bot.windowState
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 
@@ -162,7 +159,7 @@ fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
                         }
                         VerticalScrollbar(
                             modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
-                            adapter = androidx.compose.foundation.rememberScrollbarAdapter(scrollState),
+                            adapter = rememberScrollbarAdapter(scrollState),
                         )
                     }
                 }
@@ -236,26 +233,20 @@ private fun RowScope.MetamobMonstersListContent() {
             val state = rememberLazyGridState()
             Box(Modifier.fillMaxSize().padding(5.dp)) {
                 val filteredMonsters = MetamobHelperUIUtil.getFilteredMonsters()
-                val key = filteredMonsters.toList()
+                val items = filteredMonsters.toList()
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(200.dp),
                     state = state,
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
-                    items(filteredMonsters) { monster ->
+                    items(items, key = { it.id }) { monster ->
                         val borderColor = if (MetamobHelperUIUtil.uiState.value.hoveredMonster == monster) {
                             AppColors.primaryColor
                         } else {
                             Color.Transparent
                         }
-                        Box(
-                            Modifier.onGloballyPositioned {
-                                if (it.positionInWindow().y < windowState.size.height.value) {
-                                    MetamobHelperUIUtil.loadImagePainter(monster)
-                                }
-                            }.height(110.dp).padding(2.dp).background(borderColor).padding(3.dp)
-                        ) {
-                            MonsterCardContent(monster, key)
+                        Box(Modifier.height(110.dp).padding(2.dp).background(borderColor).padding(3.dp)) {
+                            MonsterCardContent(monster, items)
                         }
                     }
                 }

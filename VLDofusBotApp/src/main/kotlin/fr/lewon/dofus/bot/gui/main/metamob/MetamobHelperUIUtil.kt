@@ -1,14 +1,12 @@
 package fr.lewon.dofus.bot.gui.main.metamob
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
-import fr.lewon.dofus.bot.gui.main.metamob.monsters.MonsterPainterState
+import fr.lewon.dofus.bot.gui.main.metamob.monsters.MetamobMonsterPainter
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeTypesItemsExchangerDescriptionForUserMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.effects.ObjectEffectDice
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
@@ -24,7 +22,8 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
 
     val uiState = mutableStateOf(MetamobHelperUIState())
     val refreshingMonsters = mutableStateOf(false)
-    private val painterByImageUrl = HashMap<String, MutableState<MonsterPainterState>>()
+    private val loadedImageUrls = ArrayList<String>()
+    private val painterByImageUrl = HashMap<String, MetamobMonsterPainter>()
     private val lock = ReentrantLock()
 
     fun getFilteredMonsters(): List<MetamobMonster> {
@@ -96,37 +95,22 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
         return priceByMonsterId
     }
 
-    fun getPainter(monster: MetamobMonster): Painter? {
-        return lock.executeSyncOperation {
-            getMonsterPainterState(monster).value.painter
-        }
+    fun getMonsterPainter(monster: MetamobMonster) = lock.executeSyncOperation {
+        painterByImageUrl[monster.imageUrl]
     }
 
-    private fun getMonsterPainterState(monster: MetamobMonster): MutableState<MonsterPainterState> {
-        return lock.executeSyncOperation {
-            painterByImageUrl.computeIfAbsent(monster.imageUrl) { mutableStateOf(MonsterPainterState()) }
-        }
+    fun isLoaded(imageUrl: String) = lock.executeSyncOperation {
+        loadedImageUrls.contains(imageUrl)
     }
 
-    fun loadImagePainter(monster: MetamobMonster) {
-        val state = getMonsterPainterState(monster)
-        val shouldLoad = !state.value.loaded
-        lock.executeSyncOperation {
-            if (shouldLoad) {
-                state.value = state.value.copy(loaded = true)
+    fun loadImagePainter(monster: MetamobMonster) = lock.executeSyncOperation {
+        loadedImageUrls.add(monster.imageUrl)
+        Thread {
+            val painter = doLoadImage(monster)?.toPainter()
+            lock.executeSyncOperation {
+                painterByImageUrl[monster.imageUrl] = MetamobMonsterPainter(painter)
             }
-        }
-        if (shouldLoad) {
-            Thread {
-                val painter = doLoadImage(monster)?.toPainter()
-                lock.executeSyncOperation {
-                    state.value = state.value.copy(
-                        loaded = true,
-                        painter = painter
-                    )
-                }
-            }.start()
-        }
+        }.start()
     }
 
     @Synchronized

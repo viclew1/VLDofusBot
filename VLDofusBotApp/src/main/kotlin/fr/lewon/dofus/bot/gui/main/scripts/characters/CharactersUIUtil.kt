@@ -295,7 +295,7 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             uiState.value = uiState.value.copy(currentMap = map)
             Thread {
                 ExplorationRecordManager.exploreMap(map.id)
-                ExplorationUIUtil.refreshColors()
+                ExplorationUIUtil.requestMapUpdate()
             }.start()
         }
     }

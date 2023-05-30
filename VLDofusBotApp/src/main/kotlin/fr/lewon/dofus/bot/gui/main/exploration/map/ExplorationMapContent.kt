@@ -39,6 +39,7 @@ import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 import kotlin.math.max
@@ -46,6 +47,7 @@ import kotlin.math.min
 
 private val cap = StrokeCap.Square
 private val blendMode = BlendMode.Src
+private val colorByMapId = mutableStateOf(HashMap<Double, Color>())
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -81,11 +83,27 @@ fun ExplorationMapContent() {
         mapAvailableSize.value = it.size.toSize()
         calculateOffset(Offset.Zero, it.size.toSize())
     }) {
-        ExplorationUIUtil.refreshColors()
+        val refreshColors = {
+            val newColorByMap = HashMap<Double, Color>()
+            val now = System.currentTimeMillis()
+            val maxExplorationAge = 2 * 3600 * 1000
+            val oldestExplorationTime = now - maxExplorationAge
+            for ((mapId, time) in ExplorationRecordManager.getExploredTimeByMapId()) {
+                val lastExploreTime = maxOf(oldestExplorationTime, time)
+                val red = 255 * (now - lastExploreTime) / maxExplorationAge
+                val blue = 255 - red
+                newColorByMap[mapId] = Color(red.toInt(), 0, blue.toInt())
+            }
+            colorByMapId.value = newColorByMap
+        }
+        if (ExplorationUIUtil.mapUpdated.value) {
+            refreshColors()
+            ExplorationUIUtil.mapUpdated.value = false
+        }
         LaunchedEffect(Unit) {
             while (true) {
                 delay(10000)
-                ExplorationUIUtil.refreshColors()
+                refreshColors()
             }
         }
         val scale = ExplorationUIUtil.mapUIState.value.scale
@@ -165,7 +183,7 @@ private fun getMapDrawCell(position: Offset): MapDrawCell? =
         ExplorationUIUtil.minPosY + (position.y / ExplorationUIUtil.CELL_SIZE).toInt(),
     )
 
-private fun getColor(mapId: Double): Color = ExplorationUIUtil.colorByMapId.value[mapId] ?: Color.Red
+private fun getColor(mapId: Double): Color = colorByMapId.value[mapId] ?: Color.Red
 
 @Composable
 private fun SelectedSubAreaOverlay() {
