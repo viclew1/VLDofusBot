@@ -1,8 +1,6 @@
 # VLDofusBotSniffer
 
-VLDofusBotSniffer is the sniffer part of the [VLDofusBot](https://github.com/viclew1/VLDofusBot). This repository's goal
-is to mimic the Dofus network and class hierarchy. Every message sent by the server to the client is, if message has
-been implemented here, converted to a Java object, then stored in an EventStore.
+VLDofusBotSniffer is the sniffer part of the bot. The goal is to mimic the Dofus network and class hierarchy. Every message sent by the server to the client is converted to a Kotlin object, then stored in an EventStore.
 
 ### How to use
 
