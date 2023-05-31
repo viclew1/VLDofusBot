@@ -3,8 +3,7 @@
 VLDofusBotCore gathers [VLDofusBot](https://github.com/viclew1/VLDofusBot) core content. These are :
 
 - Dofus file managers for d2o, d2p and amf3 (information about maps, characteristics, fight cells, ...)
-- Utils for reading Dofus content, may it be network
-  (for [VLDofusBotSniffer](https://github.com/viclew1/VLDofusBotSniffer)) or file content (for d2o/d2p)
+- Utils for reading Dofus content, may it be network (for VLDofusBotSniffer) or file content (for d2o/d2p)
 - Logger tools
 
 ### How to use
