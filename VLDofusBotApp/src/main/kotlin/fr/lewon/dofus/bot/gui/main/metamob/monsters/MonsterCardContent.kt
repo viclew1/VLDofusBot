@@ -77,7 +77,7 @@ fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
                         }
                     }
                 }
-                val simultaneousOchers = MetamobConfigManager.readConfig().simultaneousOchers
+                val simultaneousOchers = MetamobConfigManager.readConfig().getSafeSimultaneousOchers()
                 val color = when {
                     monster.amount >= simultaneousOchers -> AppColors.GREEN
                     monster.amount > 0 -> AppColors.ORANGE

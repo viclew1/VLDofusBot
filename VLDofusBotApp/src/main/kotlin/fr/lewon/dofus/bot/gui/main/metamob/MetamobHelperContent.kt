@@ -6,17 +6,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MetamobFiltersContent
 import fr.lewon.dofus.bot.gui.main.metamob.monsters.MetamobMonstersContent
-import fr.lewon.dofus.bot.gui.main.metamob.stats.MetamobStatsContent
+import fr.lewon.dofus.bot.gui.main.metamob.stats.MetamobOchersAdvancementContent
 
 @Composable
 fun MetamobHelperContent() {
     Row(Modifier.fillMaxSize()) {
-        Column(Modifier.width(300.dp)) {
+        Column(Modifier.width(310.dp)) {
             Box(Modifier.fillMaxHeight().weight(1f)) {
                 MetamobFiltersContent()
             }
-            Box(Modifier.height(200.dp)) {
-                MetamobStatsContent()
+            Box(Modifier.height(250.dp)) {
+                MetamobOchersAdvancementContent()
             }
         }
         Box(Modifier.fillMaxSize()) {

@@ -1,8 +1,6 @@
 package fr.lewon.dofus.bot.gui.main.metamob.filter
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +25,11 @@ fun MetamobFiltersContent() {
                     modifier = Modifier.padding(vertical = 2.dp)
                 )
             }
+        }
+        Spacer(Modifier.fillMaxHeight().weight(1f))
+        Row(Modifier.padding(5.dp)) {
+            Spacer(Modifier.fillMaxWidth().weight(1f))
+            CommonText("Total displayed : ${MetamobHelperUIUtil.getFilteredMonsters().size}")
         }
     }
 }

@@ -16,6 +16,7 @@ enum class UiResource(path: String) {
     DISCORD("/icon/discord.png"),
     PAUSE("/icon/ui/pause.png"),
     AUTO_SCROLL("/icon/ui/auto_scroll.png"),
+    CHECK("/icon/ui/check.png"),
     ERASE("/icon/ui/erase.png"),
     KAMAS("/icon/ui/kamas.png"),
     LEVEL("/icon/ui/level.png"),

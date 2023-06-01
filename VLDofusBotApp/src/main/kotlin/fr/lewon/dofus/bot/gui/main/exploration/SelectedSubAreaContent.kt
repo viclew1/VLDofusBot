@@ -108,7 +108,7 @@ private fun RowScope.OwnedIndicatorContent(monster: DofusMonster) {
             CircularProgressIndicator(Modifier.fillMaxSize(), color = AppColors.primaryColor)
         }
     } else {
-        val simultaneousOchers = MetamobConfigManager.readConfig().simultaneousOchers
+        val simultaneousOchers = MetamobConfigManager.readConfig().getSafeSimultaneousOchers()
         val allMetamobMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
         val metamobMonster = MetamobMonstersHelper.getMetamobMonster(monster, allMetamobMonsters)
         val color = when {

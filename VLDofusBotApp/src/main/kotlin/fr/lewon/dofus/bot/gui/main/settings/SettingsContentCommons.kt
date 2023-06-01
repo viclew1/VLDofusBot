@@ -73,6 +73,7 @@ fun ConfigLine(title: String, description: String, enabled: Boolean, content: @C
                 SmallText(description, enabled = enabled)
             }
         }
+        Spacer(Modifier.width(20.dp))
         Spacer(Modifier.weight(1f))
         Box(Modifier.onTabChangeFocus(LocalFocusManager.current).onFocusHighlight()) {
             content()

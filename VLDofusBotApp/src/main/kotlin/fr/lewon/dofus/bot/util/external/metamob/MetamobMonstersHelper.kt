@@ -16,7 +16,6 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import fr.lewon.dofus.bot.util.ids.EffectIds
 import fr.lewon.dofus.bot.util.ids.ItemIds
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.math.max
 
 object MetamobMonstersHelper {
 
@@ -144,9 +143,12 @@ object MetamobMonstersHelper {
         amount: Int,
         updateOperation: UpdateOperation
     ): MetamobMonsterUpdate {
-        val simultaneousOchers = max(MetamobConfigManager.readConfig().simultaneousOchers, 1)
+        val config = MetamobConfigManager.readConfig()
+        val simultaneousOchers = config.getSafeSimultaneousOchers()
+        val disableStatusUpdate = config.disableStatusUpdate
         val totalAmount = updateOperation.getTotalAmount(monster, amount)
         val state = when {
+            disableStatusUpdate -> MetamobMonsterUpdateState.NONE
             monster.type != MetamobMonsterType.ARCHMONSTER -> MetamobMonsterUpdateState.NONE
             totalAmount < simultaneousOchers -> MetamobMonsterUpdateState.SEARCH
             totalAmount > simultaneousOchers -> MetamobMonsterUpdateState.OFFER

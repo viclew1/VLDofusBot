@@ -182,6 +182,8 @@ fun ButtonWithTooltip(
                 var modifier = if (enabled) Modifier.handPointerIcon() else Modifier
                 if (enabled && isHovered.value) {
                     modifier = modifier.background(hoverBackgroundColor)
+                } else if (!isHovered.value || !enabled) {
+                    modifier = modifier.background(defaultBackgroundColor)
                 }
                 Box(modifier.fillMaxSize().rotate(angle.value)) {
                     content()

@@ -12,12 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
 import fr.lewon.dofus.bot.gui.custom.RefreshButton
 import fr.lewon.dofus.bot.gui.main.settings.*
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 import kotlin.math.max
+import kotlin.math.min
 
 @Composable
 fun MetamobConfigContent() {
@@ -61,19 +63,30 @@ fun MetamobConfigContent() {
                 }
             }
         }
+        HorizontalSeparator()
         ConfigLine(
             "Simultaneous ochers",
-            "The amount of ochers you're doing simultaneously (Minimum : 1) STATUSES WILL ONLY BE UPDATED IF YOU PRESS BUTTON BELOW",
+            "The amount of ochers you're doing simultaneously (Min : 1, Max: 10). \nSTATUSES WILL ONLY BE UPDATED IF YOU PRESS ARCHMONSTERS STATUS UPDATE BUTTON",
             true
         ) {
             ConfigIntegerField(
-                metamobConfig.simultaneousOchers.toString(),
+                metamobConfig.getSafeSimultaneousOchers().toString(),
                 onValueChange = { value ->
-                    SettingsUIUtil.updateMetamobConfig { it.simultaneousOchers = max(1, value.toIntOrNull() ?: 1) }
+                    SettingsUIUtil.updateMetamobConfig {
+                        it.simultaneousOchers = min(10, max(1, value.toIntOrNull() ?: 1))
+                    }
                 })
         }
+        ConfigSwitchLine(
+            "Set all archmonsters statuses to NONE",
+            "Check if you always want to set archmonsters statuses to NONE (not SEARCHED nor OFFERED => no more trade offers). \nSTATUSES WILL ONLY BE UPDATED IF YOU PRESS ARCHMONSTERS STATUS UPDATE BUTTON",
+            true,
+            metamobConfig.disableStatusUpdate
+        ) { checked ->
+            SettingsUIUtil.updateMetamobConfig { it.disableStatusUpdate = checked }
+        }
         ConfigLine(
-            "Update Metamob archmonsters statuses",
+            "Update archmonsters statuses",
             "Update your Metamob archmonsters statuses. If you have less than the simultaneous ochers amount, it will be set to SEARCHED, if you have more : OFFERED, else : NONE",
             true
         ) {
@@ -99,6 +112,7 @@ fun MetamobConfigContent() {
                 }
             }
         }
+        HorizontalSeparator()
         ConfigSwitchLine(
             "Update on capture",
             "Auto update metamob when you capture a monster group",

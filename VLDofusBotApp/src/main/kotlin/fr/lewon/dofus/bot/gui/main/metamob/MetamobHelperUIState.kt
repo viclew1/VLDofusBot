@@ -8,7 +8,6 @@ data class MetamobHelperUIState(
     val valueByFilter: Map<MonsterFilter, String> = MonsterFilter.values().associateWith { it.parameter.defaultValue },
     val priceByArchmonsterId: Map<Int, Long> = HashMap(),
     val refreshingPrices: Boolean = false,
-    val refreshingMonsters: Boolean = false,
     val lastPriceRefreshTimeMillis: Long? = null,
     val playerTradeMonsters: List<MetamobMonster> = emptyList(),
     val otherGuyTradeMonsters: List<MetamobMonster> = emptyList(),
