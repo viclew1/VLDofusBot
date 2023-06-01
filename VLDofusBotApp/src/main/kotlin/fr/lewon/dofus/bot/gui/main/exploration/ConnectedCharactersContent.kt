@@ -23,7 +23,11 @@ import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.gui.util.UiResource
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.scripts.impl.ReachMapScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
@@ -35,17 +39,18 @@ fun ConnectedCharactersContent() {
         if (connectedCharactersUIStates.isEmpty()) {
             CommonText("No connected character", Modifier.padding(5.dp))
         } else {
-            connectedCharactersUIStates.sortedBy {
-                if (it.activityState == CharacterActivityState.BUSY) 1 else 0
-            }.forEach { uiState ->
-                ConnectedCharacterContent(uiState)
+            connectedCharactersUIStates.forEach { uiState ->
+                ConnectedCharacterContent(uiState, connectedCharactersUIStates)
             }
         }
     }
 }
 
 @Composable
-private fun ConnectedCharacterContent(characterUIState: CharacterUIState) {
+private fun ConnectedCharacterContent(
+    characterUIState: CharacterUIState,
+    connectedCharacterUIStates: List<CharacterUIState>
+) {
     Row(modifier = Modifier.height(30.dp).border(BorderStroke(1.dp, Color.Black))) {
         Row(Modifier.width(6.dp).fillMaxHeight().background(characterUIState.activityState.color)) { }
         Box(Modifier.fillMaxSize().background(Color.DarkGray)) {
@@ -64,8 +69,47 @@ private fun ConnectedCharacterContent(characterUIState: CharacterUIState) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(Modifier.fillMaxWidth().weight(1f))
-                if (characterUIState.activityState == CharacterActivityState.BUSY) {
-                    Row(Modifier.fillMaxHeight().padding(3.dp)) {
+                Row(Modifier.fillMaxHeight().padding(3.dp)) {
+                    val toGatherCharacters = connectedCharacterUIStates.filter { it.name != characterUIState.name }
+                    val currentMapId = characterUIState.currentMap?.id
+                    if (characterUIState.activityState != CharacterActivityState.BUSY && currentMapId != null) {
+                        val gatherButtonEnabled = toGatherCharacters.isNotEmpty()
+                        ButtonWithTooltip(
+                            onClick = {
+                                toGatherCharacters.forEach {
+                                    val character = CharacterManager.getCharacter(it.name)
+                                    if (character != null && !ScriptRunner.isScriptRunning(character)) {
+                                        ScriptRunner.runScript(
+                                            character,
+                                            ReachMapScriptBuilder,
+                                            ScriptValues().also { scriptValues ->
+                                                scriptValues.updateParamValue(
+                                                    ReachMapScriptBuilder.reachMapTypeParameter,
+                                                    ReachMapScriptBuilder.ReachMapType.BY_MAP_ID.label
+                                                )
+                                                scriptValues.updateParamValue(
+                                                    ReachMapScriptBuilder.mapIdParameter,
+                                                    currentMapId.toString()
+                                                )
+                                            })
+                                    }
+                                }
+                            },
+                            title = "Gather available characters",
+                            shape = RoundedCornerShape(15),
+                            hoverBackgroundColor = Color.Gray,
+                            defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                            enabled = gatherButtonEnabled
+                        ) {
+                            Image(
+                                UiResource.GATHER.imagePainter,
+                                "",
+                                modifier = Modifier.fillMaxSize(),
+                                colorFilter = ColorFilter.tint(if (gatherButtonEnabled) AppColors.primaryColor else Color.Gray)
+                            )
+                        }
+                    }
+                    if (characterUIState.activityState == CharacterActivityState.BUSY) {
                         ButtonWithTooltip(
                             onClick = { ScriptRunner.stopScript(characterUIState.name) },
                             title = "Stop running script",

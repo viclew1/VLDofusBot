@@ -33,7 +33,7 @@ open class ReachMapTask(private val destMaps: List<DofusMap>) : BooleanDofusBotT
             ?: error("No transition in path")
         val subLogItem = gameInfo.logger.addSubLog("Moving to map : (${destMap.posX}; ${destMap.posY}) ...", logItem)
         val fromMap = path.first().edge.from.mapId
-        val zaapOk = if (allZaapMapIds.contains(fromMap)) {
+        val zaapOk = if (allZaapMapIds.contains(fromMap) && fromMap != gameInfo.currentMap.id) {
             ZaapTowardTask(MapManager.getDofusMap(fromMap)).run(subLogItem, gameInfo)
         } else true
         return zaapOk && MoveTask(path).run(subLogItem, gameInfo).also {

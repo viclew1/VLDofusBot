@@ -17,6 +17,7 @@ enum class UiResource(path: String) {
     PAUSE("/icon/ui/pause.png"),
     AUTO_SCROLL("/icon/ui/auto_scroll.png"),
     CHECK("/icon/ui/check.png"),
+    GATHER("/icon/ui/gather.png"),
     ERASE("/icon/ui/erase.png"),
     KAMAS("/icon/ui/kamas.png"),
     LEVEL("/icon/ui/level.png"),

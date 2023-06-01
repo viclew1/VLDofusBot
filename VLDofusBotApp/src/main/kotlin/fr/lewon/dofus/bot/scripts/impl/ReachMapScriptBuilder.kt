@@ -31,7 +31,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         compareBy({ it.value.subArea.level }, { it.key })
     ).map { it.key }
 
-    private val reachMapTypeParameter = DofusBotParameter(
+    val reachMapTypeParameter = DofusBotParameter(
         "Type",
         "How to retrieve the destination map",
         ReachMapType.BY_COORDINATES.label,
@@ -39,7 +39,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         REACH_MAP_TYPE_LABELS,
     )
 
-    private val mapIdParameter = DofusBotParameter(
+    val mapIdParameter = DofusBotParameter(
         "Map ID",
         "Map ID of destination",
         "0",
@@ -176,7 +176,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
             ?: error("World map not found : $worldMapStr")
     }
 
-    private enum class ReachMapType(val label: String) {
+    enum class ReachMapType(val label: String) {
         BY_COORDINATES("By Coordinates"),
         BY_MAP_ID("By Map ID"),
         BY_DUNGEON("By Dungeon");

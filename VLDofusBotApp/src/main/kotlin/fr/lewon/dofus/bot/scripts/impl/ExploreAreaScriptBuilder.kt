@@ -72,7 +72,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     val stopWhenArchMonsterFoundParameter = DofusBotParameter(
         "Stop when arch monster found",
         "Stops exploration when you find an arch monster",
-        "false",
+        "true",
         DofusBotParameterType.BOOLEAN
     )
 
@@ -86,7 +86,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     val ignoreMapsExploredRecentlyParameter = DofusBotParameter(
         "Ignore maps you explored in the last X min. (0 to explore all)",
         "Ignore maps any of your character explored less than the passed value (in minutes). Set to 0 or less to ignore.",
-        "0",
+        "15",
         DofusBotParameterType.INTEGER
     )
 
