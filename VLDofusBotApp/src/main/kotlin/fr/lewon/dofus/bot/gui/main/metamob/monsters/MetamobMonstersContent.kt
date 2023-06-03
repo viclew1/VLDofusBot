@@ -119,7 +119,7 @@ private fun getMonsterStr(monster: MetamobMonster): String {
     val allMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
     val price = MetamobHelperUIUtil.getPrice(monster) ?: 0L
     val monsterDisplayName = monster.name.split(" ").firstOrNull()
-        ?.takeIf { name -> allMonsters.none { it.name != name && it.name.startsWith(name) } }
+        ?.takeIf { name -> allMonsters.none { it.id != monster.id && it.name.startsWith(name) } }
         ?: monster.name
     return "$monsterDisplayName ${price / 1000}k"
 }
