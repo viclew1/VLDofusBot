@@ -73,9 +73,8 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         while (true) {
             gameInfo.logger.addSubLog("Waiting for an item to be selected ...", logItem)
             WaitUtil.waitUntilMessageArrives(gameInfo, ExchangeObjectAddedMessage::class.java)
-            val currentObjectItem =
-                gameInfo.eventStore.getLastEvent(ExchangeObjectAddedMessage::class.java)?.obj
-                    ?: error("Missing message in store")
+            val currentObjectItem = gameInfo.eventStore.getLastEvent(ExchangeObjectAddedMessage::class.java)?.obj
+                ?: error("Missing message in store")
             val smithMagicLogItem = gameInfo.logger.addSubLog("Item selected ! Starting smithing ...", logItem)
             applyStrategyOnItem(gameInfo, currentObjectItem, strategy)
             gameInfo.logger.closeLog("OK", smithMagicLogItem, true)

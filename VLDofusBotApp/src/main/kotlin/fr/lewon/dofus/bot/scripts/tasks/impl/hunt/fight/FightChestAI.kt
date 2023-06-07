@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight
 
-import fr.lewon.dofus.bot.core.model.spell.*
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellEffectGlobalType
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
@@ -19,7 +20,7 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
 
     override fun selectStartCell(fightBoard: FightBoard): DofusCell? {
         return dofusBoard.startCells.firstOrNull {
-            it.neighbors.all { cell -> cell.isAccessible() && fightBoard.getFighter(cell) == null }
+            it.neighbors.size == 4 && it.neighbors.all { cell -> cell.isAccessible() && fightBoard.getFighter(cell) == null }
         }
     }
 

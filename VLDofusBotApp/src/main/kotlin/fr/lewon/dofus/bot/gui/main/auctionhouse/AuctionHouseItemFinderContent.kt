@@ -120,7 +120,7 @@ private fun NativeFilterLine(
             SimpleTextField(
                 uiState.nativeMinValuesByEffect[itemEffect.effect]?.toString() ?: "",
                 { AuctionHouseItemFinderUIUtil.updateNativeFilter(itemEffect.effect, it.toIntOrNull()) },
-                Modifier.width(40.dp).align(Alignment.CenterVertically)
+                Modifier.width(50.dp).align(Alignment.CenterVertically)
             )
             Spacer(Modifier.width(10.dp))
             ItemEffectDescriptionText(item, itemEffect)
@@ -181,7 +181,7 @@ private fun AdditionalFilterLine(filter: AdditionalFilter, index: Int) {
             SimpleTextField(
                 filter.minValue?.toString() ?: "",
                 { AuctionHouseItemFinderUIUtil.updateAdditionalFilter(filter, minValue = it.toIntOrNull()) },
-                Modifier.width(40.dp).align(Alignment.CenterVertically)
+                Modifier.width(50.dp).align(Alignment.CenterVertically)
             )
             Spacer(Modifier.width(10.dp))
             val availableEffects = AuctionHouseItemFinderUIUtil.getAvailableAdditionalEffects()

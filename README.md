@@ -73,7 +73,10 @@ grid free of any UI element.
 
 ![ui.png](demo/ui.png)
 
-Another important thing is to **disable display of every monster in a group**.
+Other important things to do are to :
+
+- disable display of every monster in a group
+- set the fight summary window to reduced
 
 ## Tabs
 
