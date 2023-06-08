@@ -37,6 +37,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         ReachMapType.BY_COORDINATES.label,
         DofusBotParameterType.CHOICE,
         REACH_MAP_TYPE_LABELS,
+        parametersGroup = 1
     )
 
     val mapIdParameter = DofusBotParameter(
@@ -44,7 +45,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         "Map ID of destination",
         "0",
         DofusBotParameterType.INTEGER,
-        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_MAP_ID.label }
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_MAP_ID.label },
+        parametersGroup = 1
     )
 
     private val xParameter = DofusBotParameter(
@@ -52,7 +54,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         "X coordinates of destination",
         "0",
         DofusBotParameterType.INTEGER,
-        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label },
+        parametersGroup = 1
     )
 
     private val yParameter = DofusBotParameter(
@@ -60,7 +63,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         "Y coordinates of destination",
         "0",
         DofusBotParameterType.INTEGER,
-        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label },
+        parametersGroup = 1
     )
 
     private val useCurrentWorldMapParameter = DofusBotParameter(
@@ -68,7 +72,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         "Reach destination coordinates in current world map",
         "false",
         DofusBotParameterType.BOOLEAN,
-        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label }
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label },
+        parametersGroup = 1
     )
 
     private val worldMapParameter = DofusBotParameter(
@@ -80,7 +85,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         displayCondition = {
             it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_COORDINATES.label
                     && it.getParamValue(useCurrentWorldMapParameter) == false.toString()
-        }
+        },
+        parametersGroup = 1
     )
 
     private val dungeonParameter = DofusBotParameter(
@@ -89,14 +95,16 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         DUNGEON_LABELS.first(),
         DofusBotParameterType.CHOICE,
         DUNGEON_LABELS,
-        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_DUNGEON.label }
+        displayCondition = { it.getParamValue(reachMapTypeParameter) == ReachMapType.BY_DUNGEON.label },
+        parametersGroup = 1
     )
 
     private val useZaapsParameter = DofusBotParameter(
         "Use zaaps",
         "Check if you want to allow zaaps for the travel",
         "true",
-        DofusBotParameterType.BOOLEAN
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 2
     )
 
     override fun getParameters(): List<DofusBotParameter> {

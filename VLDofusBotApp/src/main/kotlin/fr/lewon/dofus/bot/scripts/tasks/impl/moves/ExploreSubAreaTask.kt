@@ -5,11 +5,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
-import fr.lewon.dofus.bot.scripts.harvest.JobSkills
+import fr.lewon.dofus.bot.model.jobs.Jobs
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestResourceTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
@@ -20,8 +20,7 @@ class ExploreSubAreaTask(
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
-    private val harvestResource: Boolean,
-    private val harvestJob: String,
+    private val jobsToHarvest: List<Jobs>,
     private val runForever: Boolean,
     private val explorationThresholdMinutes: Int
 ) : BooleanDofusBotTask() {
@@ -54,8 +53,8 @@ class ExploreSubAreaTask(
             if (killEverything) {
                 killMonsters(logItem, gameInfo)
             }
-            if (harvestResource) {
-                harvest(logItem, gameInfo, harvestJob)
+            if (!HarvestAllResourcesTask(jobsToHarvest).run(logItem, gameInfo)) {
+                return false
             }
             if (!TravelTask(toExploreMaps).run(logItem, gameInfo)) {
                 if (success && runForever) {
@@ -116,17 +115,6 @@ class ExploreSubAreaTask(
     private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
         while (gameInfo.monsterInfoByEntityId.isNotEmpty()) {
             if (!FightMonsterGroupTask(stopIfNoMonsterPresent = true).run(logItem, gameInfo)) {
-                return
-            }
-        }
-    }
-
-    private fun harvest(logItem: LogItem, gameInfo: GameInfo, harvestJob : String) {
-        while (gameInfo.interactiveElements.any { interactive ->
-                interactive.enabledSkills.isNotEmpty()  && interactive.enabledSkills.any { skill ->
-                    JobSkills.checkSkillExists(harvestJob, skill.skillId) }
-                }) {
-            if (!HarvestResourceTask(harvestJob = harvestJob, stopIfNoResourcePresent = true).run(logItem, gameInfo)) {
                 return
             }
         }

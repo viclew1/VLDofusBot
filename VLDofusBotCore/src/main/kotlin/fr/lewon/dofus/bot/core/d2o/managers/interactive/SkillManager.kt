@@ -15,16 +15,15 @@ object SkillManager : VldbManager {
             val elementActionId = it["elementActionId"].toString().toInt()
             val nameId = it["nameId"].toString().toInt()
             val label = I18NUtil.getLabel(nameId) ?: "UNKNOWN_SKILL_LABEL"
-            id to DofusSkill(id, elementActionId, label)
+            val parentJobId = it["parentJobId"].toString().toInt()
+            id to DofusSkill(id, elementActionId, label, parentJobId)
         }
     }
 
-    override fun getNeededManagers(): List<VldbManager> {
-        return emptyList()
-    }
+    override fun getNeededManagers(): List<VldbManager> = emptyList()
 
-    fun getSkill(skillId: Double): DofusSkill? {
-        return skillById[skillId]
-    }
+    fun getSkill(skillId: Double) = skillById[skillId]
+
+    fun getSkills() = skillById.values.toList()
 
 }

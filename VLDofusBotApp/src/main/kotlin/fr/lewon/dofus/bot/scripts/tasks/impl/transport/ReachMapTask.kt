@@ -23,7 +23,9 @@ open class ReachMapTask(private val destMaps: List<DofusMap>) : BooleanDofusBotT
         }
         val allZaapMapIds = allZaapMaps.map { it.id }
         val currentVertex = getCurrentVertex(gameInfo)
-        val fromVertices = allZaapMapIds.map { WorldGraphUtil.getVertex(it, 1) }.plus(currentVertex).filterNotNull()
+        val fromVertices = listOf(currentVertex)
+            .plus(allZaapMapIds.map { WorldGraphUtil.getVertex(it, 1) })
+            .filterNotNull()
         val path = WorldGraphUtil.getPath(fromVertices, destMaps, gameInfo.buildCharacterBasicInfo())
         if (path == null) {
             val mapsStr = destMaps.map { it.coordinates }.distinct().joinToString(", ") { "(${it.x}; ${it.y})" }

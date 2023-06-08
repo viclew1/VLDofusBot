@@ -125,9 +125,8 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
         if (moveCells.isEmpty()) {
             return null
         }
-        val invalidMoveCells = gameInfo.entityPositionsOnMapByEntityId.values
-            .flatMap { getInvalidCellsNearEntity(gameInfo, it) }
-            .map { it.cellId }
+        val invalidMoveCells = MoveUtil.getInvalidCells(gameInfo).map { it.cellId }
+
         val validMoveCells = moveCells
             .filter { !invalidMoveCells.contains(it) }
         if (validMoveCells.isNotEmpty()) {
@@ -156,21 +155,6 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             Direction.BOTTOM, Direction.TOP -> 1
             Direction.LEFT, Direction.RIGHT -> 28
         }
-    }
-
-    private fun getInvalidCellsNearEntity(gameInfo: GameInfo, entityCellId: Int): List<DofusCell> {
-        val entityCell = gameInfo.dofusBoard.getCell(entityCellId)
-        val invalidCells = mutableListOf(entityCell)
-        val row = entityCell.row
-        val col = entityCell.col
-        for (i in 0 until 4) {
-            gameInfo.dofusBoard.getCell(col - 1 - i, row - i)?.let { invalidCells.add(it) }
-            gameInfo.dofusBoard.getCell(col - i, row - 1 - i)?.let { invalidCells.add(it) }
-            gameInfo.dofusBoard.getCell(col - 1 - i, row - 1 - i)?.let { invalidCells.add(it) }
-        }
-        gameInfo.dofusBoard.getCell(col + 1, row)?.let { invalidCells.add(it) }
-        gameInfo.dofusBoard.getCell(col, row + 1)?.let { invalidCells.add(it) }
-        return invalidCells
     }
 
     private fun getMoveCellIds(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): List<Int> {

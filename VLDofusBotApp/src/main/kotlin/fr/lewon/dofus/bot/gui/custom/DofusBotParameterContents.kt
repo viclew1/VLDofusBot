@@ -20,10 +20,8 @@ fun ParameterLine(
 ) {
     Row(modifier) {
         Column(Modifier.fillMaxWidth(0.5f).align(Alignment.CenterVertically)) {
-            if (parameter.description.isEmpty()) {
-                SubTitleText(parameter.key)
-            } else {
-                CommonText(parameter.key)
+            CommonText(parameter.key)
+            if (parameter.description.isNotBlank()) {
                 SmallText(parameter.description)
             }
         }

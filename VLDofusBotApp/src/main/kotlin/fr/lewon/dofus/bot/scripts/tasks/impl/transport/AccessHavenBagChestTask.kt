@@ -37,14 +37,8 @@ class AccessHavenBagChestTask : BooleanDofusBotTask() {
 
     private fun findChestElement(gameInfo: GameInfo): InteractiveElement? {
         for (interactiveElement in gameInfo.interactiveElements) {
-            val destCellCompleteData = gameInfo.completeCellDataByCellId.values
-                .firstOrNull { it.graphicalElements.map { ge -> ge.identifier }.contains(interactiveElement.elementId) }
-                ?: error("No cell data found for element : ${interactiveElement.elementId}")
-
-            val graphicalElement = destCellCompleteData.graphicalElements
-                .firstOrNull { it.identifier == interactiveElement.elementId }
-                ?: error("No graphical element found for element : ${interactiveElement.elementId}")
-
+            val destCellCompleteData = InteractiveUtil.getElementCellData(gameInfo, interactiveElement)
+            val graphicalElement = destCellCompleteData.getGraphicalElement(interactiveElement.elementId)
             val elementData = D2PElementsAdapter.getElement(graphicalElement.elementId)
             if (elementData is NormalGraphicalElementData && elementData.gfxId == CHEST_GFX_ID) {
                 return interactiveElement

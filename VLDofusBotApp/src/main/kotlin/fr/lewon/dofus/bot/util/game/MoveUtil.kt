@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
+import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameCautiousMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
@@ -22,6 +23,25 @@ import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object MoveUtil {
+
+    fun getInvalidCells(gameInfo: GameInfo): List<DofusCell> =
+        gameInfo.entityPositionsOnMapByEntityId.values
+            .flatMap { getInvalidCellsNearEntity(gameInfo, it) }
+
+    fun getInvalidCellsNearEntity(gameInfo: GameInfo, entityCellId: Int): List<DofusCell> {
+        val entityCell = gameInfo.dofusBoard.getCell(entityCellId)
+        val invalidCells = mutableListOf(entityCell)
+        val row = entityCell.row
+        val col = entityCell.col
+        for (i in 0 until 4) {
+            gameInfo.dofusBoard.getCell(col - 1 - i, row - i)?.let { invalidCells.add(it) }
+            gameInfo.dofusBoard.getCell(col - i, row - 1 - i)?.let { invalidCells.add(it) }
+            gameInfo.dofusBoard.getCell(col - 1 - i, row - 1 - i)?.let { invalidCells.add(it) }
+        }
+        gameInfo.dofusBoard.getCell(col + 1, row)?.let { invalidCells.add(it) }
+        gameInfo.dofusBoard.getCell(col, row + 1)?.let { invalidCells.add(it) }
+        return invalidCells
+    }
 
     fun buildDirectionalPath(gameInfo: GameInfo, direction: Direction, amount: Int): List<Transition>? =
         buildDirectionalPath(gameInfo, direction, { _, count -> count == amount }, amount)

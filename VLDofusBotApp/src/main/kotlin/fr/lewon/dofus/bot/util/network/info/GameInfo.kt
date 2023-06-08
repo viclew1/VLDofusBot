@@ -61,6 +61,8 @@ class GameInfo(val character: DofusCharacter) {
     var finishedObjectiveIds: List<Int> = ArrayList()
     var activeObjectiveIds: List<Int> = ArrayList()
 
+    var weightMax = -1
+    var inventoryWeight = -1
     var currentTradeInfo = TradeInfo()
     var inShop = false
 

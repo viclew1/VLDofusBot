@@ -8,5 +8,6 @@ data class DofusBotParameter(
     var defaultValue: String = "",
     var type: DofusBotParameterType = DofusBotParameterType.STRING,
     var possibleValues: List<String> = emptyList(),
-    var displayCondition: (scriptValues: ScriptValues) -> Boolean = { true }
+    var parametersGroup: Int? = null,
+    var displayCondition: (scriptValues: ScriptValues) -> Boolean = { true },
 )

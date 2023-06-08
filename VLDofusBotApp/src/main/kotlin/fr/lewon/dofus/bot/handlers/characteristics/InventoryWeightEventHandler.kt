@@ -9,6 +9,8 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 object InventoryWeightEventHandler : IEventHandler<InventoryWeightMessage> {
     override fun onEventReceived(socketResult: InventoryWeightMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
+        gameInfo.weightMax = socketResult.weightMax
+        gameInfo.inventoryWeight = socketResult.inventoryWeight
         CharacterGlobalInformationUIUtil.updateCharacterWeight(
             gameInfo.character.name,
             socketResult.inventoryWeight,
