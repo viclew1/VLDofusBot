@@ -2,9 +2,11 @@ package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
 import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementData
+import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseRequestMessage
+import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElementSkill
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
@@ -33,14 +35,18 @@ object InteractiveUtil {
 
     private val INVALID_SKILL_IDS = listOf(339, 360, 361, 362)
 
-    private fun getElementClickPosition(gameInfo: GameInfo, elementId: Int): PointRelative {
-        val interactiveElement = gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }
+    fun getElementCellData(gameInfo: GameInfo, interactiveElement: InteractiveElement): CompleteCellData =
+        gameInfo.completeCellDataByCellId.values
+            .firstOrNull { it.graphicalElements.map { ge -> ge.identifier }.contains(interactiveElement.elementId) }
+            ?: error("No cell data found for element : ${interactiveElement.elementId}")
+
+    fun getInteractiveElement(gameInfo: GameInfo, elementId: Int): InteractiveElement =
+        gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }
             ?: error("Element not found on map : $elementId")
 
-        val destCellCompleteData = gameInfo.completeCellDataByCellId.values
-            .firstOrNull { it.graphicalElements.map { ge -> ge.identifier }.contains(interactiveElement.elementId) }
-            ?: error("No cell data found for element : $elementId")
-
+    private fun getElementClickPosition(gameInfo: GameInfo, elementId: Int): PointRelative {
+        val interactiveElement = getInteractiveElement(gameInfo, elementId)
+        val destCellCompleteData = getElementCellData(gameInfo, interactiveElement)
         val graphicalElement = destCellCompleteData.graphicalElements
             .firstOrNull { it.identifier == interactiveElement.elementId }
             ?: error("No graphical element found for element : $elementId")

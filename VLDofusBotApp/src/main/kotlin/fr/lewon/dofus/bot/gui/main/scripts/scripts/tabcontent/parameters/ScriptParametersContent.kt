@@ -20,6 +20,9 @@ import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
 fun ScriptParametersContent() {
     val builder = ScriptTabsUIUtil.getCurrentScriptBuilder()
     val parameters = ScriptParametersUIUtil.getCurrentScriptParameters()
+    val parametersGroups = parameters.groupBy { it.parametersGroup }.entries
+        .sortedBy { it.value.firstOrNull()?.parametersGroup ?: Int.MAX_VALUE }
+        .map { it.value }
     Column {
         CommonText(
             "Parameters",
@@ -31,17 +34,22 @@ fun ScriptParametersContent() {
                 val state = rememberScrollState()
                 Column(Modifier.verticalScroll(state).padding(end = 10.dp)) {
                     ScriptParametersUIUtil.updateParameters(builder)
-                    for (parameter in parameters) {
-                        if (ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).displayed) {
-                            Row(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 5.dp)) {
-                                ParameterLine(parameter, getParamValue = {
-                                    ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).parameterValue
-                                }, onParamUpdate = {
-                                    ScriptParametersUIUtil.updateParamValue(builder, parameter, it)
-                                })
+                    for (parameterGroup in parametersGroups) {
+                        for (parameter in parameterGroup) {
+                            if (ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).displayed) {
+                                Row(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 5.dp)) {
+                                    ParameterLine(parameter, getParamValue = {
+                                        ScriptParametersUIUtil.getScriptParameterUIState(
+                                            builder,
+                                            parameter
+                                        ).parameterValue
+                                    }, onParamUpdate = {
+                                        ScriptParametersUIUtil.updateParamValue(builder, parameter, it)
+                                    })
+                                }
                             }
-                            HorizontalSeparator(modifier = Modifier.padding(start = 2.dp))
                         }
+                        HorizontalSeparator(modifier = Modifier.padding(start = 2.dp))
                     }
                 }
                 VerticalScrollbar(

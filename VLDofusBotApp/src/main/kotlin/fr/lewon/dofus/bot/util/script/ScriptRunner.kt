@@ -77,7 +77,9 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
         JNAUtil.updateGameBounds(gameInfo)
 
         if (gameInfo.shouldInitBoard) {
-            InitAllTask().run(logItem, gameInfo)
+            if (!InitAllTask().run(logItem, gameInfo)) {
+                error("Failed to init bot")
+            }
             gameInfo.shouldInitBoard = false
         }
         return gameInfo

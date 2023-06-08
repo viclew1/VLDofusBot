@@ -13,8 +13,6 @@ data class ExplorationExplorerUIState(
         ExploreAreaScriptBuilder.runForeverParameter,
         ExploreAreaScriptBuilder.searchedMonsterParameter,
         ExploreAreaScriptBuilder.harvestParameter,
-        ExploreAreaScriptBuilder.harvestAllParameter,
-        ExploreAreaScriptBuilder.harvestJobParameter,
         ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter
     ).associateWith { it.defaultValue }
 )

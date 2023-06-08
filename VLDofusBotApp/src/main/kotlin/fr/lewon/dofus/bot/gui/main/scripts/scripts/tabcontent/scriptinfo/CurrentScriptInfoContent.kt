@@ -18,7 +18,7 @@ import kotlinx.coroutines.delay
 fun CurrentScriptInfoContent() {
     Column(Modifier.fillMaxWidth().height(150.dp)) {
         CommonText(
-            "Parameters",
+            "Running script(s)",
             modifier = Modifier.padding(4.dp),
             fontWeight = FontWeight.SemiBold
         )

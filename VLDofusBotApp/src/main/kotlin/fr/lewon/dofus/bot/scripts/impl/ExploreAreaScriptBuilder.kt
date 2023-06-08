@@ -5,9 +5,9 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.jobs.Jobs
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
-import fr.lewon.dofus.bot.scripts.harvest.JobSkills
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
@@ -37,7 +37,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         "Run in current area",
         "If checked, ignores sub area parameter and explores current area",
         "false",
-        DofusBotParameterType.BOOLEAN
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 1
     )
 
     val subAreaParameter = DofusBotParameter(
@@ -46,75 +47,77 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         SUB_AREA_LABELS.firstOrNull() ?: "",
         DofusBotParameterType.CHOICE,
         SUB_AREA_LABELS,
-        displayCondition = { it.getParamValue(currentAreaParameter) == "false" }
+        displayCondition = { it.getParamValue(currentAreaParameter) == "false" },
+        parametersGroup = 1
     )
 
     val runForeverParameter = DofusBotParameter(
         "Run forever",
         "Explores this area until you manually stop",
         "false",
-        DofusBotParameterType.BOOLEAN
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 2
     )
 
     val killEverythingParameter = DofusBotParameter(
         "Kill everything",
         "Fights every group of monsters present on the maps",
         "false",
-        DofusBotParameterType.BOOLEAN
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 2
     )
 
     val searchedMonsterParameter = DofusBotParameter(
         "Searched monster",
         "Monster which will stop exploration when found. Leave empty if you're not seeking a monster",
         "",
-        DofusBotParameterType.STRING
+        DofusBotParameterType.STRING,
+        parametersGroup = 3
     )
 
     val stopWhenArchMonsterFoundParameter = DofusBotParameter(
         "Stop when arch monster found",
         "Stops exploration when you find an arch monster",
         "true",
-        DofusBotParameterType.BOOLEAN
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 3
     )
 
     val stopWhenQuestMonsterFoundParameter = DofusBotParameter(
         "Stop when quest monster found",
         "Stops exploration when you find a quest monster",
         "false",
-        DofusBotParameterType.BOOLEAN
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 3
     )
 
     val ignoreMapsExploredRecentlyParameter = DofusBotParameter(
         "Ignore maps you explored in the last X min. (0 to explore all)",
         "Ignore maps any of your character explored less than the passed value (in minutes). Set to 0 or less to ignore.",
         "15",
-        DofusBotParameterType.INTEGER
+        DofusBotParameterType.INTEGER,
+        parametersGroup = 4
     )
 
     val harvestParameter = DofusBotParameter(
         "Harvest resources",
         "Harvest any resource found",
         "false",
-        DofusBotParameterType.BOOLEAN
-    )
-
-    val harvestAllParameter = DofusBotParameter(
-        "All harvest job",
-        "Use all your abilities to harvest",
-        "false",
         DofusBotParameterType.BOOLEAN,
-        displayCondition = { it.getParamValue(harvestParameter) == "true" }
+        parametersGroup = 5
     )
 
-    val harvestJobParameter = DofusBotParameter(
-        "Harvest job",
-        "Use only one ability to harvest",
-        "Chop",
-        DofusBotParameterType.CHOICE,
-        JobSkills.getJobList(),
-        displayCondition = { it.getParamValue(harvestAllParameter) == "false" && it.getParamValue(harvestParameter) == "true"}
-    )
-
+    val harvestJobParameterByJob = Jobs.values().associateWith { job ->
+        DofusBotParameter(
+            "Harvest [${job.name}] resources",
+            "",
+            "true",
+            DofusBotParameterType.BOOLEAN,
+            Jobs.values().map { it.name },
+            displayCondition = { it.getParamValue(harvestParameter) == "true" },
+            parametersGroup = 5
+        )
+    }
 
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
@@ -125,11 +128,9 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             searchedMonsterParameter,
             runForeverParameter,
             killEverythingParameter,
+            ignoreMapsExploredRecentlyParameter,
             harvestParameter,
-            harvestAllParameter,
-            harvestJobParameter,
-            ignoreMapsExploredRecentlyParameter
-        )
+        ).plus(harvestJobParameterByJob.values)
     }
 
     override fun getStats(): List<DofusBotScriptStat> {
@@ -142,13 +143,15 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
 
     override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
         val currentAreaParameterValue = scriptValues.getParamValue(currentAreaParameter).toBoolean()
-        val harvestAllParameterValue = scriptValues.getParamValue(harvestAllParameter).toBoolean()
         val subArea = if (currentAreaParameterValue) {
             gameInfo.currentMap.subArea
         } else {
             val subAreaParameterValue = scriptValues.getParamValue(subAreaParameter)
             SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
         }
+        val jobsToHarvest = if (scriptValues.getParamValue(harvestParameter).toBoolean()) {
+            Jobs.values().filter { shouldHarvestJob(it, scriptValues) }
+        } else emptyList()
         ExploreSubAreaTask(
             subArea,
             killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
@@ -157,14 +160,13 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
             runForever = scriptValues.getParamValue(runForeverParameter).toBoolean(),
             explorationThresholdMinutes = scriptValues.getParamValue(ignoreMapsExploredRecentlyParameter).toInt(),
-            harvestResource = scriptValues.getParamValue(harvestParameter).toBoolean(),
-            harvestJob = if (harvestAllParameterValue) {
-                ""
-            } else {
-                scriptValues.getParamValue(harvestJobParameter)
-            }
-
+            jobsToHarvest = jobsToHarvest
         ).run(logItem, gameInfo)
+    }
+
+    private fun shouldHarvestJob(job: Jobs, scriptValues: ScriptValues): Boolean {
+        val jobParameter = harvestJobParameterByJob[job] ?: return false
+        return scriptValues.getParamValue(jobParameter).toBoolean()
     }
 
 }
