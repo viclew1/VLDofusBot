@@ -76,13 +76,14 @@ private fun HeaderLine() {
 @Composable
 private fun SetCreationLine() {
     val newSetName = remember { mutableStateOf("") }
-    Row(Modifier.fillMaxWidth().height(30.dp)) {
+    Row(Modifier.fillMaxWidth().height(34.dp).padding(vertical = 2.dp)) {
         SimpleTextField(
             newSetName.value,
             onValueChange = { newSetName.value = it },
             modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically).fillMaxWidth().weight(1f),
             backgroundColor = AppColors.DARK_BG_COLOR,
         )
+        val enabled = newSetName.value.isNotBlank()
         ButtonWithTooltip(
             onClick = {
                 val setName = newSetName.value.trim()
@@ -94,7 +95,8 @@ private fun SetCreationLine() {
             title = "Add Set",
             imageVector = Icons.Default.Add,
             shape = RoundedCornerShape(percent = 10),
-            enabled = newSetName.value.isNotBlank()
+            enabled = enabled,
+            iconColor = if (enabled) Color.White else Color.Black
         )
     }
 }

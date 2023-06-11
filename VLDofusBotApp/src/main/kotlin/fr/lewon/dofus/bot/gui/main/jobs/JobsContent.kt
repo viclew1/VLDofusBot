@@ -16,7 +16,7 @@ fun JobsContent() {
         val selectedSetName = JobsUiUtil.selectedSetName.value
         if (selectedSetName == null) {
             CommonText(
-                "No character selected",
+                "No harvestable set selected",
                 modifier = Modifier.fillMaxWidth().padding(10.dp).padding(top = 30.dp),
                 fontWeight = FontWeight.Bold,
             )
