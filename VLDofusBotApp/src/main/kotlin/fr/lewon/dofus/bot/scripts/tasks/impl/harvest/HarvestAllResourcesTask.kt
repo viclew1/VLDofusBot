@@ -1,15 +1,15 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.harvest
 
+import fr.lewon.dofus.bot.core.d2o.managers.interactive.SkillManager
 import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.jobs.Jobs
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-class HarvestAllResourcesTask(private val jobsToHarvest: List<Jobs>) : BooleanDofusBotTask() {
+class HarvestAllResourcesTask(private val itemIdsToHarvest: List<Double>) : BooleanDofusBotTask() {
 
     private var totalHarvestableCount: Int? = null
     private var currentHarvestedCount: Int = 0
@@ -47,13 +47,17 @@ class HarvestAllResourcesTask(private val jobsToHarvest: List<Jobs>) : BooleanDo
         return cellDataByHarvestableInteractiveElements.filter {
             !toIgnoreResources.contains(it.key)
                     && !invalidMoveCells.contains(it.value.cellId)
-                    && Jobs.shouldHarvest(it.key, jobsToHarvest)
+                    && shouldHarvest(it.key)
         }.minByOrNull {
             val cell = gameInfo.dofusBoard.getCell(it.value.cellId)
             cell.neighbors.plus(cell).mapNotNull { c ->
                 gameInfo.dofusBoard.getPathLength(c.cellId, playerCellId)
             }.minOrNull() ?: Int.MAX_VALUE
         }?.key
+    }
+
+    private fun shouldHarvest(interactiveElement: InteractiveElement): Boolean = interactiveElement.enabledSkills.any {
+        itemIdsToHarvest.contains(SkillManager.getSkill(it.skillId.toDouble())?.gatheredResourceItem?.id)
     }
 
     override fun onStarted(): String {

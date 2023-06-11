@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.core.d2o.managers.map
 import fr.lewon.dofus.bot.core.VldbManager
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 
@@ -22,24 +23,26 @@ object SubAreaManager : VldbManager {
             val name = I18NUtil.getLabel(nameId) ?: "UNKNOWN_SUB_AREA_NAME"
             val areaId = it["areaId"].toString().toDouble()
             val area = AreaManager.getArea(areaId)
-            val monsterIds = it["monsters"] as List<Double>
             val mapIds = it["mapIds"] as List<Double>
             val customWorldMap = it["customWorldMap"] as List<Int>
+            val monsterIds = it["monsters"] as List<Double>
             val monsters = monsterIds.map { monsterId -> MonsterManager.getMonster(monsterId) }
+            val harvestableIds = it["harvestables"] as List<Int>
+            val harvestables = harvestableIds.map { itemId -> ItemManager.getItem(itemId.toDouble()) }
             val psiAllowed = it["psiAllowed"].toString().toBoolean()
             val displayOnWorldMap = it["displayOnWorldMap"].toString().toBoolean()
             val level = it["level"].toString().toInt()
             val capturable = it["capturable"].toString().toBoolean()
             val basicAccountAllowed = it["basicAccountAllowed"].toString().toBoolean()
             id to DofusSubArea(
-                id, worldMap, monsters, mapIds, packId, isConquestVillage, customWorldMap,
+                id, worldMap, monsters, harvestables, mapIds, packId, isConquestVillage, customWorldMap,
                 associatedZaapMapId, name, area, psiAllowed, displayOnWorldMap, level, capturable, basicAccountAllowed
             )
         }
     }
 
     override fun getNeededManagers(): List<VldbManager> {
-        return listOf(AreaManager, WorldMapManager, MonsterManager)
+        return listOf(AreaManager, WorldMapManager, MonsterManager, ItemManager)
     }
 
     fun getAllSubAreas(): List<DofusSubArea> {

@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
-import fr.lewon.dofus.bot.model.jobs.Jobs
+import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
@@ -20,7 +20,7 @@ class ExploreSubAreaTask(
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
-    private val jobsToHarvest: List<Jobs>,
+    private val itemIdsToHarvest: List<Double>,
     private val runForever: Boolean,
     private val explorationThresholdMinutes: Int
 ) : BooleanDofusBotTask() {
@@ -34,6 +34,7 @@ class ExploreSubAreaTask(
     }
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        ExplorationUIUtil.onAreaExplorationStart(gameInfo.character, subArea)
         val initialExploreMapsList = MapManager.getDofusMaps(subArea)
             .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
             .filter { explorationThresholdMinutes <= 0 || getMinutesSinceLastExploration(it.id) > explorationThresholdMinutes }
@@ -53,7 +54,7 @@ class ExploreSubAreaTask(
             if (killEverything) {
                 killMonsters(logItem, gameInfo)
             }
-            if (!HarvestAllResourcesTask(jobsToHarvest).run(logItem, gameInfo)) {
+            if (!HarvestAllResourcesTask(itemIdsToHarvest).run(logItem, gameInfo)) {
                 return false
             }
             if (!TravelTask(toExploreMaps).run(logItem, gameInfo)) {

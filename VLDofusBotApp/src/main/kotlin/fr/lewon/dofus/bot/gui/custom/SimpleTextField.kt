@@ -46,12 +46,12 @@ fun SimpleTextField(
     trailingIcon: Painter? = null,
     inputHandlers: List<KeyHandler> = emptyList()
 ) {
-    val textFieldValueState = remember { mutableStateOf(TextFieldValue(text = value)) }
+    val textFieldValueState = remember { mutableStateOf(TextFieldValue(text = value, composition = TextRange(0, 0))) }
     val textFieldValue = textFieldValueState.value.copy(text = value)
     val previousText = mutableStateOf(textFieldValue.text)
     val textSelectionColors = TextSelectionColors(
         handleColor = Color.White,
-        backgroundColor = Color.Gray
+        backgroundColor = Color.Gray,
     )
     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
         BasicTextField(
@@ -70,11 +70,13 @@ fun SimpleTextField(
                 }
             },
             maxLines = 1,
-            modifier = modifier.onFocusSelectAll(textFieldValueState).onPreviewKeyEvent { keyEvent ->
-                keyEvent.isCtrlPressed && keyEvent.key == Key.Backspace && textFieldValue.text.isEmpty()
-                        || keyEvent.type == KeyEventType.KeyDown
-                        && inputHandlers.filter { it.checkKey(keyEvent) }.onEach { it.handleKeyEvent() }.isNotEmpty()
-            },
+            modifier = modifier.onFocusSelectAll(textFieldValueState).onFocusLeaveResetSelection(textFieldValueState)
+                .onPreviewKeyEvent { keyEvent ->
+                    keyEvent.isCtrlPressed && keyEvent.key == Key.Backspace && textFieldValue.text.isEmpty()
+                            || keyEvent.type == KeyEventType.KeyDown
+                            && inputHandlers.filter { it.checkKey(keyEvent) }.onEach { it.handleKeyEvent() }
+                        .isNotEmpty()
+                },
             cursorBrush = SolidColor(Color.White),
             textStyle = TextStyle(fontSize = 13.sp, color = Color.White),
             decorationBox = { innerTextField ->
@@ -104,6 +106,22 @@ fun SimpleTextField(
 }
 
 @Composable
+private fun Modifier.onFocusLeaveResetSelection(
+    textFieldValueState: MutableState<TextFieldValue>,
+    scope: CoroutineScope = rememberCoroutineScope()
+): Modifier = onFocusChanged {
+    if (!it.isFocused && !it.hasFocus) {
+        scope.launch {
+            delay(20)
+            textFieldValueState.value = textFieldValueState.value.copy(
+                selection = TextRange(0, 0),
+                composition = TextRange(0, 0)
+            )
+        }
+    }
+}
+
+@Composable
 private fun Modifier.onFocusSelectAll(
     textFieldValueState: MutableState<TextFieldValue>,
     scope: CoroutineScope = rememberCoroutineScope()
@@ -113,7 +131,7 @@ private fun Modifier.onFocusSelectAll(
             delay(20)
             val text = textFieldValueState.value.text
             textFieldValueState.value = textFieldValueState.value.copy(
-                selection = TextRange(0, text.length)
+                selection = TextRange(0, text.length),
             )
         }
     }

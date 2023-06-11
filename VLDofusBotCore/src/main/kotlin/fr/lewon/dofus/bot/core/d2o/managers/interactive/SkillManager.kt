@@ -2,6 +2,8 @@ package fr.lewon.dofus.bot.core.d2o.managers.interactive
 
 import fr.lewon.dofus.bot.core.VldbManager
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
+import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
+import fr.lewon.dofus.bot.core.d2o.managers.job.JobManager
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.model.interactive.DofusSkill
 
@@ -16,11 +18,17 @@ object SkillManager : VldbManager {
             val nameId = it["nameId"].toString().toInt()
             val label = I18NUtil.getLabel(nameId) ?: "UNKNOWN_SKILL_LABEL"
             val parentJobId = it["parentJobId"].toString().toInt()
-            id to DofusSkill(id, elementActionId, label, parentJobId)
+            val parentJob = JobManager.getJob(parentJobId)
+            val gatheredResourceItemId = it["gatheredRessourceItem"].toString().toIntOrNull()
+            val gatheredResourceItem = gatheredResourceItemId?.takeIf { itemId -> itemId > 0 }?.let { itemId ->
+                ItemManager.getItem(itemId.toDouble())
+            }
+            val levelMin = it["levelMin"].toString().toInt()
+            id to DofusSkill(id, elementActionId, label, parentJob, gatheredResourceItem, levelMin)
         }
     }
 
-    override fun getNeededManagers(): List<VldbManager> = emptyList()
+    override fun getNeededManagers(): List<VldbManager> = listOf(ItemManager, JobManager)
 
     fun getSkill(skillId: Double) = skillById[skillId]
 

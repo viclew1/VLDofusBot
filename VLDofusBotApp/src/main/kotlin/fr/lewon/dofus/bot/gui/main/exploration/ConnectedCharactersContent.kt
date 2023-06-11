@@ -32,7 +32,7 @@ import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
 fun ConnectedCharactersContent() {
-    Column(Modifier.width(200.dp).padding(5.dp).fillMaxHeight()) {
+    Column(Modifier.width(200.dp).padding(5.dp)) {
         CommonText("Connected characters", Modifier.padding(bottom = 10.dp), fontWeight = FontWeight.Bold)
         val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
             .filter { it.activityState != CharacterActivityState.DISCONNECTED }
