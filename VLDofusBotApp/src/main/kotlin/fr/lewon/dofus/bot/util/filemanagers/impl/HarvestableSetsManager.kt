@@ -30,7 +30,7 @@ object HarvestableSetsManager : ListenableByCharacter<CharacterSpellManagerListe
 
     fun addSet(setName: String) = lock.executeSyncOperation {
         fileManager.updateStore {
-            it[setName] = HashSet()
+            it.computeIfAbsent(setName) { HashSet() }
         }
         ExploreAreaScriptBuilder.harvestParameter.possibleValues = getHarvestableIdsBySetName().keys.toList()
     }
