@@ -82,7 +82,7 @@ private fun Header(item: DofusItem?) {
         ) {
             Box(Modifier.fillMaxSize().padding(5.dp)) {
                 if (item != null) {
-                    val gfxImageData = D2PItemsGfxAdapter.getItemGfxImageData(item.iconId.toDouble())
+                    val gfxImageData = D2PItemsGfxAdapter.getItemIconData(item.iconId.toDouble())
                     Image(gfxImageData.toPainter(), "", Modifier.fillMaxSize())
                 }
             }

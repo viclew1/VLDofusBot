@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.core.d2p.D2PIndex
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import java.io.File
 
-object D2PItemsGfxAdapter : AbstractLinkedD2PUrlLoaderAdapter(false, -1) {
+object D2PMonstersGfxAdapter : AbstractLinkedD2PUrlLoaderAdapter(false, -1) {
 
     override fun getId(filePath: String): Double {
         return Regex("(\\d+)\\.png").find(filePath)?.destructured?.component1()?.toDouble()
@@ -13,8 +13,8 @@ object D2PItemsGfxAdapter : AbstractLinkedD2PUrlLoaderAdapter(false, -1) {
     }
 
     @Synchronized
-    fun getItemIconData(iconId: Double): ByteArray {
-        return loadStream(iconId)
+    fun getMonsterImageData(monsterId: Double): ByteArray {
+        return loadStream(monsterId)
     }
 
     override fun doLoadStream(index: D2PIndex): ByteArray {

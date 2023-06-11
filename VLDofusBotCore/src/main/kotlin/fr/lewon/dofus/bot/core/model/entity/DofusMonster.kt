@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.core.model.entity
 
+import fr.lewon.dofus.bot.core.d2p.gfx.D2PMonstersGfxAdapter
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacteristic
 import fr.lewon.dofus.bot.core.model.spell.DofusSpell
 
@@ -14,5 +15,9 @@ data class DofusMonster(
     val useSummonSlot: Boolean,
     val canSwitchPos: Boolean,
     val canSwitchPosOnTarget: Boolean,
-    val canBePushed: Boolean
-)
+    val canBePushed: Boolean,
+) {
+    val cachedIcon by lazy {
+        D2PMonstersGfxAdapter.getMonsterImageData(id)
+    }
+}

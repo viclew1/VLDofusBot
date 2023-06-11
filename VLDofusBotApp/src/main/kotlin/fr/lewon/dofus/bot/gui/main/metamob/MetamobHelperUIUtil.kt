@@ -1,19 +1,21 @@
 package fr.lewon.dofus.bot.gui.main.metamob
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
 import fr.lewon.dofus.bot.gui.main.metamob.monsters.MetamobMonsterPainter
+import fr.lewon.dofus.bot.gui.util.getBufferedImage
+import fr.lewon.dofus.bot.gui.util.trimImage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeTypesItemsExchangerDescriptionForUserMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.effects.ObjectEffectDice
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
 import fr.lewon.dofus.bot.util.external.metamob.MetamobRequestProcessor
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.ids.EffectIds
-import java.awt.image.BufferedImage
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -106,7 +108,7 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
     fun loadImagePainter(monster: MetamobMonster) = lock.executeSyncOperation {
         loadedImageUrls.add(monster.imageUrl)
         Thread {
-            val painter = doLoadImage(monster)?.toPainter()
+            val painter = doLoadImage(monster)
             lock.executeSyncOperation {
                 painterByImageUrl[monster.imageUrl] = MetamobMonsterPainter(painter)
             }
@@ -114,8 +116,8 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
     }
 
     @Synchronized
-    private fun doLoadImage(monster: MetamobMonster): BufferedImage? {
-        return MetamobRequestProcessor.getImage(monster.imageUrl)
+    private fun doLoadImage(monster: MetamobMonster): Painter? {
+        return MetamobMonstersHelper.getDofusMonster(monster)?.cachedIcon?.getBufferedImage()?.trimImage()?.toPainter()
     }
 
     fun updateFilter(filter: MonsterFilter, newValue: String) {

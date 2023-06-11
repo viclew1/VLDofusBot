@@ -6,9 +6,12 @@ import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.awt.image.ConvolveOp
 import java.awt.image.Kernel
+import java.awt.image.Raster
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 import javax.swing.ImageIcon
+import kotlin.math.max
+import kotlin.math.min
 
 
 object ImageUtil {
@@ -80,6 +83,39 @@ object ImageUtil {
         return blurredImg
     }
 
+    fun trimImage(source: BufferedImage): BufferedImage {
+        val minAlpha = 1
+        val srcWidth = source.width
+        val srcHeight = source.height
+        val raster: Raster = source.raster
+        var l = srcWidth
+        var t = srcHeight
+        var r = 0
+        var b = 0
+        var alpha: Int
+        val pixel = IntArray(4)
+        var y = 0
+        while (y < srcHeight) {
+            var x = 0
+            while (x < srcWidth) {
+                raster.getPixel(x, y, pixel)
+                alpha = pixel[3]
+                if (alpha >= minAlpha) {
+                    l = min(x, l)
+                    t = min(y, t)
+                    r = max(x, r)
+                    b = max(y, b)
+                }
+                x++
+            }
+            y++
+        }
+        return if (l > r || t > b) {
+            // No pixels, couldn't trim
+            source
+        } else source.getSubimage(l, t, r - l + 1, b - t + 1)
+    }
+
 }
 
 fun ByteArray.getBufferedImage(): BufferedImage {
@@ -100,4 +136,8 @@ fun ByteArray.getScaledImage(w: Int): BufferedImage {
 
 fun ByteArray.getScaledImageKeepHeight(h: Int): BufferedImage {
     return ImageUtil.getScaledImageKeepHeight(this, h)
+}
+
+fun BufferedImage.trimImage(): BufferedImage {
+    return ImageUtil.trimImage(this)
 }

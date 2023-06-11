@@ -32,6 +32,10 @@ object MetamobMonstersHelper {
         return metamobMonsters.firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
     }
 
+    fun getDofusMonster(monster: MetamobMonster): DofusMonster? {
+        return MonsterManager.getMonsters().firstOrNull { stringEqualsIgnoreCaseAndAccents(it.name, monster.name) }
+    }
+
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
         return lock.executeSyncOperation {
             if (playerResult.rewards.objects.any { ItemIds.SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {

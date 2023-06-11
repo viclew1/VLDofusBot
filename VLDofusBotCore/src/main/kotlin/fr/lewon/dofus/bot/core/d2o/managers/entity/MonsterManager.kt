@@ -56,8 +56,9 @@ object MonsterManager : VldbManager {
         return listOf(SpellManager, CharacteristicManager)
     }
 
-    fun getMonster(monsterId: Double): DofusMonster {
-        return monsterById[monsterId] ?: error("No monster for id : $monsterId")
-    }
+    fun getMonsters() = monsterById.values.toList()
+
+    fun getMonster(monsterId: Double) = monsterById[monsterId]
+        ?: error("No monster for id : $monsterId")
 
 }

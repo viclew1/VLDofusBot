@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
@@ -20,8 +21,6 @@ import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import kotlinx.coroutines.delay
-
-private val backgroundColor = Color(0xFFf5ecdd)
 
 @Composable
 fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
@@ -47,13 +46,12 @@ fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
     }
     val content = remember {
         movableContentOf {
-            Column(Modifier.grayBoxStyle().background(backgroundColor)) {
+            Column(Modifier.grayBoxStyle().background(Color.DarkGray)) {
                 Box(Modifier.fillMaxSize().weight(1f)) {
                     monsterPainter.value?.painter?.let {
                         Image(
                             it, "",
-                            Modifier.fillMaxHeight().padding(top = 25.dp, end = 5.dp, bottom = 5.dp)
-                                .align(Alignment.CenterEnd)
+                            Modifier.fillMaxHeight().align(Alignment.CenterEnd).padding(5.dp).padding(end = 10.dp)
                         )
                     }
                     Row(Modifier.fillMaxSize()) {
@@ -64,15 +62,29 @@ fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
                                 else -> "/"
                             }
                             SelectionContainer {
-                                CommonText(monster.name, Modifier.padding(4.dp), enabledColor = Color.Black)
+                                CommonText(
+                                    monster.name,
+                                    Modifier.padding(4.dp),
+                                    enabledColor = Color.White,
+                                    fontSize = 12.sp
+                                )
                             }
-                            CommonText("Owned : ${monster.amount}", Modifier.padding(4.dp), enabledColor = Color.Black)
-                            CommonText("Status : $status", Modifier.padding(4.dp), enabledColor = Color.Black)
+                            CommonText(
+                                "Owned : ${monster.amount}", Modifier.padding(4.dp), enabledColor = Color.White,
+                                fontSize = 12.sp
+                            )
+                            CommonText(
+                                "Status : $status", Modifier.padding(4.dp), enabledColor = Color.White,
+                                fontSize = 12.sp
+                            )
                             if (monster.type == MetamobMonsterType.ARCHMONSTER) {
                                 val monsterPrice = MetamobHelperUIUtil.getPrice(monster)
                                     ?.let { "${"%,d".format(it)} K" }
                                     ?: "/"
-                                CommonText("Price : $monsterPrice", Modifier.padding(4.dp), enabledColor = Color.Black)
+                                CommonText(
+                                    "Price : $monsterPrice", Modifier.padding(4.dp), enabledColor = Color.White,
+                                    fontSize = 12.sp
+                                )
                             }
                         }
                     }

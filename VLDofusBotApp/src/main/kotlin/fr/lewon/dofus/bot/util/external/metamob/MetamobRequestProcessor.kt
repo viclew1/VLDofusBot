@@ -4,12 +4,9 @@ import fr.lewon.dofus.bot.util.external.AbstractRequestProcessor
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterUpdate
 import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
-import java.awt.image.BufferedImage
 import java.net.HttpURLConnection
-import java.net.URL
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import javax.imageio.ImageIO
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
@@ -23,15 +20,6 @@ object MetamobRequestProcessor : AbstractRequestProcessor("https://api.metamob.f
     @Synchronized
     fun getAllMonsters(): List<MetamobMonster>? {
         return getForObject("$USERS${getMetamobUsername()}$MONSTERS")
-    }
-
-    @Synchronized
-    fun getImage(imageUrl: String): BufferedImage? {
-        return try {
-            ImageIO.read(URL(imageUrl))
-        } catch (t: Throwable) {
-            null
-        }
     }
 
     @Synchronized

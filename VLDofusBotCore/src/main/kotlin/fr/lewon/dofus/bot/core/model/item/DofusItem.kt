@@ -12,6 +12,6 @@ data class DofusItem(
     val realWeight: Int
 ) {
     val cachedIcon by lazy {
-        D2PItemsGfxAdapter.getItemGfxImageData(iconId.toDouble())
+        D2PItemsGfxAdapter.getItemIconData(iconId.toDouble())
     }
 }
