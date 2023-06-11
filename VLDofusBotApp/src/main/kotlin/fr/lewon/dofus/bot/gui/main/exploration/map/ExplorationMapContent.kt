@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.defaultHoverManager
+import fr.lewon.dofus.bot.gui.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.MapDrawCell
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.WorldMapHelperOverlay
@@ -48,12 +49,17 @@ import kotlin.math.min
 private val cap = StrokeCap.Square
 private val blendMode = BlendMode.Src
 private val colorByMapId = mutableStateOf(HashMap<Double, Color>())
+private const val characterIconSize = 3f
+private const val characterIconDelta = (characterIconSize - 1f) / 2f
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExplorationMapContent() {
     val mapAvailableSize = remember { mutableStateOf(Size.Zero) }
-    Box(Modifier.fillMaxSize().clip(RectangleShape).pointerInput(Unit) {
+    val modifier = if (ExplorationUIUtil.mapUIState.value.hoveredMapDrawCell != null) {
+        Modifier.handPointerIcon()
+    } else Modifier
+    Box(modifier.fillMaxSize().clip(RectangleShape).pointerInput(Unit) {
         detectDragGestures(
             onDrag = { _, dragAmount ->
                 calculateOffset(dragAmount, mapAvailableSize.value)
@@ -78,7 +84,7 @@ fun ExplorationMapContent() {
             }
         }
     }.onClick {
-        ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(selectedSubAreaId = null)
+        ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(selectedMapDrawCell = null)
     }.onGloballyPositioned {
         mapAvailableSize.value = it.size.toSize()
         calculateOffset(Offset.Zero, it.size.toSize())
@@ -167,7 +173,7 @@ private fun CellsContent() {
     }.pointerInput(Unit) {
         detectTapGestures {
             ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
-                selectedSubAreaId = getMapDrawCell(it)?.subAreaId
+                selectedMapDrawCell = getMapDrawCell(it)
             )
         }
     }) {
@@ -188,10 +194,18 @@ private fun getColor(mapId: Double): Color = colorByMapId.value[mapId] ?: Color.
 @Composable
 private fun SelectedSubAreaOverlay() {
     Canvas(Modifier.fillMaxSize()) {
-        ExplorationUIUtil.mapUIState.value.selectedSubAreaId?.let { selectedSubAreaId ->
-            drawSubArea(selectedSubAreaId, AppColors.primaryDarkColor, 1.8f)
+        val mapUiStateValue = ExplorationUIUtil.mapUIState.value
+        val selectedMapDrawCell = mapUiStateValue.selectedMapDrawCell
+        val selectedSubAreaId = selectedMapDrawCell?.subAreaId
+        val hoveredMapDrawCell = mapUiStateValue.hoveredMapDrawCell
+        mapUiStateValue.areaExploredByCharacter.forEach { (character, subArea) ->
+            val wallWidth = if (selectedSubAreaId == subArea.id || hoveredMapDrawCell?.subAreaId == subArea.id) {
+                4f
+            } else 2f
+            drawSubArea(subArea.id, Color.Yellow, wallWidth)
         }
-        ExplorationUIUtil.mapUIState.value.hoveredMapDrawCell?.let { hoveredMapDrawCell ->
+        selectedSubAreaId?.let { drawSubArea(selectedSubAreaId, AppColors.primaryDarkColor, 1.8f) }
+        hoveredMapDrawCell?.let {
             drawSubArea(hoveredMapDrawCell.subAreaId, AppColors.primaryColor, 1.5f)
             drawCell(hoveredMapDrawCell, Stroke(1f), AppColors.primaryDarkColor)
         }
@@ -212,9 +226,9 @@ private fun CharactersContent() {
                     Image(
                         BreedAssetManager.getAssets(characterUiState.dofusClassId).simpleIconPainter,
                         "",
-                        modifier = Modifier.size(ExplorationUIUtil.CELL_SIZE.dp * 2).offset(
-                            priorityMapDrawCell.topLeft.x.dp - ExplorationUIUtil.CELL_SIZE.dp / 2,
-                            priorityMapDrawCell.topLeft.y.dp - ExplorationUIUtil.CELL_SIZE.dp / 2
+                        modifier = Modifier.size((ExplorationUIUtil.CELL_SIZE * characterIconSize).dp).offset(
+                            priorityMapDrawCell.topLeft.x.dp - (ExplorationUIUtil.CELL_SIZE * characterIconDelta).dp,
+                            priorityMapDrawCell.topLeft.y.dp - (ExplorationUIUtil.CELL_SIZE * characterIconDelta).dp
                         )
                     )
                 }

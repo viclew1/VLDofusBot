@@ -8,10 +8,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
+import fr.lewon.dofus.bot.gui.util.UiResource
 import java.awt.Color
 import java.awt.Graphics2D
 
-abstract class WorldMapHelper {
+abstract class WorldMapHelper(val name: String, val icon: UiResource) {
 
     val displayedSubAreas: List<DofusSubArea>
     val mapDrawCellsBySubAreaId: Map<Double, List<MapDrawCell>>
@@ -69,8 +70,9 @@ abstract class WorldMapHelper {
 
     fun getPriorityMapDrawCell(x: Int, y: Int): MapDrawCell? {
         val maps = MapManager.getDofusMaps(x, y).filter(this::isMapValid)
-        val mapId = maps.firstOrNull { it.subArea.id == ExplorationUIUtil.mapUIState.value.selectedSubAreaId }?.id
-            ?: getPriorityMap(maps.filter { displayedSubAreas.contains(it.subArea) })?.id
+        val mapId = maps.firstOrNull {
+            it.subArea.id == ExplorationUIUtil.mapUIState.value.selectedMapDrawCell?.subAreaId
+        }?.id ?: getPriorityMap(maps.filter { displayedSubAreas.contains(it.subArea) })?.id
         return mapDrawCellByMapId[mapId]
     }
 

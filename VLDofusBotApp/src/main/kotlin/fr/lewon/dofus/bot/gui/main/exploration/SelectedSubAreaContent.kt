@@ -3,10 +3,11 @@ package fr.lewon.dofus.bot.gui.main.exploration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
@@ -21,24 +22,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
-import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.*
+import fr.lewon.dofus.bot.gui.main.exploration.map.subarea.SubAreaContent
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
-import fr.lewon.dofus.bot.scripts.impl.ExploreAreaScriptBuilder
-import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
-import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
-import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RowScope.SelectedSubAreaContent() {
-    val selectedSubAreaId = ExplorationUIUtil.mapUIState.value.selectedSubAreaId
+    val selectedSubAreaId = ExplorationUIUtil.mapUIState.value.selectedMapDrawCell?.subAreaId
     val subAreaState = remember { mutableStateOf<DofusSubArea?>(null) }
     AnimatedVisibility(
         visible = selectedSubAreaId != null,
@@ -57,67 +53,9 @@ fun RowScope.SelectedSubAreaContent() {
             if (subArea != null) {
                 ExplorationScriptLauncherContent(subArea)
                 Spacer(Modifier.height(5.dp))
-                SubAreaMonstersContent(subArea)
+                SubAreaContent(subArea)
             }
         }
-    }
-}
-
-@Composable
-private fun SubAreaMonstersContent(subArea: DofusSubArea) {
-    Box(Modifier.fillMaxSize().darkGrayBoxStyle()) {
-        val state = rememberScrollState()
-        Column(Modifier.fillMaxSize().padding(5.dp).padding(end = 8.dp).verticalScroll(state)) {
-            if (subArea.monsters.isEmpty()) {
-                CommonText(
-                    "No monster in this sub area",
-                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp)
-                )
-            } else {
-                MonsterListContent("Monsters", subArea.monsters.filter { !it.isMiniBoss && !it.isQuestMonster })
-                MonsterListContent("Archmonsters", subArea.monsters.filter { it.isMiniBoss })
-                MonsterListContent("Quest monsters", subArea.monsters.filter { it.isQuestMonster })
-            }
-        }
-        VerticalScrollbar(
-            modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd)
-                .background(AppColors.backgroundColor),
-            adapter = rememberScrollbarAdapter(state),
-        )
-    }
-}
-
-@Composable
-private fun MonsterListContent(title: String, monsters: List<DofusMonster>) {
-    if (monsters.isNotEmpty()) {
-        HorizontalSeparator(title, Modifier.padding(vertical = 10.dp))
-        for (monster in monsters) {
-            Row {
-                OwnedIndicatorContent(monster)
-                Spacer(Modifier.width(5.dp))
-                CommonText(monster.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.OwnedIndicatorContent(monster: DofusMonster) {
-    if (MetamobHelperUIUtil.refreshingMonsters.value) {
-        Box(Modifier.requiredSize(8.dp).align(Alignment.CenterVertically)) {
-            CircularProgressIndicator(Modifier.fillMaxSize(), color = AppColors.primaryColor)
-        }
-    } else {
-        val simultaneousOchers = MetamobConfigManager.readConfig().getSafeSimultaneousOchers()
-        val allMetamobMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
-        val metamobMonster = MetamobMonstersHelper.getMetamobMonster(monster, allMetamobMonsters)
-        val color = when {
-            metamobMonster == null -> Color.White
-            metamobMonster.amount >= simultaneousOchers -> AppColors.GREEN
-            metamobMonster.amount > 0 -> AppColors.ORANGE
-            else -> AppColors.RED
-        }
-        CommonText(metamobMonster?.amount?.toString() ?: "/", enabledColor = color)
     }
 }
 
@@ -151,21 +89,7 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                 Spacer(Modifier.fillMaxWidth().weight(1f))
                 Row(Modifier.size(25.dp)) {
                     ButtonWithTooltip(
-                        onClick = {
-                            ExplorationUIUtil.explorerUIState.value.selectedCharacterName?.let { characterName ->
-                                CharacterManager.getCharacter(characterName)?.let { character ->
-                                    val scriptValues = ScriptValues()
-                                    ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName.forEach {
-                                        scriptValues.updateParamValue(it.key, it.value)
-                                    }
-                                    scriptValues.updateParamValue(
-                                        ExploreAreaScriptBuilder.subAreaParameter,
-                                        subArea.label
-                                    )
-                                    ScriptRunner.runScript(character, ExploreAreaScriptBuilder, scriptValues)
-                                }
-                            }
-                        },
+                        onClick = { ExplorationUIUtil.startExploration(subArea) },
                         title = "",
                         shape = RoundedCornerShape(15),
                         hoverBackgroundColor = Color.Gray,
@@ -204,9 +128,10 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                 }
             }
             HorizontalSeparator()
-            for ((parameter, value) in ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName) {
+            for ((parameter, value) in ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByParameter) {
                 Row(Modifier.padding(vertical = 5.dp)) {
-                    Column(Modifier.fillMaxWidth(0.7f).align(Alignment.CenterVertically)) {
+                    val widthRatio = if (parameter.type == DofusBotParameterType.CHOICE) 0.5f else 0.7f
+                    Column(Modifier.fillMaxWidth(widthRatio).align(Alignment.CenterVertically)) {
                         CommonText(parameter.key)
                     }
                     Spacer(Modifier.width(10.dp))
@@ -217,7 +142,7 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
                         getParamValue = { value },
                         onParamUpdate = {
                             ExplorationUIUtil.explorerUIState.value = ExplorationUIUtil.explorerUIState.value.copy(
-                                explorationParameterValuesByName = ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByName
+                                explorationParameterValuesByParameter = ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByParameter
                                     .plus(parameter to it)
                             )
                         }

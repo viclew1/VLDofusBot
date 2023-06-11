@@ -17,6 +17,8 @@ object ItemManager : VldbManager {
             val name = I18NUtil.getLabel(nameId) ?: "UNKNOWN ITEM NAME"
             val iconId = it["iconId"].toString().toInt()
             val typeId = it["typeId"].toString().toInt()
+            val level = it["level"].toString().toInt()
+            val realWeight = it["realWeight"].toString().toInt()
             val possibleEffects = (it["possibleEffects"] as List<Map<String, Any>>).map { possibleEffect ->
                 val effectId = possibleEffect["effectId"].toString().toInt()
                 val effect = EffectManager.getEffect(effectId)
@@ -30,7 +32,7 @@ object ItemManager : VldbManager {
                     characteristic.categoryId * Short.MAX_VALUE.toInt() + characteristic.order
                 } else Int.MAX_VALUE
             }
-            id to DofusItem(id, name, iconId, typeId, possibleEffects)
+            id to DofusItem(id, name, iconId, typeId, possibleEffects, level, realWeight)
         }
     }
 

@@ -19,6 +19,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +29,7 @@ import fr.lewon.dofus.bot.core.model.item.DofusEffect
 import fr.lewon.dofus.bot.core.model.item.DofusItem
 import fr.lewon.dofus.bot.core.model.item.DofusItemEffect
 import fr.lewon.dofus.bot.gui.custom.*
+import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.gui.util.toPainter
@@ -59,21 +61,26 @@ fun ItemFiltersContent() {
 
 @Composable
 private fun Header(item: DofusItem?) {
-    Row {
-        Column {
+    Row(Modifier.height(90.dp)) {
+        Column(Modifier.fillMaxWidth().weight(1f)) {
             CommonText(
-                "Item : ${item?.name ?: "/"}",
-                modifier = Modifier.padding(10.dp),
-                fontWeight = FontWeight.SemiBold
+                item?.name ?: "No item selected",
+                modifier = Modifier.padding(start = 10.dp, top = 10.dp),
+                fontWeight = FontWeight.SemiBold,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
-            CommonText(AuctionHouseItemFinderUIUtil.getLastPriceUpdateTime(), modifier = Modifier.padding(10.dp))
+            CommonText(
+                AuctionHouseItemFinderUIUtil.getLastPriceUpdateTime(),
+                modifier = Modifier.padding(start = 10.dp, top = 10.dp),
+            )
         }
-        Spacer(Modifier.fillMaxWidth().weight(1f))
-        if (false) { // Enable when swf images decompiling will be implemented
-            Box(
-                Modifier.size(50.dp).border(BorderStroke(1.dp, Color.LightGray)).align(Alignment.CenterVertically)
-                    .padding(end = 5.dp)
-            ) {
+        TooltipTarget(
+            item?.name ?: "", modifier = Modifier.fillMaxHeight().width(90.dp).padding(5.dp)
+                .border(BorderStroke(1.dp, Color.Gray))
+                .align(Alignment.CenterVertically)
+        ) {
+            Box(Modifier.fillMaxSize().padding(5.dp)) {
                 if (item != null) {
                     val gfxImageData = D2PItemsGfxAdapter.getItemGfxImageData(item.iconId.toDouble())
                     Image(gfxImageData.toPainter(), "", Modifier.fillMaxSize())

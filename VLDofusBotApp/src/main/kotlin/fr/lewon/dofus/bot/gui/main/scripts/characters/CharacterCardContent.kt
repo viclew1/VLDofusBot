@@ -71,7 +71,7 @@ private fun CardMainContent(characterUIState: MutableState<CharacterUIState>, se
 }
 
 @Composable
-fun getTextColor(selected: Boolean): Color {
+private fun getTextColor(selected: Boolean): Color {
     val color = if (selected) Color.Black else Color.White
     return animateColorAsState(color).value
 }
@@ -97,6 +97,17 @@ private fun HoverButtons(characterUIState: MutableState<CharacterUIState>, isHov
 }
 
 @Composable
+private fun DeleteButton(characterUIState: MutableState<CharacterUIState>) {
+    ButtonWithTooltip(
+        { CharacterManager.removeCharacter(characterUIState.value.name) },
+        "Delete",
+        Icons.Default.Close,
+        CustomShapes.buildTrapezoidShape(bottomLeftDeltaRatio = 0.15f),
+        AppColors.RED
+    )
+}
+
+@Composable
 private fun GlobalScriptSelectedCheckbox(characterUIState: MutableState<CharacterUIState>) {
     AnimatedVisibility(
         visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.GLOBAL,
@@ -118,15 +129,4 @@ private fun GlobalScriptSelectedCheckbox(characterUIState: MutableState<Characte
             )
         }
     }
-}
-
-@Composable
-private fun DeleteButton(characterUIState: MutableState<CharacterUIState>) {
-    ButtonWithTooltip(
-        { CharacterManager.removeCharacter(characterUIState.value.name) },
-        "Delete",
-        Icons.Default.Close,
-        CustomShapes.buildTrapezoidShape(bottomLeftDeltaRatio = 0.15f),
-        AppColors.RED
-    )
 }

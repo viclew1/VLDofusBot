@@ -26,7 +26,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     }
 
     override fun onCharacterDelete(character: DofusCharacter) {
-        // Nothing
+        removeListeners(character)
     }
 
     override fun onCharacterUpdate(character: DofusCharacter) {

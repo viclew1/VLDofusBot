@@ -24,6 +24,10 @@ enum class UiResource(path: String) {
     WEIGHT("/icon/ui/weight.png"),
     SPELLS("/icon/ui/spells.png"),
     CHAT("/icon/ui/chat.png"),
+    LOWER_LAYER("/icon/ui/lower_layer.png"),
+    UPPER_LAYER("/icon/ui/upper_layer.png"),
+    JOBS("/icon/ui/jobs.png"),
+    MONSTERS("/icon/ui/monsters.png"),
     ZAAP("/icon/ui/zaap.png"),
     ;
 

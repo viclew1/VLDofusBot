@@ -5,13 +5,13 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
-import fr.lewon.dofus.bot.model.jobs.Jobs
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
 import fr.lewon.dofus.bot.util.StringUtil
+import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
@@ -100,38 +100,25 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     )
 
     val harvestParameter = DofusBotParameter(
-        "Harvest resources",
-        "Harvest any resource found",
-        "false",
-        DofusBotParameterType.BOOLEAN,
+        "Harvestable set",
+        "Harvest any resource in this set",
+        HarvestableSetsManager.defaultHarvestableIdsBySetName.keys.first(),
+        DofusBotParameterType.CHOICE,
+        possibleValues = HarvestableSetsManager.getHarvestableIdsBySetName().keys.toList(),
         parametersGroup = 5
     )
 
-    val harvestJobParameterByJob = Jobs.values().associateWith { job ->
-        DofusBotParameter(
-            "Harvest [${job.name}] resources",
-            "",
-            "true",
-            DofusBotParameterType.BOOLEAN,
-            Jobs.values().map { it.name },
-            displayCondition = { it.getParamValue(harvestParameter) == "true" },
-            parametersGroup = 5
-        )
-    }
-
-    override fun getParameters(): List<DofusBotParameter> {
-        return listOf(
-            currentAreaParameter,
-            subAreaParameter,
-            stopWhenArchMonsterFoundParameter,
-            stopWhenQuestMonsterFoundParameter,
-            searchedMonsterParameter,
-            runForeverParameter,
-            killEverythingParameter,
-            ignoreMapsExploredRecentlyParameter,
-            harvestParameter,
-        ).plus(harvestJobParameterByJob.values)
-    }
+    override fun getParameters(): List<DofusBotParameter> = listOf(
+        currentAreaParameter,
+        subAreaParameter,
+        stopWhenArchMonsterFoundParameter,
+        stopWhenQuestMonsterFoundParameter,
+        searchedMonsterParameter,
+        runForeverParameter,
+        killEverythingParameter,
+        ignoreMapsExploredRecentlyParameter,
+        harvestParameter,
+    )
 
     override fun getStats(): List<DofusBotScriptStat> {
         return emptyList()
@@ -149,9 +136,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             val subAreaParameterValue = scriptValues.getParamValue(subAreaParameter)
             SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
         }
-        val jobsToHarvest = if (scriptValues.getParamValue(harvestParameter).toBoolean()) {
-            Jobs.values().filter { shouldHarvestJob(it, scriptValues) }
-        } else emptyList()
+        val harvestableSetName = scriptValues.getParamValue(harvestParameter)
+        val itemIdsToHarvest = HarvestableSetsManager.getItemsToHarvest(harvestableSetName)
         ExploreSubAreaTask(
             subArea,
             killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
@@ -160,13 +146,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
             runForever = scriptValues.getParamValue(runForeverParameter).toBoolean(),
             explorationThresholdMinutes = scriptValues.getParamValue(ignoreMapsExploredRecentlyParameter).toInt(),
-            jobsToHarvest = jobsToHarvest
+            itemIdsToHarvest = itemIdsToHarvest
         ).run(logItem, gameInfo)
-    }
-
-    private fun shouldHarvestJob(job: Jobs, scriptValues: ScriptValues): Boolean {
-        val jobParameter = harvestJobParameterByJob[job] ?: return false
-        return scriptValues.getParamValue(jobParameter).toBoolean()
     }
 
 }

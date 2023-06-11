@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.gui.main.devtools
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
@@ -18,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.gui.custom.*
-import fr.lewon.dofus.bot.gui.main.scripts.characters.getTextColor
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.StringUtil
 
@@ -98,6 +98,12 @@ private fun D2OModuleCardContent(d2oModuleName: String, uiState: DevToolsUiState
             }
         }
     }
+}
+
+@Composable
+private fun getTextColor(selected: Boolean): Color {
+    val color = if (selected) Color.Black else Color.White
+    return animateColorAsState(color).value
 }
 
 @Composable

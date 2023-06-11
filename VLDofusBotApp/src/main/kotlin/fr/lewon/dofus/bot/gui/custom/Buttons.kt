@@ -90,18 +90,20 @@ fun ButtonWithTooltip(
     imageModifier: Modifier = Modifier,
     enabled: Boolean = true,
     isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
-    iconColor: Color = Color.White
+    iconColor: Color = Color.White,
+    delayMillis: Int = 1000,
 ) {
     ButtonWithTooltip(
-        onClick,
-        title,
-        shape,
-        hoverBackgroundColor,
-        defaultBackgroundColor,
-        hoverAnimation,
-        width,
-        enabled,
-        isHovered
+        onClick = onClick,
+        title = title,
+        shape = shape,
+        hoverBackgroundColor = hoverBackgroundColor,
+        defaultBackgroundColor = defaultBackgroundColor,
+        hoverAnimation = hoverAnimation,
+        width = width,
+        enabled = enabled,
+        isHovered = isHovered,
+        delayMillis = delayMillis,
     ) {
         Box(Modifier.fillMaxSize()) {
             Image(
@@ -128,17 +130,19 @@ fun ButtonWithTooltip(
     imageModifier: Modifier = Modifier,
     enabled: Boolean = true,
     isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
+    delayMillis: Int = 1000,
 ) {
     ButtonWithTooltip(
-        onClick,
-        title,
-        shape,
-        hoverBackgroundColor,
-        defaultBackgroundColor,
-        hoverAnimation,
-        width,
-        enabled,
-        isHovered
+        onClick = onClick,
+        title = title,
+        shape = shape,
+        hoverBackgroundColor = hoverBackgroundColor,
+        defaultBackgroundColor = defaultBackgroundColor,
+        hoverAnimation = hoverAnimation,
+        width = width,
+        enabled = enabled,
+        isHovered = isHovered,
+        delayMillis = delayMillis
     ) {
         Box(Modifier.fillMaxSize()) {
             Image(
@@ -161,6 +165,7 @@ fun ButtonWithTooltip(
     width: Dp = 30.dp,
     enabled: Boolean = true,
     isHovered: MutableState<Boolean> = remember { mutableStateOf(false) },
+    delayMillis: Int = 1000,
     content: @Composable () -> Unit
 ) {
     val angle = animateFloatAsState(
@@ -171,7 +176,7 @@ fun ButtonWithTooltip(
         )
     )
     Row(Modifier.width(width).defaultHoverManager(isHovered)) {
-        TooltipTarget(title, 20.dp, 1000, modifier = Modifier.fillMaxSize()) {
+        TooltipTarget(title, 20.dp, delayMillis, modifier = Modifier.fillMaxSize()) {
             Button(
                 onClick,
                 shape = shape,
