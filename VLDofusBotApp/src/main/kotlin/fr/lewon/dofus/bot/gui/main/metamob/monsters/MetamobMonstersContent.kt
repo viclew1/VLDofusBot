@@ -145,7 +145,7 @@ fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
             }
             if (tradeMonstersState.value.isEmpty()) {
                 CommonText(
-                    "Drag monsters here to add them to the trade.",
+                    "Drag archmonsters here to add them to the trade.",
                     modifier = Modifier.padding(10.dp).align(Alignment.Center)
                 )
             } else {

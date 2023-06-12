@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.d2p.gfx.D2PMonstersGfxAdapter
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
@@ -116,8 +117,11 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
     }
 
     @Synchronized
-    private fun doLoadImage(monster: MetamobMonster): Painter? {
-        return MetamobMonstersHelper.getDofusMonster(monster)?.cachedIcon?.getBufferedImage()?.trimImage()?.toPainter()
+    private fun doLoadImage(metamobMonster: MetamobMonster): Painter? {
+        val monster = MetamobMonstersHelper.getDofusMonster(metamobMonster)
+            ?: return null
+        val iconData = D2PMonstersGfxAdapter.getMonsterImageData(monster.id)
+        return iconData.getBufferedImage().trimImage().toPainter()
     }
 
     fun updateFilter(filter: MonsterFilter, newValue: String) {
