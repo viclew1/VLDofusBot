@@ -16,6 +16,7 @@ import fr.lewon.dofus.bot.gui.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.main.DragTarget
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
+import fr.lewon.dofus.bot.gui.main.metamob.MetamobMonsterImageCache
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
@@ -34,21 +35,21 @@ fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
         key = key
     )
 ) {
-    val monsterPainter = rememberSaveable { mutableStateOf(MetamobHelperUIUtil.getMonsterPainter(monster)) }
+    val monsterPainter = rememberSaveable { mutableStateOf(MetamobMonsterImageCache.getPainter(monster)) }
     LaunchedEffect(Unit) {
-        if (!MetamobHelperUIUtil.isLoaded(monster.imageUrl)) {
-            MetamobHelperUIUtil.loadImagePainter(monster)
+        if (!MetamobMonsterImageCache.isLoaded(monster)) {
+            MetamobMonsterImageCache.loadImagePainter(monster)
         }
         while (monsterPainter.value == null) {
             delay(100)
-            monsterPainter.value = MetamobHelperUIUtil.getMonsterPainter(monster)
+            monsterPainter.value = MetamobMonsterImageCache.getPainter(monster)
         }
     }
     val content = remember {
         movableContentOf {
             Column(Modifier.grayBoxStyle().background(Color.DarkGray)) {
                 Box(Modifier.fillMaxSize().weight(1f)) {
-                    monsterPainter.value?.painter?.let {
+                    monsterPainter.value?.let {
                         Image(
                             it, "",
                             Modifier.fillMaxHeight().align(Alignment.CenterEnd).padding(5.dp).padding(end = 10.dp)

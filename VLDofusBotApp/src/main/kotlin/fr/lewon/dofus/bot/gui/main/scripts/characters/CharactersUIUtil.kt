@@ -302,6 +302,11 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
         }
     }
 
+    fun updateHint(character: DofusCharacter, hintName: String?) = lock.executeSyncOperation {
+        val uiState = getCharacterUIState(character.name)
+        uiState.value = uiState.value.copy(currentHintName = hintName)
+    }
+
     fun refreshSkin(characterName: String, newFlashVars: String? = null) {
         lock.executeSyncOperation {
             val characterUIState = getCharacterUIState(characterName)

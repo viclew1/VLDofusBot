@@ -47,12 +47,16 @@ object TreasureHintManager : ToInitManager {
 
     fun isPointOfInterestOnMap(map: DofusMap, pointOfInterest: DofusPointOfInterest): Boolean {
         val gfxIds = gfxIdsByPoiLabel[pointOfInterest.label] ?: error("Unknown POI element")
-        return D2PMapsAdapter.getCompleteCellDataByCellId(map.id)
-            .flatMap { it.value.graphicalElements }
+        val mapData = D2PMapsAdapter.getMapData(map.id)
+        return mapData.completeCellDataByCellId.flatMap { it.value.graphicalElements }
+            .asSequence()
             .filter { isValidGraphicalElement(it) }
             .map { D2PElementsAdapter.getElement(it.elementId) }
             .filterIsInstance<NormalGraphicalElementData>()
             .map { it.gfxId }
+            .plus(mapData.backgroundFixtures.map { it.fixtureId })
+            .plus(mapData.foregroundFixtures.map { it.fixtureId })
+            .toList()
             .intersect(gfxIds)
             .isNotEmpty()
     }
@@ -84,5 +88,18 @@ object TreasureHintManager : ToInitManager {
     fun removeHintGfxMatch(pointOfInterestLabel: String) {
         gfxIdsByPoiLabel.remove(pointOfInterestLabel)
         saveHintStoreContent()
+    }
+
+    fun removeHintGfxMatch(pointOfInterestLabel: String, gfxId: Int) {
+        val gfxIds = gfxIdsByPoiLabel.computeIfAbsent(pointOfInterestLabel) { HashSet() }
+        gfxIds.remove(gfxId)
+        if (gfxIds.isEmpty()) {
+            gfxIdsByPoiLabel.remove(pointOfInterestLabel)
+        }
+        saveHintStoreContent()
+    }
+
+    fun getGfxIdsByPoiLabel(): GfxIdsByPoiLabel {
+        return GfxIdsByPoiLabel(gfxIdsByPoiLabel)
     }
 }

@@ -36,7 +36,7 @@ object InteractiveUtil {
     private val INVALID_SKILL_IDS = listOf(339, 360, 361, 362)
 
     fun getElementCellData(gameInfo: GameInfo, interactiveElement: InteractiveElement): CompleteCellData =
-        gameInfo.completeCellDataByCellId.values
+        gameInfo.mapData.completeCellDataByCellId.values
             .firstOrNull { it.graphicalElements.map { ge -> ge.identifier }.contains(interactiveElement.elementId) }
             ?: error("No cell data found for element : ${interactiveElement.elementId}")
 

@@ -45,7 +45,7 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
     private fun logTransitions(mapLogItem: LogItem, gameInfo: GameInfo) {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: return
-        val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
+        val cellData = gameInfo.mapData.completeCellDataByCellId[playerCellId]?.cellData
             ?: return
         val currentVertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
             ?: return

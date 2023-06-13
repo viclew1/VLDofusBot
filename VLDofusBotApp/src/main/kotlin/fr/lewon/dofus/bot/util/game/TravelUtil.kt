@@ -25,7 +25,7 @@ object TravelUtil {
     fun getPath(gameInfo: GameInfo, destMaps: List<DofusMap>): List<Transition>? {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player cell id (player ID : ${gameInfo.playerId})")
-        val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
+        val cellData = gameInfo.mapData.completeCellDataByCellId[playerCellId]?.cellData
             ?: error("Couldn't find cell data (cell ID : $playerCellId)")
         return WorldGraphUtil.getPath(
             gameInfo.currentMap,

@@ -42,7 +42,7 @@ object GfxOverlay : AbstractMapOverlay() {
         }
 
         override fun getCellContentInfo(cell: DofusCell): List<OverlayInfoLine>? {
-            val graphicalElements = gameInfo.completeCellDataByCellId[cell.cellId]?.graphicalElements
+            val graphicalElements = gameInfo.mapData.completeCellDataByCellId[cell.cellId]?.graphicalElements
                 ?: return null
             val lines = ArrayList<OverlayInfoLine>()
             lines.add(OverlayTextLine("Cell ID : ${cell.cellId}", 14))

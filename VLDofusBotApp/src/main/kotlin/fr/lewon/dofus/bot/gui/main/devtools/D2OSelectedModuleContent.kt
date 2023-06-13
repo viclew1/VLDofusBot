@@ -124,7 +124,7 @@ private fun ExpandedModuleItem(moduleItem: ModuleItem, expanded: Boolean, onRedu
             maxHeight = 250.dp,
             key = moduleItem
         ) {
-            SelectionContainer {
+            SelectionContainer(Modifier.padding(5.dp)) {
                 Column {
                     moduleItem.id?.let { CommonText("Id : $it") }
                     moduleItem.name?.let { CommonText("Name : $it") }

@@ -46,7 +46,7 @@ open class ReachMapTask(private val destMaps: List<DofusMap>) : BooleanDofusBotT
     private fun getCurrentVertex(gameInfo: GameInfo): Vertex? {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player cell id (player ID : ${gameInfo.playerId})")
-        val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
+        val cellData = gameInfo.mapData.completeCellDataByCellId[playerCellId]?.cellData
             ?: error("Couldn't find cell data (cell ID : $playerCellId)")
         return WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
     }

@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.gui.main.jobs.JobsContent
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperContent
 import fr.lewon.dofus.bot.gui.main.scripts.ScriptsContent
 import fr.lewon.dofus.bot.gui.main.settings.SettingsContent
+import fr.lewon.dofus.bot.gui.main.treasure.TreasureHuntHintsContent
 import fr.lewon.dofus.bot.gui.util.UiResource
 
 enum class MainAppContent(val title: String, val uiResource: UiResource, val content: @Composable () -> Unit) {
@@ -16,6 +17,7 @@ enum class MainAppContent(val title: String, val uiResource: UiResource, val con
     EXPLORATION("Exploration", UiResource.EXPLORATION_HELPER_LOGO, { ExplorationHelperContent() }),
     JOBS("Jobs", UiResource.JOBS, { JobsContent() }),
     AH_ITEM_FINDER("Auction House Item Finder", UiResource.AH_ITEM_FINDER_LOGO, { AuctionHouseItemFinderContent() }),
+    TREASURE_HUNT_HINTS("Treasure Hunt Hints", UiResource.TREASURE_HUNT, { TreasureHuntHintsContent() }),
     DEV_TOOLS("Dev Tools", UiResource.DEV_TOOLS_LOGO, { DevToolsContent() }),
     SETTINGS("Settings", UiResource.SETTINGS_LOGO, { SettingsContent() }),
 }

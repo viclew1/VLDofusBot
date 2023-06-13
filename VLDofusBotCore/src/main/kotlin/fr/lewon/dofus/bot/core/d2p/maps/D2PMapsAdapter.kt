@@ -2,10 +2,7 @@ package fr.lewon.dofus.bot.core.d2p.maps
 
 import fr.lewon.dofus.bot.core.d2p.AbstractLinkedD2PUrlLoaderAdapter
 import fr.lewon.dofus.bot.core.d2p.D2PIndex
-import fr.lewon.dofus.bot.core.d2p.maps.cell.CellData
-import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
-import fr.lewon.dofus.bot.core.d2p.maps.cell.Fixture
-import fr.lewon.dofus.bot.core.d2p.maps.cell.Layer
+import fr.lewon.dofus.bot.core.d2p.maps.cell.*
 import fr.lewon.dofus.bot.core.d2p.maps.element.GraphicalElement
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import java.nio.charset.Charset
@@ -28,7 +25,7 @@ object D2PMapsAdapter : AbstractLinkedD2PUrlLoaderAdapter(true, 77) {
     }
 
     @Synchronized
-    fun getCompleteCellDataByCellId(mapId: Double): HashMap<Int, CompleteCellData> {
+    fun getMapData(mapId: Double): MapData {
         return deserialize(loadFromData(loadStream(mapId)))
     }
 
@@ -38,7 +35,7 @@ object D2PMapsAdapter : AbstractLinkedD2PUrlLoaderAdapter(true, 77) {
         return fileStream.readNBytes(index.length)
     }
 
-    private fun deserialize(bar: ByteArrayReader): HashMap<Int, CompleteCellData> {
+    private fun deserialize(bar: ByteArrayReader): MapData {
         var stream = bar
         val header = stream.readByte().toInt()
         if (header != loaderHeader) {
@@ -88,15 +85,19 @@ object D2PMapsAdapter : AbstractLinkedD2PUrlLoaderAdapter(true, 77) {
         if (mapVersion > 10) {
             val tacticalModeTemplateId = stream.readInt()
         }
+        val backgroundFixtures = ArrayList<Fixture>()
         val backgroundsCount = stream.readUnsignedByte()
         for (i in 0 until backgroundsCount) {
             val fixture = Fixture()
             fixture.deserialize(stream)
+            backgroundFixtures.add(fixture)
         }
+        val foregroundFixtures = ArrayList<Fixture>()
         val foregroundsCount = stream.readUnsignedByte()
         for (i in 0 until foregroundsCount) {
             val fixture = Fixture()
             fixture.deserialize(stream)
+            foregroundFixtures.add(fixture)
         }
         stream.readInt()
         val groundCRC = stream.readInt()
@@ -106,7 +107,7 @@ object D2PMapsAdapter : AbstractLinkedD2PUrlLoaderAdapter(true, 77) {
         for (i in 0 until layersCount) {
             val layer = Layer()
             layer.deserialize(stream, mapVersion)
-            if (layer.layerType == Layer.LayerType.LAYER_DECOR) {
+            if (layer.layerType == Layer.LayerType.LAYER_DECOR || layer.layerType == Layer.LayerType.LAYER_ADDITIONAL_DECOR) {
                 layer.cells.forEach {
                     val graphicalElements = graphicalElementsByCellId.computeIfAbsent(it.cellId) { ArrayList() }
                     graphicalElements.addAll(it.graphicalElements)
@@ -119,7 +120,7 @@ object D2PMapsAdapter : AbstractLinkedD2PUrlLoaderAdapter(true, 77) {
             val graphicalElements = graphicalElementsByCellId[cellId] ?: emptyList()
             completeCellDataById[cellId] = CompleteCellData(cellId, cellData, graphicalElements)
         }
-        return completeCellDataById
+        return MapData(completeCellDataById, backgroundFixtures, foregroundFixtures)
     }
 
 }

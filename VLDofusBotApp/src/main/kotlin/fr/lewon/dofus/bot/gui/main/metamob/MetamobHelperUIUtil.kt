@@ -1,16 +1,9 @@
 package fr.lewon.dofus.bot.gui.main.metamob
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.toPainter
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.core.d2p.gfx.D2PMonstersGfxAdapter
-import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
-import fr.lewon.dofus.bot.gui.main.metamob.monsters.MetamobMonsterPainter
-import fr.lewon.dofus.bot.gui.util.getBufferedImage
-import fr.lewon.dofus.bot.gui.util.trimImage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeTypesItemsExchangerDescriptionForUserMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.effects.ObjectEffectDice
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
@@ -25,8 +18,6 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
 
     val uiState = mutableStateOf(MetamobHelperUIState())
     val refreshingMonsters = mutableStateOf(false)
-    private val loadedImageUrls = ArrayList<String>()
-    private val painterByImageUrl = HashMap<String, MetamobMonsterPainter>()
     private val lock = ReentrantLock()
 
     fun getFilteredMonsters(): List<MetamobMonster> {
@@ -96,32 +87,6 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
             }
         }
         return priceByMonsterId
-    }
-
-    fun getMonsterPainter(monster: MetamobMonster) = lock.executeSyncOperation {
-        painterByImageUrl[monster.imageUrl]
-    }
-
-    fun isLoaded(imageUrl: String) = lock.executeSyncOperation {
-        loadedImageUrls.contains(imageUrl)
-    }
-
-    fun loadImagePainter(monster: MetamobMonster) = lock.executeSyncOperation {
-        loadedImageUrls.add(monster.imageUrl)
-        Thread {
-            val painter = doLoadImage(monster)
-            lock.executeSyncOperation {
-                painterByImageUrl[monster.imageUrl] = MetamobMonsterPainter(painter)
-            }
-        }.start()
-    }
-
-    @Synchronized
-    private fun doLoadImage(metamobMonster: MetamobMonster): Painter? {
-        val monster = MetamobMonstersHelper.getDofusMonster(metamobMonster)
-            ?: return null
-        val iconData = D2PMonstersGfxAdapter.getMonsterImageData(monster.id)
-        return iconData.getBufferedImage().trimImage().toPainter()
     }
 
     fun updateFilter(filter: MonsterFilter, newValue: String) {

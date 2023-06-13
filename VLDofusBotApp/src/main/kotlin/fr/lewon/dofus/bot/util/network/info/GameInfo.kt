@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.network.info
 
 import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
-import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
+import fr.lewon.dofus.bot.core.d2p.maps.cell.MapData
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
@@ -43,7 +43,7 @@ class GameInfo(val character: DofusCharacter) {
     var interactiveElements: List<InteractiveElement> = emptyList()
         get() = interactiveElementsLock.executeSyncOperation { field }
         set(value) = interactiveElementsLock.executeSyncOperation { field = value }
-    var completeCellDataByCellId = HashMap<Int, CompleteCellData>()
+    var mapData = MapData(emptyMap(), emptyList(), emptyList())
     val entityIdByNpcId = HashMap<Int, Double>()
     val monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()
     val entityPositionsOnMapByEntityId = HashMap<Double, Int>()
@@ -88,8 +88,8 @@ class GameInfo(val character: DofusCharacter) {
 
     @Synchronized
     fun updateCellData(mapId: Double) {
-        completeCellDataByCellId = D2PMapsAdapter.getCompleteCellDataByCellId(mapId)
-        dofusBoard.updateCells(completeCellDataByCellId.values.map { it.cellData })
+        mapData = D2PMapsAdapter.getMapData(mapId)
+        dofusBoard.updateCells(mapData.completeCellDataByCellId.values.map { it.cellData })
         LOSOverlay.updateOverlay(this)
     }
 

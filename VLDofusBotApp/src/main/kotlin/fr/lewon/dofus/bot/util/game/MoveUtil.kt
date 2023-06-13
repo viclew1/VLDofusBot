@@ -51,7 +51,7 @@ object MoveUtil {
     ): List<Transition>? {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Can't find player cell id")
-        val cellData = gameInfo.completeCellDataByCellId[playerCellId]?.cellData
+        val cellData = gameInfo.mapData.completeCellDataByCellId[playerCellId]?.cellData
             ?: error("Can't find player cell data")
         val startVertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
             ?: error("No vertex found")

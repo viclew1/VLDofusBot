@@ -92,7 +92,7 @@ fun ExpandedContent(
             }
         }
         HorizontalSeparator()
-        Box(Modifier.fillMaxSize().padding(5.dp)) {
+        Box(Modifier.fillMaxSize()) {
             Column(Modifier.onGloballyPositioned {
                 height.value = it.size.height.dp + defaultHeight
             }.padding(end = 14.dp)) {
