@@ -26,7 +26,7 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 fun HarvestableSetsList() {
     val harvestableIdsBySetName = JobsUiUtil.harvestableIdsBySetName.value
     val selectedSetName = JobsUiUtil.selectedSetName.value
-    Column {
+    Column(Modifier.padding(5.dp).grayBoxStyle()) {
         HeaderLine()
         SetCreationLine()
         Box {
@@ -64,10 +64,10 @@ fun HarvestableSetsList() {
 
 @Composable
 private fun HeaderLine() {
-    Row(Modifier.fillMaxWidth().height(30.dp)) {
+    Row(Modifier.fillMaxWidth().height(30.dp).darkGrayBoxStyle()) {
         CommonText(
             "Harvestable Sets",
-            modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
+            modifier = Modifier.padding(start = 10.dp).align(Alignment.CenterVertically),
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -76,28 +76,32 @@ private fun HeaderLine() {
 @Composable
 private fun SetCreationLine() {
     val newSetName = remember { mutableStateOf("") }
-    Row(Modifier.fillMaxWidth().height(34.dp).padding(vertical = 2.dp)) {
-        SimpleTextField(
-            newSetName.value,
-            onValueChange = { newSetName.value = it },
-            modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically).fillMaxWidth().weight(1f),
-            backgroundColor = AppColors.DARK_BG_COLOR,
-        )
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+        Column(Modifier.fillMaxWidth().weight(1f)) {
+            SimpleTextField(
+                newSetName.value,
+                onValueChange = { newSetName.value = it },
+                modifier = Modifier.padding(5.dp).fillMaxWidth(),
+                placeHolderText = "New set name"
+            )
+        }
         val enabled = newSetName.value.isNotBlank()
-        ButtonWithTooltip(
-            onClick = {
-                val setName = newSetName.value.trim()
-                HarvestableSetsManager.addSet(setName)
-                JobsUiUtil.harvestableIdsBySetName.value = HarvestableSetsManager.getHarvestableIdsBySetName()
-                JobsUiUtil.selectedSetName.value = setName
-                newSetName.value = ""
-            },
-            title = "Add Set",
-            imageVector = Icons.Default.Add,
-            shape = RoundedCornerShape(percent = 10),
-            enabled = enabled,
-            iconColor = if (enabled) Color.White else Color.Black
-        )
+        Row(Modifier.height(30.dp).align(Alignment.Bottom)) {
+            ButtonWithTooltip(
+                onClick = {
+                    val setName = newSetName.value.trim()
+                    HarvestableSetsManager.addSet(setName)
+                    JobsUiUtil.harvestableIdsBySetName.value = HarvestableSetsManager.getHarvestableIdsBySetName()
+                    JobsUiUtil.selectedSetName.value = setName
+                    newSetName.value = ""
+                },
+                title = "Add Set",
+                imageVector = Icons.Default.Add,
+                shape = RoundedCornerShape(percent = 10),
+                enabled = enabled,
+                iconColor = if (enabled) Color.White else Color.Black,
+            )
+        }
     }
 }
 

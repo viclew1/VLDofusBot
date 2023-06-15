@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +14,6 @@ import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTab
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptsTabsContent
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.logs.LogsCharacterTabContent
-import fr.lewon.dofus.bot.gui.util.AppColors
 
 @Composable
 fun ScriptsContent() {
@@ -26,7 +24,6 @@ fun ScriptsContent() {
         Column(Modifier.weight(1f)) {
             ScriptsTabsContent()
         }
-        Divider(Modifier.fillMaxHeight().width(1.dp), color = AppColors.backgroundColor)
         Column(Modifier.fillMaxHeight().width(503.dp)) {
             AnimatedVisibility(
                 visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.INDIVIDUAL,

@@ -120,7 +120,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         harvestParameter,
     )
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return emptyList()
     }
 
@@ -128,7 +128,12 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         return "Explore all maps of selected sub area"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val currentAreaParameterValue = scriptValues.getParamValue(currentAreaParameter).toBoolean()
         val subArea = if (currentAreaParameterValue) {
             gameInfo.currentMap.subArea

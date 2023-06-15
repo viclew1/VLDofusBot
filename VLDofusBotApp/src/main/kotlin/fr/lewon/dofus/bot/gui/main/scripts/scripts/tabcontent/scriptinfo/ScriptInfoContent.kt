@@ -11,7 +11,7 @@ import fr.lewon.dofus.bot.gui.custom.CommonText
 @Composable
 fun ScriptInfoContent(characterName: String) {
     val scriptInfoUIState = ScriptInfoUIUtil.getScriptInfoUIState(characterName)
-    val color = if (scriptInfoUIState.value.runningScript) Color.White else Color.Green
+    val color = if (scriptInfoUIState.value.runningScript != null) Color.White else Color.Green
     CommonText(
         scriptInfoUIState.value.text,
         modifier = Modifier.padding(4.dp),

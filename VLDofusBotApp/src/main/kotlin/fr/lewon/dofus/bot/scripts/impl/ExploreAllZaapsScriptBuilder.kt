@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.scripts.impl
 
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
@@ -7,7 +8,7 @@ import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.TravelTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.OpenZaapInterfaceTask
 import fr.lewon.dofus.bot.util.game.TravelUtil
@@ -17,21 +18,27 @@ import fr.lewon.dofus.bot.util.ui.UiUtil
 
 object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps") {
 
+    private val nextZaapStat = DofusBotScriptStat("Next zaap")
+    private val exploredStat = DofusBotScriptStat("Explored")
+
     override fun getParameters(): List<DofusBotParameter> {
         return emptyList()
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
-        return listOf(exploredStat)
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
+        return listOf(exploredStat, nextZaapStat)
     }
 
     override fun getDescription(): String {
         return "Explores all accessible zaap maps"
     }
 
-    private val exploredStat = DofusBotScriptStat("explored", "/")
-
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val registeredZaaps = OpenZaapInterfaceTask().run(logItem, gameInfo)
         val closeZaapInterfaceButtonBounds = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "btn_close")
         MouseUtil.leftClick(gameInfo, closeZaapInterfaceButtonBounds.getCenter())
@@ -41,14 +48,23 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
             .sortedBy { it.coordinates.distanceTo(gameInfo.currentMap.coordinates) }
             .toMutableList()
         val totalSize = zaaps.size
-        exploredStat.value = "0 / $totalSize"
-        while (zaaps.isNotEmpty() && TravelTask(zaaps).run(logItem, gameInfo)) {
+        statValues[exploredStat] = "0 / $totalSize"
+        while (zaaps.isNotEmpty()) {
+            val path = TravelUtil.getPath(gameInfo, zaaps)
+                ?: error("Couldn't find a path to destination")
+            val destMap = path.lastOrNull()?.edge?.to?.mapId?.let { MapManager.getDofusMap(it) }
+                ?: error("No transition in path")
+            val nextMapStr = "(${destMap.posX}; ${destMap.posY})"
+            statValues[nextZaapStat] = nextMapStr
+            val subLogItem = gameInfo.logger.addSubLog("Reaching zaap : $nextMapStr", logItem)
+            if (!MoveTask(path).run(subLogItem, gameInfo)) {
+                gameInfo.logger.closeLog("KO", subLogItem)
+                val destMapsStr = zaaps.joinToString(", ") { "(${it.posX}; ${it.posY})" }
+                error("Couldn't explore all zaaps : $destMapsStr")
+            }
+            gameInfo.logger.closeLog("OK", subLogItem)
             zaaps.remove(gameInfo.currentMap)
-            exploredStat.value = "${totalSize - zaaps.size} / $totalSize"
-        }
-        if (zaaps.isNotEmpty()) {
-            val destMapsStr = zaaps.joinToString(", ") { "(${it.posX}; ${it.posY})" }
-            error("Couldn't explore all zaaps : $destMapsStr")
+            statValues[exploredStat] = "${totalSize - zaaps.size} / $totalSize"
         }
     }
 

@@ -11,6 +11,10 @@ import java.awt.event.KeyEvent
 
 object KeyboardUtil {
 
+    private const val ENTER_KEY = 13
+
+    fun enter(gameInfo: GameInfo) = sendKey(gameInfo, ENTER_KEY)
+
     fun sendKey(gameInfo: GameInfo, keyEvent: Int, sleepTime: Int = 100, ctrlModifier: Boolean = false) =
         gameInfo.lock.executeSyncOperation {
             val handle = getHandle(gameInfo)

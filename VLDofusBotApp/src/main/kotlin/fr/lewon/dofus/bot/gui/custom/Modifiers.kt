@@ -54,7 +54,7 @@ fun Modifier.handPointerIcon(): Modifier = pointerHoverIcon(PointerIcon(Cursor.g
 fun Modifier.grayBoxStyle(): Modifier = background(AppColors.DARK_BG_COLOR).border(BorderStroke(1.dp, Color.Gray))
 
 
-private val darkGrayBoxBackgroundColor = Color(0xFF1b1b1b)
+private val darkGrayBoxBackgroundColor = Color(0xFF151515)
 private val darkGrayBoxBorder = BorderStroke(2.dp, Color(0xFF101010))
 
 fun Modifier.darkGrayBoxStyle(): Modifier = background(darkGrayBoxBackgroundColor).border(darkGrayBoxBorder)

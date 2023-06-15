@@ -22,12 +22,12 @@ object ScriptInfoUIUtil : ComposeUIUtil() {
         val runningScript = CharactersUIUtil.getCharacterUIState(characterName).value.runningScript
         val suffix = if (runningScript != null) {
             val durationStr = FormatUtil.durationToStr(System.currentTimeMillis() - runningScript.startTime)
-            "Running time : $durationStr - ${runningScript.scriptBuilder.name}"
+            "${runningScript.scriptBuilder.name} - $durationStr"
         } else "Ready"
         val text = "$characterName : $suffix"
         val scriptInfoUIState = getScriptInfoUIState(characterName)
         scriptInfoUIState.value = scriptInfoUIState.value.copy(
-            runningScript = runningScript != null,
+            runningScript = runningScript,
             text = text,
         )
     }

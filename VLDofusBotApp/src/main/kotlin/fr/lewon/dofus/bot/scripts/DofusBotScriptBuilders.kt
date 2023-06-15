@@ -1,7 +1,8 @@
 package fr.lewon.dofus.bot.scripts
 
 import fr.lewon.dofus.bot.scripts.impl.*
-import fr.lewon.dofus.bot.scripts.impl.dev.*
+import fr.lewon.dofus.bot.scripts.impl.dev.PrintAllMapInfoScriptBuilder
+import fr.lewon.dofus.bot.scripts.impl.dev.TestScriptBuilder
 
 enum class DofusBotScriptBuilders(val builder: DofusBotScriptBuilder) {
 
@@ -14,10 +15,7 @@ enum class DofusBotScriptBuilders(val builder: DofusBotScriptBuilder) {
     FIGHT_DUNGEON(FightDungeonScriptBuilder),
     SMITH_MAGIC(SmithMagicScriptBuilder),
     RAISE_MOUNTS(RaiseMountsScriptBuilder),
-    REGISTER_HINT_GFX(RegisterHintGfxScriptBuilder),
-    REMOVE_HINT_GFX(RemoveHintGfxScriptBuilder),
     PRINT_ALL_MAP_INFO(PrintAllMapInfoScriptBuilder),
-    READ_SPELL_INFO(ReadSpellInfoScriptBuilder),
     TEST(TestScriptBuilder);
 
 }

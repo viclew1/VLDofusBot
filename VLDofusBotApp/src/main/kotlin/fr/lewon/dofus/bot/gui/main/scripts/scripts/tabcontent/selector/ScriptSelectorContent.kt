@@ -19,10 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.gui.custom.ButtonWithTooltip
-import fr.lewon.dofus.bot.gui.custom.ComboBox
-import fr.lewon.dofus.bot.gui.custom.CommonText
-import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -30,33 +27,32 @@ import fr.lewon.dofus.bot.gui.util.AppColors
 @Composable
 fun ScriptSelectorContent() {
     val scriptBuilder = ScriptTabsUIUtil.getCurrentScriptBuilder()
-    Column {
-        Spacer(Modifier.height(5.dp))
-        Row(Modifier.height(40.dp)) {
+    Column(Modifier.padding(5.dp).grayBoxStyle()) {
+        Row(Modifier.fillMaxWidth().height(40.dp).darkGrayBoxStyle()) {
             CommonText(
                 "Script : ",
-                modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically).padding(start = 10.dp),
                 fontWeight = FontWeight.SemiBold
             )
             Row(Modifier.align(Alignment.CenterVertically).padding(end = 30.dp, top = 5.dp, bottom = 5.dp).weight(1f)) {
                 ComboBox(
-                    Modifier.fillMaxWidth().height(30.dp),
+                    Modifier.fillMaxWidth().height(25.dp),
                     scriptBuilder,
                     ScriptTabsUIUtil.scripts,
                     { ScriptTabsUIUtil.updateCurrentScriptBuilder(it) },
                     { (if (it.isDev) "DEV - " else "") + it.name },
-                    colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.DARK_BG_COLOR),
+                    colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.DARK_BG_COLOR)
                 )
             }
             Row(Modifier.align(Alignment.CenterVertically).fillMaxHeight().padding(5.dp)) {
                 PlayScriptButton()
             }
         }
-        Box(Modifier.fillMaxWidth().height(100.dp).padding(5.dp).grayBoxStyle()) {
+        Box(Modifier.fillMaxWidth().height(100.dp).padding(5.dp)) {
             val state = rememberScrollState()
             CommonText(
                 scriptBuilder.getDescription(),
-                Modifier.verticalScroll(state).padding(10.dp),
+                Modifier.verticalScroll(state).padding(5.dp).padding(end = 5.dp),
             )
             VerticalScrollbar(
                 modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),

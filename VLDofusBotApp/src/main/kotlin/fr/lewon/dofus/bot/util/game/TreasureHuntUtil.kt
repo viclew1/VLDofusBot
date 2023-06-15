@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecutePoiHuntStepTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntFinishedMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStep
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFight
@@ -16,6 +17,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFollowDirectionToPOI
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
+import fr.lewon.dofus.bot.util.io.KeyboardUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
@@ -132,7 +134,10 @@ object TreasureHuntUtil {
     fun giveUpHunt(gameInfo: GameInfo) {
         gameInfo.eventStore.clear()
         MouseUtil.leftClick(gameInfo, getGiveUpHuntPoint())
-        waitForTreasureHuntUpdate(gameInfo)
+        WaitUtil.sleep(1500)
+        MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
+        KeyboardUtil.enter(gameInfo)
+        WaitUtil.waitForEvents(gameInfo, TreasureHuntFinishedMessage::class.java)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
     }
 

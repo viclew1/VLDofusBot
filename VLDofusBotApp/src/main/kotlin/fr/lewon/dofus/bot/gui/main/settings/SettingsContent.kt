@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.TitleText
+import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.main.settings.global.GlobalConfigContent
 import fr.lewon.dofus.bot.gui.main.settings.metamob.MetamobConfigContent
@@ -19,14 +20,28 @@ fun SettingsContent() {
     Box(Modifier.fillMaxSize().padding(5.dp)) {
         val scrollState = rememberScrollState()
         Column(Modifier.verticalScroll(scrollState).padding(end = 14.dp)) {
-            TitleText("Global configuration", Modifier.padding(4.dp))
-            Row(Modifier.fillMaxWidth().grayBoxStyle().padding(5.dp)) {
-                GlobalConfigContent()
+            Column(Modifier.fillMaxWidth().grayBoxStyle()) {
+                Row(Modifier.fillMaxWidth().height(40.dp).darkGrayBoxStyle()) {
+                    TitleText(
+                        "Global configuration",
+                        Modifier.padding(start = 10.dp).align(Alignment.CenterVertically)
+                    )
+                }
+                Row(Modifier.padding(5.dp)) {
+                    GlobalConfigContent()
+                }
             }
             Spacer(Modifier.height(10.dp))
-            TitleText("Metamob configuration", Modifier.padding(4.dp))
-            Row(Modifier.fillMaxWidth().grayBoxStyle().padding(5.dp)) {
-                MetamobConfigContent()
+            Column(Modifier.fillMaxWidth().grayBoxStyle()) {
+                Row(Modifier.fillMaxWidth().height(40.dp).darkGrayBoxStyle()) {
+                    TitleText(
+                        "Metamob configuration",
+                        Modifier.padding(start = 10.dp).align(Alignment.CenterVertically)
+                    )
+                }
+                Row(Modifier.padding(5.dp)) {
+                    MetamobConfigContent()
+                }
             }
         }
         VerticalScrollbar(

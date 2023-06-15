@@ -57,7 +57,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         )
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return listOf()
     }
 
@@ -65,7 +65,12 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         return "Executes a smithing strategy on an item you have to chose manually once the smithing interface is opened"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val strategyParamValue = scriptValues.getParamValue(strategyParameter)
         val strategy = STRATEGIES[strategyParamValue] ?: error("No strategy selected")
         openNeededWorkshop(gameInfo, strategy.getSmithMagicType())

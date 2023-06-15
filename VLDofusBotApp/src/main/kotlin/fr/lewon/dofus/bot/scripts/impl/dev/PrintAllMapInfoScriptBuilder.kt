@@ -23,7 +23,7 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
         return emptyList()
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return emptyList()
     }
 
@@ -31,7 +31,12 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
         return "Prints all map info, used for development"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val currentMap = gameInfo.currentMap
         val mapD2OInfo =
             D2OUtil.getObjects("MapPositions").filter { it["id"].toString() == currentMap.id.toString() }

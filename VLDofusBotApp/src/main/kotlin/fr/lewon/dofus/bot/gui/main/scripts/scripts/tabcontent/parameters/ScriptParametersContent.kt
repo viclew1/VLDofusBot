@@ -10,10 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.gui.custom.CommonText
-import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
-import fr.lewon.dofus.bot.gui.custom.ParameterLine
-import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
 
 @Composable
@@ -23,14 +20,16 @@ fun ScriptParametersContent() {
     val parametersGroups = parameters.groupBy { it.parametersGroup }.entries
         .sortedBy { it.value.firstOrNull()?.parametersGroup ?: Int.MAX_VALUE }
         .map { it.value }
-    Column {
-        CommonText(
-            "Parameters",
-            modifier = Modifier.padding(4.dp),
-            fontWeight = FontWeight.SemiBold
-        )
-        Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
-            Box(Modifier.fillMaxSize().padding(5.dp)) {
+    Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
+        Row(Modifier.fillMaxWidth().height(30.dp).darkGrayBoxStyle()) {
+            CommonText(
+                "Parameters",
+                modifier = Modifier.align(Alignment.CenterVertically).padding(start = 10.dp),
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        Column(Modifier.fillMaxSize().padding(5.dp)) {
+            Box(Modifier.fillMaxSize()) {
                 val state = rememberScrollState()
                 Column(Modifier.verticalScroll(state).padding(end = 10.dp)) {
                     ScriptParametersUIUtil.updateParameters(builder)

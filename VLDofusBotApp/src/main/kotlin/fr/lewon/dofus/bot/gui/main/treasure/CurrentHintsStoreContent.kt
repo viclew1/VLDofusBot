@@ -80,15 +80,13 @@ private fun HeaderContent(uiState: TreasureHuntUiState) {
                 delayMillis = 0
             )
         }
-        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-            CommonText(
-                "Filter Hint : ",
-                modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
-            )
+        Row(Modifier.fillMaxWidth().padding(vertical = 2.dp, horizontal = 40.dp)) {
             SimpleTextField(
                 value = uiState.hintFilter,
                 onValueChange = { TreasureHuntUiUtil.updateHintFilter(it) },
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
+                backgroundColor = AppColors.DARK_BG_COLOR,
+                placeHolderText = "Search hint"
             )
         }
     }

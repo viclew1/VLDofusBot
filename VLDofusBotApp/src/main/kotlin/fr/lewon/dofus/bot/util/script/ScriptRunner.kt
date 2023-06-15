@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.gui.util.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
+import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
@@ -40,12 +41,13 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
         }
         val logger = character.executionLogger
         val logItem = logger.log("Executing Dofus script : [${scriptBuilder.name}]")
+        val stats = HashMap<DofusBotScriptStat, String>()
         val thread = Thread {
             try {
                 val gameInfo = prepareScriptExecution(character, logItem)
                 gameInfo.eventStore.clear()
                 val script = scriptBuilder.buildScript()
-                script.execute(logItem, gameInfo, scriptValues)
+                script.execute(logItem, gameInfo, scriptValues, stats)
                 onScriptOk(character, logItem)
             } catch (e: InterruptedException) {
                 onScriptCanceled(character, logItem)
@@ -55,7 +57,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
                 onScriptKo(character, t, logItem)
             }
         }
-        val runningScript = RunningScript(scriptBuilder, thread)
+        val runningScript = RunningScript(scriptBuilder, thread, stats)
         RUNNING_SCRIPT_BY_CHARACTER_NAME[character.name] = runningScript
         getListeners(character.name).forEach { it.onScriptStart(character, runningScript) }
         thread.start()
@@ -115,6 +117,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     class RunningScript(
         val scriptBuilder: DofusBotScriptBuilder,
         val thread: Thread,
+        val stats: Map<DofusBotScriptStat, String>,
         val startTime: Long = System.currentTimeMillis()
     )
 }

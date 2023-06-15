@@ -27,26 +27,30 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
         "Hunt count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
     )
 
+    private val continueOnFailureParameter = DofusBotParameter(
+        "Continue on failure",
+        "If true, the bot gives up a hunt when it fails to find a hint and fetches a new one",
+        "true",
+        DofusBotParameterType.BOOLEAN
+    )
+
     override fun getParameters(): List<DofusBotParameter> {
         return listOf(
             huntLevelParameter,
             huntCountParameter,
+            continueOnFailureParameter
         )
     }
 
-    private val huntFetchDurations = ArrayList<Long>()
-    private val huntDurations = ArrayList<Long>()
     private val successRateStat = DofusBotScriptStat("Success rate")
     private val averageHuntFetchDurationStat = DofusBotScriptStat("Average hunt fetch duration")
     private val averageHuntDurationStat = DofusBotScriptStat("Average hunt duration")
-    private val nextRestartInStat = DofusBotScriptStat("Next restart in")
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return listOf(
             successRateStat,
             averageHuntFetchDurationStat,
             averageHuntDurationStat,
-            nextRestartInStat
         )
     }
 
@@ -58,7 +62,12 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
         return description
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         if (gameInfo.treasureHunt == null && TreasureHuntUtil.isHuntPresent(gameInfo)) {
             if (!RefreshHuntTask().run(logItem, gameInfo)) {
                 error("Couldn't refresh hunt")
@@ -67,15 +76,21 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
         var successCount = 0
         val huntLevel = HuntLevel.fromLabel(scriptValues.getParamValue(huntLevelParameter))
             ?: error("Invalid hunt level")
+        val continueOnFailure = scriptValues.getParamValue(continueOnFailureParameter).toBoolean()
+        val huntFetchDurations = ArrayList<Long>()
+        val huntDurations = ArrayList<Long>()
 
         for (i in 0 until scriptValues.getParamValue(huntCountParameter).toInt()) {
             val fetchStartTimeStamp = System.currentTimeMillis()
-            if (gameInfo.treasureHunt == null && !FetchHuntTask(huntLevel).run(logItem, gameInfo)) {
-                error("Couldn't fetch a new hunt")
+            if (gameInfo.treasureHunt == null) {
+                if (FetchHuntTask(huntLevel).run(logItem, gameInfo)) {
+                    huntFetchDurations.add(System.currentTimeMillis() - fetchStartTimeStamp)
+                    statValues[averageHuntFetchDurationStat] =
+                        FormatUtil.durationToStr(huntFetchDurations.average().toLong())
+                } else {
+                    error("Couldn't fetch a new hunt")
+                }
             }
-            val fetchDuration = System.currentTimeMillis() - fetchStartTimeStamp
-            huntFetchDurations.add(fetchDuration)
-            averageHuntFetchDurationStat.value = FormatUtil.durationToStr(huntFetchDurations.average().toLong())
 
             val huntStartTimeStamp = System.currentTimeMillis()
 
@@ -86,18 +101,23 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
             WaitUtil.sleep(300)
 
             val huntDuration = System.currentTimeMillis() - huntStartTimeStamp
-
             if (success) {
                 successCount++
                 huntDurations.add(huntDuration)
-                averageHuntDurationStat.value = FormatUtil.durationToStr(huntDurations.average().toLong())
+                statValues[averageHuntDurationStat] = FormatUtil.durationToStr(huntDurations.average().toLong())
             }
-            successRateStat.value = "$successCount / ${i + 1}"
+            statValues[successRateStat] = "$successCount / ${i + 1}"
             if (!success) {
-                SoundType.FAILED.playSound()
-                WaitUtil.sleep(600 * 1000 - huntDuration)
-                if (gameInfo.treasureHunt != null) {
-                    TreasureHuntUtil.giveUpHunt(gameInfo)
+                if (continueOnFailure) {
+                    SoundType.FAILED.playSound()
+                    val timeUntilCancel = 2 * 60 * 1000 - huntDuration
+                    gameInfo.logger.addSubLog("Hunt failed, will give it up and restart (2 minutes wait)", logItem)
+                    WaitUtil.sleep(timeUntilCancel)
+                    if (gameInfo.treasureHunt != null) {
+                        TreasureHuntUtil.giveUpHunt(gameInfo)
+                    }
+                } else {
+                    error("Hunt failed")
                 }
             }
         }

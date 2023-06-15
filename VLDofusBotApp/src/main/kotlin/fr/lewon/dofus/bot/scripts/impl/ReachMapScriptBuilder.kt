@@ -119,7 +119,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         )
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return listOf()
     }
 
@@ -127,7 +127,12 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         return "Reaches the destination using zaaps, transporters or NPCs if needed."
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val useZaaps = scriptValues.getParamValue(useZaapsParameter).toBoolean()
         val destMaps = getDestMaps(gameInfo, scriptValues)
         val travelOk = if (useZaaps) {

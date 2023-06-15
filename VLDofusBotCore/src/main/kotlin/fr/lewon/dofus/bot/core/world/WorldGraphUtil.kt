@@ -146,10 +146,6 @@ object WorldGraphUtil {
         return outgoingEdges[vertex.uid] ?: return emptyList()
     }
 
-    fun addTransition(fromVertex: Vertex, toVertex: Vertex, transition: Transition) {
-        val edge = getEdge(fromVertex, toVertex)
-    }
-
     private class Node(val parent: Node?, val vertex: Vertex, val transition: Transition?) {
         fun getTransitions(): List<Transition> {
             val transitions = LinkedList<Transition>()

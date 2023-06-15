@@ -9,13 +9,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.CommonText
+import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
+import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.util.AppColors
 
 @Composable
 fun CharactersListContent() {
     val characters = CharactersUIUtil.getAllCharacterUIStates()
     val selectedCharacter = CharactersUIUtil.getSelectedCharacterUIState()
-    Column {
+    Column(Modifier.padding(5.dp).grayBoxStyle()) {
         HeaderLine()
         if (characters.isEmpty()) {
             Box(Modifier.padding(horizontal = 5.dp, vertical = 20.dp)) {
@@ -36,7 +38,7 @@ fun CharactersListContent() {
                     }
                 }
                 VerticalScrollbar(
-                    modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd)
+                    modifier = Modifier.fillMaxHeight().width(8.dp).padding(1.dp).align(Alignment.CenterEnd)
                         .background(AppColors.backgroundColor),
                     adapter = rememberScrollbarAdapter(state),
                 )
@@ -48,10 +50,10 @@ fun CharactersListContent() {
 
 @Composable
 private fun HeaderLine() {
-    Row(Modifier.fillMaxWidth().height(30.dp)) {
+    Row(Modifier.fillMaxWidth().height(30.dp).darkGrayBoxStyle()) {
         CommonText(
             "Characters",
-            modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
+            modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
             fontWeight = FontWeight.SemiBold
         )
     }

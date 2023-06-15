@@ -11,7 +11,7 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object FightArenaScriptBuilder : DofusBotScriptBuilder("Fight in arena") {
 
-    private val winRatio = DofusBotScriptStat("Win ratio")
+    private val winRatioStat = DofusBotScriptStat("Win ratio")
 
     private val fightCountParameter = DofusBotParameter(
         "Fight count",
@@ -24,21 +24,26 @@ object FightArenaScriptBuilder : DofusBotScriptBuilder("Fight in arena") {
         return listOf(fightCountParameter)
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
-        return listOf(winRatio)
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
+        return listOf(winRatioStat)
     }
 
     override fun getDescription(): String {
         return "Fight in 1v1 arena"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val fightCount = scriptValues.getParamValue(fightCountParameter).toInt()
         for (i in 0 until fightCount) {
             if (!ProcessArenaGameTask().run(logItem, gameInfo)) {
                 error("Failed to process an arena game")
             }
-            winRatio.value = "TODO / ${i + 1}"
+            statValues[winRatioStat] = "TODO / ${i + 1}"
         }
     }
 

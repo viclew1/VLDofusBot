@@ -13,10 +13,10 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object FightDungeonScriptBuilder : DofusBotScriptBuilder("Fight dungeon") {
 
-    private var count = 0
-
     private val DUNGEON_HINTS = HintManager.getHints(HintManager.HintType.DUNGEON)
     private val DUNGEON_BY_NAME = Dungeon.values().associateBy { it.name }
+
+    private val countStat = DofusBotScriptStat("Count", "0")
 
     private val dungeonParameter = DofusBotParameter(
         "Dungeon",
@@ -30,20 +30,26 @@ object FightDungeonScriptBuilder : DofusBotScriptBuilder("Fight dungeon") {
         return listOf(dungeonParameter)
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
-        return listOf(DofusBotScriptStat("Count", count.toString()))
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
+        return listOf(countStat)
     }
 
     override fun getDescription(): String {
         return "Runs a dungeon until you run out of keys"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         val dungeonName = scriptValues.getParamValue(dungeonParameter)
         val dungeon = DUNGEON_BY_NAME[dungeonName] ?: error("Invalid dungeon : $dungeonName")
-        count = 0
+        var count = 0
         while (FightDungeonTask(dungeon).run(logItem, gameInfo)) {
             count++
+            statValues[countStat] = count.toString()
         }
     }
 

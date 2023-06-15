@@ -4,10 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
@@ -44,7 +41,9 @@ fun SimpleTextField(
     borderColor: Color = backgroundColor,
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
-    inputHandlers: List<KeyHandler> = emptyList()
+    inputHandlers: List<KeyHandler> = emptyList(),
+    placeHolderText: String = "",
+    placeHolderColor: Color = getPlaceHolderColor(backgroundColor)
 ) {
     val textFieldValueState = remember { mutableStateOf(TextFieldValue(text = value, composition = TextRange(0, 0))) }
     val textFieldValue = textFieldValueState.value.copy(text = value)
@@ -88,7 +87,15 @@ fun SimpleTextField(
                     leadingIcon?.let {
                         Image(it, "", Modifier.height(23.dp).align(Alignment.CenterVertically).padding(end = 5.dp))
                     }
-                    Row(Modifier.align(Alignment.CenterVertically).fillMaxWidth().weight(1f)) {
+                    Box(Modifier.align(Alignment.CenterVertically).fillMaxWidth().weight(1f)) {
+                        if (textFieldValue.text.isEmpty()) {
+                            CommonText(
+                                placeHolderText,
+                                enabledColor = placeHolderColor,
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            )
+                        }
                         innerTextField()
                     }
                     trailingIcon?.let {
@@ -103,6 +110,17 @@ fun SimpleTextField(
             },
         )
     }
+}
+
+private fun getPlaceHolderColor(backgroundColor: Color): Color {
+    val getColorComponent: (Float) -> Float = {
+        if (it < 0.5f) it + 0.2f else it - 0.2f
+    }
+    return backgroundColor.copy(
+        red = getColorComponent(backgroundColor.red),
+        green = getColorComponent(backgroundColor.green),
+        blue = getColorComponent(backgroundColor.blue)
+    )
 }
 
 @Composable

@@ -14,7 +14,7 @@ object TestScriptBuilder : DofusBotScriptBuilder("Test", true) {
         return listOf()
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return listOf()
     }
 
@@ -22,7 +22,12 @@ object TestScriptBuilder : DofusBotScriptBuilder("Test", true) {
         return "Test script for development only"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         FightTask().run(logItem, gameInfo)
     }
 

@@ -21,7 +21,7 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
         return listOf()
     }
 
-    override fun getStats(): List<DofusBotScriptStat> {
+    override fun getDefaultStats(): List<DofusBotScriptStat> {
         return emptyList()
     }
 
@@ -29,7 +29,12 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
         return "Updates your Metamob information using the archmonster stones in your haven bag chest"
     }
 
-    override fun doExecuteScript(logItem: LogItem, gameInfo: GameInfo, scriptValues: ScriptValues) {
+    override fun doExecuteScript(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        scriptValues: ScriptValues,
+        statValues: HashMap<DofusBotScriptStat, String>
+    ) {
         if (!MetamobMonstersHelper.isMetamobConfigured()) {
             error("Metamob settings aren't configured.")
         }

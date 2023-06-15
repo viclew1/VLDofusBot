@@ -213,7 +213,7 @@ private fun RowScope.MetamobMonstersListContent() {
     }
     val uiState = MetamobHelperUIUtil.getUiStateValue()
     Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle().weight(1f)) {
-        Row(Modifier.height(25.dp)) {
+        Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
             Row {
                 RefreshButton(
                     { Thread { MetamobHelperUIUtil.refreshMonsters() }.start() },
@@ -221,12 +221,13 @@ private fun RowScope.MetamobMonstersListContent() {
                     CustomShapes.buildTrapezoidShape(bottomRightDeltaRatio = 0.15f),
                     Color.Gray,
                     width = 40.dp,
-                    refreshing = MetamobHelperUIUtil.refreshingMonsters
+                    refreshing = MetamobHelperUIUtil.refreshingMonsters,
+                    imageModifier = Modifier.padding(2.dp)
                 )
             }
             CommonText(
                 "Monsters",
-                modifier = Modifier.align(Alignment.CenterVertically).padding(top = 5.dp, start = 10.dp),
+                modifier = Modifier.align(Alignment.CenterVertically).padding(start = 10.dp),
                 fontWeight = FontWeight.SemiBold,
             )
         }

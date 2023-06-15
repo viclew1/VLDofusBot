@@ -8,10 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fr.lewon.dofus.bot.gui.custom.CommonText
-import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
-import fr.lewon.dofus.bot.gui.custom.SubTitleText
-import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui.util.UiResource
@@ -22,9 +19,7 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 fun CharacterGlobalDisplayContent(characterUIState: CharacterUIState) {
     Column(Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp).fillMaxHeight().width(150.dp).grayBoxStyle()) {
         CharacterNameDisplay(characterUIState)
-        HorizontalSeparator()
         CharacterSkinDisplay(characterUIState)
-        HorizontalSeparator()
         CharacterGlobalInformationEditionContent(characterUIState)
         HorizontalSeparator()
         CharacterCharacteristicInformationContent(characterUIState)
@@ -33,7 +28,7 @@ fun CharacterGlobalDisplayContent(characterUIState: CharacterUIState) {
 
 @Composable
 private fun CharacterNameDisplay(characterUIState: CharacterUIState) {
-    Box(Modifier.fillMaxWidth().height(30.dp)) {
+    Box(Modifier.fillMaxWidth().height(30.dp).darkGrayBoxStyle()) {
         SubTitleText(
             characterUIState.name,
             textAlign = TextAlign.Center,

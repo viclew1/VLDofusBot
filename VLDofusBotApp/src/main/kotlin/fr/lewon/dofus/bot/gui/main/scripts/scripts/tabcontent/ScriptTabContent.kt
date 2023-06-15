@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,16 +20,15 @@ fun ScriptTabContent() {
     Column {
         ScriptSelectorContent()
         val parameters = ScriptParametersUIUtil.getCurrentScriptParameters()
-        AnimatedVisibility(
-            parameters.isNotEmpty(),
-            modifier = Modifier.weight(1f),
-            enter = expandVertically(expandFrom = Alignment.Top),
-            exit = shrinkVertically(shrinkTowards = Alignment.Top)
-        ) {
-            ScriptParametersContent()
-        }
-        if (parameters.isEmpty()) {
-            Spacer(Modifier.weight(1f))
+        Column(Modifier.fillMaxHeight().weight(1f)) {
+            AnimatedVisibility(
+                parameters.isNotEmpty(),
+                enter = expandVertically(expandFrom = Alignment.Top),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top)
+            ) {
+                ScriptParametersContent()
+            }
+            Spacer(Modifier.fillMaxHeight().weight(1f))
         }
         AnimatedVisibility(
             ScriptTabsUIUtil.isScriptStarted(),
