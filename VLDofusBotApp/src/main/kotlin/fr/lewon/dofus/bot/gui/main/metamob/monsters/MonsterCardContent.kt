@@ -24,81 +24,78 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 import kotlinx.coroutines.delay
 
 @Composable
-fun MonsterCardContent(monster: MetamobMonster, key: Any) = DragTarget(
-    monster, Modifier.defaultHoverManager(
-        onHover = {
-            MetamobHelperUIUtil.uiState.value = MetamobHelperUIUtil.uiState.value.copy(hoveredMonster = monster)
-        },
-        onExit = {
-            MetamobHelperUIUtil.uiState.value = MetamobHelperUIUtil.uiState.value.copy(hoveredMonster = null)
-        },
-        key = key
-    )
-) {
-    val monsterPainter = rememberSaveable { mutableStateOf(MetamobMonsterImageCache.getPainter(monster)) }
-    LaunchedEffect(Unit) {
-        if (!MetamobMonsterImageCache.isLoaded(monster)) {
-            MetamobMonsterImageCache.loadImagePainter(monster)
+fun MonsterCardContent(monster: MetamobMonster, key: Any) {
+    val isHovered = remember(key) { mutableStateOf(false) }
+    val borderColor = if (isHovered.value) AppColors.primaryColor else Color.Transparent
+    DragTarget(
+        monster,
+        Modifier.defaultHoverManager(isHovered, key = key).padding(2.dp).background(borderColor).padding(3.dp)
+    ) {
+        val monsterPainter = rememberSaveable { mutableStateOf(MetamobMonsterImageCache.getPainter(monster)) }
+        LaunchedEffect(Unit) {
+            if (!MetamobMonsterImageCache.isLoaded(monster)) {
+                MetamobMonsterImageCache.loadImagePainter(monster)
+            }
+            while (monsterPainter.value == null) {
+                delay(100)
+                monsterPainter.value = MetamobMonsterImageCache.getPainter(monster)
+            }
         }
-        while (monsterPainter.value == null) {
-            delay(100)
-            monsterPainter.value = MetamobMonsterImageCache.getPainter(monster)
-        }
-    }
-    val content = remember {
-        movableContentOf {
-            Column(Modifier.grayBoxStyle().background(Color.DarkGray)) {
-                Box(Modifier.fillMaxSize().weight(1f)) {
-                    monsterPainter.value?.let {
-                        Image(
-                            it, "",
-                            Modifier.fillMaxHeight().align(Alignment.CenterEnd).padding(5.dp).padding(end = 10.dp)
-                        )
-                    }
-                    Row(Modifier.fillMaxSize()) {
-                        Column(Modifier.fillMaxWidth().padding(top = 2.dp)) {
-                            val status = when {
-                                monster.searched > 0 -> "Searched"
-                                monster.offered > 0 -> "Offered"
-                                else -> "/"
-                            }
-                            SelectionContainer {
+        val content = remember(monster) {
+            movableContentOf {
+                Column(Modifier.grayBoxStyle().background(Color.DarkGray)) {
+                    Box(Modifier.fillMaxSize().weight(1f)) {
+                        monsterPainter.value?.let {
+                            Image(
+                                it, "",
+                                Modifier.fillMaxHeight().align(Alignment.CenterEnd).padding(5.dp).padding(end = 10.dp)
+                            )
+                        }
+                        Row(Modifier.fillMaxSize()) {
+                            Column(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+                                val status = when {
+                                    monster.searched > 0 -> "Searched"
+                                    monster.offered > 0 -> "Offered"
+                                    else -> "/"
+                                }
+                                SelectionContainer {
+                                    CommonText(
+                                        monster.name,
+                                        Modifier.padding(4.dp),
+                                        enabledColor = Color.White,
+                                        fontSize = 12.sp
+                                    )
+                                }
                                 CommonText(
-                                    monster.name,
-                                    Modifier.padding(4.dp),
-                                    enabledColor = Color.White,
+                                    "Owned : ${monster.amount}", Modifier.padding(4.dp), enabledColor = Color.White,
                                     fontSize = 12.sp
                                 )
-                            }
-                            CommonText(
-                                "Owned : ${monster.amount}", Modifier.padding(4.dp), enabledColor = Color.White,
-                                fontSize = 12.sp
-                            )
-                            CommonText(
-                                "Status : $status", Modifier.padding(4.dp), enabledColor = Color.White,
-                                fontSize = 12.sp
-                            )
-                            if (monster.type == MetamobMonsterType.ARCHMONSTER) {
-                                val monsterPrice = MetamobHelperUIUtil.getPrice(monster)
-                                    ?.let { "${"%,d".format(it)} K" }
-                                    ?: "/"
                                 CommonText(
-                                    "Price : $monsterPrice", Modifier.padding(4.dp), enabledColor = Color.White,
+                                    "Status : $status", Modifier.padding(4.dp), enabledColor = Color.White,
                                     fontSize = 12.sp
                                 )
+                                if (monster.type == MetamobMonsterType.ARCHMONSTER) {
+                                    val monsterPrice = MetamobHelperUIUtil.getPrice(monster)
+                                        ?.let { "${"%,d".format(it)} K" }
+                                        ?: "/"
+                                    CommonText(
+                                        "Price : $monsterPrice", Modifier.padding(4.dp), enabledColor = Color.White,
+                                        fontSize = 12.sp
+                                    )
+                                }
                             }
                         }
                     }
+                    val simultaneousOchers = MetamobConfigManager.readConfig().getSafeSimultaneousOchers()
+                    val color = when {
+                        monster.amount >= simultaneousOchers -> AppColors.GREEN
+                        monster.amount > 0 -> AppColors.ORANGE
+                        else -> AppColors.RED
+                    }
+                    Row(Modifier.fillMaxWidth().height(6.dp).background(color)) { }
                 }
-                val simultaneousOchers = MetamobConfigManager.readConfig().getSafeSimultaneousOchers()
-                val color = when {
-                    monster.amount >= simultaneousOchers -> AppColors.GREEN
-                    monster.amount > 0 -> AppColors.ORANGE
-                    else -> AppColors.RED
-                }
-                Row(Modifier.fillMaxWidth().height(6.dp).background(color)) { }
             }
         }
+        content()
     }
-    content()
 }

@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 
 data class ExplorationExplorerUIState(
     val selectedCharacterName: String? = null,
-    val availableCharacters: List<String> = emptyList(),
     val explorationParameterValuesByParameter: Map<DofusBotParameter, String> = listOf(
         ExploreAreaScriptBuilder.harvestParameter,
         ExploreAreaScriptBuilder.stopWhenArchMonsterFoundParameter,

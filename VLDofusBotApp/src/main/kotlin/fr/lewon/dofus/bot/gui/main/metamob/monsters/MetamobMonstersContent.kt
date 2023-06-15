@@ -13,7 +13,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,11 +44,12 @@ fun MetamobMonstersContent() {
 
 @Composable
 private fun MetamobTradeHelperContent() {
+    val tradeUiState = MetamobTradeUIUtil.getUiStateValue()
     Row(Modifier.fillMaxHeight().padding(end = 5.dp, top = 5.dp, bottom = 5.dp).grayBoxStyle()) {
         val isButtonHovered = remember { mutableStateOf(false) }
-        val tradeOpened = MetamobTradeUIUtil.tradeOpened.value
+        val tradeOpened = tradeUiState.tradeOpened
         ButtonWithTooltip(
-            { MetamobTradeUIUtil.tradeOpened.value = !tradeOpened },
+            { MetamobTradeUIUtil.setTradeOpened(!tradeOpened) },
             title = if (tradeOpened) "Reduce" else "Expand",
             imageVector = if (tradeOpened) Icons.Default.KeyboardArrowRight else Icons.Default.KeyboardArrowLeft,
             shape = RectangleShape,
@@ -64,10 +68,7 @@ private fun MetamobTradeHelperContent() {
                     CommonText("Trade helper", modifier = Modifier.padding(5.dp), fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.fillMaxWidth().weight(1f))
                     AnimatedButton(
-                        {
-                            MetamobTradeUIUtil.playerTradeMonsters.value = emptyList()
-                            MetamobTradeUIUtil.otherGuyTradeMonsters.value = emptyList()
-                        },
+                        { MetamobTradeUIUtil.clearTrade() },
                         "Clear",
                         Icons.Default.Clear,
                         Modifier.height(25.dp).width(80.dp),
@@ -77,16 +78,20 @@ private fun MetamobTradeHelperContent() {
                 }
                 Column(Modifier.fillMaxSize().padding(5.dp).weight(1f).grayBoxStyle()) {
                     CommonText("My monsters", modifier = Modifier.padding(10.dp), fontWeight = FontWeight.SemiBold)
-                    TradeArea(MetamobTradeUIUtil.playerTradeMonsters)
+                    TradeArea(tradeUiState.playerTradeMonsters) {
+                        MetamobTradeUIUtil.updateTrade(it, tradeUiState.otherGuyTradeMonsters)
+                    }
                 }
                 Column(Modifier.fillMaxSize().padding(5.dp).weight(1f).grayBoxStyle()) {
                     CommonText("His monsters", modifier = Modifier.padding(10.dp), fontWeight = FontWeight.SemiBold)
-                    TradeArea(MetamobTradeUIUtil.otherGuyTradeMonsters)
+                    TradeArea(tradeUiState.otherGuyTradeMonsters) {
+                        MetamobTradeUIUtil.updateTrade(tradeUiState.playerTradeMonsters, it)
+                    }
                 }
                 val isCopyButtonHovered = remember { mutableStateOf(false) }
                 Row(Modifier.fillMaxWidth().height(30.dp).padding(5.dp)) {
                     ButtonWithTooltip(
-                        { copyOffer() },
+                        { copyOffer(tradeUiState) },
                         "",
                         Icons.Default.ContentCopy,
                         RectangleShape,
@@ -105,18 +110,16 @@ private fun MetamobTradeHelperContent() {
     }
 }
 
-private fun copyOffer() {
-    val myMonstersStr = MetamobTradeUIUtil.playerTradeMonsters.value
-        .joinToString(", ", transform = ::getMonsterStr)
-    val otherGuyMonstersStr = MetamobTradeUIUtil.otherGuyTradeMonsters.value
-        .joinToString(", ", transform = ::getMonsterStr)
+private fun copyOffer(tradeUiState: MetamobTradeUiState) {
+    val allMonsters = MetamobHelperUIUtil.getUiStateValue().metamobMonsters
+    val myMonstersStr = tradeUiState.playerTradeMonsters.joinToString(", ") { getMonsterStr(it, allMonsters) }
+    val otherGuyMonstersStr = tradeUiState.otherGuyTradeMonsters.joinToString(", ") { getMonsterStr(it, allMonsters) }
     val clipboard = Toolkit.getDefaultToolkit().systemClipboard
     val clipboardContent = StringSelection("$myMonstersStr VS $otherGuyMonstersStr")
     clipboard.setContents(clipboardContent, clipboardContent)
 }
 
-private fun getMonsterStr(monster: MetamobMonster): String {
-    val allMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
+private fun getMonsterStr(monster: MetamobMonster, allMonsters: List<MetamobMonster>): String {
     val price = MetamobHelperUIUtil.getPrice(monster) ?: 0L
     val monsterDisplayName = monster.name.split(" ").firstOrNull()
         ?.takeIf { name -> allMonsters.none { it.id != monster.id && it.name.startsWith(name) } }
@@ -125,12 +128,15 @@ private fun getMonsterStr(monster: MetamobMonster): String {
 }
 
 @Composable
-fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
+fun TradeArea(
+    tradeMonsters: List<MetamobMonster>,
+    onListUpdate: (List<MetamobMonster>) -> Unit
+) {
     Column(Modifier.fillMaxSize()) {
-        val total = tradeMonstersState.value.sumOf { MetamobHelperUIUtil.getPrice(it) ?: 0L }
+        val total = tradeMonsters.sumOf { MetamobHelperUIUtil.getPrice(it) ?: 0L }
         SelectionContainer {
             CommonText(
-                "Total : ${"%,d".format(total)} K (${tradeMonstersState.value.size} monsters)",
+                "Total : ${"%,d".format(total)} K (${tradeMonsters.size} monsters)",
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
             )
         }
@@ -141,9 +147,9 @@ fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
             Modifier.fillMaxSize().padding(2.dp).then(modifier).padding(3.dp).darkGrayBoxStyle().padding(5.dp)
         ) { _, droppedMonster ->
             if (droppedMonster != null && droppedMonster.type == MetamobMonsterType.ARCHMONSTER) {
-                tradeMonstersState.value = tradeMonstersState.value.plus(droppedMonster).distinct()
+                onListUpdate(tradeMonsters.plus(droppedMonster).distinct())
             }
-            if (tradeMonstersState.value.isEmpty()) {
+            if (tradeMonsters.isEmpty()) {
                 CommonText(
                     "Drag archmonsters here to add them to the trade.",
                     modifier = Modifier.padding(10.dp).align(Alignment.Center)
@@ -153,8 +159,8 @@ fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
                     Box(Modifier.fillMaxSize()) {
                         val scrollState = rememberScrollState()
                         Column(Modifier.verticalScroll(scrollState).padding(end = 8.dp)) {
-                            for (monster in tradeMonstersState.value) {
-                                TradeMonsterLine(monster, tradeMonstersState)
+                            for (monster in tradeMonsters) {
+                                TradeMonsterLine(monster, tradeMonsters, onListUpdate)
                             }
                         }
                         VerticalScrollbar(
@@ -169,12 +175,16 @@ fun TradeArea(tradeMonstersState: MutableState<List<MetamobMonster>>) {
 }
 
 @Composable
-private fun TradeMonsterLine(monster: MetamobMonster, tradeMonstersState: MutableState<List<MetamobMonster>>) {
+private fun TradeMonsterLine(
+    monster: MetamobMonster,
+    tradeMonsters: List<MetamobMonster>,
+    onListUpdate: (List<MetamobMonster>) -> Unit
+) {
     Row {
         Row(Modifier.height(12.dp).align(Alignment.CenterVertically)) {
             val isHovered = remember { mutableStateOf(false) }
             ButtonWithTooltip(
-                { tradeMonstersState.value = tradeMonstersState.value.minus(monster) },
+                { onListUpdate(tradeMonsters.minus(monster)) },
                 title = "",
                 imageVector = Icons.Default.Remove,
                 shape = RoundedCornerShape(percent = 5),
@@ -201,6 +211,7 @@ private fun RowScope.MetamobMonstersListContent() {
     LaunchedEffect(true) {
         Thread { MetamobHelperUIUtil.refreshMonsters() }.start()
     }
+    val uiState = MetamobHelperUIUtil.getUiStateValue()
     Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle().weight(1f)) {
         Row(Modifier.height(25.dp)) {
             Row {
@@ -221,7 +232,7 @@ private fun RowScope.MetamobMonstersListContent() {
         }
         CommonText(MetamobHelperUIUtil.getLastPriceUpdateTime(), modifier = Modifier.padding(start = 10.dp, top = 5.dp))
         if (MetamobHelperUIUtil.getFilteredMonsters().isEmpty()) {
-            val errorMessage = MetamobHelperUIUtil.uiState.value.errorMessage
+            val errorMessage = uiState.errorMessage
             Column(Modifier.padding(10.dp)) {
                 if (errorMessage.isNotEmpty()) {
                     CommonText(errorMessage, enabledColor = AppColors.RED)
@@ -240,12 +251,7 @@ private fun RowScope.MetamobMonstersListContent() {
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     items(items, key = { it.id }) { monster ->
-                        val borderColor = if (MetamobHelperUIUtil.uiState.value.hoveredMonster == monster) {
-                            AppColors.primaryColor
-                        } else {
-                            Color.Transparent
-                        }
-                        Box(Modifier.height(110.dp).padding(2.dp).background(borderColor).padding(3.dp)) {
+                        Box(Modifier.height(110.dp)) {
                             MonsterCardContent(monster, items)
                         }
                     }

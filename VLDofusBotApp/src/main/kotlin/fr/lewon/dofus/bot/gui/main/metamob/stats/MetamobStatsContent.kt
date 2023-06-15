@@ -19,7 +19,7 @@ import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonsterType
 fun MetamobStatsContent(ocherIndex: Int) {
     Column {
         Row(Modifier.fillMaxSize()) {
-            val metamobMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
+            val metamobMonsters = MetamobHelperUIUtil.getUiStateValue().metamobMonsters
             val archmonsters = metamobMonsters.filter { it.type == MetamobMonsterType.ARCHMONSTER }
             val bosses = metamobMonsters.filter { it.type == MetamobMonsterType.BOSS }
             val monsters = metamobMonsters.filter { it.type == MetamobMonsterType.MONSTER }

@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.gui.main.metamob
 
 import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeTypesItemsExchangerDescriptionForUserMessage
@@ -16,9 +17,11 @@ import java.util.concurrent.locks.ReentrantLock
 
 object MetamobHelperUIUtil : ComposeUIUtil() {
 
-    val uiState = mutableStateOf(MetamobHelperUIState())
+    private val uiState = mutableStateOf(MetamobHelperUIState())
     val refreshingMonsters = mutableStateOf(false)
     private val lock = ReentrantLock()
+
+    fun getUiStateValue() = uiState.value
 
     fun getFilteredMonsters(): List<MetamobMonster> {
         val filters = uiState.value.valueByFilter
@@ -27,8 +30,7 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
         }
     }
 
-    @Synchronized
-    fun refreshMonsters() {
+    fun refreshMonsters() = lock.executeSyncOperation {
         refreshingMonsters.value = true
         var monsters: List<MetamobMonster>? = null
         var errorMessage = ""
@@ -52,27 +54,28 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
 
     fun getPrice(monster: MetamobMonster): Long? = uiState.value.priceByArchmonsterId[monster.id]
 
-    fun updateArchmonsterPrices(objectBidsMessage: ExchangeTypesItemsExchangerDescriptionForUserMessage) {
-        if (!uiState.value.refreshingPrices) {
-            uiState.value = uiState.value.copy(refreshingPrices = true)
-            val allMetamobMonsters = MetamobRequestProcessor.getAllMonsters()
-            if (allMetamobMonsters == null) {
-                uiState.value = uiState.value.copy(refreshingPrices = false)
-            } else {
-                val priceByMonsterId = getPriceByMonsterId(objectBidsMessage)
-                val priceByMetamobArchmonsterId =
-                    priceByMonsterId.mapKeys { MonsterManager.getMonster(it.key.toDouble()) }
-                        .mapKeys { MetamobMonstersHelper.getMetamobMonster(it.key, allMetamobMonsters) }
-                        .mapNotNull { e -> e.key?.let { it.id to e.value } }
-                        .toMap()
-                uiState.value = uiState.value.copy(
-                    refreshingPrices = false,
-                    priceByArchmonsterId = priceByMetamobArchmonsterId,
-                    lastPriceRefreshTimeMillis = System.currentTimeMillis()
-                )
+    fun updateArchmonsterPrices(objectBidsMessage: ExchangeTypesItemsExchangerDescriptionForUserMessage) =
+        lock.executeSyncOperation {
+            if (!uiState.value.refreshingPrices) {
+                uiState.value = uiState.value.copy(refreshingPrices = true)
+                val allMetamobMonsters = MetamobRequestProcessor.getAllMonsters()
+                if (allMetamobMonsters == null) {
+                    uiState.value = uiState.value.copy(refreshingPrices = false)
+                } else {
+                    val priceByMonsterId = getPriceByMonsterId(objectBidsMessage)
+                    val priceByMetamobArchmonsterId =
+                        priceByMonsterId.mapKeys { MonsterManager.getMonster(it.key.toDouble()) }
+                            .mapKeys { MetamobMonstersHelper.getMetamobMonster(it.key, allMetamobMonsters) }
+                            .mapNotNull { e -> e.key?.let { it.id to e.value } }
+                            .toMap()
+                    uiState.value = uiState.value.copy(
+                        refreshingPrices = false,
+                        priceByArchmonsterId = priceByMetamobArchmonsterId,
+                        lastPriceRefreshTimeMillis = System.currentTimeMillis()
+                    )
+                }
             }
         }
-    }
 
     private fun getPriceByMonsterId(objectBidsMessage: ExchangeTypesItemsExchangerDescriptionForUserMessage): HashMap<Int, Long> {
         val priceByMonsterId = HashMap<Int, Long>()
@@ -89,7 +92,7 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
         return priceByMonsterId
     }
 
-    fun updateFilter(filter: MonsterFilter, newValue: String) {
+    fun updateFilter(filter: MonsterFilter, newValue: String) = lock.executeSyncOperation {
         uiState.value = uiState.value.copy(
             valueByFilter = uiState.value.valueByFilter.plus(filter to newValue)
         )

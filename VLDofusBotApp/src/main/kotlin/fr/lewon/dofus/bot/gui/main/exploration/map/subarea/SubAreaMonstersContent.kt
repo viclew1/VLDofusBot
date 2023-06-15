@@ -65,7 +65,7 @@ private fun RowScope.OwnedIndicatorContent(monster: DofusMonster) {
         }
     } else {
         val simultaneousOchers = MetamobConfigManager.readConfig().getSafeSimultaneousOchers()
-        val allMetamobMonsters = MetamobHelperUIUtil.uiState.value.metamobMonsters
+        val allMetamobMonsters = MetamobHelperUIUtil.getUiStateValue().metamobMonsters
         val metamobMonster = MetamobMonstersHelper.getMetamobMonster(monster, allMetamobMonsters)
         val color = when {
             metamobMonster == null -> Color.White

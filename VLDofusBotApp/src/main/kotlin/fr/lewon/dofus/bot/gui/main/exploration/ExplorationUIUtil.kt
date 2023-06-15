@@ -49,27 +49,6 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
         }
     }
 
-    fun addAvailableCharacter(characterName: String) = lock.executeSyncOperation {
-        explorerUIState.value = explorerUIState.value.copy(
-            availableCharacters = explorerUIState.value.availableCharacters.plus(characterName),
-            selectedCharacterName = if (explorerUIState.value.selectedCharacterName.isNullOrEmpty()) {
-                characterName
-            } else {
-                explorerUIState.value.selectedCharacterName
-            },
-        )
-    }
-
-    fun removeAvailableCharacter(characterName: String) = lock.executeSyncOperation {
-        val newAvailable = explorerUIState.value.availableCharacters.minus(characterName)
-        explorerUIState.value = explorerUIState.value.copy(
-            selectedCharacterName = if (characterName == explorerUIState.value.selectedCharacterName) {
-                newAvailable.firstOrNull()
-            } else explorerUIState.value.selectedCharacterName,
-            availableCharacters = newAvailable
-        )
-    }
-
     fun requestMapUpdate() {
         mapUpdated.value = true
     }

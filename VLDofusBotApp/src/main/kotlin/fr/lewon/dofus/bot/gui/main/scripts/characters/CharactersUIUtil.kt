@@ -81,33 +81,29 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
         CharacterSpellManager.removeListener(characterName, CharacterSpellsUIUtil)
     }
 
-    fun getCharacterUIState(characterName: String): MutableState<CharacterUIState> {
-        return lock.executeSyncOperation {
-            uiStateByCharacterName.computeIfAbsent(characterName) {
-                val character = CharacterManager.getCharacter(characterName)
-                    ?: error("Character not found : $characterName")
-                mutableStateOf(
-                    CharacterUIState(
-                        characterName,
-                        character.dofusClassId,
-                        character.isOtomaiTransportAvailable
-                    )
+    fun getCharacterUIState(characterName: String): MutableState<CharacterUIState> = lock.executeSyncOperation {
+        uiStateByCharacterName.computeIfAbsent(characterName) {
+            val character = CharacterManager.getCharacter(characterName)
+                ?: error("Character not found : $characterName")
+            mutableStateOf(
+                CharacterUIState(
+                    characterName,
+                    character.dofusClassId,
+                    character.isOtomaiTransportAvailable
                 )
-            }
+            )
         }
     }
 
-    fun selectCharacter(characterName: String?) {
-        lock.executeSyncOperation {
-            if (characterName != null) {
-                CharacterEditionUIUtil.editCharacter(characterName)
-                CharacterSpellsUIUtil.updateSpells(CharacterSpellManager.getSpells(characterName))
-            }
-            charactersUIState.value = charactersUIState.value.copy(selectedCharacterName = characterName)
-            val destTab = if (characterName == null) ScriptTab.GLOBAL else ScriptTab.INDIVIDUAL
-            if (ScriptTabsUIUtil.getCurrentTab() != destTab) {
-                ScriptTabsUIUtil.updateCurrentTab(destTab)
-            }
+    fun selectCharacter(characterName: String?) = lock.executeSyncOperation {
+        if (characterName != null) {
+            CharacterEditionUIUtil.editCharacter(characterName)
+            CharacterSpellsUIUtil.updateSpells(CharacterSpellManager.getSpells(characterName))
+        }
+        charactersUIState.value = charactersUIState.value.copy(selectedCharacterName = characterName)
+        val destTab = if (characterName == null) ScriptTab.GLOBAL else ScriptTab.INDIVIDUAL
+        if (ScriptTabsUIUtil.getCurrentTab() != destTab) {
+            ScriptTabsUIUtil.updateCurrentTab(destTab)
         }
     }
 
@@ -165,7 +161,6 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             )
             ScriptInfoUIUtil.updateState(character.name)
             ScriptSelectorUIUtil.uiState.value = ScriptSelectorUIUtil.uiState.value.copy(isStartButtonEnabled = true)
-            ExplorationUIUtil.removeAvailableCharacter(character.name)
         }
     }
 
@@ -176,9 +171,6 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             computeState(character)
             ScriptInfoUIUtil.updateState(character.name)
             ScriptSelectorUIUtil.uiState.value = ScriptSelectorUIUtil.uiState.value.copy(isStartButtonEnabled = true)
-            if (GameSnifferUtil.getFirstConnection(character) != null) {
-                ExplorationUIUtil.addAvailableCharacter(character.name)
-            }
         }
     }
 
@@ -190,49 +182,41 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             )
             charactersUIState.value = charactersUIState.value.copy(characterNames = getOrderedCharactersNames())
             ScriptInfoUIUtil.getScriptInfoUIState(character.name)
-            ExplorationUIUtil.addAvailableCharacter(character.name)
         }
     }
 
-    override fun onListenStop(character: DofusCharacter) {
-        lock.executeSyncOperation {
-            val characterState = getCharacterUIState(character.name)
-            characterState.value = CharacterUIState(
-                name = character.name,
-                dofusClassId = character.dofusClassId,
-                isOtomaiTransportAvailable = character.isOtomaiTransportAvailable,
-                checked = false,
-                activityState = CharacterActivityState.DISCONNECTED,
-                flashVars = null,
-                skinImage = null,
-                currentMap = null
-            )
-            charactersUIState.value = charactersUIState.value.copy(
-                characterNames = getOrderedCharactersNames()
-            )
-            ScriptRunner.stopScript(character.name)
-            ExplorationUIUtil.removeAvailableCharacter(character.name)
-        }
+    override fun onListenStop(character: DofusCharacter) = lock.executeSyncOperation {
+        val characterState = getCharacterUIState(character.name)
+        characterState.value = CharacterUIState(
+            name = character.name,
+            dofusClassId = character.dofusClassId,
+            isOtomaiTransportAvailable = character.isOtomaiTransportAvailable,
+            checked = false,
+            activityState = CharacterActivityState.DISCONNECTED,
+            flashVars = null,
+            skinImage = null,
+            currentMap = null
+        )
+        charactersUIState.value = charactersUIState.value.copy(
+            characterNames = getOrderedCharactersNames()
+        )
+        ScriptRunner.stopScript(character.name)
     }
 
-    override fun onLogUpdated(logger: VldbLogger, logItem: LogItem) {
-        lock.executeSyncOperation {
-            val characterName = characterNameByLogger[logger]
-                ?: error("Unregistered logger character")
-            val character = CharacterManager.getCharacter(characterName)
-                ?: error("Character not found : $characterName")
-            val loggerUIType = getCharacterLoggersWithTypes(character)[logger]
-                ?: error("Unregistered logger type")
-            LogsUIUtil.updateLogItem(characterName, loggerUIType, logItem)
-        }
+    override fun onLogUpdated(logger: VldbLogger, logItem: LogItem) = lock.executeSyncOperation {
+        val characterName = characterNameByLogger[logger]
+            ?: error("Unregistered logger character")
+        val character = CharacterManager.getCharacter(characterName)
+            ?: error("Character not found : $characterName")
+        val loggerUIType = getCharacterLoggersWithTypes(character)[logger]
+            ?: error("Unregistered logger type")
+        LogsUIUtil.updateLogItem(characterName, loggerUIType, logItem)
     }
 
-    fun updateState(character: DofusCharacter) {
-        lock.executeSyncOperation {
-            val characterUIState = getCharacterUIState(character.name)
-            if (characterUIState.value.activityState != CharacterActivityState.BUSY) {
-                computeState(character)
-            }
+    fun updateState(character: DofusCharacter) = lock.executeSyncOperation {
+        val characterUIState = getCharacterUIState(character.name)
+        if (characterUIState.value.activityState != CharacterActivityState.BUSY) {
+            computeState(character)
         }
     }
 
@@ -271,35 +255,29 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
         }
     }
 
-    private fun getCheckedCharactersUIStates(): List<MutableState<CharacterUIState>> {
-        return lock.executeSyncOperation {
-            uiStateByCharacterName.values.filter { it.value.checked }
-        }
+    private fun getCheckedCharactersUIStates(): List<MutableState<CharacterUIState>> = lock.executeSyncOperation {
+        uiStateByCharacterName.values.filter { it.value.checked }
     }
 
     fun getSelectedCharacterUIState(): MutableState<CharacterUIState>? {
         return charactersUIState.value.selectedCharacterName?.let { getCharacterUIState(it) }
     }
 
-    fun updateSkin(character: DofusCharacter, entityLook: EntityLook) {
-        lock.executeSyncOperation {
-            val characterUIState = getCharacterUIState(character.name)
-            val newFlashVars = SkinatorRequestProcessor.getFlashVars(entityLook)
-            if (newFlashVars != characterUIState.value.flashVars) {
-                refreshSkin(characterUIState.value.name, newFlashVars)
-            }
+    fun updateSkin(character: DofusCharacter, entityLook: EntityLook) = lock.executeSyncOperation {
+        val characterUIState = getCharacterUIState(character.name)
+        val newFlashVars = SkinatorRequestProcessor.getFlashVars(entityLook)
+        if (newFlashVars != characterUIState.value.flashVars) {
+            refreshSkin(characterUIState.value.name, newFlashVars)
         }
     }
 
-    fun updateMap(character: DofusCharacter, map: DofusMap) {
-        lock.executeSyncOperation {
-            val uiState = getCharacterUIState(character.name)
-            uiState.value = uiState.value.copy(currentMap = map)
-            Thread {
-                ExplorationRecordManager.exploreMap(map.id)
-                ExplorationUIUtil.requestMapUpdate()
-            }.start()
-        }
+    fun updateMap(character: DofusCharacter, map: DofusMap) = lock.executeSyncOperation {
+        val uiState = getCharacterUIState(character.name)
+        uiState.value = uiState.value.copy(currentMap = map)
+        Thread {
+            ExplorationRecordManager.exploreMap(map.id)
+            ExplorationUIUtil.requestMapUpdate()
+        }.start()
     }
 
     fun updateHint(character: DofusCharacter, hintName: String?) = lock.executeSyncOperation {
@@ -307,19 +285,17 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
         uiState.value = uiState.value.copy(currentHintName = hintName)
     }
 
-    fun refreshSkin(characterName: String, newFlashVars: String? = null) {
-        lock.executeSyncOperation {
-            val characterUIState = getCharacterUIState(characterName)
-            val flashVars = newFlashVars ?: characterUIState.value.flashVars
-            characterUIState.value = characterUIState.value.copy(
-                flashVars = flashVars,
-                skinImageState = SkinImageState.LOADING
-            )
-            if (flashVars != null) {
-                Thread {
-                    doRefreshSkin(characterUIState.value.name, flashVars)
-                }.start()
-            }
+    fun refreshSkin(characterName: String, newFlashVars: String? = null) = lock.executeSyncOperation {
+        val characterUIState = getCharacterUIState(characterName)
+        val flashVars = newFlashVars ?: characterUIState.value.flashVars
+        characterUIState.value = characterUIState.value.copy(
+            flashVars = flashVars,
+            skinImageState = SkinImageState.LOADING
+        )
+        if (flashVars != null) {
+            Thread {
+                doRefreshSkin(characterUIState.value.name, flashVars)
+            }.start()
         }
     }
 

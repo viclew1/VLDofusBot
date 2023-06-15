@@ -23,12 +23,11 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
     private val WORLD_MAPS_LABELS = WORLD_MAPS_BY_LABEL.keys.sorted()
     private val DEFAULT_WORLD_MAP_LABEL = WorldMapManager.getWorldMap(1)?.name
         ?: error("Default world map not found")
-    private val MAP_ID_BY_DUNGEON = HintManager.getHints(HintManager.HintType.DUNGEON).associate {
-        "${it.name} (${it.map.subArea.level})" to it.map
-    }
+    private val MAP_ID_BY_DUNGEON = HintManager.getHints(HintManager.HintType.DUNGEON)
+        .associateBy { "${it.name} (${it.level})" }
     private val REACH_MAP_TYPE_LABELS = ReachMapType.values().map { it.label }
     private val DUNGEON_LABELS = MAP_ID_BY_DUNGEON.entries.sortedWith(
-        compareBy({ it.value.subArea.level }, { it.key })
+        compareBy({ it.value.level }, { it.key })
     ).map { it.key }
 
     val reachMapTypeParameter = DofusBotParameter(
@@ -151,8 +150,8 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
 
     private fun getDungeonMaps(scriptValues: ScriptValues): List<DofusMap> {
         val dungeon = scriptValues.getParamValue(dungeonParameter)
-        val mapId = MAP_ID_BY_DUNGEON[dungeon] ?: error("Couldn't find dungeon map id : $dungeon")
-        return listOf(mapId)
+        val map = MAP_ID_BY_DUNGEON[dungeon]?.map ?: error("Couldn't find dungeon map id : $dungeon")
+        return listOf(map)
     }
 
     private fun getDestMapsByMapId(scriptValues: ScriptValues): List<DofusMap> {

@@ -10,7 +10,7 @@ object VldbFilesUtil {
         val gameLocCmdResult: List<String> = execCmd("cmd", "/c", "where Dofus.exe")
         if (gameLocCmdResult.size != 1) {
             return getDefaultDofusDirectory()
-                ?: error("Unable to find Dofus.exe in default location, put in in your path environment variable")
+                ?: error("Unable to find Dofus.exe in default location, put it in your path environment variable")
         }
         return File(gameLocCmdResult[0]).parentFile.absolutePath
     }

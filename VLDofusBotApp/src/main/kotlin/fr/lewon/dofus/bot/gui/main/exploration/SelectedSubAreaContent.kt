@@ -26,6 +26,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.exploration.map.subarea.SubAreaContent
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
+import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
@@ -43,7 +44,7 @@ fun RowScope.SelectedSubAreaContent() {
         exit = shrinkHorizontally(shrinkTowards = Alignment.End)
     ) {
         LaunchedEffect(true) {
-            if (MetamobHelperUIUtil.uiState.value.metamobMonsters.isEmpty()) {
+            if (MetamobHelperUIUtil.getUiStateValue().metamobMonsters.isEmpty()) {
                 Thread { MetamobHelperUIUtil.refreshMonsters() }.start()
             }
         }
@@ -74,7 +75,10 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
             }
         }
         HorizontalSeparator(modifier = Modifier.padding(vertical = 10.dp))
-        if (ExplorationUIUtil.explorerUIState.value.availableCharacters.isEmpty()) {
+        val availableCharacterNames = CharactersUIUtil.getAllCharacterUIStates().map { it.value }.filter {
+            it.activityState in listOf(CharacterActivityState.AVAILABLE, CharacterActivityState.TO_INITIALIZE)
+        }.map { it.name }
+        if (availableCharacterNames.isEmpty()) {
             CommonText(
                 "No character available to explore this area",
                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp)
@@ -109,10 +113,16 @@ fun ExplorationScriptLauncherContent(subArea: DofusSubArea) {
             Row(Modifier.padding(bottom = 5.dp)) {
                 CommonText("Character used", Modifier.fillMaxWidth(0.5f).align(Alignment.CenterVertically))
                 Row(Modifier.fillMaxWidth()) {
+                    val selectedCharacterName = ExplorationUIUtil.explorerUIState.value.selectedCharacterName
+                        ?.takeIf { it in availableCharacterNames }
+                        ?: availableCharacterNames.firstOrNull()
+                        ?: ""
+                    ExplorationUIUtil.explorerUIState.value =
+                        ExplorationUIUtil.explorerUIState.value.copy(selectedCharacterName = selectedCharacterName)
                     ComboBox(
                         Modifier.fillMaxWidth(),
-                        selectedItem = ExplorationUIUtil.explorerUIState.value.selectedCharacterName ?: "",
-                        items = ExplorationUIUtil.explorerUIState.value.availableCharacters,
+                        selectedItem = selectedCharacterName,
+                        items = availableCharacterNames,
                         onItemSelect = {
                             ExplorationUIUtil.explorerUIState.value =
                                 ExplorationUIUtil.explorerUIState.value.copy(selectedCharacterName = it)
