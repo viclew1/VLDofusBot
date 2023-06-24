@@ -175,13 +175,13 @@ open class FightTask(
         gameInfo.fightBoard.resetFighters()
 
         WaitUtil.sleep(800)
-        if (!WaitUtil.waitUntil({ getCloseButtonLocation(gameInfo) != null || getLvlUpCloseButtonBounds(gameInfo) != null })) {
+        if (!WaitUtil.waitUntil { getCloseButtonLocation(gameInfo) != null || getLvlUpCloseButtonBounds(gameInfo) != null }) {
             error("Close button not found")
         }
         val lvlUpCloseButtonBounds = getLvlUpCloseButtonBounds(gameInfo)
         if (lvlUpCloseButtonBounds != null) {
             MouseUtil.leftClick(gameInfo, lvlUpCloseButtonBounds.getCenter())
-            WaitUtil.waitUntil({ getLvlUpCloseButtonBounds(gameInfo) == null })
+            WaitUtil.waitUntil { getLvlUpCloseButtonBounds(gameInfo) == null }
         }
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
@@ -210,9 +210,9 @@ open class FightTask(
         waitForSequenceCompleteEnd(gameInfo)
     }
 
-    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(2000) {
         gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
-    }, 2000)
+    }
 
     private fun castSpell(gameInfo: GameInfo, characterSpell: CharacterSpell, target: DofusCell) {
         gameInfo.eventStore.clear()
@@ -227,13 +227,13 @@ open class FightTask(
         ) ?: error("Couldn't cast spell")
     }
 
-    private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+    private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(2000) {
         gameInfo.eventStore.getLastEvent(GameActionFightCastOnTargetRequestMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(GameActionFightCastRequestMessage::class.java) != null
-    }, 2000)
+    }
 
-    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo): Boolean {
-        return WaitUtil.waitUntil({ isFightEnded(gameInfo) || isSequenceComplete(gameInfo) }, 5000)
+    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(5000) {
+        isFightEnded(gameInfo) || isSequenceComplete(gameInfo)
     }
 
     private fun isSequenceComplete(gameInfo: GameInfo): Boolean {
@@ -249,10 +249,8 @@ open class FightTask(
         gameInfo: GameInfo,
         eventClass: Class<out NetworkMessage>,
         timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
-    ): Boolean {
-        return WaitUtil.waitUntil(
-            { isFightEnded(gameInfo) || gameInfo.eventStore.getLastEvent(eventClass) != null }, timeOutMillis
-        )
+    ): Boolean = WaitUtil.waitUntil(timeOutMillis) {
+        isFightEnded(gameInfo) || gameInfo.eventStore.getLastEvent(eventClass) != null
     }
 
     private fun initFight(gameInfo: GameInfo) {
@@ -263,17 +261,17 @@ open class FightTask(
         val blockHelpBounds = REF_BLOCK_HELP_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
         val restrictToTeamBounds = REF_RESTRICT_TO_TEAM_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
 
-        val fightOptionsReceived = WaitUtil.waitUntil(
-            { getBlockHelpOptionValue(gameInfo) != null && getRestrictToTeamOptionValue(gameInfo) != null }
-        )
+        val fightOptionsReceived = WaitUtil.waitUntil {
+            getBlockHelpOptionValue(gameInfo) != null && getRestrictToTeamOptionValue(gameInfo) != null
+        }
+
         if (!fightOptionsReceived) {
             error("Fight option values not received")
         }
 
-        WaitUtil.waitUntil(
-            { gameInfo.fightBoard.getPlayerFighter() != null && gameInfo.fightBoard.getEnemyFighters().isNotEmpty() },
-            2000
-        )
+        WaitUtil.waitUntil(2000) {
+            gameInfo.fightBoard.getPlayerFighter() != null && gameInfo.fightBoard.getEnemyFighters().isNotEmpty()
+        }
         WaitUtil.sleep(800)
 
         if (getBlockHelpOptionValue(gameInfo) == teamFight) {
@@ -283,7 +281,7 @@ open class FightTask(
             MouseUtil.leftClick(gameInfo, restrictToTeamBounds.getCenter())
         }
         if (!gameInfo.isCreatureModeToggled) {
-            if (!WaitUtil.waitUntil({ isCreatureModeActive(gameInfo, creatureModeBounds) }, 1000)) {
+            if (!WaitUtil.waitUntil(1000) { isCreatureModeActive(gameInfo, creatureModeBounds) }) {
                 MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter())
             }
             gameInfo.isCreatureModeToggled = true

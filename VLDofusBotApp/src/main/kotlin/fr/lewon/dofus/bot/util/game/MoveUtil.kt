@@ -144,12 +144,12 @@ object MoveUtil {
         ) ?: error("No map change requested")
     }
 
-    private fun waitUntilMapChangeRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+    private fun waitUntilMapChangeRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1500) {
         gameInfo.eventStore.getLastEvent(ChangeMapMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(GameCautiousMapMovementRequestMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(MapInformationsRequestMessage::class.java) != null
-    }, 1500)
+    }
 
     fun isMapChanged(
         gameInfo: GameInfo,

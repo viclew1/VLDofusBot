@@ -29,7 +29,7 @@ class AccessHavenBagChestTask : BooleanDofusBotTask() {
             ?: error("Couldn't find chest interactive element")
         InteractiveUtil.useInteractive(gameInfo, interactiveElement.elementId, SKILL_ID)
         WaitUtil.waitUntilMessageArrives(gameInfo, StorageInventoryContentMessage::class.java)
-        if (!WaitUtil.waitUntil({ UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.STORAGE) })) {
+        if (!WaitUtil.waitUntil { UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.STORAGE) }) {
             error("Couldn't open chest storage")
         }
         return true

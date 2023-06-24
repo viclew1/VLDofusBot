@@ -23,7 +23,7 @@ class FightDungeonTask(private val dungeon: Dungeon, private val shouldExit: Boo
             val monsterGroupPassed = RetryUtil.tryUntilSuccess(
                 { FightMonsterGroupTask().run(logItem, gameInfo) },
                 20,
-                { WaitUtil.waitUntil({ gameInfo.eventStore.getLastEvent(GameRolePlayShowActorMessage::class.java) != null }) }
+                { WaitUtil.waitUntil { gameInfo.eventStore.getLastEvent(GameRolePlayShowActorMessage::class.java) != null } }
             )
             if (!monsterGroupPassed) {
                 return false

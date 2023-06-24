@@ -32,7 +32,7 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
         val getZaapDestMessageFun = { gameInfo.eventStore.getLastEvent(ZaapDestinationsMessage::class.java) }
         RetryUtil.tryUntilSuccess(
             { MouseUtil.leftClick(gameInfo, zaapPosition) },
-            { WaitUtil.waitUntil({ getZaapDestMessageFun() != null }, 8000) },
+            { WaitUtil.waitUntil(8000) { getZaapDestMessageFun() != null } },
             3
         ) ?: error("Couldn't open zaap selection frame")
         if (!waitForZaapFrameOpened(gameInfo)) {
@@ -46,7 +46,7 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
 
     private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {
         WaitUtil.waitForEvents(gameInfo, ZaapDestinationsMessage::class.java, BasicNoOperationMessage::class.java)
-        return WaitUtil.waitUntil({ UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.ZAAP_SELECTION) })
+        return WaitUtil.waitUntil { UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.ZAAP_SELECTION) }
     }
 
     override fun onStarted(): String {

@@ -120,7 +120,11 @@ object CustomTransitionManager : ToInitManager {
             getEdge(164102659.0, 179307526.0), 3732, listOf(32280, 32277, 32288, 32293, 32292)
         ), // -28;-31 -> -65;34
         NpcTransition(getEdge(179307526.0, 164102659.0), 3732, listOf(32276)), // -65;34 -> -28;-31
-        *getOtomaiTransportersTransitions().toTypedArray(),
+        NpcTransition(getEdge(8.8086292E7, 1.76556034E8), 3717, listOf(32051)), // 12;3 -> 7;-66
+        NpcTransition(getEdge(1.76556034E8, 8.8086292E7), 3717, listOf(32052)), // 7;-66 -> 12;3
+        NpcTransition(getEdge(8.8213267E7, 2.23482635E8), 6885, listOf(69540, 69541)), // -2;4 -> 32;-83
+        NpcTransition(getEdge(2.23482635E8, 8.8213267E7), 6885, listOf(69554, 69551)), // 32;-83 -> -2;4
+        * getOtomaiTransportersTransitions().toTypedArray(),
         *getFrigostTransportersTransitions().toTypedArray(),
     )
 

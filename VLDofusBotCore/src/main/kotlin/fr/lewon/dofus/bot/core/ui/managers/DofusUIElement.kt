@@ -20,7 +20,9 @@ enum class DofusUIElement(
     STORAGE("storage.xml"),
     LVL_UP("LevelUp.xml"),
     LVL_UP_WITH_SPELL("LevelUpWithSpell.xml"),
-    LVL_UP_OMEGA("LevelUpOmega.xml");
+    LVL_UP_OMEGA("LevelUpOmega.xml"),
+    QUEST_BASE("questBase.xml", OverrideType.REPLACE, key = "questBase", ctr = "mainCtr"),
+    ;
 
     companion object {
         private const val CONTEXT_DEFAULT = "default"

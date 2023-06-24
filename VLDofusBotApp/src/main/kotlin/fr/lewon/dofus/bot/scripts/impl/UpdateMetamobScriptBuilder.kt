@@ -46,7 +46,7 @@ object UpdateMetamobScriptBuilder : DofusBotScriptBuilder("Update Metamob") {
         updateMetamobMonsters(chestContent, gameInfo, logItem)
         val closeButtonBounds = UiUtil.getContainerBounds(DofusUIElement.STORAGE, "btn_close")
         MouseUtil.leftClick(gameInfo, closeButtonBounds.getCenter())
-        if (!WaitUtil.waitUntil({ !UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.STORAGE) })) {
+        if (!WaitUtil.waitUntil { !UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.STORAGE) }) {
             error("Couldn't close chest")
         }
     }

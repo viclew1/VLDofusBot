@@ -28,12 +28,12 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
             skillId = interactiveElement.enabledSkills.first().skillId
         )
 
-        WaitUtil.waitUntil({
+        WaitUtil.waitUntil(8000) {
             gameInfo.eventStore.getLastEvent(ObjectQuantityMessage::class.java) != null ||
                     gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null ||
                     gameInfo.eventStore.getLastEvent(GameFightStartingMessage::class.java) != null ||
                     gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null
-        }, 8000)
+        }
 
         WaitUtil.sleep(50)
 

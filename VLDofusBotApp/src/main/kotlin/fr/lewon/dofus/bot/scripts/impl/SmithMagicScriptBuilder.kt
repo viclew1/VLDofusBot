@@ -137,7 +137,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
     }
 
     private fun waitForObjectModified(gameInfo: GameInfo): ObjectItem? {
-        WaitUtil.waitUntil({ gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java) != null }, 10000)
+        WaitUtil.waitUntil(10000) { gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java) != null }
         gameInfo.eventStore.clearUntilLast(ObjectModifiedMessage::class.java)
         return gameInfo.eventStore.getLastEvent(ObjectModifiedMessage::class.java)?.obj
     }

@@ -21,7 +21,7 @@ class FightMonsterGroupTask(
             if (stopIfNoMonsterPresent && gameInfo.monsterInfoByEntityId.isEmpty()) {
                 error("No monster on map")
             }
-            WaitUtil.waitUntil({ gameInfo.monsterInfoByEntityId.isNotEmpty() }, 60000)
+            WaitUtil.waitUntil(60000) { gameInfo.monsterInfoByEntityId.isNotEmpty() }
         })
         if (!couldStartFight) {
             error("Couldn't start a fight")
@@ -45,15 +45,13 @@ class FightMonsterGroupTask(
         val clickPosition = InteractiveUtil.getCellClickPosition(gameInfo, monsterCellId, false)
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
         MouseUtil.leftClick(gameInfo, clickPosition)
-        WaitUtil.waitUntil(
-            {
-                gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
-                        || gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId
-            }, 8000
-        )
-        return WaitUtil.waitUntil({
+        WaitUtil.waitUntil(8000) {
             gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
-        }, 1200)
+                    || gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId
+        }
+        return WaitUtil.waitUntil(1200) {
+            gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
+        }
     }
 
     override fun onStarted(): String {

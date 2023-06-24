@@ -22,7 +22,7 @@ abstract class AbstractHavenBagTask(private var shouldReachHavenBag: Boolean) : 
 
         gameInfo.eventStore.clear()
         KeyboardUtil.sendKey(gameInfo, 'H', 0)
-        if (!WaitUtil.waitUntil({ isToggleHavenBagFinished(gameInfo) })) {
+        if (!WaitUtil.waitUntil { isToggleHavenBagFinished(gameInfo) }) {
             error("No message arrived in time.")
         }
         if (isToggleHavenBagFail(gameInfo)) {

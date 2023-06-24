@@ -85,9 +85,9 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
         MoveUtil.waitForMapChangeFinished(gameInfo)
     }
 
-    private fun waitUntilZaapRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+    private fun waitUntilZaapRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(3000) {
         gameInfo.eventStore.getLastEvent(TeleportRequestMessage::class.java) != null
-    }, 3000)
+    }
 
     private fun getOrderedZaapDestinations(zaapDestinations: List<DofusMap>): List<DofusMap> {
         val favoriteZaaps = TransportSortingUtil.getFavoriteZaapMapIds().map { it.toInt() }

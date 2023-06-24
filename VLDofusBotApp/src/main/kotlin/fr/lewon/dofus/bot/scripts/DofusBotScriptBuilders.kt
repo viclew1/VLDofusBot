@@ -12,6 +12,7 @@ enum class DofusBotScriptBuilders(val builder: DofusBotScriptBuilder) {
     UPDATE_METAMOB(UpdateMetamobScriptBuilder),
     TREASURE_HUNT_EXECUTE(ExecuteTreasureHuntScriptBuilder),
     FIGHT_ARENA(FightArenaScriptBuilder),
+    FIGHT_ALL_DOPPLES(FightAllDopplesScriptBuilder),
     FIGHT_DUNGEON(FightDungeonScriptBuilder),
     SMITH_MAGIC(SmithMagicScriptBuilder),
     RAISE_MOUNTS(RaiseMountsScriptBuilder),

@@ -15,7 +15,7 @@ object WaitUtil {
         sleep(time.toLong())
     }
 
-    fun waitUntil(condition: () -> Boolean, timeOutMillis: Int = DEFAULT_TIMEOUT_MILLIS): Boolean {
+    fun waitUntil(timeOutMillis: Int = DEFAULT_TIMEOUT_MILLIS, condition: () -> Boolean): Boolean {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < timeOutMillis) {
             if (condition()) {
@@ -31,7 +31,7 @@ object WaitUtil {
         messageClass: Class<T>,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS
     ): T {
-        waitUntil({ gameInfo.eventStore.getFirstEvent(messageClass) != null }, timeout)
+        waitUntil(timeout) { gameInfo.eventStore.getFirstEvent(messageClass) != null }
         return gameInfo.eventStore.getFirstEvent(messageClass)
             ?: error(getErrorMessage(messageClass))
     }
@@ -41,7 +41,7 @@ object WaitUtil {
         vararg messageClasses: Class<out NetworkMessage>,
         timeout: Int = DEFAULT_TIMEOUT_MILLIS,
     ) {
-        if (!waitUntil({ gameInfo.eventStore.isAllEventsPresent(*messageClasses) }, timeout)) {
+        if (!waitUntil(timeout) { gameInfo.eventStore.isAllEventsPresent(*messageClasses) }) {
             error(getErrorMessage(*messageClasses))
         }
     }

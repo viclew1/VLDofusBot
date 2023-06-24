@@ -52,7 +52,6 @@ class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : D
             MouseUtil.leftClick(gameInfo, optionLocation, 0)
         }
         WaitUtil.waitForEvents(gameInfo, LeaveDialogMessage::class.java, BasicNoOperationMessage::class.java)
-        gameInfo.eventStore.clearUntilLast(LeaveDialogMessage::class.java)
         return true
     }
 

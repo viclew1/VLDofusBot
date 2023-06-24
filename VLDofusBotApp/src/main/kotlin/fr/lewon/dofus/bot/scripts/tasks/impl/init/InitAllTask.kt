@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.init
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.gui.util.AppInfo
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.RefreshHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
@@ -22,6 +21,6 @@ class InitAllTask : BooleanDofusBotTask() {
     }
 
     override fun onStarted(): String {
-        return "Initializing all needed information for ${AppInfo.APP_NAME} ..."
+        return "Initializing all needed information ..."
     }
 }

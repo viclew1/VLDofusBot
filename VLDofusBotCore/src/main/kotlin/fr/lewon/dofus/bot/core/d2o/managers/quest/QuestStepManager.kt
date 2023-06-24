@@ -12,7 +12,8 @@ object QuestStepManager : VldbManager {
         questStepById = D2OUtil.getObjects("QuestSteps").associate {
             val id = it["id"].toString().toInt()
             val objectiveIds = it["objectiveIds"] as List<Int>
-            id to DofusQuestStep(id, objectiveIds)
+            val questId = it["questId"].toString().toInt()
+            id to DofusQuestStep(id, objectiveIds, questId)
         }
     }
 

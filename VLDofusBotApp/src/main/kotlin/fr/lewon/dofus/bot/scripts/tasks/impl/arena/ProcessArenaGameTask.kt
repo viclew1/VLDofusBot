@@ -37,7 +37,7 @@ class ProcessArenaGameTask : BooleanDofusBotTask() {
 
     private fun openArenaFrame(gameInfo: GameInfo) {
         KeyboardUtil.sendKey(gameInfo, 'K')
-        if (!WaitUtil.waitUntil({ isArenaFrameOpened(gameInfo) })) {
+        if (!WaitUtil.waitUntil { isArenaFrameOpened(gameInfo) }) {
             error("Couldn't open arena frame")
         }
     }

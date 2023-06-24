@@ -156,7 +156,7 @@ object TreasureHuntUtil {
 
     fun waitForTreasureHuntUpdate(gameInfo: GameInfo) {
         WaitUtil.waitForEvents(gameInfo, TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
-        if (!WaitUtil.waitUntil({ isHuntPresent(gameInfo) })) {
+        if (!WaitUtil.waitUntil { isHuntPresent(gameInfo) }) {
             error("Can't find treasure hunt frame. Hunt most likely failed.")
         }
     }

@@ -91,10 +91,10 @@ object InteractiveUtil {
         ) ?: error("No interactive used")
     }
 
-    private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil({
+    private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1500) {
         gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java) != null
                 || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
-    }, 1500)
+    }
 
     private fun doUseInteractive(
         gameInfo: GameInfo,
@@ -119,7 +119,7 @@ object InteractiveUtil {
         val optionHeaderRect = REF_HEADER_RECT.getTranslation(REF_INTERACTIVE_LOCATION.opposite())
             .getTranslation(interactiveLocation)
         MouseUtil.leftClick(gameInfo, interactiveLocation)
-        if (!WaitUtil.waitUntil({ isOptionFound(gameInfo, interactiveLocation, optionHeaderRect) }, 3000)) {
+        if (!WaitUtil.waitUntil(3000) { isOptionFound(gameInfo, interactiveLocation, optionHeaderRect) }) {
             return false
         }
         val firstOptionLoc = REF_FIRST_OPTION_LOCATION.getDifference(REF_INTERACTIVE_LOCATION)

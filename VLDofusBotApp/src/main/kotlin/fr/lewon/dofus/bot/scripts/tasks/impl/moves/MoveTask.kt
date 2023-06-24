@@ -94,7 +94,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
             }
             is ZaapTransition -> ZaapTowardTask(MapManager.getDofusMap(transition.edge.to.mapId)).run(logItem, gameInfo)
             else -> error("Transition not implemented yet : ${transition::class.java.simpleName}")
-        }.also { WaitUtil.waitUntil({ GeneralUIGameUtil.isGameReadyToUse(gameInfo) }) }
+        }.also { WaitUtil.waitUntil { GeneralUIGameUtil.isGameReadyToUse(gameInfo) } }
     }
 
     private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {
@@ -125,7 +125,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     private fun getMoveCellId(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Int? {
         var playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
         if (playerCellId == null) {
-            WaitUtil.waitUntil({ gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] != null })
+            WaitUtil.waitUntil { gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId] != null }
             playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
                 ?: error("No registered position for player : ${gameInfo.playerId}")
         }
