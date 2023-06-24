@@ -92,11 +92,11 @@ object WorldGraphUtil {
                 if (destVertices.contains(node.vertex)) {
                     return node.getTransitions()
                 }
-                val outgoingEdges = getOutgoingEdges(node.vertex)
+                val newNodes = getOutgoingEdges(node.vertex)
                     .filter { !invalidMapIds.contains(it.to.mapId) && !explored.contains(it.to) }
                     .flatMap { buildNodes(node, it, characterInfo) }
                     .onEach { explored.add(it.vertex) }
-                newFrontier.addAll(outgoingEdges)
+                newFrontier.addAll(newNodes)
             }
             frontier = newFrontier
         }

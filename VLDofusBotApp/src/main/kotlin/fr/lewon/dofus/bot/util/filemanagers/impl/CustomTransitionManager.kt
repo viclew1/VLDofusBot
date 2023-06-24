@@ -32,6 +32,7 @@ object CustomTransitionManager : ToInitManager {
         473019.0, // 11;10
         516693.0, // -5;-9
         516586.0, // -25;-52
+        521864.0, // -36;-54
     )
 
     private val TO_DISABLE_MAP_IDS = listOf(

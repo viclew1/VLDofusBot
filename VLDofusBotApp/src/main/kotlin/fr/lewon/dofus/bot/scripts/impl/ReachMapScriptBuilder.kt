@@ -12,6 +12,7 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
+import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
@@ -133,8 +134,9 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         statValues: HashMap<DofusBotScriptStat, String>
     ) {
         val useZaaps = scriptValues.getParamValue(useZaapsParameter).toBoolean()
+        val availableZaaps = if (useZaaps) TravelUtil.getAllZaapMaps() else emptyList()
         val destMaps = getDestMaps(gameInfo, scriptValues)
-        if (!ReachMapTask(destMaps, useZaaps).run(logItem, gameInfo)) {
+        if (!ReachMapTask(destMaps, availableZaaps).run(logItem, gameInfo)) {
             error("Failed to reach destination")
         }
     }

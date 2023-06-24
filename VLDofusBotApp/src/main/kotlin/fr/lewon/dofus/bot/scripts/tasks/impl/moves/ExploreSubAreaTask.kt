@@ -57,7 +57,7 @@ class ExploreSubAreaTask(
             if (!HarvestAllResourcesTask(itemIdsToHarvest).run(logItem, gameInfo)) {
                 return false
             }
-            if (!ReachMapTask(toExploreMaps, false).run(logItem, gameInfo)) {
+            if (!ReachMapTask(toExploreMaps, emptyList()).run(logItem, gameInfo)) {
                 if (success && runForever) {
                     toExploreMaps = initialExploreMapsList.toMutableList()
                 } else {

@@ -10,7 +10,10 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-open class ReachMapTask(private val destMaps: List<DofusMap>, private val useZaaps: Boolean = true) :
+open class ReachMapTask(
+    private val destMaps: List<DofusMap>,
+    private val availableZaaps: List<DofusMap> = TravelUtil.getAllZaapMaps()
+) :
     BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
@@ -19,9 +22,7 @@ open class ReachMapTask(private val destMaps: List<DofusMap>, private val useZaa
         }
         LeaveHavenBagTask().run(logItem, gameInfo)
 
-        val disabledZaapMapIds = if (!useZaaps) {
-            TravelUtil.getAllZaapMaps().map { it.id }
-        } else emptyList()
+        val disabledZaapMapIds = TravelUtil.getAllZaapMaps().minus(availableZaaps.toSet()).map { it.id }
         val characterInfo = gameInfo.buildCharacterBasicInfo(disabledZaapMapIds)
 
         val fromVertex = getCurrentVertex(gameInfo)
@@ -32,7 +33,7 @@ open class ReachMapTask(private val destMaps: List<DofusMap>, private val useZaa
             ?: error("No transition in path")
         val subLogItem = gameInfo.logger.addSubLog("Moving to map : (${destMap.posX}; ${destMap.posY}) ...", logItem)
         return MoveTask(path).run(subLogItem, gameInfo).also {
-            gameInfo.logger.closeLog("OK", subLogItem, true)
+            gameInfo.logger.closeLog(if (it) "OK" else "KO", subLogItem, true)
         }
     }
 
