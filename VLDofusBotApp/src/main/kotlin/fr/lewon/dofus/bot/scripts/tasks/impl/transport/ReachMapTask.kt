@@ -10,37 +10,34 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.moves.MoveTask
 import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-open class ReachMapTask(private val destMaps: List<DofusMap>) : BooleanDofusBotTask() {
+open class ReachMapTask(private val destMaps: List<DofusMap>, private val useZaaps: Boolean = true) :
+    BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         if (destMaps.contains(gameInfo.currentMap)) {
             return true
         }
+        LeaveHavenBagTask().run(logItem, gameInfo)
 
-        val allZaapMaps = TravelUtil.getAllZaapMaps()
-        allZaapMaps.intersect(destMaps.toSet()).takeIf { it.isNotEmpty() }?.let {
-            return ZaapTowardTask(it.first()).run(logItem, gameInfo)
-        }
-        val allZaapMapIds = allZaapMaps.map { it.id }
-        val currentVertex = getCurrentVertex(gameInfo)
-        val fromVertices = listOf(currentVertex)
-            .plus(allZaapMapIds.map { WorldGraphUtil.getVertex(it, 1) })
-            .filterNotNull()
-        val path = WorldGraphUtil.getPath(fromVertices, destMaps, gameInfo.buildCharacterBasicInfo())
-        if (path == null) {
-            val mapsStr = destMaps.map { it.coordinates }.distinct().joinToString(", ") { "(${it.x}; ${it.y})" }
-            error("No path found to any of the destinations : $mapsStr")
-        }
+        val disabledZaapMapIds = if (!useZaaps) {
+            TravelUtil.getAllZaapMaps().map { it.id }
+        } else emptyList()
+        val characterInfo = gameInfo.buildCharacterBasicInfo(disabledZaapMapIds)
+
+        val fromVertex = getCurrentVertex(gameInfo)
+            ?: error("No vertex found")
+        val path = WorldGraphUtil.getPath(listOf(fromVertex), destMaps, characterInfo)
+            ?: error("No path found to any of the destinations : ${getDestMapsStr()}")
         val destMap = path.lastOrNull()?.edge?.to?.mapId?.let { MapManager.getDofusMap(it) }
             ?: error("No transition in path")
         val subLogItem = gameInfo.logger.addSubLog("Moving to map : (${destMap.posX}; ${destMap.posY}) ...", logItem)
-        val fromMap = path.first().edge.from.mapId
-        val zaapOk = if (allZaapMapIds.contains(fromMap) && fromMap != gameInfo.currentMap.id) {
-            ZaapTowardTask(MapManager.getDofusMap(fromMap)).run(subLogItem, gameInfo)
-        } else true
-        return zaapOk && MoveTask(path).run(subLogItem, gameInfo).also {
+        return MoveTask(path).run(subLogItem, gameInfo).also {
             gameInfo.logger.closeLog("OK", subLogItem, true)
         }
+    }
+
+    private fun getDestMapsStr() = destMaps.map { it.coordinates }.distinct().joinToString(", ") {
+        "(${it.x}; ${it.y})"
     }
 
     private fun getCurrentVertex(gameInfo: GameInfo): Vertex? {

@@ -7,4 +7,6 @@ data class DofusCharacterBasicInfo(
     val activeQuestsIds: List<Int>,
     val finishedObjectiveIds: List<Int>,
     val activeObjectiveIds: List<Int>,
+    val states: List<Int>,
+    val disabledTransitionZaapMapIds: List<Double>
 )

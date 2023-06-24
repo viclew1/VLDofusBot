@@ -40,17 +40,17 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
         statValues: HashMap<DofusBotScriptStat, String>
     ) {
         val registeredZaaps = OpenZaapInterfaceTask().run(logItem, gameInfo)
+        val nonExploredZaaps = TravelUtil.getAllZaapMaps().minus(registeredZaaps.toSet())
         val closeZaapInterfaceButtonBounds = UiUtil.getContainerBounds(DofusUIElement.ZAAP_SELECTION, "btn_close")
         MouseUtil.leftClick(gameInfo, closeZaapInterfaceButtonBounds.getCenter())
         LeaveHavenBagTask().run(logItem, gameInfo)
-        val zaaps = TravelUtil.getAllZaapMaps()
-            .filter { shouldExploreZaap(gameInfo, it, registeredZaaps) }
-            .sortedBy { it.coordinates.distanceTo(gameInfo.currentMap.coordinates) }
+        val toExploreZaaps = TravelUtil.getAllZaapMaps().filter { shouldExploreZaap(gameInfo, it, nonExploredZaaps) }
             .toMutableList()
-        val totalSize = zaaps.size
+        val totalSize = toExploreZaaps.size
         statValues[exploredStat] = "0 / $totalSize"
-        while (zaaps.isNotEmpty()) {
-            val path = TravelUtil.getPath(gameInfo, zaaps)
+        while (toExploreZaaps.isNotEmpty()) {
+            val characterInfo = gameInfo.buildCharacterBasicInfo(toExploreZaaps.map { it.id })
+            val path = TravelUtil.getPath(gameInfo, toExploreZaaps, characterInfo)
                 ?: error("Couldn't find a path to destination")
             val destMap = path.lastOrNull()?.edge?.to?.mapId?.let { MapManager.getDofusMap(it) }
                 ?: error("No transition in path")
@@ -59,19 +59,20 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
             val subLogItem = gameInfo.logger.addSubLog("Reaching zaap : $nextMapStr", logItem)
             if (!MoveTask(path).run(subLogItem, gameInfo)) {
                 gameInfo.logger.closeLog("KO", subLogItem)
-                val destMapsStr = zaaps.joinToString(", ") { "(${it.posX}; ${it.posY})" }
+                val destMapsStr = toExploreZaaps.joinToString(", ") { "(${it.posX}; ${it.posY})" }
                 error("Couldn't explore all zaaps : $destMapsStr")
             }
             gameInfo.logger.closeLog("OK", subLogItem)
-            zaaps.remove(gameInfo.currentMap)
-            statValues[exploredStat] = "${totalSize - zaaps.size} / $totalSize"
+            toExploreZaaps.remove(gameInfo.currentMap)
+            statValues[exploredStat] = "${totalSize - toExploreZaaps.size} / $totalSize"
         }
     }
 
-    private fun shouldExploreZaap(gameInfo: GameInfo, it: DofusMap, registeredZaaps: List<DofusMap>): Boolean {
-        return !registeredZaaps.contains(it)
+    private fun shouldExploreZaap(gameInfo: GameInfo, it: DofusMap, nonExploredZaaps: List<DofusMap>): Boolean {
+        val characterInfo = gameInfo.buildCharacterBasicInfo(nonExploredZaaps.map { it.id })
+        return nonExploredZaaps.contains(it)
                 && it.subArea.area.superAreaId == gameInfo.currentMap.subArea.area.superAreaId
-                && TravelUtil.getPath(gameInfo, it) != null
-                && TravelUtil.getReversePath(gameInfo, it) != null
+                && TravelUtil.getPath(gameInfo, it, characterInfo) != null
+                && TravelUtil.getReversePath(gameInfo, it, characterInfo) != null
     }
 }

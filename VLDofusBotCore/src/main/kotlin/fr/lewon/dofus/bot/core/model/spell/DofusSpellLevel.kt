@@ -1,5 +1,7 @@
 package fr.lewon.dofus.bot.core.model.spell
 
+import fr.lewon.dofus.bot.core.criterion.DofusCriterion
+
 data class DofusSpellLevel(
     var id: Int,
     var spellId: Int,
@@ -23,4 +25,6 @@ data class DofusSpellLevel(
     var forClientOnly: Boolean,
     var effects: List<DofusSpellEffect>,
     var criticalEffects: List<DofusSpellEffect>,
+    val isParsedCompletely: Boolean,
+    val statesCriterion: DofusCriterion,
 )

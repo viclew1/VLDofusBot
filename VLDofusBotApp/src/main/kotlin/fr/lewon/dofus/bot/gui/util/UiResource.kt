@@ -30,6 +30,7 @@ enum class UiResource(path: String) {
     MONSTERS("/icon/ui/monsters.png"),
     ZAAP("/icon/ui/zaap.png"),
     UNKNOWN("/icon/ui/unknown.png"),
+    WARNING("/icon/ui/warning.png"),
     TREASURE_HUNT("/icon/ui/treasure_hunt.png")
     ;
 

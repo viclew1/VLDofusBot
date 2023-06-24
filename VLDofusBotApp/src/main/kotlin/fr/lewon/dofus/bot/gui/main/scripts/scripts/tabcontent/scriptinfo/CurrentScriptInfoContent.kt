@@ -41,8 +41,8 @@ fun CurrentScriptInfoContent() {
                 }
             }
             Row(Modifier.fillMaxSize()) {
-                for (character in characters) {
-                    Column(Modifier.fillMaxSize().weight(1f)) {
+                Column(Modifier.fillMaxSize().weight(1f)) {
+                    for (character in characters) {
                         ScriptInfoContent(character.value.name)
                     }
                 }

@@ -1,14 +1,20 @@
 package fr.lewon.dofus.bot.util.filemanagers.impl
 
 import fr.lewon.dofus.bot.core.criterion.DofusCriterionParser
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.world.Edge
 import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.model.criterion.DofusCustomCriterion
 import fr.lewon.dofus.bot.model.criterion.impl.IsOtomaiTransporterAvailableCriterion
+import fr.lewon.dofus.bot.model.transition.CustomTransition
 import fr.lewon.dofus.bot.model.transition.NpcTransition
+import fr.lewon.dofus.bot.model.transition.zaap.ZaapCriterionKey
+import fr.lewon.dofus.bot.model.transition.zaap.ZaapTransition
+import fr.lewon.dofus.bot.model.transition.zaap.ZaapTransitionCriterion
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
+import fr.lewon.dofus.bot.util.game.TravelUtil
 import org.reflections.Reflections
 
 object CustomTransitionManager : ToInitManager {
@@ -71,26 +77,51 @@ object CustomTransitionManager : ToInitManager {
                 .forEach { transitionUpdate.update(it) }
         }
         registerCustomCriteria()
-        listOf(
-            NpcTransition(getEdge(205261569.0, 206831621.0), 4102, listOf(34493)), // 27;-27 -> 34;-40
-            NpcTransition(getEdge(206831621.0, 205261569.0), 4102, listOf(34495)), // 34:-40 -> 27;-27
-            NpcTransition(getEdge(159744.0, 160513.0), 928, listOf(3616)), // -56;0 -> -57;-1
-            NpcTransition(getEdge(161029.0, 162055.0), 927, listOf(3632)), // -58;-5 -> -60;-7
-            NpcTransition(getEdge(167381514.0, 153360.0), 770, listOf(2776, 2777, 2865)), // -36;-10 -> -43;-16
-            NpcTransition(getEdge(153360.0, 167381514.0), 770, listOf(2866, 35631)), // -43;-16 -> -36;-10
-            NpcTransition(getEdge(54176040.0, 140510209.0), 2632, listOf(22670, 22669)), // -84;-40 -> -83;-58
-            NpcTransition(getEdge(140510209.0, 54176040.0), 2632, listOf(22740)), // -83;-58 -> -84;-40
-            NpcTransition(getEdge(199230724.0, 198181888.0), 789, listOf(2876)), // -4;24 -> Drake sanctuary
-            NpcTransition(getEdge(181928961.0, 181929473.0), 983, listOf(4012)), // -22;13 -> -4;12
-            NpcTransition(getEdge(181929473.0, 181928961.0), 983, listOf(4012)), // -4;12 -> -22;13
-            NpcTransition(
-                getEdge(164102659.0, 179307526.0), 3732, listOf(32280, 32277, 32288, 32293, 32292)
-            ), // -28;-31 -> -65;34
-            NpcTransition(getEdge(179307526.0, 164102659.0), 3732, listOf(32276)), // -65;34 -> -28;-31
-            *getOtomaiTransportersTransitions().toTypedArray(),
-            *getFrigostTransportersTransitions().toTypedArray(),
-        ).forEach { it.edge.transitions.add(it) }
+        val allNewTransitions = ArrayList<CustomTransition>()
+        allNewTransitions.addAll(getNpcTransitions())
+        allNewTransitions.addAll(getZaapTransitions())
+        allNewTransitions.forEach { transition ->
+            if (!transition.edge.transitions.contains(transition)) {
+                transition.edge.transitions.add(transition)
+            }
+        }
+        DofusCriterionParser.registerCustomCriterion(ZaapCriterionKey) { _, expectedValue ->
+            ZaapTransitionCriterion(expectedValue.toDouble())
+        }
     }
+
+    private fun getZaapTransitions(): List<CustomTransition> {
+        val zaapVertices = TravelUtil.getAllZaapMaps()
+            .mapNotNull { WorldGraphUtil.getVertex(it.id, 1) }
+        val verticesWhereZaapsAccessible = MapManager.getAllMaps()
+            .filter { it.canReachHavenBag || it.subArea.id == 851.0 } // Haven bags sub area
+            .flatMap { WorldGraphUtil.getVertices(it.id) }
+        return verticesWhereZaapsAccessible.flatMap { fromVertex ->
+            zaapVertices.map { zaapVertex ->
+                ZaapTransition(WorldGraphUtil.addEdge(fromVertex, zaapVertex))
+            }
+        }
+    }
+
+    private fun getNpcTransitions() = listOf(
+        NpcTransition(getEdge(205261569.0, 206831621.0), 4102, listOf(34493)), // 27;-27 -> 34;-40
+        NpcTransition(getEdge(206831621.0, 205261569.0), 4102, listOf(34495)), // 34:-40 -> 27;-27
+        NpcTransition(getEdge(159744.0, 160513.0), 928, listOf(3616)), // -56;0 -> -57;-1
+        NpcTransition(getEdge(161029.0, 162055.0), 927, listOf(3632)), // -58;-5 -> -60;-7
+        NpcTransition(getEdge(167381514.0, 153360.0), 770, listOf(2776, 2777, 2865)), // -36;-10 -> -43;-16
+        NpcTransition(getEdge(153360.0, 167381514.0), 770, listOf(2866, 35631)), // -43;-16 -> -36;-10
+        NpcTransition(getEdge(54176040.0, 140510209.0), 2632, listOf(22670, 22669)), // -84;-40 -> -83;-58
+        NpcTransition(getEdge(140510209.0, 54176040.0), 2632, listOf(22740)), // -83;-58 -> -84;-40
+        NpcTransition(getEdge(199230724.0, 198181888.0), 789, listOf(2876)), // -4;24 -> Drake sanctuary
+        NpcTransition(getEdge(181928961.0, 181929473.0), 983, listOf(4012)), // -22;13 -> -4;12
+        NpcTransition(getEdge(181929473.0, 181928961.0), 983, listOf(4012)), // -4;12 -> -22;13
+        NpcTransition(
+            getEdge(164102659.0, 179307526.0), 3732, listOf(32280, 32277, 32288, 32293, 32292)
+        ), // -28;-31 -> -65;34
+        NpcTransition(getEdge(179307526.0, 164102659.0), 3732, listOf(32276)), // -65;34 -> -28;-31
+        *getOtomaiTransportersTransitions().toTypedArray(),
+        *getFrigostTransportersTransitions().toTypedArray(),
+    )
 
     private fun registerCustomCriteria() {
         Reflections(DofusCustomCriterion::class.java.packageName)
@@ -99,7 +130,7 @@ object CustomTransitionManager : ToInitManager {
             .forEach { DofusCriterionParser.registerCustomCriterion(it.generateKey()) { _, _ -> it } }
     }
 
-    private fun getOtomaiTransportersTransitions(): List<Transition> {
+    private fun getOtomaiTransportersTransitions(): List<CustomTransition> {
         val criterionStr = "${IsOtomaiTransporterAvailableCriterion.generateKey()}=1"
         return listOf(
             NpcTransition(getEdge(20973058.0, 159766.0), 935, listOf(64326), criterionStr), // -54;19 -> -56;22
@@ -108,7 +139,7 @@ object CustomTransitionManager : ToInitManager {
         )
     }
 
-    private fun getFrigostTransportersTransitions(): List<Transition> {
+    private fun getFrigostTransportersTransitions(): List<CustomTransition> {
         return listOf(
             NpcTransition(getEdge(60035079.0, 54167842.0), 1286, listOf(8133)), // -76;-66 -> -68;-34
             NpcTransition(getEdge(60035079.0, 54161738.0), 1286, listOf(8135)), // -76;-66 -> -56;-74

@@ -112,7 +112,9 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
                     SoundType.FAILED.playSound()
                     val timeUntilCancel = 2 * 60 * 1000 - huntDuration
                     gameInfo.logger.addSubLog("Hunt failed, will give it up and restart (2 minutes wait)", logItem)
-                    WaitUtil.sleep(timeUntilCancel)
+                    if (timeUntilCancel > 0) {
+                        WaitUtil.sleep(timeUntilCancel)
+                    }
                     if (gameInfo.treasureHunt != null) {
                         TreasureHuntUtil.giveUpHunt(gameInfo)
                     }

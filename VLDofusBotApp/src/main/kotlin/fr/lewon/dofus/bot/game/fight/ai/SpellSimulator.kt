@@ -63,6 +63,10 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 simulateDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
             DofusSpellEffectType.MP_DECREASED_EARTH_DAMAGE ->
                 simulateMpDecreasedDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
+            DofusSpellEffectType.BEST_ELEMENT_DAMAGE ->
+                simulateBestElementDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
+            DofusSpellEffectType.WORST_ELEMENT_DAMAGE ->
+                simulateWorstElementDamages(caster, targetCell, fightersInAOE, effect, criticalHit)
             DofusSpellEffectType.AIR_LIFE_STEAL, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.FIRE_LIFE_STEAL, DofusSpellEffectType.NEUTRAL_LIFE_STEAL, DofusSpellEffectType.WATER_LIFE_STEAL ->
                 simulateLifeSteal(caster, targetCell, fightersInAOE, effect, criticalHit)
             else -> Unit
@@ -130,6 +134,56 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 ).toFloat() * mpUsedRatio * (1f - 0.1f * distToCenter)).toInt()
                 fighter.hpLost += realDamage
             }
+        }
+    }
+
+    private fun simulateBestElementDamages(
+        caster: Fighter,
+        aoeCenter: DofusCell,
+        fightersInAOE: List<Fighter>,
+        effect: DofusSpellEffect,
+        criticalHit: Boolean
+    ) {
+        for (fighter in fightersInAOE) {
+            val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
+            val damage = listOf(
+                DofusSpellEffectType.AIR_DAMAGE,
+                DofusSpellEffectType.EARTH_DAMAGE,
+                DofusSpellEffectType.FIRE_DAMAGE,
+                DofusSpellEffectType.NEUTRAL_DAMAGE,
+                DofusSpellEffectType.WATER_DAMAGE
+            ).maxOf {
+                damageCalculator.getRealEffectDamage(
+                    effect.copy(effectType = it), caster, fighter, criticalHit, false
+                )
+            }
+            val realDamage = (damage.toFloat() * (1f - 0.1f * distToCenter)).toInt()
+            fighter.hpLost += realDamage
+        }
+    }
+
+    private fun simulateWorstElementDamages(
+        caster: Fighter,
+        aoeCenter: DofusCell,
+        fightersInAOE: List<Fighter>,
+        effect: DofusSpellEffect,
+        criticalHit: Boolean
+    ) {
+        for (fighter in fightersInAOE) {
+            val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
+            val damage = listOf(
+                DofusSpellEffectType.AIR_DAMAGE,
+                DofusSpellEffectType.EARTH_DAMAGE,
+                DofusSpellEffectType.FIRE_DAMAGE,
+                DofusSpellEffectType.NEUTRAL_DAMAGE,
+                DofusSpellEffectType.WATER_DAMAGE
+            ).minOf {
+                damageCalculator.getRealEffectDamage(
+                    effect.copy(effectType = it), caster, fighter, criticalHit, false
+                )
+            }
+            val realDamage = (damage.toFloat() * (1f - 0.1f * distToCenter)).toInt()
+            fighter.hpLost += realDamage
         }
     }
 

@@ -94,13 +94,20 @@ object CharacterManager : ToInitManager {
         listeners.toList().forEach { it.onCharacterDelete(character) }
     }
 
-    fun updateCharacter(name: String, dofusClassId: Int? = null, isOtomaiTransportAvailable: Boolean? = null) {
+    fun updateCharacter(
+        name: String,
+        dofusClassId: Int? = null,
+        isOtomaiTransportAvailable: Boolean? = null,
+        isFrigost2Available: Boolean? = null
+    ) {
         val storedCharacter = getCharacter(name)
             ?: error("Character not found in store : $name")
         storedCharacter.dofusClassId = dofusClassId
             ?: storedCharacter.dofusClassId
         storedCharacter.isOtomaiTransportAvailable = isOtomaiTransportAvailable
             ?: storedCharacter.isOtomaiTransportAvailable
+        storedCharacter.isFrigost2Available = isFrigost2Available
+            ?: storedCharacter.isFrigost2Available
         fileManager.updateStore { }
         listeners.toList().forEach { it.onCharacterUpdate(storedCharacter) }
     }

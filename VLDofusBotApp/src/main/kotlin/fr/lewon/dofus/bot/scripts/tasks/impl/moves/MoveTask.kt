@@ -10,8 +10,10 @@ import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.model.transition.NpcTransition
+import fr.lewon.dofus.bot.model.transition.zaap.ZaapTransition
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ZaapTowardTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
@@ -52,6 +54,10 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     private fun getCustomTransitionDescription(transition: Transition): String {
         return when (transition) {
             is NpcTransition -> "NPC ${transition.npcId}"
+            is ZaapTransition -> {
+                val map = MapManager.getDofusMap(transition.edge.to.mapId)
+                "Zaap (${map.posX} ; ${map.posY})"
+            }
             else -> error("Transition not implemented yet : ${transition::class.java.simpleName}")
         }
     }
@@ -83,10 +89,12 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
 
     private fun processCustomTransitionMove(gameInfo: GameInfo, logItem: LogItem, transition: Transition): Boolean {
         return when (transition) {
-            is NpcTransition -> NpcSpeakTask(transition.npcId, transition.npcTalkIds).run(logItem, gameInfo)
+            is NpcTransition -> NpcSpeakTask(transition.npcId, transition.npcTalkIds).run(logItem, gameInfo).also {
+                MoveUtil.waitForMapChangeFinished(gameInfo, MapComplementaryInformationsDataMessage::class.java)
+            }
+            is ZaapTransition -> ZaapTowardTask(MapManager.getDofusMap(transition.edge.to.mapId)).run(logItem, gameInfo)
             else -> error("Transition not implemented yet : ${transition::class.java.simpleName}")
-        }.also { MoveUtil.waitForMapChangeFinished(gameInfo, MapComplementaryInformationsDataMessage::class.java) }
-                && WaitUtil.waitUntil({ GeneralUIGameUtil.isGameReadyToUse(gameInfo) })
+        }.also { WaitUtil.waitUntil({ GeneralUIGameUtil.isGameReadyToUse(gameInfo) }) }
     }
 
     private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {

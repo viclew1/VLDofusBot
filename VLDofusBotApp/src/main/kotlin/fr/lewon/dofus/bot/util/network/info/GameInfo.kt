@@ -33,6 +33,7 @@ class GameInfo(val character: DofusCharacter) {
     var completeBounds = Rectangle()
 
     var shouldInitBoard = true
+    var isInHavenBag = false
 
     val dofusBoard = DofusBoard()
 
@@ -46,6 +47,8 @@ class GameInfo(val character: DofusCharacter) {
     var mapData = MapData(emptyMap(), emptyList(), emptyList())
     val entityIdByNpcId = HashMap<Int, Double>()
     val monsterInfoByEntityId = HashMap<Double, GameRolePlayGroupMonsterInformations>()
+
+    //TODO thread safe
     val entityPositionsOnMapByEntityId = HashMap<Double, Int>()
     val mainMonstersByGroupOnMap = HashMap<GameRolePlayGroupMonsterInformations, DofusMonster>()
     val paddockItemByCell = HashMap<Int, PaddockItem>()
@@ -75,14 +78,20 @@ class GameInfo(val character: DofusCharacter) {
         }
     }
 
-    fun buildCharacterBasicInfo(): DofusCharacterBasicInfo {
+    fun buildCharacterBasicInfo(disabledZaapMapIds: List<Double> = emptyList()): DofusCharacterBasicInfo {
+        val disabledTransitionZaapMapIds = disabledZaapMapIds.toMutableList()
+        if (!character.isFrigost2Available) {
+            disabledTransitionZaapMapIds.add(54172489.0) // frigost 2 zaap map id
+        }
         return DofusCharacterBasicInfo(
             character.name,
             character.dofusClassId,
-            finishedQuestIds,
-            activeQuestIds,
-            finishedObjectiveIds,
-            activeObjectiveIds
+            finishedQuestsIds = finishedQuestIds,
+            activeQuestsIds = activeQuestIds,
+            finishedObjectiveIds = finishedObjectiveIds,
+            activeObjectiveIds = activeObjectiveIds,
+            disabledTransitionZaapMapIds = disabledTransitionZaapMapIds,
+            states = emptyList()
         )
     }
 

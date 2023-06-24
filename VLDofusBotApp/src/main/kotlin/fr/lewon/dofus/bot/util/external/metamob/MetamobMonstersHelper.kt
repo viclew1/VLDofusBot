@@ -149,10 +149,8 @@ object MetamobMonstersHelper {
     ): MetamobMonsterUpdate {
         val config = MetamobConfigManager.readConfig()
         val simultaneousOchers = config.getSafeSimultaneousOchers()
-        val disableStatusUpdate = config.disableStatusUpdate
         val totalAmount = updateOperation.getTotalAmount(monster, amount)
         val state = when {
-            disableStatusUpdate -> MetamobMonsterUpdateState.NONE
             monster.type != MetamobMonsterType.ARCHMONSTER -> MetamobMonsterUpdateState.NONE
             totalAmount < simultaneousOchers -> MetamobMonsterUpdateState.SEARCH
             totalAmount > simultaneousOchers -> MetamobMonsterUpdateState.OFFER

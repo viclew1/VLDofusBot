@@ -26,8 +26,7 @@ fun SelectedHarvestableSetContent() {
         ?: error("A set should be selected")
     val toHarvestItemIds = JobsUiUtil.harvestableIdsBySetName.value[selectedSetName]
         ?: emptySet()
-    VerticalGrid(HarvestJobs.values().size, HarvestJobs.values().size) {
-        val job = HarvestJobs.values()[it]
+    VerticalGrid(columns = HarvestJobs.values().size, items = HarvestJobs.values().toList()) { job ->
         Column(Modifier.padding(5.dp).grayBoxStyle()) {
             Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle().padding(start = 10.dp)) {
                 CommonText(
@@ -37,8 +36,8 @@ fun SelectedHarvestableSetContent() {
                 )
             }
             LazyVerticalGrid(
-                GridCells.Adaptive(45.dp),
-                modifier = Modifier.padding(5.dp).fillMaxHeight()
+                columns = GridCells.Adaptive(55.dp),
+                modifier = Modifier.padding(5.dp).fillMaxHeight(),
             ) {
                 items(job.items) { harvestable ->
                     val shouldHarvest = toHarvestItemIds.contains(harvestable.id)

@@ -11,7 +11,6 @@ data class MetamobConfig(
     @field:JsonProperty var captureAutoUpdate: Boolean = true,
     @field:JsonProperty var shopAutoUpdate: Boolean = true,
     @field:JsonProperty var simultaneousOchers: Int = 1,
-    @field:JsonProperty var disableStatusUpdate: Boolean = false,
 ) {
 
     fun getSafeSimultaneousOchers() = max(1, min(10, simultaneousOchers))
@@ -23,7 +22,6 @@ data class MetamobConfig(
             captureAutoUpdate,
             shopAutoUpdate,
             simultaneousOchers,
-            disableStatusUpdate
         )
     }
 }

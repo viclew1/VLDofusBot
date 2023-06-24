@@ -8,14 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun VerticalGrid(
+fun <T> VerticalGrid(
     columns: Int,
-    itemCount: Int,
+    items: List<T>,
     modifier: Modifier = Modifier,
-    content: @Composable (Int) -> Unit
+    content: @Composable (T) -> Unit
 ) {
+    val itemCount = items.size
     Column(modifier = modifier) {
-        var rows = (itemCount / columns)
+        var rows = itemCount / columns
         if (itemCount.mod(columns) > 0) {
             rows += 1
         }
@@ -28,7 +29,7 @@ fun VerticalGrid(
                     val index = firstIndex + columnId
                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                         if (index < itemCount) {
-                            content(index)
+                            content(items[index])
                         }
                     }
                 }

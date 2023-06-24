@@ -12,7 +12,7 @@ object SpellAssetManager : ToInitManager {
     private lateinit var spellIconDataById: Map<Int, Painter>
 
     override fun initManager() {
-        spellIconDataById = BreedManager.getAllBreeds()
+        spellIconDataById = BreedManager.getAllBreeds(includeCommonBreed = true)
             .flatMap { SpellVariantManager.getSpellVariants(it.id) }
             .flatMap { it.spells }
             .associate { it.id to buildPainter(it.iconId) }

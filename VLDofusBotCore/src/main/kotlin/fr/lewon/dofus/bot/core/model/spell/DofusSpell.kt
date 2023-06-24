@@ -4,5 +4,6 @@ data class DofusSpell(
     val id: Int,
     val iconId: Int,
     val name: String,
-    val levels: List<DofusSpellLevel>
+    val levels: List<DofusSpellLevel>,
+    val adminName: String
 )

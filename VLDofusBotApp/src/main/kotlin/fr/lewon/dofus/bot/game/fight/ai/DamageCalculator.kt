@@ -35,47 +35,10 @@ class DamageCalculator {
         if (!effectCanHitTarget(spellEffect.targets, caster, target)) {
             return 0
         }
-        val elementCharac: DofusCharacteristics
-        val elementDamages: DofusCharacteristics
-        val elementResistPer: DofusCharacteristics
-        val elementResist: DofusCharacteristics
-        when (spellEffect.effectType) {
-            DofusSpellEffectType.AIR_DAMAGE, DofusSpellEffectType.AIR_LIFE_STEAL -> {
-                elementCharac = DofusCharacteristics.AGILITY
-                elementDamages = DofusCharacteristics.AIR_DAMAGE_BONUS
-                elementResistPer = DofusCharacteristics.AIR_ELEMENT_RESIST_PERCENT
-                elementResist = DofusCharacteristics.AIR_ELEMENT_REDUCTION
-            }
-            DofusSpellEffectType.WATER_DAMAGE, DofusSpellEffectType.WATER_LIFE_STEAL -> {
-                elementCharac = DofusCharacteristics.CHANCE
-                elementDamages = DofusCharacteristics.WATER_DAMAGE_BONUS
-                elementResistPer = DofusCharacteristics.WATER_ELEMENT_RESIST_PERCENT
-                elementResist = DofusCharacteristics.WATER_ELEMENT_REDUCTION
-            }
-            DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.MP_DECREASED_EARTH_DAMAGE -> {
-                elementCharac = DofusCharacteristics.STRENGTH
-                elementDamages = DofusCharacteristics.EARTH_DAMAGE_BONUS
-                elementResistPer = DofusCharacteristics.EARTH_ELEMENT_RESIST_PERCENT
-                elementResist = DofusCharacteristics.EARTH_ELEMENT_REDUCTION
-            }
-            DofusSpellEffectType.FIRE_DAMAGE, DofusSpellEffectType.FIRE_LIFE_STEAL -> {
-                elementCharac = DofusCharacteristics.INTELLIGENCE
-                elementDamages = DofusCharacteristics.FIRE_DAMAGE_BONUS
-                elementResistPer = DofusCharacteristics.FIRE_ELEMENT_RESIST_PERCENT
-                elementResist = DofusCharacteristics.FIRE_ELEMENT_REDUCTION
-            }
-            DofusSpellEffectType.NEUTRAL_DAMAGE, DofusSpellEffectType.NEUTRAL_LIFE_STEAL -> {
-                elementCharac = DofusCharacteristics.STRENGTH
-                elementDamages = DofusCharacteristics.NEUTRAL_DAMAGE_BONUS
-                elementResistPer = DofusCharacteristics.NEUTRAL_ELEMENT_RESIST_PERCENT
-                elementResist = DofusCharacteristics.NEUTRAL_ELEMENT_REDUCTION
-            }
-            else -> return 0
-        }
         val baseDamage = if (upperBound) spellEffect.max else spellEffect.min
-        return computeDamage(
-            baseDamage, caster, target, elementCharac, elementDamages, elementResistPer, elementResist, criticalHit
-        )
+        val elementalDamageInfo = getElementalDamageInfo(spellEffect.effectType)
+            ?: return 0
+        return computeDamage(baseDamage, caster, target, elementalDamageInfo, criticalHit)
     }
 
     private fun effectCanHitTarget(spellTargets: List<DofusSpellTarget>, caster: Fighter, target: Fighter): Boolean {
@@ -88,12 +51,13 @@ class DamageCalculator {
         baseDamage: Int,
         caster: Fighter,
         target: Fighter,
-        elementCharac: DofusCharacteristics,
-        elementDamages: DofusCharacteristics,
-        elementResistPercent: DofusCharacteristics,
-        elementResist: DofusCharacteristics,
+        elementalDamageInfo: ElementalDamageInfo,
         criticalHit: Boolean
     ): Int {
+        val elementCharac = elementalDamageInfo.elementCharac
+        val elementDamages = elementalDamageInfo.elementDamages
+        val elementResistPercent = elementalDamageInfo.elementResistPercent
+        val elementResist = elementalDamageInfo.elementResist
         val characValue = elementCharac.getValue(caster) + DofusCharacteristics.DAMAGES_BONUS_PERCENT.getValue(caster)
         var damagesValue = elementDamages.getValue(caster) + DofusCharacteristics.ALL_DAMAGES_BONUS.getValue(caster)
         if (criticalHit) {
@@ -112,5 +76,47 @@ class DamageCalculator {
         val resistProduct = enemyResistPercent.toFloat() / 100f
         return (multipliedDamages * (1f - resistProduct) - enemyResist).toInt()
     }
+
+    private class ElementalDamageInfo(
+        val elementCharac: DofusCharacteristics,
+        val elementDamages: DofusCharacteristics,
+        val elementResistPercent: DofusCharacteristics,
+        val elementResist: DofusCharacteristics
+    )
+
+    private fun getElementalDamageInfo(effectType: DofusSpellEffectType): ElementalDamageInfo? =
+        when (effectType) {
+            DofusSpellEffectType.AIR_DAMAGE, DofusSpellEffectType.AIR_LIFE_STEAL -> ElementalDamageInfo(
+                elementCharac = DofusCharacteristics.AGILITY,
+                elementDamages = DofusCharacteristics.AIR_DAMAGE_BONUS,
+                elementResistPercent = DofusCharacteristics.AIR_ELEMENT_RESIST_PERCENT,
+                elementResist = DofusCharacteristics.AIR_ELEMENT_REDUCTION
+            )
+            DofusSpellEffectType.WATER_DAMAGE, DofusSpellEffectType.WATER_LIFE_STEAL -> ElementalDamageInfo(
+                elementCharac = DofusCharacteristics.CHANCE,
+                elementDamages = DofusCharacteristics.WATER_DAMAGE_BONUS,
+                elementResistPercent = DofusCharacteristics.WATER_ELEMENT_RESIST_PERCENT,
+                elementResist = DofusCharacteristics.WATER_ELEMENT_REDUCTION
+            )
+            DofusSpellEffectType.EARTH_DAMAGE, DofusSpellEffectType.EARTH_LIFE_STEAL, DofusSpellEffectType.MP_DECREASED_EARTH_DAMAGE -> ElementalDamageInfo(
+                elementCharac = DofusCharacteristics.STRENGTH,
+                elementDamages = DofusCharacteristics.EARTH_DAMAGE_BONUS,
+                elementResistPercent = DofusCharacteristics.EARTH_ELEMENT_RESIST_PERCENT,
+                elementResist = DofusCharacteristics.EARTH_ELEMENT_REDUCTION
+            )
+            DofusSpellEffectType.FIRE_DAMAGE, DofusSpellEffectType.FIRE_LIFE_STEAL -> ElementalDamageInfo(
+                elementCharac = DofusCharacteristics.INTELLIGENCE,
+                elementDamages = DofusCharacteristics.FIRE_DAMAGE_BONUS,
+                elementResistPercent = DofusCharacteristics.FIRE_ELEMENT_RESIST_PERCENT,
+                elementResist = DofusCharacteristics.FIRE_ELEMENT_REDUCTION
+            )
+            DofusSpellEffectType.NEUTRAL_DAMAGE, DofusSpellEffectType.NEUTRAL_LIFE_STEAL -> ElementalDamageInfo(
+                elementCharac = DofusCharacteristics.STRENGTH,
+                elementDamages = DofusCharacteristics.NEUTRAL_DAMAGE_BONUS,
+                elementResistPercent = DofusCharacteristics.NEUTRAL_ELEMENT_RESIST_PERCENT,
+                elementResist = DofusCharacteristics.NEUTRAL_ELEMENT_REDUCTION
+            )
+            else -> null
+        }
 
 }

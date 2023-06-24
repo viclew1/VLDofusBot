@@ -77,16 +77,10 @@ object WorldGraphUtil {
         toMaps: List<DofusMap>,
         characterInfo: DofusCharacterBasicInfo
     ): List<Transition>? {
-        val toMapsIds = toMaps.map { it.id }
-        var destVertices = vertices.entries
-            .filter { toMapsIds.contains(it.key) }
-            .flatMap { it.value.values }
-        if (destVertices.isEmpty()) {
-            return null
-        }
-        destVertices.filter { it.zoneId == 1 }.takeIf { it.isNotEmpty() }?.let {
-            destVertices = it
-        }
+        var destVertices = toMaps.flatMap { getVertices(it.id) }.takeIf { it.isNotEmpty() }
+            ?: return null
+        destVertices = destVertices.filter { it.zoneId == 1 }.takeIf { it.isNotEmpty() }
+            ?: destVertices
         val explored = ArrayList<Vertex>()
         var frontier = ArrayList<Node>()
         val initialNodes = fromVertices.map { Node(null, it, null) }
@@ -98,11 +92,10 @@ object WorldGraphUtil {
                 if (destVertices.contains(node.vertex)) {
                     return node.getTransitions()
                 }
-                val outgoingEdges = outgoingEdges[node.vertex.uid]
-                    ?.filter { !invalidMapIds.contains(it.to.mapId) && !explored.contains(it.to) }
-                    ?.flatMap { buildNodes(node, it, characterInfo) }
-                    ?.onEach { explored.add(it.vertex) }
-                    ?: emptyList()
+                val outgoingEdges = getOutgoingEdges(node.vertex)
+                    .filter { !invalidMapIds.contains(it.to.mapId) && !explored.contains(it.to) }
+                    .flatMap { buildNodes(node, it, characterInfo) }
+                    .onEach { explored.add(it.vertex) }
                 newFrontier.addAll(outgoingEdges)
             }
             frontier = newFrontier
@@ -138,13 +131,12 @@ object WorldGraphUtil {
         return DofusCriterionParser.parse(criterion).check(characterInfo)
     }
 
-    fun getVertex(mapId: Double, zoneId: Int): Vertex? {
-        return vertices[mapId]?.get(zoneId)
-    }
+    fun getVertex(mapId: Double, zoneId: Int) = vertices[mapId]?.get(zoneId)
 
-    fun getOutgoingEdges(vertex: Vertex): List<Edge> {
-        return outgoingEdges[vertex.uid] ?: return emptyList()
-    }
+    fun getVertices(mapId: Double) = vertices[mapId]?.values?.toList()
+        ?: emptyList()
+
+    fun getOutgoingEdges(vertex: Vertex) = outgoingEdges[vertex.uid] ?: emptyList()
 
     private class Node(val parent: Node?, val vertex: Vertex, val transition: Transition?) {
         fun getTransitions(): List<Transition> {

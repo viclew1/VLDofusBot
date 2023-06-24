@@ -7,6 +7,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -52,23 +53,26 @@ fun TooltipManageable(
                     val dx: Int
                     if (requiredWidth < globalSize.width) {
                         dx = currentTooltipInfo.elementSize.width
-                        tooltipShape = CutCornerShape(25, 5, 5, 25)
+                        tooltipShape = CutCornerShape(8.dp, 2.dp, 2.dp, 8.dp)
                     } else {
                         dx = -tooltipSize.width
-                        tooltipShape = CutCornerShape(5, 25, 25, 5)
+                        tooltipShape = CutCornerShape(2.dp, 8.dp, 8.dp, 2.dp)
                     }
                     val offset = currentTooltipInfo.elementPosition - globalPosition + Offset(
                         dx.toFloat(),
-                        currentTooltipInfo.elementSize.height / 2f - currentTooltipInfo.tooltipHeight.value / 2
+                        currentTooltipInfo.tooltipPlacement.computeYOffset(
+                            currentTooltipInfo.elementSize.height,
+                            tooltipSize.height
+                        )
                     )
                     alpha = 1f
                     translationX = offset.x
                     translationY = offset.y
                 } else alpha = 0f
-            }.height(currentTooltipInfo.tooltipHeight)) {
+            }) {
                 Button(
                     {},
-                    Modifier.fillMaxHeight().onGloballyPositioned {
+                    Modifier.onGloballyPositioned {
                         tooltipSize = it.size
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.DarkGray),
@@ -76,7 +80,7 @@ fun TooltipManageable(
                     shape = tooltipShape,
                     border = BorderStroke(1.dp, Color.Black)
                 ) {
-                    Text(currentTooltipInfo.tooltipText, color = Color.White, fontSize = 12.sp)
+                    currentTooltipInfo.tooltipContent(this)
                 }
             }
         }
@@ -89,6 +93,36 @@ fun TooltipTarget(
     height: Dp = 35.dp,
     delayMillis: Int = 0,
     modifier: Modifier = Modifier,
+    tooltipPlacement: TooltipPlacement = TooltipPlacement.Centered,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val tooltipContent: (@Composable RowScope.() -> Unit)? = if (text.isNotEmpty()) ({
+        Row(Modifier.height(height)) {
+            Text(
+                text,
+                color = Color.White,
+                fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.CenterVertically),
+            )
+        }
+    }) else null
+    TooltipTarget(
+        key = text,
+        tooltipContent = tooltipContent,
+        tooltipPlacement = tooltipPlacement,
+        delayMillis = delayMillis,
+        modifier = modifier,
+        content = content
+    )
+}
+
+@Composable
+fun TooltipTarget(
+    key: Any,
+    tooltipContent: @Composable (RowScope.() -> Unit)?,
+    tooltipPlacement: TooltipPlacement = TooltipPlacement.Centered,
+    delayMillis: Int = 0,
+    modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -98,11 +132,18 @@ fun TooltipTarget(
     var isJobStarted by remember { mutableStateOf(false) }
 
     val show = {
-        if (!isJobStarted && text.isNotEmpty()) {
+        if (!isJobStarted) {
             isJobStarted = true
             job = scope.launch {
                 delay(delayMillis.toLong())
-                tooltipInfo.value = TooltipInfo(text, height, elementPosition, elementSize)
+                tooltipInfo.value = if (tooltipContent != null) {
+                    TooltipInfo(
+                        tooltipContent = tooltipContent,
+                        tooltipPlacement = tooltipPlacement,
+                        elementPosition = elementPosition,
+                        elementSize = elementSize
+                    )
+                } else null
             }
         }
     }
@@ -113,7 +154,7 @@ fun TooltipTarget(
         tooltipInfo.value = null
     }
 
-    Box(modifier = modifier.defaultHoverManager(onHover = show, onExit = hide, key = text).onGloballyPositioned {
+    Box(modifier = modifier.defaultHoverManager(onHover = show, onExit = hide, key = key).onGloballyPositioned {
         elementPosition = it.localToWindow(Offset.Zero)
         elementSize = it.size
     }.pointerInput(Unit) {
@@ -135,9 +176,14 @@ suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
     }
 }
 
+enum class TooltipPlacement(val computeYOffset: (contentHeight: Int, tooltipHeight: Int) -> Float) {
+    Centered({ contentHeight, tooltipHeight -> contentHeight / 2f - tooltipHeight / 2f }),
+    TopCornerAttached({ contentHeight, _ -> contentHeight / 2f }),
+}
+
 data class TooltipInfo(
-    val tooltipText: String,
-    val tooltipHeight: Dp,
+    val tooltipContent: @Composable RowScope.() -> Unit,
+    val tooltipPlacement: TooltipPlacement,
     val elementPosition: Offset,
     val elementSize: IntSize
 )

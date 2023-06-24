@@ -96,8 +96,7 @@ private fun HeaderContent(uiState: TreasureHuntUiState) {
 @Composable
 private fun HintsList(uiState: TreasureHuntUiState, hintName: String, gfxIds: List<Int>) {
     HorizontalSeparator(hintName, modifier = Modifier.padding(vertical = 8.dp))
-    VerticalGrid(4, gfxIds.size) {
-        val gfxId = gfxIds[it]
+    VerticalGrid(4, gfxIds) { gfxId ->
         val isHovered = remember { mutableStateOf(false) }
         Box(
             Modifier.fillMaxWidth().height(95.dp).padding(3.dp)

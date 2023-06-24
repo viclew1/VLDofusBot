@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.game.fight.ai
 
+import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.spell.*
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
@@ -106,12 +107,26 @@ class FightState(
         spell: DofusSpellLevel,
         alignmentCalculator: AlignmentCalculator,
     ): Boolean {
-        return (!isSpellAttack(spell) || aiComplement.canAttack(currentFighter))
+        return spell.statesCriterion.check(buildCharacterBasicInfo(currentFighter))
+                && (!isSpellAttack(spell) || aiComplement.canAttack(currentFighter))
                 && (!spell.castInLine && !spell.castInDiagonal
                 || spell.castInLine && alignmentCalculator.onSameLine
                 || spell.castInDiagonal && alignmentCalculator.onSameDiagonal)
                 && alignmentCalculator.dist in spell.minRange..getSpellMaxRange(spell, currentFighter)
                 && (!spell.castTestLos || alignmentCalculator.los)
+    }
+
+    private fun buildCharacterBasicInfo(currentFighter: Fighter): DofusCharacterBasicInfo {
+        return DofusCharacterBasicInfo(
+            characterName = "",
+            breedId = -1,
+            finishedQuestsIds = emptyList(),
+            activeQuestsIds = emptyList(),
+            finishedObjectiveIds = emptyList(),
+            activeObjectiveIds = emptyList(),
+            disabledTransitionZaapMapIds = emptyList(),
+            states = currentFighter.states
+        )
     }
 
     private fun isSpellAttack(spell: DofusSpellLevel): Boolean {

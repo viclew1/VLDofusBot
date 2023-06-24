@@ -12,7 +12,6 @@ import java.util.concurrent.locks.ReentrantLock
 object DofusCriterionParser {
 
     private val lock = ReentrantLock()
-    private val falseCriterion = DofusFalseCriterion()
     private val parsedCriteriaStore = HashMap<String, DofusCriterion>()
     private val customCriterionBuilderByKey =
         HashMap<String, (operator: CriterionOperator, expectedValue: String) -> DofusCriterion>()
@@ -59,7 +58,7 @@ object DofusCriterionParser {
         for (subCriterion in criteria) {
             criterion = criterion?.or(subCriterion) ?: subCriterion
         }
-        return criterion ?: falseCriterion
+        return criterion ?: DofusFalseCriterion
     }
 
     private fun parseCriterionAndBlock(
@@ -74,12 +73,12 @@ object DofusCriterionParser {
         for (subCriterion in criteria) {
             criterion = criterion?.and(subCriterion) ?: subCriterion
         }
-        return criterion ?: falseCriterion
+        return criterion ?: DofusFalseCriterion
     }
 
     private fun parseSimpleCriterion(criterionStr: String): DofusCriterion {
         val operator = CriterionOperator.values().firstOrNull { criterionStr.contains(it.char) }
-            ?: return falseCriterion
+            ?: return DofusFalseCriterion
         val splitCriterionStr = criterionStr.split(operator.char)
         val key = splitCriterionStr[0]
         val expectedValue = splitCriterionStr[1]
@@ -94,13 +93,15 @@ object DofusCriterionParser {
 
     private fun parseCustomCriterion(key: String, operator: CriterionOperator, expectedValue: String): DofusCriterion {
         return customCriterionBuilderByKey[key]?.invoke(operator, expectedValue)
-            ?: falseCriterion
+            ?: DofusFalseCriterion
     }
 
-    private class DofusFalseCriterion : DofusCriterion() {
-        override fun check(characterInfo: DofusCharacterBasicInfo): Boolean {
-            return false
-        }
+    object DofusFalseCriterion : DofusCriterion() {
+        override fun check(characterInfo: DofusCharacterBasicInfo): Boolean = false
+    }
+
+    object DofusTrueCriterion : DofusCriterion() {
+        override fun check(characterInfo: DofusCharacterBasicInfo): Boolean = true
     }
 
 }

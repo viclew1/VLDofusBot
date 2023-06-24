@@ -57,14 +57,15 @@ fun SimpleTextField(
             value = textFieldValue,
             enabled = enabled,
             onValueChange = { newValue ->
-                if (isContentValid(newValue.text)) {
-                    onValueChange(newValue.text)
+                val newText = newValue.text.replace("\n", "")
+                if (isContentValid(newText)) {
+                    onValueChange(newText)
                     textFieldValueState.value = newValue
-                    previousText.value = newValue.text
+                    previousText.value = newText
                 } else {
                     val backupTfv = TextFieldValue(previousText.value, TextRange(textFieldValue.selection.start))
                     textFieldValueState.value = backupTfv
-                    onValueChange("INVALID_${newValue.text}")
+                    onValueChange("INVALID_$newText")
                     onValueChange(previousText.value)
                 }
             },

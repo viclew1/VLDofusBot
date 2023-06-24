@@ -10,6 +10,7 @@ data class CharacterUIState(
     val name: String,
     val dofusClassId: Int,
     val isOtomaiTransportAvailable: Boolean,
+    val isFrigost2Available: Boolean,
     val currentMap: DofusMap? = null,
     val activityState: CharacterActivityState = CharacterActivityState.DISCONNECTED,
     val checked: Boolean = false,

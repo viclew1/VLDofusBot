@@ -77,14 +77,6 @@ fun MetamobConfigContent() {
                     }
                 })
         }
-        ConfigSwitchLine(
-            "Set all archmonsters statuses to NONE",
-            "Check if you always want to set archmonsters statuses to NONE (not SEARCHED nor OFFERED => no more trade offers). \nSTATUSES WILL ONLY BE UPDATED IF YOU PRESS ARCHMONSTERS STATUS UPDATE BUTTON",
-            true,
-            metamobConfig.disableStatusUpdate
-        ) { checked ->
-            SettingsUIUtil.updateMetamobConfig { it.disableStatusUpdate = checked }
-        }
         ConfigLine(
             "Update archmonsters statuses",
             "Update your Metamob archmonsters statuses. If you have less than the simultaneous ochers amount, it will be set to SEARCHED, if you have more : OFFERED, else : NONE",

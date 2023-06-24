@@ -2,29 +2,29 @@ package fr.lewon.dofus.bot.gui.main.scripts.characters.edit.spells
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import fr.lewon.dofus.bot.core.d2o.managers.characteristic.BreedManager
 import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellManager
 import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellVariantManager
 import fr.lewon.dofus.bot.core.model.spell.DofusSpell
-import fr.lewon.dofus.bot.gui.custom.CommonText
-import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
-import fr.lewon.dofus.bot.gui.custom.defaultHoverManager
+import fr.lewon.dofus.bot.core.model.spell.DofusSpellVariant
+import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.DragTarget
 import fr.lewon.dofus.bot.gui.main.DropTarget
+import fr.lewon.dofus.bot.gui.main.TooltipPlacement
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
 import fr.lewon.dofus.bot.util.filemanagers.impl.SpellAssetManager
 
@@ -70,11 +70,11 @@ private fun SpellsRow(characterSpells: List<CharacterSpell>) {
 }
 
 @Composable
-private fun SpellBox(content: @Composable () -> Unit) {
+private fun SpellBox(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val isHovered = remember { mutableStateOf(false) }
     val bgColor = if (isHovered.value) Color.Gray else AppColors.backgroundColor
     Box(
-        Modifier.fillMaxSize().background(bgColor).defaultHoverManager(isHovered)
+        modifier.fillMaxSize().background(bgColor).defaultHoverManager(isHovered)
             .border(BorderStroke(1.dp, AppColors.VERY_DARK_BG_COLOR)).padding(1.dp)
     ) {
         content()
@@ -104,37 +104,56 @@ private fun CharacterSpellContent(characterSpell: CharacterSpell) {
 }
 
 @Composable
-private fun BoxScope.SpellImage(spell: DofusSpell, spellKey: SpellKey?) {
+private fun SpellImage(spell: DofusSpell, spellKey: SpellKey?) {
+    val isParsedCompletely = spell.levels.all { it.isParsedCompletely }
+    val isEffectsEmpty = spell.levels.any { it.effects.isEmpty() }
     DragTarget(SpellDrag(spell, spellKey)) {
         SpellAssetManager.getIconPainter(spell.id)?.let { painter ->
-            Image(painter, "", Modifier.fillMaxSize().align(Alignment.Center))
+            Box(Modifier.fillMaxSize()) {
+                Image(
+                    painter,
+                    "",
+                    Modifier.fillMaxSize().align(Alignment.Center),
+                    alpha = if (isEffectsEmpty) 0.3f else 1f
+                )
+                if (!isParsedCompletely) {
+                    Image(
+                        UiResource.WARNING.imagePainter,
+                        "",
+                        Modifier.fillMaxSize().align(Alignment.Center),
+                        alpha = 0.6f,
+                        colorFilter = ColorFilter.tint(if (isEffectsEmpty) Color.Black else Color.Yellow)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
 private fun AvailableSpells(characterUIState: CharacterUIState) {
-    val spells = SpellVariantManager.getSpellVariants(characterUIState.dofusClassId).sortedWith(compareBy(
-        { it.spells.minOf { spell -> spell.levels.minOf { spellLevel -> spellLevel.minPlayerLevel } } },
-        { it.id }
-    )).flatMap { it.spells }
+    val classSpells = getSpells(SpellVariantManager.getSpellVariants(characterUIState.dofusClassId))
+    val additionalSpells = getSpells(SpellVariantManager.getSpellVariants(BreedManager.anyBreedId))
     DropTarget<SpellDrag>(Modifier.fillMaxSize()) { isInBound, draggedSpell ->
         if (isInBound && draggedSpell?.fromSpellKey != null) {
             val fromSpellKey = draggedSpell.fromSpellKey
             CharacterSpellsUIUtil.updateSpellId(fromSpellKey.key, fromSpellKey.ctrlModifier, null)
         }
         Box(Modifier.fillMaxSize().darkGrayBoxStyle().padding(5.dp)) {
-            val state = rememberLazyGridState()
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(8),
-                modifier = Modifier.padding(end = 8.dp),
-                state = state
-            ) {
-                items(spells) {
-                    SpellBox {
-                        TooltipTarget(it.name, modifier = Modifier.fillMaxSize()) {
-                            SpellImage(it, null)
-                        }
+            val state = rememberScrollState()
+            VerticalGrid(
+                columns = 8,
+                modifier = Modifier.padding(end = 8.dp).verticalScroll(state),
+                items = classSpells.plus(additionalSpells)
+            ) { spell ->
+                SpellBox(Modifier.padding(1.dp)) {
+                    TooltipTarget(
+                        key = spell.id,
+                        tooltipContent = { SpellTooltipContent(spell) },
+                        tooltipPlacement = TooltipPlacement.TopCornerAttached,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        SpellImage(spell, null)
                     }
                 }
             }
@@ -145,3 +164,37 @@ private fun AvailableSpells(characterUIState: CharacterUIState) {
         }
     }
 }
+
+@Composable
+private fun SpellTooltipContent(spell: DofusSpell) {
+    val isParsedCompletely = spell.levels.all { spellLevel -> spellLevel.isParsedCompletely }
+    val isEffectsEmpty = spell.levels.any { spellLevel -> spellLevel.effects.isEmpty() }
+    Column(Modifier.widthIn(max = 300.dp).padding(vertical = 10.dp)) {
+        CommonText("${spell.name} (${spell.id})", fontWeight = FontWeight.Bold)
+        if (isEffectsEmpty) {
+            CommonText("(No effect parsed)")
+        } else if (!isParsedCompletely) {
+            CommonText("(Effects partially parsed)")
+        }
+        spell.levels.lastOrNull()?.effects?.takeIf { it.isNotEmpty() }?.let { effects ->
+            HorizontalSeparator("Effects", modifier = Modifier.padding(vertical = 5.dp))
+            effects.forEach {
+                val targets = it.targets.joinToString(" / ") { target ->
+                    val typeName = target.type.name
+                    val typeIdSuffix = target.id?.let { id -> "($id)" } ?: ""
+                    val casterOverwriteTargetStr = if (target.casterOverwriteTarget) "*" else ""
+                    "$typeName$casterOverwriteTargetStr$typeIdSuffix"
+                }
+                CommonText("$targets => ${it.effectType.name}", fontSize = 11.sp)
+            }
+        }
+    }
+}
+
+private fun getSpells(spellVariants: List<DofusSpellVariant>) = spellVariants.filter {
+    it.spells.none { spell -> spell.adminName !in listOf("", "null") }
+}.sortedWith(
+    compareBy(
+        { it.spells.minOfOrNull { spell -> spell.levels.minOf { spellLevel -> spellLevel.minPlayerLevel } } },
+        { it.id })
+).flatMap { it.spells }

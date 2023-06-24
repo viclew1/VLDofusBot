@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.core.d2o.managers.characteristic.BreedManager
 import fr.lewon.dofus.bot.gui.custom.ComboBox
 import fr.lewon.dofus.bot.gui.custom.CommonText
@@ -26,16 +27,26 @@ fun CharacterGlobalInformationEditionContent(characterUIState: CharacterUIState)
                 getItemText = { it.name }
             )
         }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            CommonText("Otomai Transporter", Modifier.fillMaxWidth(0.6f))
-            Spacer(Modifier.fillMaxWidth().weight(1f))
-            Switch(
-                characterUIState.isOtomaiTransportAvailable,
-                onCheckedChange = {
-                    CharacterManager.updateCharacter(characterUIState.name, isOtomaiTransportAvailable = it)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+        CharacterSwitchLine("Otomai Transporter", characterUIState.isOtomaiTransportAvailable) {
+            CharacterManager.updateCharacter(characterUIState.name, isOtomaiTransportAvailable = it)
         }
+        CharacterSwitchLine("Frigost 2 Zaap", characterUIState.isFrigost2Available) {
+            CharacterManager.updateCharacter(characterUIState.name, isFrigost2Available = it)
+        }
+    }
+}
+
+@Composable
+private fun CharacterSwitchLine(title: String, value: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 5.dp).padding(vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CommonText(title, Modifier.fillMaxWidth().weight(1f), fontSize = 12.sp)
+        Switch(
+            value,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.height(20.dp)
+        )
     }
 }

@@ -89,7 +89,8 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
                 CharacterUIState(
                     characterName,
                     character.dofusClassId,
-                    character.isOtomaiTransportAvailable
+                    character.isOtomaiTransportAvailable,
+                    character.isFrigost2Available
                 )
             )
         }
@@ -121,7 +122,8 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             val uiState = getCharacterUIState(character.name)
             uiState.value = uiState.value.copy(
                 dofusClassId = character.dofusClassId,
-                isOtomaiTransportAvailable = character.isOtomaiTransportAvailable
+                isOtomaiTransportAvailable = character.isOtomaiTransportAvailable,
+                isFrigost2Available = character.isFrigost2Available
             )
         }
     }
@@ -191,6 +193,7 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
             name = character.name,
             dofusClassId = character.dofusClassId,
             isOtomaiTransportAvailable = character.isOtomaiTransportAvailable,
+            isFrigost2Available = character.isFrigost2Available,
             checked = false,
             activityState = CharacterActivityState.DISCONNECTED,
             flashVars = null,

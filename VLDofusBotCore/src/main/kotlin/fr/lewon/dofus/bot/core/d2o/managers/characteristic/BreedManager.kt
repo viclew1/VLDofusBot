@@ -7,6 +7,8 @@ import fr.lewon.dofus.bot.core.model.charac.DofusBreed
 
 object BreedManager : VldbManager {
 
+    const val anyBreedId = 19
+    private lateinit var commonBreed: DofusBreed
     private lateinit var breedById: Map<Int, DofusBreed>
 
     override fun initManager() {
@@ -15,6 +17,7 @@ object BreedManager : VldbManager {
             val nameId = it["shortNameId"].toString().toInt()
             id to DofusBreed(id, I18NUtil.getLabel(nameId) ?: "UNKNOWN_BREED_NAME")
         }
+        commonBreed = DofusBreed(anyBreedId, "COMMON_BREED")
     }
 
     override fun getNeededManagers(): List<VldbManager> {
@@ -25,8 +28,12 @@ object BreedManager : VldbManager {
         return breedById[id] ?: error("No breed for id : $id")
     }
 
-    fun getAllBreeds(): List<DofusBreed> {
-        return breedById.values.toList()
+    fun getAllBreeds(includeCommonBreed: Boolean = false): List<DofusBreed> {
+        val breeds = breedById.values.toMutableList()
+        if (includeCommonBreed) {
+            breeds.add(commonBreed)
+        }
+        return breeds
     }
 
 }

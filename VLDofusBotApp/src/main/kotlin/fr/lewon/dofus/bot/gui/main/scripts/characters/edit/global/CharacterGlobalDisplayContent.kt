@@ -53,33 +53,35 @@ fun CharacterCharacteristicInformationContent(characterUIState: CharacterUIState
     } else {
         val characterGlobalInformationUIState =
             CharacterGlobalInformationUIUtil.getCharacterGlobalInformationUIState(characterUIState.name)
-        Column {
-            Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.size(20.dp)) {
-                    TooltipTarget("Level", 20.dp, modifier = Modifier.fillMaxSize()) {
-                        Image(UiResource.LEVEL.imagePainter, "")
+        Box(Modifier.fillMaxSize()) {
+            Column(Modifier.align(Alignment.Center)) {
+                Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.size(20.dp)) {
+                        TooltipTarget("Level", 20.dp, modifier = Modifier.fillMaxSize()) {
+                            Image(UiResource.LEVEL.imagePainter, "")
+                        }
                     }
+                    Spacer(Modifier.weight(1f))
+                    CommonText(characterGlobalInformationUIState.value.levelText, fontSize = 11.sp)
                 }
-                Spacer(Modifier.weight(1f))
-                CommonText(characterGlobalInformationUIState.value.levelText, fontSize = 11.sp)
-            }
-            Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.size(20.dp)) {
-                    TooltipTarget("Kamas", 20.dp, modifier = Modifier.fillMaxSize()) {
-                        Image(UiResource.KAMAS.imagePainter, "")
+                Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.size(20.dp)) {
+                        TooltipTarget("Kamas", 20.dp, modifier = Modifier.fillMaxSize()) {
+                            Image(UiResource.KAMAS.imagePainter, "")
+                        }
                     }
+                    Spacer(Modifier.weight(1f))
+                    CommonText(characterGlobalInformationUIState.value.kamasText, fontSize = 11.sp)
                 }
-                Spacer(Modifier.weight(1f))
-                CommonText(characterGlobalInformationUIState.value.kamasText, fontSize = 11.sp)
-            }
-            Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.size(20.dp)) {
-                    TooltipTarget("Weight", 20.dp, modifier = Modifier.fillMaxSize()) {
-                        Image(UiResource.WEIGHT.imagePainter, "")
+                Row(Modifier.padding(5.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.size(20.dp)) {
+                        TooltipTarget("Weight", 20.dp, modifier = Modifier.fillMaxSize()) {
+                            Image(UiResource.WEIGHT.imagePainter, "")
+                        }
                     }
+                    Spacer(Modifier.weight(1f))
+                    CommonText(characterGlobalInformationUIState.value.weightText, fontSize = 11.sp)
                 }
-                Spacer(Modifier.weight(1f))
-                CommonText(characterGlobalInformationUIState.value.weightText, fontSize = 11.sp)
             }
         }
     }

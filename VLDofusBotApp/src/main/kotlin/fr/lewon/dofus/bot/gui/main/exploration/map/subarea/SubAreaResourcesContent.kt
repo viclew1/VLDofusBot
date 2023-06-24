@@ -55,9 +55,8 @@ private fun ResourcesListContent(job: HarvestJobs, subArea: DofusSubArea) {
         VerticalGrid(
             columns = 5,
             modifier = Modifier.padding(end = 8.dp),
-            itemCount = harvestables.size
-        ) {
-            val harvestable = harvestables[it]
+            items = harvestables
+        ) { harvestable ->
             val color = if (toHarvestItemIds.contains(harvestable.id)) {
                 AppColors.primaryLightColor
             } else {

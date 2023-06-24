@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.core.d2o.managers.spell
 
 import fr.lewon.dofus.bot.core.VldbCoreInitializer
 import fr.lewon.dofus.bot.core.VldbManager
+import fr.lewon.dofus.bot.core.criterion.DofusCriterionParser
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.model.spell.*
@@ -42,16 +43,22 @@ object SpellLevelManager : VldbManager {
                 if (VldbCoreInitializer.DEBUG) {
                     println("Effects : ")
                 }
-                val effects = parseEffects(it["effects"] as List<Map<String, Any>>?)
+                val unparsedEffects = it["effects"] as List<Map<String, Any>>?
+                val effects = parseEffects(unparsedEffects)
                 if (VldbCoreInitializer.DEBUG) {
                     println("Critical effects : ")
                 }
                 val criticalEffects = parseEffects(it["criticalEffect"] as List<Map<String, Any>>?)
+                val isParsedCompletely = unparsedEffects?.size == effects.size
+                val statesCriterionStr = it["statesCriterion"].toString()
+                val statesCriterion = if (statesCriterionStr != "" && statesCriterionStr != "null") {
+                    DofusCriterionParser.parse(statesCriterionStr)
+                } else DofusCriterionParser.DofusTrueCriterion
                 id to DofusSpellLevel(
                     id, spellId, criticalHitProbability, needFreeCell, needTakenCell, maxRange, minRange, castInLine,
                     rangeCanBeBoosted, apCost, castInDiagonal, initialCooldown, castTestLos, minCastInterval,
                     maxStack, grade, minPlayerLevel, maxCastPerTarget, maxCastPerTurn, forClientOnly,
-                    effects, criticalEffects
+                    effects, criticalEffects, isParsedCompletely, statesCriterion
                 )
             }
     }
