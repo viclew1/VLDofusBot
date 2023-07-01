@@ -17,7 +17,7 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 @Composable
 fun CharacterGlobalDisplayContent(characterUIState: CharacterUIState) {
-    Column(Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp).fillMaxHeight().width(150.dp).grayBoxStyle()) {
+    Column(Modifier.padding(start = 5.dp, top = 5.dp, end = 5.dp).fillMaxHeight().width(180.dp).grayBoxStyle()) {
         CharacterNameDisplay(characterUIState)
         CharacterSkinDisplay(characterUIState)
         CharacterGlobalInformationEditionContent(characterUIState)

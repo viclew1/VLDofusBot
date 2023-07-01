@@ -36,7 +36,7 @@ class DangerMap(
         val dangerByCell = computeIfAbsent(enemyFighter.id) { HashMap() }
         for (spell in enemyFighter.spells) {
             val realDamage = spell.effects
-                .sumOf { damageCalculator.getRealEffectDamage(it, enemyFighter, playerFighter, false, true) }
+                .sumOf { damageCalculator.getRealEffectDamage(it, enemyFighter, playerFighter, false).maxDamage }
             val cellsWithLos = dofusBoard.cellsAtRange(spell.minRange, spell.maxRange, accessibleCells)
                 .filter { accessibleCells.any { ac -> fightBoard.lineOfSight(it.first, ac) } }
                 .map { it.first }

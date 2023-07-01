@@ -1,9 +1,6 @@
 package fr.lewon.dofus.bot.game.fight
 
 import fr.lewon.dofus.bot.core.d2o.managers.characteristic.CharacteristicManager
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicDetailed
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 
 enum class DofusCharacteristics(val id: Int) {
 
@@ -124,18 +121,9 @@ enum class DofusCharacteristics(val id: Int) {
         ?: error("No characteristic for id : $id")
 
     fun getValue(fighter: Fighter, defaultValue: Int = 0): Int {
-        val charac = fighter.statsById[dofusCharacteristic.id]
+        return fighter.statsById[dofusCharacteristic.id]
             ?: fighter.baseStatsById[dofusCharacteristic.id]
-        return getCharacValue(charac, defaultValue)
-    }
-
-    private fun getCharacValue(charac: CharacterCharacteristic?, defaultValue: Int = 0): Int {
-        charac ?: return defaultValue
-        return when (charac) {
-            is CharacterCharacteristicDetailed -> charac.base + charac.additional + charac.contextModif + charac.objectsAndMountBonus + charac.alignGiftBonus
-            is CharacterCharacteristicValue -> charac.total
-            else -> error("Untreated characteristic type : ${charac::class.java.typeName}")
-        }
+            ?: return defaultValue
     }
 
     companion object {

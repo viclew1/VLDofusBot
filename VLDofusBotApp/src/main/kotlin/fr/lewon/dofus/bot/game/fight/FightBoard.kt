@@ -62,13 +62,14 @@ class FightBoard(private val gameInfo: GameInfo) {
     fun createOrUpdateFighter(fighterInfo: GameFightFighterInformations): Fighter {
         return lock.executeSyncOperation {
             val fighterId = fighterInfo.contextualId
-            val cellId = fighterInfo.spawnInfo.informations.disposition.cellId
+            val cellId = fighterInfo.disposition.cellId
             val spells = getSpellLevels(gameInfo, fighterInfo, fighterId)
             val cell = dofusBoard.getCell(cellId)
             val fighter = fightersById.computeIfAbsent(fighterId) {
                 Fighter(cell, fighterId, fighterInfo)
             }
-            fighter.spells = spells
+            fighter.fighterInfo = fighterInfo
+            fighter.spells = spells.map(DofusSpellLevel::copy)
             fighter.teamId = fighterInfo.spawnInfo.teamId
             move(fighter, cell)
             fighter
@@ -111,7 +112,9 @@ class FightBoard(private val gameInfo: GameInfo) {
 
     fun updateFighterCharacteristics(fighter: Fighter, characteristics: List<CharacterCharacteristic>) {
         lock.executeSyncOperation {
-            characteristics.forEach { fighter.statsById[it.characteristicId] = it }
+            characteristics.forEach {
+                fighter.statsById[it.characteristicId] = DofusCharacteristicUtil.getCharacteristicValue(it)
+            }
         }
     }
 

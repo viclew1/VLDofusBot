@@ -61,8 +61,22 @@ private fun SpellsRow(characterSpells: List<CharacterSpell>) {
     Row {
         for (characterSpell in characterSpells) {
             Row(Modifier.fillMaxWidth().weight(1f).aspectRatio(1f).padding(1.dp)) {
-                SpellBox {
-                    CharacterSpellContent(characterSpell)
+                val spell = characterSpell.spellId?.let { SpellManager.getSpell(it) }
+                if (spell != null) {
+                    TooltipTarget(
+                        key = spell.id,
+                        tooltipContent = { SpellTooltipContent(spell) },
+                        tooltipPlacement = TooltipPlacement.TopCornerAttached,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        SpellBox {
+                            CharacterSpellContent(characterSpell)
+                        }
+                    }
+                } else {
+                    SpellBox {
+                        CharacterSpellContent(characterSpell)
+                    }
                 }
             }
         }

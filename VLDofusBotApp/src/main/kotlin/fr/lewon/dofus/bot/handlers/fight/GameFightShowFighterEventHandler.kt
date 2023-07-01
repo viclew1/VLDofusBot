@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.Fighter
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.character.GameFightShowFighterMessage
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightCharacterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightFighterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightMonsterInformations
@@ -41,9 +40,7 @@ object GameFightShowFighterEventHandler : IEventHandler<GameFightShowFighterMess
 
     private fun updateMonsterFighter(fighter: Fighter, monsterGenericId: Double) {
         val baseStats = MonsterManager.getMonster(monsterGenericId).baseStats
-        fighter.baseStatsById.putAll(baseStats.entries.associate {
-            it.key.id to CharacterCharacteristicValue().also { ccv -> ccv.total = it.value }
-        })
+        fighter.baseStatsById.putAll(baseStats.entries.associate { it.key.id to it.value })
     }
 
     private fun updateCharacterFighter(fighter: Fighter) {

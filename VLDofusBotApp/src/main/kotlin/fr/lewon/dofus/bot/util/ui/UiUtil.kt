@@ -3,8 +3,8 @@ package fr.lewon.dofus.bot.util.ui
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
+import fr.lewon.dofus.bot.util.io.toRectangleRelative
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object UiUtil {
@@ -34,7 +34,7 @@ object UiUtil {
     ): RectangleRelative {
         val container = dofusUIElement.getContainer(fightContext).findContainer(containerName)
             ?: error("Couldn't find container : $containerName")
-        return ConverterUtil.toRectangleRelative(container.bounds)
+        return container.bounds.toRectangleRelative()
     }
 
 }

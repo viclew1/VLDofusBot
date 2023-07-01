@@ -2,7 +2,7 @@ package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.io.toPointRelative
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object MousePositionsUtil {
@@ -13,7 +13,7 @@ object MousePositionsUtil {
 
     fun getRestPosition(gameInfo: GameInfo): PointRelative {
         val uiPosition = DofusUIElement.BANNER.getPosition(isInFight(gameInfo))
-        val uiPositionRelative = ConverterUtil.toPointRelative(uiPosition)
+        val uiPositionRelative = uiPosition.toPointRelative()
         return uiPositionRelative.getSum(DELTA_AP_POSITION)
     }
 

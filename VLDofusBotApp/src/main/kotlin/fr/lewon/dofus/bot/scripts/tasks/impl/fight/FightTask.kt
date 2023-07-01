@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.ai.FightAI
+import fr.lewon.dofus.bot.game.fight.ai.SpellSimulator
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.game.fight.ai.impl.DefaultFightAI
@@ -122,12 +123,12 @@ open class FightTask(
         initFight(gameInfo)
 
         val characterSpells = CharacterSpellManager.getSpells(gameInfo.character)
-        val characterSpellBySpellLevel = HashMap<DofusSpellLevel, CharacterSpell>()
+        val characterSpellBySpellLevelId = HashMap<Int, CharacterSpell>()
         for (characterSpell in characterSpells) {
             val spell = characterSpell.spellId?.let { SpellManager.getSpell(it) }
             if (spell != null) {
-                for (level in spell.levels) {
-                    characterSpellBySpellLevel[level] = characterSpell
+                for (spellLevel in spell.levels) {
+                    characterSpellBySpellLevelId[spellLevel.id] = characterSpell
                 }
             }
         }
@@ -150,11 +151,25 @@ open class FightTask(
                 val targetCellId = nextOperation.targetCellId ?: error("Target cell id can't be null")
                 val target = gameInfo.dofusBoard.getCell(targetCellId)
                 if (nextOperation.type == FightOperationType.MOVE) {
+                    gameInfo.logger.addSubLog("Moving to cell : $targetCellId", logItem)
                     processMove(gameInfo, target)
                 } else if (nextOperation.type == FightOperationType.SPELL) {
-                    val spell = nextOperation.spell ?: error("Spell can't be null")
-                    val characterSpell = characterSpellBySpellLevel[spell]
-                        ?: error("No character spell found for spell level : ${spell.id}")
+                    val spellLevel = nextOperation.spell ?: error("Spell can't be null")
+                    val characterSpell = characterSpellBySpellLevelId[spellLevel.id]
+                        ?: error("No character spell found for spell level : ${spellLevel.id}")
+                    val spellLogItem = gameInfo.logger.addSubLog(
+                        message = "Casting spell ${spellLevel.spellId} on cell : $targetCellId",
+                        parent = logItem,
+                        subItemCapacity = 30
+                    )
+                    val expectedDamagesByFighter =
+                        getExpectedDamagesByFighter(gameInfo, fightBoard, spellLevel, targetCellId)
+                    if (expectedDamagesByFighter.isNotEmpty()) {
+                        val damagesLogItem = gameInfo.logger.addSubLog("Expected damages :", spellLogItem)
+                        expectedDamagesByFighter.filter { it.value != 0 }.forEach {
+                            gameInfo.logger.addSubLog("${it.value} on ${it.key}", damagesLogItem)
+                        }
+                    }
                     castSpell(gameInfo, characterSpell, target)
                 }
                 WaitUtil.sleep(500)
@@ -188,6 +203,30 @@ open class FightTask(
         return true
     }
 
+    private fun getExpectedDamagesByFighter(
+        gameInfo: GameInfo,
+        fightBoard: FightBoard,
+        spellLevel: DofusSpellLevel,
+        targetCellId: Int,
+    ): Map<Double, Int> {
+        val spellSimulator = SpellSimulator(gameInfo.dofusBoard)
+        val newFightBoard = fightBoard.deepCopy()
+        val playerFighter = newFightBoard.getPlayerFighter()
+            ?: return emptyMap()
+        spellSimulator.simulateSpell(newFightBoard, playerFighter, spellLevel, targetCellId)
+        val initialLostHpByFighterId = fightBoard.getAllFighters(true).associate {
+            it.id to it.hpLost
+        }
+        val newLostHpByFighterId = newFightBoard.getAllFighters(true).associate {
+            it.id to it.hpLost
+        }
+        return initialLostHpByFighterId.keys.associateWith {
+            val initialLostHp = initialLostHpByFighterId[it] ?: 0
+            val newLostHp = newLostHpByFighterId[it] ?: 0
+            newLostHp - initialLostHp
+        }
+    }
+
     protected open fun getFightAI(dofusBoard: DofusBoard, aiComplement: AIComplement): FightAI {
         return DefaultFightAI(dofusBoard, aiComplement)
     }
@@ -210,7 +249,7 @@ open class FightTask(
         waitForSequenceCompleteEnd(gameInfo)
     }
 
-    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(2000) {
+    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(4000) {
         gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
     }
 
@@ -255,7 +294,7 @@ open class FightTask(
 
     private fun initFight(gameInfo: GameInfo) {
         val uiPoint = DofusUIElement.BANNER.getPosition(true)
-        val uiPointRelative = ConverterUtil.toPointRelative(uiPoint)
+        val uiPointRelative = uiPoint.toPointRelative()
         val deltaTopLeftPoint = REF_TOP_LEFT_POINT.opposite().getSum(uiPointRelative)
         val creatureModeBounds = REF_CREATURE_MODE_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)
         val blockHelpBounds = REF_BLOCK_HELP_BUTTON_BOUNDS.getTranslation(deltaTopLeftPoint)

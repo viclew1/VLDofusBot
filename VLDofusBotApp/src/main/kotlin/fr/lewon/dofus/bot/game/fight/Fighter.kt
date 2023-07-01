@@ -6,18 +6,17 @@ import fr.lewon.dofus.bot.core.fighter.PlayerType
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.*
 import kotlin.math.min
 
 class Fighter(
     var cell: DofusCell,
     var id: Double,
-    val fighterInfo: GameFightFighterInformations,
+    var fighterInfo: GameFightFighterInformations,
     var spells: List<DofusSpellLevel> = ArrayList(),
-    val baseStatsById: MutableMap<Int, CharacterCharacteristic> = HashMap(),
-    val statsById: MutableMap<Int, CharacterCharacteristic> = HashMap(),
-    val states: ArrayList<Int> = ArrayList(),
+    val baseStatsById: MutableMap<Int, Int> = HashMap(),
+    val statsById: MutableMap<Int, Int> = HashMap(),
+    val states: MutableList<Int> = ArrayList(),
     private var monsterProperties: DofusMonster? = if (fighterInfo is GameFightMonsterInformations) {
         MonsterManager.getMonster(fighterInfo.creatureGenericId.toDouble())
     } else null
@@ -56,10 +55,11 @@ class Fighter(
     }
 
     override fun getBreed(): Int {
-        if (this.fighterInfo is GameFightCharacterInformations) {
+        val fighterInfo = this.fighterInfo
+        if (fighterInfo is GameFightCharacterInformations) {
             return fighterInfo.breed
         }
-        if (this.fighterInfo is GameFightMonsterInformations) {
+        if (fighterInfo is GameFightMonsterInformations) {
             return fighterInfo.creatureGenericId
         }
         return -1
@@ -103,8 +103,8 @@ class Fighter(
 
     fun deepCopy(): Fighter {
         return Fighter(
-            cell, id, fighterInfo, spells, HashMap(baseStatsById),
-            HashMap(statsById), ArrayList(states), monsterProperties
+            cell, id, fighterInfo, spells, baseStatsById.toMutableMap(),
+            statsById.toMutableMap(), states.toMutableList(), monsterProperties
         ).also {
             it.maxHp = maxHp
             it.hpLost = hpLost

@@ -16,7 +16,7 @@ object ConverterUtil {
     private const val PRECISION = 10000.0f
 
     fun toPointAbsolute(gameInfo: GameInfo, point: UIPoint): PointAbsolute {
-        return toPointAbsolute(gameInfo, toPointRelative(point))
+        return point.toPointRelative().toPointAbsolute(gameInfo)
     }
 
     fun toPointRelative(point: UIPoint): PointRelative {
@@ -34,7 +34,7 @@ object ConverterUtil {
     }
 
     fun toUIPoint(gameInfo: GameInfo, point: PointAbsolute): UIPoint {
-        return toUIPoint(toPointRelative(gameInfo, point))
+        return point.toPointRelative(gameInfo).toUIPoint()
     }
 
 
@@ -74,14 +74,25 @@ object ConverterUtil {
     fun toRectangleRelative(rect: UIRectangle): RectangleRelative {
         val topLeftPosition = rect.position
         val bottomRightPosition = rect.position.transpose(rect.size)
-        return RectangleRelative.build(toPointRelative(topLeftPosition), toPointRelative(bottomRightPosition))
+        return RectangleRelative.build(topLeftPosition.toPointRelative(), bottomRightPosition.toPointRelative())
     }
 
     fun toRectangleAbsolute(rect: UIRectangle): RectangleAbsolute {
-        val topLeftAbs = toPointAbsolute(UIOverlay.gameInfo, rect.position)
+        val topLeftAbs = rect.position.toPointAbsolute(UIOverlay.gameInfo)
         val bottomRightUIPoint = UIPoint(rect.position.x + rect.size.x, rect.position.y + rect.size.y)
-        val bottomRightAbs = toPointAbsolute(UIOverlay.gameInfo, bottomRightUIPoint)
+        val bottomRightAbs = bottomRightUIPoint.toPointAbsolute(UIOverlay.gameInfo)
         val sizeAbs = PointAbsolute(bottomRightAbs.x - topLeftAbs.x, bottomRightAbs.y - topLeftAbs.y)
         return RectangleAbsolute(topLeftAbs.x, topLeftAbs.y, sizeAbs.x, sizeAbs.y)
     }
 }
+
+fun UIPoint.toPointAbsolute(gameInfo: GameInfo) = ConverterUtil.toPointAbsolute(gameInfo, this)
+fun UIPoint.toPointRelative() = ConverterUtil.toPointRelative(this)
+fun PointRelative.toUIPoint() = ConverterUtil.toUIPoint(this)
+fun PointAbsolute.toUIPoint(gameInfo: GameInfo) = ConverterUtil.toUIPoint(gameInfo, this)
+fun PointAbsolute.toPointRelative(gameInfo: GameInfo) = ConverterUtil.toPointRelative(gameInfo, this)
+fun PointRelative.toPointAbsolute(gameInfo: GameInfo) = ConverterUtil.toPointAbsolute(gameInfo, this)
+fun RectangleAbsolute.toRectangleRelative(gameInfo: GameInfo) = ConverterUtil.toRectangleRelative(gameInfo, this)
+fun RectangleRelative.toRectangleAbsolute(gameInfo: GameInfo) = ConverterUtil.toRectangleAbsolute(gameInfo, this)
+fun UIRectangle.toRectangleRelative() = ConverterUtil.toRectangleRelative(this)
+fun UIRectangle.toRectangleAbsolute() = ConverterUtil.toRectangleAbsolute(this)

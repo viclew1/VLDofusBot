@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.core.ui.xml.containers.Container
 import fr.lewon.dofus.bot.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.overlay.AbstractOverlayPanel
-import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.io.toRectangleAbsolute
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
 import java.awt.Graphics
@@ -55,7 +55,7 @@ object UIOverlay : AbstractOverlay() {
         }
 
         private fun addRectangles(container: Container) {
-            val rectAbs = ConverterUtil.toRectangleAbsolute(container.bounds)
+            val rectAbs = container.bounds.toRectangleAbsolute()
             toDrawRectangles.add(container to Rectangle(rectAbs.x, rectAbs.y, rectAbs.width, rectAbs.height))
             for (subContainer in container.children) {
                 addRectangles(subContainer)

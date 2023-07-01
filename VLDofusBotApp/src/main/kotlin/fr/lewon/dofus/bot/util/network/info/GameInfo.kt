@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.util.network.info
 
+import fr.lewon.dofus.bot.core.d2o.managers.spell.SpellLevelManager
 import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
 import fr.lewon.dofus.bot.core.d2p.maps.cell.MapData
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
@@ -7,12 +8,14 @@ import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.game.DofusBoard
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristicUtil
 import fr.lewon.dofus.bot.game.fight.FightBoard
+import fr.lewon.dofus.bot.game.fight.SpellModificationType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristic
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterSpellModification
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.game.paddock.PaddockItem
@@ -38,6 +41,7 @@ class GameInfo(val character: DofusCharacter) {
     val dofusBoard = DofusBoard()
 
     val fightBoard = FightBoard(this)
+    var spellModifications: List<CharacterSpellModification> = emptyList()
     var isCreatureModeToggled = false
 
     private val interactiveElementsLock = ReentrantLock()
@@ -53,7 +57,7 @@ class GameInfo(val character: DofusCharacter) {
     val mainMonstersByGroupOnMap = HashMap<GameRolePlayGroupMonsterInformations, DofusMonster>()
     val paddockItemByCell = HashMap<Int, PaddockItem>()
 
-    var playerBaseCharacteristics: Map<Int, CharacterCharacteristic> = HashMap()
+    var playerBaseCharacteristics: Map<Int, Int> = HashMap()
     var playerId = -1.0
     lateinit var currentMap: DofusMap
     var treasureHunt: TreasureHuntMessage? = null
@@ -75,6 +79,14 @@ class GameInfo(val character: DofusCharacter) {
             fighter.baseStatsById.putAll(playerBaseCharacteristics)
             fighter.maxHp = maxHp
             fighter.baseHp = hp
+            fighter.spells = fighter.spells.map { spellLevel ->
+                val spellModification = spellModifications.firstOrNull { it.spellId == spellLevel.spellId }
+                spellModification?.modificationType?.let { modificationType ->
+                    val baseSpell = SpellLevelManager.getSpellLevel(spellLevel.id)
+                    val value = DofusCharacteristicUtil.getCharacteristicValue(spellModification.value)
+                    SpellModificationType.fromTypeInt(modificationType)?.getUpdatedSpell?.invoke(baseSpell, value)
+                } ?: spellLevel
+            }
         }
     }
 

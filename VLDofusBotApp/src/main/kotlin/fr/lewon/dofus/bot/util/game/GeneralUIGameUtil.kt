@@ -3,8 +3,8 @@ package fr.lewon.dofus.bot.util.game
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.ScreenUtil
+import fr.lewon.dofus.bot.util.io.toPointRelative
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
 
@@ -31,7 +31,7 @@ object GeneralUIGameUtil {
 
     private fun getUiApMpArea(): RectangleRelative {
         val bannerUiPosition = DofusUIElement.BANNER.getPosition()
-        val uiPointRelative = ConverterUtil.toPointRelative(bannerUiPosition)
+        val uiPointRelative = bannerUiPosition.toPointRelative()
         return RectangleRelative.build(
             uiPointRelative,
             uiPointRelative.getSum(UI_HP_AP_MP_AREA_VECTOR)

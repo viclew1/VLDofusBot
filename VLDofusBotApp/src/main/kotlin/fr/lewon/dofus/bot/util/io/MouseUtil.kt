@@ -76,11 +76,11 @@ object MouseUtil {
     }
 
     fun leftClick(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100, moveBeforeClick: Boolean = true) {
-        leftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime, moveBeforeClick)
+        leftClick(gameInfo, position.toPointAbsolute(gameInfo), sleepTime, moveBeforeClick)
     }
 
     fun move(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100) {
-        move(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime)
+        move(gameInfo, position.toPointAbsolute(gameInfo), sleepTime)
     }
 
     private fun doubleLeftClick(
@@ -93,7 +93,7 @@ object MouseUtil {
     }
 
     fun doubleLeftClick(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100) {
-        doubleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime)
+        doubleLeftClick(gameInfo, position.toPointAbsolute(gameInfo), sleepTime)
     }
 
     private fun tripleLeftClick(gameInfo: GameInfo, position: PointAbsolute, sleepTime: Int = 100) {
@@ -103,7 +103,7 @@ object MouseUtil {
     }
 
     fun tripleLeftClick(gameInfo: GameInfo, position: PointRelative, sleepTime: Int = 100) {
-        tripleLeftClick(gameInfo, ConverterUtil.toPointAbsolute(gameInfo, position), sleepTime)
+        tripleLeftClick(gameInfo, position.toPointAbsolute(gameInfo), sleepTime)
     }
 
 }

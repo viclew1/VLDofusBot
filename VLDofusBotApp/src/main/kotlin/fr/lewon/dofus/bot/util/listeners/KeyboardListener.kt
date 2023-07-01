@@ -5,6 +5,7 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.util.io.SystemKeyLock
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Level
 import java.util.logging.LogManager
@@ -12,7 +13,7 @@ import java.util.logging.Logger
 
 object KeyboardListener : Thread(), NativeKeyListener {
 
-    private val keysPressed = HashSet<Int>()
+    private val pressedByKey = ConcurrentHashMap<Int, Boolean>()
     private var modifierPressed = false
     private val lock = ReentrantLock(true)
 
@@ -25,41 +26,38 @@ object KeyboardListener : Thread(), NativeKeyListener {
     }
 
     override fun nativeKeyTyped(e: NativeKeyEvent) {
-        nativeKeyPressed(e)
-        nativeKeyReleased(e)
+        toggleSystemKeyLock(e)
+        pressedByKey[e.keyCode] = false
     }
 
     override fun nativeKeyPressed(e: NativeKeyEvent) {
-        return lock.executeSyncOperation {
-            keysPressed.add(e.keyCode)
-            if (!modifierPressed && e.modifiers != 0) {
-                modifierPressed = true
-                SystemKeyLock.lockInterruptibly()
-            }
-            toggleOverlays()
-        }
+        toggleSystemKeyLock(e)
+        pressedByKey[e.keyCode] = true
+        toggleOverlays()
     }
 
     override fun nativeKeyReleased(e: NativeKeyEvent) {
-        return lock.executeSyncOperation {
-            keysPressed.remove(e.keyCode)
-            if (modifierPressed && e.modifiers == 0) {
-                modifierPressed = false
-                SystemKeyLock.unlock()
-            }
+        toggleSystemKeyLock(e)
+        pressedByKey[e.keyCode] = false
+    }
+
+    private fun toggleSystemKeyLock(e: NativeKeyEvent) = lock.executeSyncOperation {
+        if (!modifierPressed && e.modifiers != 0) {
+            modifierPressed = true
+            SystemKeyLock.lockInterruptibly()
+        } else if (modifierPressed && e.modifiers == 0) {
+            modifierPressed = false
+            SystemKeyLock.unlock()
         }
     }
 
     private fun toggleOverlays() {
         OverlayInfo.values().firstOrNull { hotKeyPressed(it.keys) }?.let {
-            OverlayManager.scheduleToggleOverlay(it)
+            OverlayManager.toggleOverlay(it)
         }
     }
 
     private fun hotKeyPressed(nativeKeyEvents: List<Int>): Boolean {
-        if (keysPressed.size != nativeKeyEvents.size) {
-            return false
-        }
-        return nativeKeyEvents.all { keysPressed.contains(it) }
+        return nativeKeyEvents.all { pressedByKey[it] == true }
     }
 }

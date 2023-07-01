@@ -11,7 +11,6 @@ import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.operations.CooldownState
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -204,8 +203,7 @@ class FightState(
             FightOperationType.MOVE -> {
                 val targetCellId = operation.targetCellId ?: error("Target cell id mandatory")
                 val currentMp = DofusCharacteristics.MOVEMENT_POINTS.getValue(currentFighter)
-                currentFighter.statsById[DofusCharacteristics.MOVEMENT_POINTS.id] = CharacterCharacteristicValue()
-                    .also { it.total = currentMp - (operation.dist ?: 0) }
+                currentFighter.statsById[DofusCharacteristics.MOVEMENT_POINTS.id] = currentMp - (operation.dist ?: 0)
                 fb.move(currentFighter.id, targetCellId)
             }
             FightOperationType.SPELL -> {
@@ -240,9 +238,7 @@ class FightState(
         usesThisTurn[targetId] = usesOnThisTarget + 1
         cooldownSpellStore[spell] = spell.minCastInterval
         val currentAp = DofusCharacteristics.ACTION_POINTS.getValue(currentFighter)
-        currentFighter.statsById[DofusCharacteristics.ACTION_POINTS.id] = CharacterCharacteristicValue().also {
-            it.total = currentAp - spell.apCost
-        }
+        currentFighter.statsById[DofusCharacteristics.ACTION_POINTS.id] = currentAp - spell.apCost
         spellSimulator.simulateSpell(fb, currentFighter, spell, targetCellId)
     }
 

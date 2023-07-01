@@ -85,11 +85,6 @@ object TreasureHintManager : ToInitManager {
         saveHintStoreContent()
     }
 
-    fun removeHintGfxMatch(pointOfInterestLabel: String) {
-        gfxIdsByPoiLabel.remove(pointOfInterestLabel)
-        saveHintStoreContent()
-    }
-
     fun removeHintGfxMatch(pointOfInterestLabel: String, gfxId: Int) {
         val gfxIds = gfxIdsByPoiLabel.computeIfAbsent(pointOfInterestLabel) { HashSet() }
         gfxIds.remove(gfxId)

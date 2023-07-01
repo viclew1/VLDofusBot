@@ -8,20 +8,24 @@ import fr.lewon.dofus.bot.game.fight.Fighter
 
 class DamageCalculator {
 
-    private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<EffectKey, Int>>()
+    data class DamageRange(
+        val minDamage: Int,
+        val maxDamage: Int,
+    )
 
-    private data class EffectKey(val targetId: Double, val spellEffect: DofusSpellEffect, val criticalHit: Boolean)
+    private val cachedEffectDamagesByFighter = HashMap<Double, HashMap<EffectKey, DamageRange>>()
+
+    private data class EffectKey(val targetId: Double, val spellEffect: DofusSpellEffect)
 
     fun getRealEffectDamage(
         spellEffect: DofusSpellEffect,
         caster: Fighter,
         target: Fighter,
-        criticalHit: Boolean,
-        upperBound: Boolean
-    ): Int {
+        criticalHit: Boolean
+    ): DamageRange {
         val cachedDamages = cachedEffectDamagesByFighter.computeIfAbsent(caster.id) { HashMap() }
-        return cachedDamages.computeIfAbsent(EffectKey(target.id, spellEffect, criticalHit)) {
-            computeEffectDamage(spellEffect, caster, target, criticalHit, upperBound)
+        return cachedDamages.computeIfAbsent(EffectKey(target.id, spellEffect)) {
+            computeEffectDamage(spellEffect, caster, target, criticalHit)
         }
     }
 
@@ -29,16 +33,17 @@ class DamageCalculator {
         spellEffect: DofusSpellEffect,
         caster: Fighter,
         target: Fighter,
-        criticalHit: Boolean,
-        upperBound: Boolean
-    ): Int {
+        criticalHit: Boolean
+    ): DamageRange {
         if (!effectCanHitTarget(spellEffect.targets, caster, target)) {
-            return 0
+            return DamageRange(0, 0)
         }
-        val baseDamage = if (upperBound) spellEffect.max else spellEffect.min
         val elementalDamageInfo = getElementalDamageInfo(spellEffect.effectType)
-            ?: return 0
-        return computeDamage(baseDamage, caster, target, elementalDamageInfo, criticalHit)
+            ?: return DamageRange(0, 0)
+        return DamageRange(
+            minDamage = computeDamage(spellEffect.min, caster, target, elementalDamageInfo, criticalHit),
+            maxDamage = computeDamage(spellEffect.max, caster, target, elementalDamageInfo, criticalHit),
+        )
     }
 
     private fun effectCanHitTarget(spellTargets: List<DofusSpellTarget>, caster: Fighter, target: Fighter): Boolean {
@@ -64,13 +69,17 @@ class DamageCalculator {
             damagesValue += DofusCharacteristics.CRITICAL_DAMAGE_BONUS.getValue(caster)
         }
         val damage = (baseDamage.toFloat() * (100f + characValue.toFloat()) / 100f).toInt() + damagesValue
-        var damageMultiplier = if (caster.cell.neighbors.map { it.cellId }.contains(target.cell.cellId)) {
+        val proximityMultiplier = if (caster.cell.neighbors.map { it.cellId }.contains(target.cell.cellId)) {
             DofusCharacteristics.MELEE_DAMAGE_DONE_PERCENT.getValue(caster, 100)
         } else {
             DofusCharacteristics.RANGED_DAMAGE_DONE_PERCENT.getValue(caster, 100)
         }
-        damageMultiplier += DofusCharacteristics.SPELL_DAMAGE_DONE_PERCENT.getValue(caster, 100) - 100
-        val multipliedDamages = (damage.toFloat() * (damageMultiplier.toFloat() / 100f)).toInt()
+        val spellMultiplier = DofusCharacteristics.SPELL_DAMAGE_DONE_PERCENT.getValue(caster, 100)
+        val finalDamageMultiplier = DofusCharacteristics.DEALT_DAMAGES_MULTIPLICATOR.getValue(caster, 100)
+        val multipliedDamages = (damage.toFloat()
+                * (proximityMultiplier.toFloat() / 100f)
+                * (spellMultiplier.toFloat() / 100f)
+                * (finalDamageMultiplier.toFloat() / 100f)).toInt()
         val enemyResistPercent = elementResistPercent.getValue(target)
         val enemyResist = elementResist.getValue(target)
         val resistProduct = enemyResistPercent.toFloat() / 100f

@@ -18,8 +18,8 @@ import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComple
 import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
+import fr.lewon.dofus.bot.util.io.toPointRelative
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import kotlin.math.abs
 import kotlin.math.max
@@ -111,7 +111,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     private fun getStandardClickLoc(gameInfo: GameInfo, direction: Direction, destCellId: Int): PointRelative {
         val destCell = gameInfo.dofusBoard.getCell(destCellId)
         val destCellCenter = destCell.getCenter()
-        val dFloor = ConverterUtil.toPointRelative(UIPoint(y = destCell.cellData.floor.toFloat()))
+        val dFloor = UIPoint(y = destCell.cellData.floor.toFloat()).toPointRelative()
         val cellClickLoc = PointRelative(
             max(0.001f, min(destCellCenter.x, 0.99f)),
             max(0.001f, min(destCellCenter.y - dFloor.y, 0.99f))

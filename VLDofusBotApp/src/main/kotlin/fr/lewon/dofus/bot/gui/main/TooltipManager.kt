@@ -80,7 +80,12 @@ fun TooltipManageable(
                     shape = tooltipShape,
                     border = BorderStroke(1.dp, Color.Black)
                 ) {
-                    currentTooltipInfo.tooltipContent(this)
+                    val tooltipContent = remember(currentTooltipInfo) {
+                        movableContentOf {
+                            currentTooltipInfo.tooltipContent(this)
+                        }
+                    }
+                    tooltipContent()
                 }
             }
         }

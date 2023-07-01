@@ -1,10 +1,7 @@
 package fr.lewon.dofus.bot.core.criterion
 
 import fr.lewon.dofus.bot.core.criterion.parse.CriterionOperator
-import fr.lewon.dofus.bot.core.criterion.simple.DofusBreedCriterion
-import fr.lewon.dofus.bot.core.criterion.simple.DofusQuestActiveCriterion
-import fr.lewon.dofus.bot.core.criterion.simple.DofusQuestFinishedCriterion
-import fr.lewon.dofus.bot.core.criterion.simple.DofusQuestObjectiveCriterion
+import fr.lewon.dofus.bot.core.criterion.simple.*
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import java.util.concurrent.locks.ReentrantLock
@@ -87,6 +84,7 @@ object DofusCriterionParser {
             "Qf" -> DofusQuestFinishedCriterion(expectedValue.toInt())
             "Qa" -> DofusQuestActiveCriterion(expectedValue.toInt())
             "Qo" -> DofusQuestObjectiveCriterion(operator, expectedValue.toInt())
+            "HS" -> DofusHasStateCriterion(operator, expectedValue.toInt())
             else -> parseCustomCriterion(key, operator, expectedValue)
         }
     }

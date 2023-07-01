@@ -4,7 +4,8 @@ import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.overlay.line.OverlayInfoLine
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.io.toPointAbsolute
+import fr.lewon.dofus.bot.util.io.toPointRelative
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
 import java.awt.Graphics
@@ -16,7 +17,7 @@ object OverlayUtil {
 
     fun buildPolygon(gameInfo: GameInfo, pointRelatives: List<PointRelative>): Polygon {
         val origin = PointAbsolute(gameInfo.gameBounds.x, gameInfo.gameBounds.y)
-        val absolutePoints = pointRelatives.map { ConverterUtil.toPointAbsolute(gameInfo, it).getDifference(origin) }
+        val absolutePoints = pointRelatives.map { it.toPointAbsolute(gameInfo).getDifference(origin) }
         val xPoints = absolutePoints.map { it.x }.toIntArray()
         val yPoints = absolutePoints.map { it.y }.toIntArray()
         return Polygon(xPoints, yPoints, absolutePoints.size)
@@ -57,11 +58,11 @@ object OverlayUtil {
     ) {
         val infoWindow = buildInfoWindow(g, toDrawLines)
         val origin = PointAbsolute(overlay.gameInfo.gameBounds.x, overlay.gameInfo.gameBounds.y)
-        val drawOrigin = ConverterUtil.toPointAbsolute(overlay.gameInfo, hoveredCell.getCenter())
+        val drawOrigin = hoveredCell.getCenter().toPointAbsolute(overlay.gameInfo)
             .getDifference(origin)
-        val bottomRightPointAbsolute = ConverterUtil.toPointAbsolute(overlay.gameInfo, hoveredCell.getCenter())
+        val bottomRightPointAbsolute = hoveredCell.getCenter().toPointAbsolute(overlay.gameInfo)
             .getSum(PointAbsolute(infoWindow.width, infoWindow.height))
-        val bottomRightPointRelative = ConverterUtil.toPointRelative(overlay.gameInfo, bottomRightPointAbsolute)
+        val bottomRightPointRelative = bottomRightPointAbsolute.toPointRelative(overlay.gameInfo)
         var x = drawOrigin.x
         if (bottomRightPointRelative.x > 1.0f) {
             x -= infoWindow.width

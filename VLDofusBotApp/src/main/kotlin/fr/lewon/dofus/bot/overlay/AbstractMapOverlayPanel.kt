@@ -4,7 +4,7 @@ import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.overlay.line.OverlayInfoLine
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
-import fr.lewon.dofus.bot.util.io.ConverterUtil
+import fr.lewon.dofus.bot.util.io.toPointAbsolute
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.Point
@@ -47,8 +47,8 @@ abstract class AbstractMapOverlayPanel(overlay: AbstractMapOverlay) : AbstractOv
 
     private fun drawLine(g: Graphics, from: PointRelative, to: PointRelative) {
         val origin = PointAbsolute(overlay.gameInfo.gameBounds.x, overlay.gameInfo.gameBounds.y)
-        val fromAbsolute = ConverterUtil.toPointAbsolute(overlay.gameInfo, from).getDifference(origin)
-        val toAbsolute = ConverterUtil.toPointAbsolute(overlay.gameInfo, to).getDifference(origin)
+        val fromAbsolute = from.toPointAbsolute(overlay.gameInfo).getDifference(origin)
+        val toAbsolute = to.toPointAbsolute(overlay.gameInfo).getDifference(origin)
         g.drawLine(fromAbsolute.x, fromAbsolute.y, toAbsolute.x, toAbsolute.y)
     }
 

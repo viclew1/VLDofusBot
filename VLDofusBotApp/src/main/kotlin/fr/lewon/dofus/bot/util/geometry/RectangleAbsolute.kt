@@ -7,8 +7,8 @@ class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int)
 
     companion object {
 
-        fun build(topLeft: PointAbsolute, topRight: PointAbsolute): RectangleAbsolute {
-            return RectangleAbsolute(topLeft.x, topLeft.y, topRight.x - topLeft.x, topRight.y - topLeft.y)
+        fun build(topLeft: PointAbsolute, bottomRight: PointAbsolute): RectangleAbsolute {
+            return RectangleAbsolute(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y)
         }
 
         fun build(rectangle: Rectangle): RectangleAbsolute {

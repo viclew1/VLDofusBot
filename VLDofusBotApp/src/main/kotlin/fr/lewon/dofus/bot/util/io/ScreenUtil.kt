@@ -21,7 +21,7 @@ object ScreenUtil {
         point: PointRelative,
         fullScreenshot: BufferedImage = JNAUtil.takeCapture(gameInfo)
     ): Color {
-        return getPixelColor(ConverterUtil.toPointAbsolute(gameInfo, point), fullScreenshot)
+        return getPixelColor(point.toPointAbsolute(gameInfo), fullScreenshot)
     }
 
     fun isBetween(gameInfo: GameInfo, point: PointRelative, min: Color, max: Color): Boolean {
@@ -41,7 +41,7 @@ object ScreenUtil {
         max: Color,
         fullScreenshot: BufferedImage = JNAUtil.takeCapture(gameInfo)
     ): Int {
-        return colorCount(gameInfo, ConverterUtil.toRectangleAbsolute(gameInfo, bounds), min, max, fullScreenshot)
+        return colorCount(gameInfo, bounds.toRectangleAbsolute(gameInfo), min, max, fullScreenshot)
     }
 
     fun colorCount(

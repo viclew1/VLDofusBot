@@ -24,7 +24,7 @@ fun ScriptsContent() {
         Column(Modifier.weight(1f)) {
             ScriptsTabsContent()
         }
-        Column(Modifier.fillMaxHeight().width(503.dp)) {
+        Column(Modifier.fillMaxHeight().width(525.dp)) {
             AnimatedVisibility(
                 visible = ScriptTabsUIUtil.getCurrentTab() == ScriptTab.INDIVIDUAL,
                 enter = expandVertically(expandFrom = Alignment.Top),

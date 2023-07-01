@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.Fighter
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterCharacteristicValue
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -19,7 +18,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
 
     fun simulateSpell(fightBoard: FightBoard, caster: Fighter, spell: DofusSpellLevel, targetCellId: Int) {
         val criticalChance = spell.criticalHitProbability + DofusCharacteristics.CRITICAL_HIT.getValue(caster)
-        val criticalHit = criticalChance >= 100
+        val criticalHit = spell.criticalEffects.isNotEmpty() && criticalChance >= 80
         val effects = if (criticalHit) spell.criticalEffects else spell.effects
         effects.forEach {
             simulateEffect(fightBoard, caster, it, targetCellId, criticalHit)
@@ -89,9 +88,8 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
         var dealtDamagesTotal = 0
         for (fighter in fightersInAOE) {
             val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
-            val realDamage = (damageCalculator.getRealEffectDamage(
-                effect, caster, fighter, criticalHit, false
-            ).toFloat() * (1f - 0.1f * distToCenter)).toInt()
+            val rawDamage = damageCalculator.getRealEffectDamage(effect, caster, fighter, criticalHit).minDamage
+            val realDamage = (rawDamage.toFloat() * (1f - 0.1f * distToCenter)).toInt()
             dealtDamagesTotal += minOf(fighter.getCurrentHp(), realDamage)
             fighter.hpLost += realDamage
         }
@@ -109,9 +107,8 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
     ) {
         for (fighter in fightersInAOE) {
             val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
-            val realDamage = (damageCalculator.getRealEffectDamage(
-                effect, caster, fighter, criticalHit, false
-            ).toFloat() * (1f - 0.1f * distToCenter)).toInt()
+            val rawDamage = damageCalculator.getRealEffectDamage(effect, caster, fighter, criticalHit).minDamage
+            val realDamage = (rawDamage.toFloat() * (1f - 0.1f * distToCenter)).toInt()
             fighter.hpLost += realDamage
         }
     }
@@ -129,9 +126,8 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
             val mpUsedRatio = min(1f, max(0f, (totalMp - mpUsed).toFloat() / totalMp.toFloat()))
             for (fighter in fightersInAOE) {
                 val distToCenter = dofusBoard.getDist(fighter.cell, aoeCenter)
-                val realDamage = (damageCalculator.getRealEffectDamage(
-                    effect, caster, fighter, criticalHit, false
-                ).toFloat() * mpUsedRatio * (1f - 0.1f * distToCenter)).toInt()
+                val rawDamage = damageCalculator.getRealEffectDamage(effect, caster, fighter, criticalHit).minDamage
+                val realDamage = (rawDamage.toFloat() * mpUsedRatio * (1f - 0.1f * distToCenter)).toInt()
                 fighter.hpLost += realDamage
             }
         }
@@ -154,8 +150,11 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 DofusSpellEffectType.WATER_DAMAGE
             ).maxOf {
                 damageCalculator.getRealEffectDamage(
-                    effect.copy(effectType = it), caster, fighter, criticalHit, false
-                )
+                    effect.copy(effectType = it),
+                    caster,
+                    fighter,
+                    criticalHit
+                ).minDamage
             }
             val realDamage = (damage.toFloat() * (1f - 0.1f * distToCenter)).toInt()
             fighter.hpLost += realDamage
@@ -179,8 +178,11 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 DofusSpellEffectType.WATER_DAMAGE
             ).minOf {
                 damageCalculator.getRealEffectDamage(
-                    effect.copy(effectType = it), caster, fighter, criticalHit, false
-                )
+                    effect.copy(effectType = it),
+                    caster,
+                    fighter,
+                    criticalHit
+                ).minDamage
             }
             val realDamage = (damage.toFloat() * (1f - 0.1f * distToCenter)).toInt()
             fighter.hpLost += realDamage
@@ -236,7 +238,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
                 val level = DofusCharacteristics.LEVEL.getValue(caster).toFloat()
                 val doPou = DofusCharacteristics.PUSH_DAMAGE_BONUS.getValue(caster).toFloat()
                 val rePou = DofusCharacteristics.PUSH_DAMAGE_REDUCTION.getValue(fighter).toFloat()
-                val pushDamage = ((level / 2f + doPou - rePou + 32f * doPouAmount.toFloat()) / 4f).toInt()
+                val pushDamage = ((level / 2f + doPou - rePou + 32f) * doPouAmount.toFloat() / 4f).toInt()
                 fighter.hpLost += pushDamage
             }
         }
@@ -263,9 +265,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
     private fun simulateBuff(affectedFighters: List<Fighter>, characteristics: DofusCharacteristics, amount: Int) {
         for (fighter in affectedFighters) {
             val current = characteristics.getValue(fighter)
-            fighter.statsById[characteristics.id] = CharacterCharacteristicValue().also {
-                it.total = current + amount
-            }
+            fighter.statsById[characteristics.id] = current + amount
         }
     }
 

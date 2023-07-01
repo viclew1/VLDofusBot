@@ -51,7 +51,7 @@ object FightAllDopplesScriptBuilder : DofusBotScriptBuilder("Fight all dopples")
         var foughtCount = 0
         while (remainingObjectives.isNotEmpty()) {
             val destMapIds = remainingObjectives.map { it.mapId }
-            doFightDopple(gameInfo, logItem, destMapIds, listOf(-1, -1))
+            reachAndFightDopple(gameInfo, logItem, destMapIds, listOf(-1, -1))
             val objective = remainingObjectives.firstOrNull { it.mapId == gameInfo.currentMap.id }
                 ?: error("Unexpected map ID, fight might have been lost")
             statValues[countStat] = "${++foughtCount} / $toFightCount"
@@ -61,7 +61,7 @@ object FightAllDopplesScriptBuilder : DofusBotScriptBuilder("Fight all dopples")
 
     private fun getNewQuestObjectives(gameInfo: GameInfo, logItem: LogItem): List<Int> {
         val subLogItem = gameInfo.logger.addSubLog("Fetching dopples global quest at Sram temple", logItem)
-        doFightDopple(gameInfo, subLogItem, listOf(183768066.0), listOf(-1, 12457, -1))
+        reachAndFightDopple(gameInfo, subLogItem, listOf(183768066.0), listOf(-1, 12457, -1))
         return QuestManager.getQuest(DOPPLE_GLOBAL_QUEST_ID).steps.flatMap { it.objectiveIds }.minus(3199)
     }
 
@@ -73,7 +73,12 @@ object FightAllDopplesScriptBuilder : DofusBotScriptBuilder("Fight all dopples")
         }
     }
 
-    private fun doFightDopple(gameInfo: GameInfo, logItem: LogItem, mapIds: List<Double>, npcOptionIds: List<Int>) {
+    private fun reachAndFightDopple(
+        gameInfo: GameInfo,
+        logItem: LogItem,
+        mapIds: List<Double>,
+        npcOptionIds: List<Int>
+    ) {
         val maps = mapIds.map { mapId -> MapManager.getDofusMap(mapId) }
         if (!ReachMapTask(maps).run(logItem, gameInfo)) {
             error("Couldn't reach next temple")
