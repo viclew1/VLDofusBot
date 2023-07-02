@@ -64,11 +64,11 @@ object InteractiveUtil {
         val elementData = D2PElementsAdapter.getElement(graphicalElement.elementId)
         val destCellId = destCellCompleteData.cellId
         val cell = gameInfo.dofusBoard.getCell(destCellId)
-        val dToOrigin: PointAbsolute
+        val dToOrigin: UIPoint
         val size: UIPoint
         when {
             elementData is NormalGraphicalElementData && (graphicalElement.altitude < 50 || cell.cellData.floor != 0) -> {
-                dToOrigin = elementData.origin.toPointAbsolute(gameInfo)
+                dToOrigin = elementData.origin
                 size = elementData.size
             }
             elementData is EntityGraphicalElementData -> {
@@ -76,13 +76,13 @@ object InteractiveUtil {
                 val topLeft = cell.bounds.getTopLeft().toUIPoint()
                 val bottomRight = cell.bounds.getBottomRight().toUIPoint()
                 size = UIPoint(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y)
-                dToOrigin = UIPoint(size.x / 2f, size.y / 2f).toPointAbsolute(gameInfo)
+                dToOrigin = UIPoint(size.x / 2f, size.y / 2f)
             }
             else -> {
                 val topLeft = cell.bounds.getTopLeft().toUIPoint()
                 val bottomRight = cell.bounds.getBottomRight().toUIPoint()
                 size = UIPoint(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y)
-                dToOrigin = UIPoint(size.x / 2f, size.y / 2f).toPointAbsolute(gameInfo)
+                dToOrigin = UIPoint(size.x / 2f, size.y / 2f)
             }
         }
         val altitudeYOffset = if (graphicalElement.altitude < 50) {
@@ -93,28 +93,28 @@ object InteractiveUtil {
         val offset = UIPoint(
             x = graphicalElement.pixelOffset.x,
             y = graphicalElement.pixelOffset.y + altitudeYOffset
-        ).toPointAbsolute(gameInfo)
-        val cellCenter = cell.getCenter().toPointAbsolute(gameInfo).getSum(offset)
-        val minPoint = PointRelative(0.03f, 0.018f).toPointAbsolute(gameInfo)
-        val maxPoint = PointRelative(0.97f, 0.88f).toPointAbsolute(gameInfo)
+        )
+        val cellCenter = cell.getCenter().toUIPoint().transpose(offset)
+        val minPoint = PointRelative(0.03f, 0.018f).toUIPoint()
+        val maxPoint = PointRelative(0.97f, 0.88f).toUIPoint()
         val rawX1 = cellCenter.x - dToOrigin.x
         val rawY1 = cellCenter.y - dToOrigin.y
-        val rawX2 = (cellCenter.x - dToOrigin.x + size.x).toInt()
-        val rawY2 = (cellCenter.y - dToOrigin.y + size.y).toInt()
-        val topLeft = PointAbsolute(
+        val rawX2 = cellCenter.x - dToOrigin.x + size.x
+        val rawY2 = cellCenter.y - dToOrigin.y + size.y
+        val topLeft = UIPoint(
             x = max(minPoint.x, min(rawX1, maxPoint.x)),
             y = max(minPoint.y, min(rawY1, maxPoint.y))
-        )
-        val bottomRight = PointAbsolute(
+        ).toPointAbsolute(gameInfo)
+        val bottomRight = UIPoint(
             x = max(minPoint.x, min(rawX2, maxPoint.x)),
             y = max(minPoint.y, min(rawY2, maxPoint.y))
-        )
+        ).toPointAbsolute(gameInfo)
         return RectangleAbsolute.build(topLeft, bottomRight)
     }
 
     fun getInteractivePotentialClickLocations(gameInfo: GameInfo, elementId: Int): List<PointAbsolute> {
-        val margin = PointAbsolute(10, 10)
         val bounds = getInteractiveBounds(gameInfo, elementId).let {
+            val margin = PointAbsolute(it.width / 10, it.height / 10)
             RectangleAbsolute.build(
                 topLeft = it.getTopLeft().getSum(margin),
                 bottomRight = it.getBottomRight().getDifference(margin)
@@ -124,6 +124,10 @@ object InteractiveUtil {
             return it(bounds)
         }
         val center = bounds.getCenter()
+        val boundsRelative = bounds.toRectangleRelative(gameInfo)
+        if (boundsRelative.width < 0.035f && boundsRelative.height < 0.03f) {
+            return listOf(center.getSum(PointAbsolute(0, -bounds.height / 3)))
+        }
         return listOf(
             center, // Center
             center.getSum(PointAbsolute(-bounds.width / 3, -bounds.height / 3)), // Top left
