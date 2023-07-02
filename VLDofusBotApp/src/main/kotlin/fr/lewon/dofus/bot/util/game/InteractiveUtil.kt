@@ -36,6 +36,12 @@ object InteractiveUtil {
 
     private val INVALID_SKILL_IDS = listOf(339, 360, 361, 362)
 
+    private val CUSTOM_CLICK_LOCATIONS_BY_INTERACTIVE = mapOf(
+        518476 to { bounds: RectangleAbsolute -> // Interactive at the bottom of 20 ; -36
+            listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0)))
+        }
+    )
+
     fun getElementCellData(gameInfo: GameInfo, interactiveElement: InteractiveElement): CompleteCellData =
         gameInfo.mapData.completeCellDataByCellId.values
             .firstOrNull { it.graphicalElements.map { ge -> ge.identifier }.contains(interactiveElement.elementId) }
@@ -108,6 +114,9 @@ object InteractiveUtil {
                 topLeft = it.getTopLeft().getSum(margin),
                 bottomRight = it.getBottomRight().getDifference(margin)
             )
+        }
+        CUSTOM_CLICK_LOCATIONS_BY_INTERACTIVE[elementId]?.let {
+            return it(bounds)
         }
         val center = bounds.getCenter()
         return listOf(
