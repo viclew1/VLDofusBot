@@ -1,4 +1,7 @@
-/VLDofusBot.iml
+/.idea/
+/target/
 /build/
 /.gradle/
-/.idea/
+/gradle/
+gradlew
+gradlew.bat
