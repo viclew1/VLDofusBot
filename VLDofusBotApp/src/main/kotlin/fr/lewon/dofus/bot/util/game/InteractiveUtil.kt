@@ -63,12 +63,12 @@ object InteractiveUtil {
         val cell = gameInfo.dofusBoard.getCell(destCellId)
         val dToOrigin: PointAbsolute
         val size: UIPoint
-        when (elementData) {
-            is NormalGraphicalElementData -> {
+        when {
+            elementData is NormalGraphicalElementData && (graphicalElement.altitude < 50 || cell.cellData.floor != 0) -> {
                 dToOrigin = elementData.origin.toPointAbsolute(gameInfo)
                 size = elementData.size
             }
-            is EntityGraphicalElementData -> {
+            elementData is EntityGraphicalElementData -> {
                 //TODO fetch bones to have real size
                 val topLeft = cell.bounds.getTopLeft().toUIPoint()
                 val bottomRight = cell.bounds.getBottomRight().toUIPoint()
@@ -84,7 +84,9 @@ object InteractiveUtil {
         }
         val altitudeYOffset = if (graphicalElement.altitude < 50) {
             -graphicalElement.altitude * 10
-        } else graphicalElement.altitude + cell.cellData.floor
+        } else if (cell.cellData.floor != 0) {
+            graphicalElement.altitude + cell.cellData.floor
+        } else 0
         val offset = UIPoint(
             x = graphicalElement.pixelOffset.x,
             y = graphicalElement.pixelOffset.y + altitudeYOffset
