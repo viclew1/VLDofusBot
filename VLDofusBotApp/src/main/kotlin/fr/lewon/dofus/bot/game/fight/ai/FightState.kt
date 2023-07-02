@@ -76,10 +76,21 @@ class FightState(
         return options
     }
 
-    private fun canMove(currentFighter: Fighter): Boolean {
-        return aiComplement.canMove(currentFighter)
-                && lastOperation?.type != FightOperationType.MOVE
-                && getNeighborEnemies(currentFighter).isEmpty()
+    private fun canMove(currentFighter: Fighter) = aiComplement.canMove(currentFighter)
+            && lastOperation?.type != FightOperationType.MOVE
+            && getTotalEvadeRatio(currentFighter) >= 1f
+
+    private fun getTotalEvadeRatio(fighter: Fighter): Float = getNeighborEnemies(fighter)
+        .map { getEvadeRatio(it, fighter) }
+        .reduceOrNull(Float::times)
+        ?: 1f
+
+    private fun getEvadeRatio(tacklingFighter: Fighter, playerFighter: Fighter): Float {
+        val tackle = DofusCharacteristics.TACKLE_BLOCK.getValue(tacklingFighter).toFloat() +
+                DofusCharacteristics.AGILITY.getValue(tacklingFighter).toFloat() / 10f
+        val evasion = DofusCharacteristics.TACKLE_EVADE.getValue(playerFighter).toFloat() +
+                DofusCharacteristics.AGILITY.getValue(playerFighter).toFloat() / 10f
+        return (evasion + 2f) / (2f * (tackle + 2f))
     }
 
     private fun canCastSpellOnTarget(

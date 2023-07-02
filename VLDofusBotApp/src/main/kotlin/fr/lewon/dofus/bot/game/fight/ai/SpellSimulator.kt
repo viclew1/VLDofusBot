@@ -18,7 +18,7 @@ class SpellSimulator(val dofusBoard: DofusBoard) {
 
     fun simulateSpell(fightBoard: FightBoard, caster: Fighter, spell: DofusSpellLevel, targetCellId: Int) {
         val criticalChance = spell.criticalHitProbability + DofusCharacteristics.CRITICAL_HIT.getValue(caster)
-        val criticalHit = spell.criticalEffects.isNotEmpty() && criticalChance >= 80
+        val criticalHit = spell.criticalEffects.isNotEmpty() && criticalChance >= 95
         val effects = if (criticalHit) spell.criticalEffects else spell.effects
         effects.forEach {
             simulateEffect(fightBoard, caster, it, targetCellId, criticalHit)
