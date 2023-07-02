@@ -37,8 +37,11 @@ object InteractiveUtil {
     private val INVALID_SKILL_IDS = listOf(339, 360, 361, 362)
 
     private val CUSTOM_CLICK_LOCATIONS_BY_INTERACTIVE = mapOf(
-        518476 to { bounds: RectangleAbsolute -> // Interactive at the bottom of 20 ; -36
+        518476 to { bounds: RectangleAbsolute -> // 20 ; -36
             listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0)))
+        },
+        485282 to { bounds: RectangleAbsolute -> // -1 ; -42
+            listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))
         }
     )
 
@@ -85,7 +88,7 @@ object InteractiveUtil {
         val altitudeYOffset = if (graphicalElement.altitude < 50) {
             -graphicalElement.altitude * 10
         } else if (cell.cellData.floor != 0) {
-            graphicalElement.altitude + cell.cellData.floor
+            -cell.cellData.floor
         } else 0
         val offset = UIPoint(
             x = graphicalElement.pixelOffset.x,
