@@ -22,5 +22,5 @@ open class DungeonKeyRingMessage : NetworkMessage() {
 			unavailables.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8833
+	override fun getNetworkMessageId(): Int = 1665
 }

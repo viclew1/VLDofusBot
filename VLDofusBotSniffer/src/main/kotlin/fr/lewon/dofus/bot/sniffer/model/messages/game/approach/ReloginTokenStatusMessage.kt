@@ -14,5 +14,5 @@ open class ReloginTokenStatusMessage : NetworkMessage() {
 		validToken = stream.readBoolean()
 		token = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 6024
+	override fun getNetworkMessageId(): Int = 8771
 }

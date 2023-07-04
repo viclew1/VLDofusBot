@@ -18,5 +18,5 @@ open class AlliancePlayerApplicationInformationMessage : AlliancePlayerApplicati
 		apply = SocialApplicationInformation()
 		apply.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4559
+	override fun getNetworkMessageId(): Int = 96
 }

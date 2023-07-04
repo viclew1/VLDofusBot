@@ -12,5 +12,5 @@ open class GameRolePlayAttackMonsterRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		monsterGroupId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 850
+	override fun getNetworkMessageId(): Int = 1998
 }

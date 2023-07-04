@@ -12,5 +12,5 @@ open class ObjectUseMultipleMessage : ObjectUseMessage() {
 		super.deserialize(stream)
 		quantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2873
+	override fun getNetworkMessageId(): Int = 8520
 }

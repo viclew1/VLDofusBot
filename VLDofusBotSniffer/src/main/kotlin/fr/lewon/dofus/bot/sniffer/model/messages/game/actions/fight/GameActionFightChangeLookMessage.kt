@@ -17,5 +17,5 @@ open class GameActionFightChangeLookMessage : AbstractGameActionMessage() {
 		entityLook = EntityLook()
 		entityLook.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8968
+	override fun getNetworkMessageId(): Int = 6798
 }

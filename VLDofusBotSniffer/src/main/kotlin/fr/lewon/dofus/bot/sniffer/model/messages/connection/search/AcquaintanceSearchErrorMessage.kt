@@ -12,5 +12,5 @@ open class AcquaintanceSearchErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3676
+	override fun getNetworkMessageId(): Int = 4300
 }

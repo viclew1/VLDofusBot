@@ -12,5 +12,5 @@ open class ShortcutBarRemoveErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		error = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7851
+	override fun getNetworkMessageId(): Int = 2825
 }

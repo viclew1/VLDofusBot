@@ -17,5 +17,5 @@ open class ExchangeObjectsRemovedMessage : ExchangeObjectMessage() {
 			objectUID.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2551
+	override fun getNetworkMessageId(): Int = 4956
 }

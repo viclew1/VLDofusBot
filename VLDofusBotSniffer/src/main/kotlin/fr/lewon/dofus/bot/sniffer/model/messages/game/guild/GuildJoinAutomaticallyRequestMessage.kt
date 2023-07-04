@@ -12,5 +12,5 @@ open class GuildJoinAutomaticallyRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		guildId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4071
+	override fun getNetworkMessageId(): Int = 1067
 }

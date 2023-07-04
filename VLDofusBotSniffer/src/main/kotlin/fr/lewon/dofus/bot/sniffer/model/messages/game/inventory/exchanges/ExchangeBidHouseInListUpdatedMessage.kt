@@ -11,5 +11,5 @@ open class ExchangeBidHouseInListUpdatedMessage : ExchangeBidHouseInListAddedMes
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8633
+	override fun getNetworkMessageId(): Int = 6092
 }

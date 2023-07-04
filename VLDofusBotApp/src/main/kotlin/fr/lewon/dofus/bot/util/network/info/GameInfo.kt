@@ -8,14 +8,13 @@ import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.game.DofusBoard
-import fr.lewon.dofus.bot.game.fight.DofusCharacteristicUtil
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.SpellModificationType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.overlay.impl.LOSOverlay
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
-import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.CharacterSpellModification
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.spellmodifier.SpellModifierMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
 import fr.lewon.dofus.bot.sniffer.model.types.game.paddock.PaddockItem
@@ -41,7 +40,7 @@ class GameInfo(val character: DofusCharacter) {
     val dofusBoard = DofusBoard()
 
     val fightBoard = FightBoard(this)
-    var spellModifications: List<CharacterSpellModification> = emptyList()
+    var spellModifiers: List<SpellModifierMessage> = emptyList()
     var isCreatureModeToggled = false
 
     private val interactiveElementsLock = ReentrantLock()
@@ -80,11 +79,11 @@ class GameInfo(val character: DofusCharacter) {
             fighter.maxHp = maxHp
             fighter.baseHp = hp
             fighter.spells = fighter.spells.map { spellLevel ->
-                val spellModification = spellModifications.firstOrNull { it.spellId == spellLevel.spellId }
-                spellModification?.modificationType?.let { modificationType ->
+                val spellModifier = spellModifiers.firstOrNull { it.spellId == spellLevel.spellId }
+                spellModifier?.modifierType?.let { modifierType ->
                     val baseSpell = SpellLevelManager.getSpellLevel(spellLevel.id)
-                    val value = DofusCharacteristicUtil.getCharacteristicValue(spellModification.value)
-                    SpellModificationType.fromTypeInt(modificationType)?.getUpdatedSpell?.invoke(baseSpell, value)
+                    val value = spellModifier.context + spellModifier.equipment
+                    SpellModificationType.fromTypeInt(modifierType)?.getUpdatedSpell?.invoke(baseSpell, value)
                 } ?: spellLevel
             }
         }

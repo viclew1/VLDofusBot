@@ -16,5 +16,5 @@ open class PrismAttackResultMessage : NetworkMessage() {
 		prism.deserialize(stream)
 		result = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3075
+	override fun getNetworkMessageId(): Int = 4128
 }

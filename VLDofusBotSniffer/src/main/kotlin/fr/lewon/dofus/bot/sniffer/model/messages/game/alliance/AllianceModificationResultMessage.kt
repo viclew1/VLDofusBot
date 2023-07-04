@@ -12,5 +12,5 @@ open class AllianceModificationResultMessage : NetworkMessage() {
 		super.deserialize(stream)
 		result = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 632
+	override fun getNetworkMessageId(): Int = 5648
 }

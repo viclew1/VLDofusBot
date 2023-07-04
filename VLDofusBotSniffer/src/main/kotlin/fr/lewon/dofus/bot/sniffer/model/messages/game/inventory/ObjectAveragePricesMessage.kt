@@ -22,5 +22,5 @@ open class ObjectAveragePricesMessage : NetworkMessage() {
 			avgPrices.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 453
+	override fun getNetworkMessageId(): Int = 9290
 }

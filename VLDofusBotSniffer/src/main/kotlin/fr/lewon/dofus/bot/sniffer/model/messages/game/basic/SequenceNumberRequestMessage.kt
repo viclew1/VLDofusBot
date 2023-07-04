@@ -10,5 +10,5 @@ open class SequenceNumberRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2380
+	override fun getNetworkMessageId(): Int = 5241
 }

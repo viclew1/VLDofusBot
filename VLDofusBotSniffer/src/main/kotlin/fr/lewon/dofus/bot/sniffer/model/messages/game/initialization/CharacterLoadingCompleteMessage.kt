@@ -10,5 +10,5 @@ open class CharacterLoadingCompleteMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3591
+	override fun getNetworkMessageId(): Int = 5077
 }

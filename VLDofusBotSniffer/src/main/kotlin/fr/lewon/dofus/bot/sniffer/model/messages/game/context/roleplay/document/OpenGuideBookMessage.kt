@@ -12,5 +12,5 @@ open class OpenGuideBookMessage : NetworkMessage() {
 		super.deserialize(stream)
 		articleId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8044
+	override fun getNetworkMessageId(): Int = 3895
 }

@@ -18,5 +18,5 @@ open class BasicStatWithDataMessage : BasicStatMessage() {
 			datas.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5089
+	override fun getNetworkMessageId(): Int = 2819
 }

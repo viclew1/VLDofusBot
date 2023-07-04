@@ -12,5 +12,5 @@ open class AllianceFactsRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		allianceId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3953
+	override fun getNetworkMessageId(): Int = 6034
 }

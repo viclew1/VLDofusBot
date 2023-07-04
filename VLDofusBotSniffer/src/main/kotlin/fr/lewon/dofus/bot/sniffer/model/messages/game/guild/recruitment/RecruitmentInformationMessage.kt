@@ -14,5 +14,5 @@ open class RecruitmentInformationMessage : NetworkMessage() {
 		recruitmentData = GuildRecruitmentInformation()
 		recruitmentData.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5680
+	override fun getNetworkMessageId(): Int = 5839
 }

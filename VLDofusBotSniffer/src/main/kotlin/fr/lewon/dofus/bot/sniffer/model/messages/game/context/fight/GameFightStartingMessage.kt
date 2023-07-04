@@ -26,5 +26,5 @@ open class GameFightStartingMessage : NetworkMessage() {
 			monsters.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6600
+	override fun getNetworkMessageId(): Int = 1962
 }

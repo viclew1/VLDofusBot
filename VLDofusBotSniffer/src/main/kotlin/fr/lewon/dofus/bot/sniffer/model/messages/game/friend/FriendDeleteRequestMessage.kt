@@ -12,5 +12,5 @@ open class FriendDeleteRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		accountId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9943
+	override fun getNetworkMessageId(): Int = 7180
 }

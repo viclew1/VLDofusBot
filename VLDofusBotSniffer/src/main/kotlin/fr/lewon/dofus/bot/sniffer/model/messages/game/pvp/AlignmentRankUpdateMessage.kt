@@ -14,5 +14,5 @@ open class AlignmentRankUpdateMessage : NetworkMessage() {
 		alignmentRank = stream.readUnsignedByte().toInt()
 		verbose = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2405
+	override fun getNetworkMessageId(): Int = 2232
 }

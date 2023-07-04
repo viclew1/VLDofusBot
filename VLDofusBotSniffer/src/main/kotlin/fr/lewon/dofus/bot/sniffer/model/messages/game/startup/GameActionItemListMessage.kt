@@ -18,5 +18,5 @@ open class GameActionItemListMessage : NetworkMessage() {
 			actions.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9356
+	override fun getNetworkMessageId(): Int = 1976
 }

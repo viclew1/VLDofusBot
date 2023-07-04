@@ -10,5 +10,5 @@ open class NpcGenericActionFailureMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5439
+	override fun getNetworkMessageId(): Int = 2908
 }

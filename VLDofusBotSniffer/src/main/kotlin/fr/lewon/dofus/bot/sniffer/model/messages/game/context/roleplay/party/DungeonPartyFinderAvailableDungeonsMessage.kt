@@ -16,5 +16,5 @@ open class DungeonPartyFinderAvailableDungeonsMessage : NetworkMessage() {
 			dungeonIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2269
+	override fun getNetworkMessageId(): Int = 1652
 }

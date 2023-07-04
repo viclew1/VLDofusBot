@@ -18,5 +18,5 @@ open class AllianceFightStartedMessage : NetworkMessage() {
 		phase = FightPhase()
 		phase.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9908
+	override fun getNetworkMessageId(): Int = 6373
 }

@@ -20,5 +20,5 @@ open class NotificationByServerMessage : NetworkMessage() {
 		}
 		forceOpen = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 3334
+	override fun getNetworkMessageId(): Int = 8221
 }

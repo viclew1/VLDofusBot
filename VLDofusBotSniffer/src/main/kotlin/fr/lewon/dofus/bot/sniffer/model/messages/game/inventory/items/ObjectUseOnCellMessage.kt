@@ -12,5 +12,5 @@ open class ObjectUseOnCellMessage : ObjectUseMessage() {
 		super.deserialize(stream)
 		cells = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2107
+	override fun getNetworkMessageId(): Int = 4749
 }

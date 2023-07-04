@@ -10,5 +10,5 @@ open class AccountLinkRequiredMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2023
+	override fun getNetworkMessageId(): Int = 8119
 }

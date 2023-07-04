@@ -18,5 +18,5 @@ open class AllianceListApplicationModifiedMessage : NetworkMessage() {
 		state = stream.readUnsignedByte().toInt()
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 9993
+	override fun getNetworkMessageId(): Int = 8362
 }

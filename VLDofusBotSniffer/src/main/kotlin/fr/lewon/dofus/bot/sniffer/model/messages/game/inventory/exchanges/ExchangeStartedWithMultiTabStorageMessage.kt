@@ -14,5 +14,5 @@ open class ExchangeStartedWithMultiTabStorageMessage : ExchangeStartedMessage() 
 		storageMaxSlot = stream.readVarInt().toInt()
 		tabNumber = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4807
+	override fun getNetworkMessageId(): Int = 5725
 }

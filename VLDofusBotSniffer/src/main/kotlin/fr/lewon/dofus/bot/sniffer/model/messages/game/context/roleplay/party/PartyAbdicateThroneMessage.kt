@@ -12,5 +12,5 @@ open class PartyAbdicateThroneMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 368
+	override fun getNetworkMessageId(): Int = 1919
 }

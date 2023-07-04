@@ -14,5 +14,5 @@ open class PartyInvitationRequestMessage : NetworkMessage() {
 		target = ProtocolTypeManager.getInstance<AbstractPlayerSearchInformation>(stream.readUnsignedShort())
 		target.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5544
+	override fun getNetworkMessageId(): Int = 7376
 }

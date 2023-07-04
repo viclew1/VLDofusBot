@@ -12,5 +12,5 @@ open class FriendWarnOnLevelGainStateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		enable = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2571
+	override fun getNetworkMessageId(): Int = 7621
 }

@@ -20,5 +20,5 @@ open class TeleportBuddiesRequestedMessage : NetworkMessage() {
 			invalidBuddiesIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4673
+	override fun getNetworkMessageId(): Int = 9327
 }

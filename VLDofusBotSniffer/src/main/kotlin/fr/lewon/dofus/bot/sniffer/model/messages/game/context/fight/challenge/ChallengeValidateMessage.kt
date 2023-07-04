@@ -6,13 +6,11 @@ import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
 import fr.lewon.dofus.bot.sniffer.model.ProtocolTypeManager
 import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
 
-open class ChallengeTargetUpdateMessage : NetworkMessage() {
+open class ChallengeValidateMessage : NetworkMessage() {
 	var challengeId: Int = 0
-	var targetId: Double = 0.0
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
-		challengeId = stream.readVarShort().toInt()
-		targetId = stream.readDouble().toDouble()
+		challengeId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7185
+	override fun getNetworkMessageId(): Int = 248
 }

@@ -18,5 +18,5 @@ open class UpdateMapPlayersAgressableStatusMessage : NetworkMessage() {
 			playerAvAMessages.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5262
+	override fun getNetworkMessageId(): Int = 9727
 }

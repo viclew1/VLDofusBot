@@ -20,5 +20,5 @@ open class GameRolePlayArenaFightPropositionMessage : NetworkMessage() {
 		}
 		duration = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1479
+	override fun getNetworkMessageId(): Int = 3409
 }

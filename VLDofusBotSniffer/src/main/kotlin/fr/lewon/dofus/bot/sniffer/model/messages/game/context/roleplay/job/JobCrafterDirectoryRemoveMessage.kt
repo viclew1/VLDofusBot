@@ -14,5 +14,5 @@ open class JobCrafterDirectoryRemoveMessage : NetworkMessage() {
 		jobId = stream.readUnsignedByte().toInt()
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 235
+	override fun getNetworkMessageId(): Int = 8338
 }

@@ -12,5 +12,5 @@ open class PartyNameSetRequestMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		partyName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 8318
+	override fun getNetworkMessageId(): Int = 9077
 }

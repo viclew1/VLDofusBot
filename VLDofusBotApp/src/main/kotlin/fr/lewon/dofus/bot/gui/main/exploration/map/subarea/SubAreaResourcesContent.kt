@@ -12,7 +12,6 @@ import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
 import fr.lewon.dofus.bot.gui.custom.VerticalGrid
-import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -23,7 +22,7 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 
 @Composable
 fun SubAreaResourcesContent(subArea: DofusSubArea) {
-    Box(Modifier.fillMaxSize().darkGrayBoxStyle()) {
+    Box(Modifier.fillMaxSize()) {
         val state = rememberScrollState()
         Column(Modifier.fillMaxSize().padding(5.dp).padding(end = 8.dp).verticalScroll(state)) {
             if (subArea.harvestables.isEmpty()) {
@@ -51,7 +50,7 @@ private fun ResourcesListContent(job: HarvestJobs, subArea: DofusSubArea) {
             ?: emptyList()
     val harvestables = job.items.filter { subArea.harvestables.contains(it) }.distinct()
     if (harvestables.isNotEmpty()) {
-        HorizontalSeparator(job.jobName, Modifier.padding(vertical = 10.dp))
+        HorizontalSeparator(job.jobName, modifier = Modifier.padding(vertical = 10.dp))
         VerticalGrid(
             columns = 5,
             modifier = Modifier.padding(end = 8.dp),

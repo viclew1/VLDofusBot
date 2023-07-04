@@ -16,5 +16,5 @@ open class IconPresetSaveRequestMessage : NetworkMessage() {
 		symbolId = stream.readUnsignedByte().toInt()
 		updateData = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9389
+	override fun getNetworkMessageId(): Int = 6582
 }

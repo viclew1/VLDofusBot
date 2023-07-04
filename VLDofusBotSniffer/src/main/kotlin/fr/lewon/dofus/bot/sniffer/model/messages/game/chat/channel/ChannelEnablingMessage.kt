@@ -14,5 +14,5 @@ open class ChannelEnablingMessage : NetworkMessage() {
 		channel = stream.readUnsignedByte().toInt()
 		enable = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7982
+	override fun getNetworkMessageId(): Int = 3241
 }

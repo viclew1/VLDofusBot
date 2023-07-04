@@ -18,5 +18,5 @@ open class GameFightPlacementSwapPositionsMessage : NetworkMessage() {
 			dispositions.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7448
+	override fun getNetworkMessageId(): Int = 4084
 }

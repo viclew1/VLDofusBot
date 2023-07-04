@@ -7,7 +7,8 @@ import fr.lewon.dofus.bot.model.characters.DofusCharacter
 
 data class ExplorationMapUIState(
     val hoveredMapDrawCell: MapDrawCell? = null,
-    val selectedMapDrawCell: MapDrawCell? = null,
+    val selectedSubAreaIds: List<Double> = emptyList(),
+    val selectedSubAreaIndex: Int = -1,
     val areaExploredByCharacter: Map<DofusCharacter, DofusSubArea> = emptyMap(),
     val scale: Float = ExplorationUIUtil.MIN_ZOOM,
     val offset: Offset = Offset.Zero

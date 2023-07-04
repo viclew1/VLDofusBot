@@ -14,5 +14,5 @@ open class GameActionItemAddMessage : NetworkMessage() {
 		newAction = GameActionItem()
 		newAction.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 1265
+	override fun getNetworkMessageId(): Int = 8600
 }

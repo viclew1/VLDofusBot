@@ -12,5 +12,5 @@ open class ExchangeCraftPaymentModificationRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		quantity = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6961
+	override fun getNetworkMessageId(): Int = 4312
 }

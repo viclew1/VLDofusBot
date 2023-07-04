@@ -12,5 +12,5 @@ open class GameMapMovementCancelMessage : NetworkMessage() {
 		super.deserialize(stream)
 		cellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 138
+	override fun getNetworkMessageId(): Int = 8311
 }

@@ -16,5 +16,5 @@ open class InvalidPresetsMessage : NetworkMessage() {
 			presetIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6001
+	override fun getNetworkMessageId(): Int = 1460
 }

@@ -22,5 +22,5 @@ open class GroupTeleportPlayerOfferMessage : NetworkMessage() {
 		requesterId = stream.readVarLong().toDouble()
 		requesterName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 12
+	override fun getNetworkMessageId(): Int = 9570
 }

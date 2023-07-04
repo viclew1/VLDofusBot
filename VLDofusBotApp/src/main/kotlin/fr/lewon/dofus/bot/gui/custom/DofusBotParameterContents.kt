@@ -57,6 +57,15 @@ fun ParameterInput(
                     getItemText = { it },
                     maxDropDownHeight = 300.dp,
                 )
+            DofusBotParameterType.MULTIPLE_CHOICE ->
+                ComboBox(
+                    selectedItem = parameterValue,
+                    items = possibleValues,
+                    onItemSelect = onParamUpdate,
+                    getItemText = { it },
+                    maxDropDownHeight = 300.dp,
+                    multipleChoice = true,
+                )
             DofusBotParameterType.INTEGER ->
                 IntegerTextField(parameterValue, onParamUpdate)
             DofusBotParameterType.STRING ->

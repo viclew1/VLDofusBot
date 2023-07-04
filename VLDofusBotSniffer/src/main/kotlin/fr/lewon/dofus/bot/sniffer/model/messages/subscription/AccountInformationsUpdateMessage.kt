@@ -12,5 +12,5 @@ open class AccountInformationsUpdateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		subscriptionEndDate = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 7360
+	override fun getNetworkMessageId(): Int = 9970
 }

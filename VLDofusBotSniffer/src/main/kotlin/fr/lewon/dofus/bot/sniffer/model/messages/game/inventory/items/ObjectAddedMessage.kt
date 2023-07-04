@@ -16,5 +16,5 @@ open class ObjectAddedMessage : NetworkMessage() {
 		obj.deserialize(stream)
 		origin = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5435
+	override fun getNetworkMessageId(): Int = 9325
 }

@@ -14,5 +14,5 @@ open class GuildUpdateChestTabRequestMessage : NetworkMessage() {
 		tab = UpdatedStorageTabInformation()
 		tab.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4124
+	override fun getNetworkMessageId(): Int = 9795
 }

@@ -14,5 +14,5 @@ open class PresetSaveErrorMessage : NetworkMessage() {
 		presetId = stream.readUnsignedShort().toInt()
 		code = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9661
+	override fun getNetworkMessageId(): Int = 9161
 }

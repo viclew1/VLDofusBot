@@ -16,5 +16,5 @@ open class BreachCharactersMessage : NetworkMessage() {
 			characters.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7002
+	override fun getNetworkMessageId(): Int = 2322
 }

@@ -12,5 +12,5 @@ open class SubscriptionZoneMessage : NetworkMessage() {
 		super.deserialize(stream)
 		active = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 497
+	override fun getNetworkMessageId(): Int = 7990
 }

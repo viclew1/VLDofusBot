@@ -12,5 +12,5 @@ open class AddListenerOnSynchronizedStorageMessage : NetworkMessage() {
 		super.deserialize(stream)
 		player = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 1219
+	override fun getNetworkMessageId(): Int = 8748
 }

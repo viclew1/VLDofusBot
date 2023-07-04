@@ -12,5 +12,5 @@ open class NpcDialogReplyMessage : NetworkMessage() {
 		super.deserialize(stream)
 		replyId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9495
+	override fun getNetworkMessageId(): Int = 7517
 }

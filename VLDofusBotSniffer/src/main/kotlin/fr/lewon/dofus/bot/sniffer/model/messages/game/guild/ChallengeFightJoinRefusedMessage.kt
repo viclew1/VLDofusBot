@@ -14,5 +14,5 @@ open class ChallengeFightJoinRefusedMessage : NetworkMessage() {
 		playerId = stream.readVarLong().toDouble()
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7150
+	override fun getNetworkMessageId(): Int = 9017
 }

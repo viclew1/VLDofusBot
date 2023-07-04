@@ -18,5 +18,5 @@ open class ExchangeHandleMountsMessage : NetworkMessage() {
 			ridesId.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4536
+	override fun getNetworkMessageId(): Int = 3813
 }

@@ -12,5 +12,5 @@ open class ForceAccountMessage : NetworkMessage() {
 		super.deserialize(stream)
 		accountId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6593
+	override fun getNetworkMessageId(): Int = 78
 }

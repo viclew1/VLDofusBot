@@ -16,5 +16,5 @@ open class GuildHouseRemoveMessage : NetworkMessage() {
 		instanceId = stream.readInt().toInt()
 		secondHand = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 3511
+	override fun getNetworkMessageId(): Int = 6841
 }

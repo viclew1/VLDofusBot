@@ -14,5 +14,5 @@ open class AllianceMemberOnlineStatusMessage : NetworkMessage() {
 		memberId = stream.readVarLong().toDouble()
 		online = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2503
+	override fun getNetworkMessageId(): Int = 5744
 }

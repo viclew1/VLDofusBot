@@ -6,7 +6,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
 import fr.lewon.dofus.bot.sniffer.model.ProtocolTypeManager
 import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
 
-open class uuid : NetworkType() {
+open class Uuid : NetworkType() {
 	var uuidString: String = ""
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)

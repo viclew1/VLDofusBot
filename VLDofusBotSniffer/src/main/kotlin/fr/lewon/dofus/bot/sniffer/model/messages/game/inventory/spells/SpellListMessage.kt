@@ -20,5 +20,5 @@ open class SpellListMessage : NetworkMessage() {
 			spells.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2313
+	override fun getNetworkMessageId(): Int = 8002
 }

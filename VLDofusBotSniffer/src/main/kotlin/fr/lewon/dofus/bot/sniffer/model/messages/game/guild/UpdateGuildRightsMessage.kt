@@ -18,5 +18,5 @@ open class UpdateGuildRightsMessage : NetworkMessage() {
 			rights.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6769
+	override fun getNetworkMessageId(): Int = 2656
 }

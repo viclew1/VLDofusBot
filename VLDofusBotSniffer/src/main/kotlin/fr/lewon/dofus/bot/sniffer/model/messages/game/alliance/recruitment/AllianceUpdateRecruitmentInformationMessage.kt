@@ -14,5 +14,5 @@ open class AllianceUpdateRecruitmentInformationMessage : NetworkMessage() {
 		recruitmentData = AllianceRecruitmentInformation()
 		recruitmentData.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4203
+	override fun getNetworkMessageId(): Int = 9974
 }

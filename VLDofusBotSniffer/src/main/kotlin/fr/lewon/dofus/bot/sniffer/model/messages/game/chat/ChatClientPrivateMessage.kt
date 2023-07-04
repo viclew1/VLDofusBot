@@ -14,5 +14,5 @@ open class ChatClientPrivateMessage : ChatAbstractClientMessage() {
 		receiver = ProtocolTypeManager.getInstance<AbstractPlayerSearchInformation>(stream.readUnsignedShort())
 		receiver.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 787
+	override fun getNetworkMessageId(): Int = 9553
 }

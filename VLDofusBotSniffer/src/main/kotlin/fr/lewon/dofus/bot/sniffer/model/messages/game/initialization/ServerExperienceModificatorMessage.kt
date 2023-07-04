@@ -12,5 +12,5 @@ open class ServerExperienceModificatorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		experiencePercent = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3466
+	override fun getNetworkMessageId(): Int = 4584
 }

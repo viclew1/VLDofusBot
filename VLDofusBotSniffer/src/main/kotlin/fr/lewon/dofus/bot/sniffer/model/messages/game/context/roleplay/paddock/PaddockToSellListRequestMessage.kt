@@ -12,5 +12,5 @@ open class PaddockToSellListRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		pageIndex = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 766
+	override fun getNetworkMessageId(): Int = 9694
 }

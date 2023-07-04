@@ -14,5 +14,5 @@ open class BasicWhoIsNoMatchMessage : NetworkMessage() {
 		target = ProtocolTypeManager.getInstance<AbstractPlayerSearchInformation>(stream.readUnsignedShort())
 		target.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6536
+	override fun getNetworkMessageId(): Int = 821
 }

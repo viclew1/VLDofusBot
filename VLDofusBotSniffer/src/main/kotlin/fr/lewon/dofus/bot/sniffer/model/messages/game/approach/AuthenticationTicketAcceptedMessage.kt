@@ -10,5 +10,5 @@ open class AuthenticationTicketAcceptedMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4826
+	override fun getNetworkMessageId(): Int = 170
 }

@@ -18,5 +18,5 @@ open class ExchangeBidHouseUnsoldItemsMessage : NetworkMessage() {
 			items.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2524
+	override fun getNetworkMessageId(): Int = 6665
 }

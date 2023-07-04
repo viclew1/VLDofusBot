@@ -14,5 +14,5 @@ open class GameActionAcknowledgementMessage : NetworkMessage() {
 		valid = stream.readBoolean()
 		actionId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2057
+	override fun getNetworkMessageId(): Int = 5824
 }

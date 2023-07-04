@@ -13,5 +13,5 @@ open class PartyInvitationDungeonRequestMessage : PartyInvitationRequestMessage(
 		super.deserialize(stream)
 		dungeonId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7899
+	override fun getNetworkMessageId(): Int = 4625
 }

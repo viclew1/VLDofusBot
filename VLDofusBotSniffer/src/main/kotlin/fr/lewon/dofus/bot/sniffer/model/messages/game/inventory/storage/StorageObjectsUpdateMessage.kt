@@ -18,5 +18,5 @@ open class StorageObjectsUpdateMessage : NetworkMessage() {
 			objectList.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9310
+	override fun getNetworkMessageId(): Int = 4497
 }

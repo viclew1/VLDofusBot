@@ -14,5 +14,5 @@ open class RemoveTaxCollectorOrderedSpellMessage : NetworkMessage() {
 		taxCollectorId = stream.readDouble().toDouble()
 		slot = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4462
+	override fun getNetworkMessageId(): Int = 1024
 }

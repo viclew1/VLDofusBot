@@ -16,5 +16,5 @@ open class ShortcutBarSwapRequestMessage : NetworkMessage() {
 		firstSlot = stream.readUnsignedByte().toInt()
 		secondSlot = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3829
+	override fun getNetworkMessageId(): Int = 9543
 }

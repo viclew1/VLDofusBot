@@ -12,5 +12,5 @@ open class ChangeThemeRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		theme = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2826
+	override fun getNetworkMessageId(): Int = 1629
 }

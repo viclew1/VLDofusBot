@@ -12,5 +12,5 @@ open class PaddockRemoveItemRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		cellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 577
+	override fun getNetworkMessageId(): Int = 639
 }

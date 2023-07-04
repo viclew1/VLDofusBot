@@ -14,5 +14,5 @@ open class EmotePlayAbstractMessage : NetworkMessage() {
 		emoteId = stream.readUnsignedShort().toInt()
 		emoteStartTime = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1042
+	override fun getNetworkMessageId(): Int = 8348
 }

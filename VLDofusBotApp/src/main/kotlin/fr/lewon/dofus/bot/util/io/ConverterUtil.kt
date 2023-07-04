@@ -3,7 +3,6 @@ package fr.lewon.dofus.bot.util.io
 import fr.lewon.dofus.bot.core.ui.UIBounds
 import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.core.ui.UIRectangle
-import fr.lewon.dofus.bot.overlay.impl.UIOverlay
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.PointRelative
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
@@ -77,10 +76,10 @@ object ConverterUtil {
         return RectangleRelative.build(topLeftPosition.toPointRelative(), bottomRightPosition.toPointRelative())
     }
 
-    fun toRectangleAbsolute(rect: UIRectangle): RectangleAbsolute {
-        val topLeftAbs = rect.position.toPointAbsolute(UIOverlay.gameInfo)
+    fun toRectangleAbsolute(gameInfo: GameInfo, rect: UIRectangle): RectangleAbsolute {
+        val topLeftAbs = rect.position.toPointAbsolute(gameInfo)
         val bottomRightUIPoint = UIPoint(rect.position.x + rect.size.x, rect.position.y + rect.size.y)
-        val bottomRightAbs = bottomRightUIPoint.toPointAbsolute(UIOverlay.gameInfo)
+        val bottomRightAbs = bottomRightUIPoint.toPointAbsolute(gameInfo)
         val sizeAbs = PointAbsolute(bottomRightAbs.x - topLeftAbs.x, bottomRightAbs.y - topLeftAbs.y)
         return RectangleAbsolute(topLeftAbs.x, topLeftAbs.y, sizeAbs.x, sizeAbs.y)
     }
@@ -95,4 +94,4 @@ fun PointRelative.toPointAbsolute(gameInfo: GameInfo) = ConverterUtil.toPointAbs
 fun RectangleAbsolute.toRectangleRelative(gameInfo: GameInfo) = ConverterUtil.toRectangleRelative(gameInfo, this)
 fun RectangleRelative.toRectangleAbsolute(gameInfo: GameInfo) = ConverterUtil.toRectangleAbsolute(gameInfo, this)
 fun UIRectangle.toRectangleRelative() = ConverterUtil.toRectangleRelative(this)
-fun UIRectangle.toRectangleAbsolute() = ConverterUtil.toRectangleAbsolute(this)
+fun UIRectangle.toRectangleAbsolute(gameInfo: GameInfo) = ConverterUtil.toRectangleAbsolute(gameInfo, this)

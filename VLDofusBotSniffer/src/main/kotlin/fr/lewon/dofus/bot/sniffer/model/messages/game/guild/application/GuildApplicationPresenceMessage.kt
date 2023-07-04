@@ -12,5 +12,5 @@ open class GuildApplicationPresenceMessage : NetworkMessage() {
 		super.deserialize(stream)
 		isApplication = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9598
+	override fun getNetworkMessageId(): Int = 3123
 }

@@ -18,5 +18,5 @@ open class ChatServerWithObjectMessage : ChatServerMessage() {
 			objects.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3461
+	override fun getNetworkMessageId(): Int = 8618
 }

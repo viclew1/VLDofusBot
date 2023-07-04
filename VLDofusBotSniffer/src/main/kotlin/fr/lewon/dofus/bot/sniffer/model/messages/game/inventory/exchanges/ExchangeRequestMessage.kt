@@ -12,5 +12,5 @@ open class ExchangeRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		exchangeType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3165
+	override fun getNetworkMessageId(): Int = 2858
 }

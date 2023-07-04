@@ -26,5 +26,5 @@ open class BreachStateMessage : NetworkMessage() {
 		bugdet = stream.readVarInt().toInt()
 		saved = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 3942
+	override fun getNetworkMessageId(): Int = 7262
 }

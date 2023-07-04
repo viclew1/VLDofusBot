@@ -18,5 +18,5 @@ open class GuildPlayerApplicationInformationMessage : GuildPlayerApplicationAbst
 		apply = SocialApplicationInformation()
 		apply.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8868
+	override fun getNetworkMessageId(): Int = 5318
 }

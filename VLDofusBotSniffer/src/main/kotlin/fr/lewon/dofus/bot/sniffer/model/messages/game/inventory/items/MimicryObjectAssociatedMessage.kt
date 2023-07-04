@@ -10,5 +10,5 @@ open class MimicryObjectAssociatedMessage : SymbioticObjectAssociatedMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 1205
+	override fun getNetworkMessageId(): Int = 3202
 }

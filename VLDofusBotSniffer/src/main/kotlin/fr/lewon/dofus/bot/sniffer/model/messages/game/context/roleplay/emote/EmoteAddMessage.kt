@@ -12,5 +12,5 @@ open class EmoteAddMessage : NetworkMessage() {
 		super.deserialize(stream)
 		emoteId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3561
+	override fun getNetworkMessageId(): Int = 9586
 }

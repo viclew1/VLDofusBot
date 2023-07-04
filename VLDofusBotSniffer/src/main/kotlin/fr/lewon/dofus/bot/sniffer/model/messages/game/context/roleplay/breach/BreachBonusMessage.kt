@@ -14,5 +14,5 @@ open class BreachBonusMessage : NetworkMessage() {
 		bonus = ObjectEffectInteger()
 		bonus.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 914
+	override fun getNetworkMessageId(): Int = 4966
 }

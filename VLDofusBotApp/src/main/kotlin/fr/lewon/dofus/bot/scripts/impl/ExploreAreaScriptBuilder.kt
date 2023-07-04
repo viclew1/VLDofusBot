@@ -9,7 +9,9 @@ import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.scripts.parameters.MultipleParameterValuesSeparator
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreasTask
 import fr.lewon.dofus.bot.util.StringUtil
 import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
@@ -20,8 +22,6 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         .filter {
             ExploreSubAreaTask.SUB_AREA_ID_FULLY_ALLOWED.contains(it.id)
                     || MapManager.getDofusMaps(it).isNotEmpty()
-                    && !it.isConquestVillage
-                    && it.monsters.isNotEmpty()
                     && it.area.superAreaId == 0
                     && hasNoBoss(it)
         }
@@ -41,11 +41,11 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         parametersGroup = 1
     )
 
-    val subAreaParameter = DofusBotParameter(
-        "Sub area",
-        "Dofus sub area",
+    val subAreasParameter = DofusBotParameter(
+        "Sub areas",
+        "Sub areas to explore",
         SUB_AREA_LABELS.firstOrNull() ?: "",
-        DofusBotParameterType.CHOICE,
+        DofusBotParameterType.MULTIPLE_CHOICE,
         SUB_AREA_LABELS,
         displayCondition = { it.getParamValue(currentAreaParameter) == "false" },
         parametersGroup = 1
@@ -110,7 +110,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
 
     override fun getParameters(): List<DofusBotParameter> = listOf(
         currentAreaParameter,
-        subAreaParameter,
+        subAreasParameter,
         stopWhenArchMonsterFoundParameter,
         stopWhenQuestMonsterFoundParameter,
         searchedMonsterParameter,
@@ -135,16 +135,17 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         statValues: HashMap<DofusBotScriptStat, String>
     ) {
         val currentAreaParameterValue = scriptValues.getParamValue(currentAreaParameter).toBoolean()
-        val subArea = if (currentAreaParameterValue) {
-            gameInfo.currentMap.subArea
+        val subAreas = if (currentAreaParameterValue) {
+            listOf(gameInfo.currentMap.subArea)
         } else {
-            val subAreaParameterValue = scriptValues.getParamValue(subAreaParameter)
-            SUB_AREA_BY_LABEL[subAreaParameterValue] ?: error("Sub area not found : $subAreaParameterValue")
+            val subAreaParameterValue = scriptValues.getParamValue(subAreasParameter)
+            val labels = subAreaParameterValue.split(MultipleParameterValuesSeparator)
+            labels.map { SUB_AREA_BY_LABEL[it] ?: error("Sub area not found : $it") }
         }
         val harvestableSetName = scriptValues.getParamValue(harvestParameter)
         val itemIdsToHarvest = HarvestableSetsManager.getItemsToHarvest(harvestableSetName)
-        ExploreSubAreaTask(
-            subArea,
+        ExploreSubAreasTask(
+            subAreas = subAreas,
             killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
             searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),

@@ -12,5 +12,5 @@ open class DocumentReadingBeginMessage : NetworkMessage() {
 		super.deserialize(stream)
 		documentId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8292
+	override fun getNetworkMessageId(): Int = 556
 }

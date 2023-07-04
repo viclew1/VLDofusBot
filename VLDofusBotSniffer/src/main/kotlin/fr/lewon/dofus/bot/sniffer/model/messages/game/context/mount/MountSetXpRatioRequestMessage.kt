@@ -12,5 +12,5 @@ open class MountSetXpRatioRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		xpRatio = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2706
+	override fun getNetworkMessageId(): Int = 3546
 }

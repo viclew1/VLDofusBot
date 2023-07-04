@@ -71,7 +71,7 @@ abstract class WorldMapHelper(val name: String, val icon: UiResource) {
     fun getPriorityMapDrawCell(x: Int, y: Int): MapDrawCell? {
         val maps = MapManager.getDofusMaps(x, y).filter(this::isMapValid)
         val mapId = maps.firstOrNull {
-            it.subArea.id == ExplorationUIUtil.mapUIState.value.selectedMapDrawCell?.subAreaId
+            it.subArea.id == ExplorationUIUtil.mapUIState.value.selectedSubAreaIds.firstOrNull()
         }?.id ?: getPriorityMap(maps.filter { displayedSubAreas.contains(it.subArea) })?.id
         return mapDrawCellByMapId[mapId]
     }

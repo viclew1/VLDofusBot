@@ -18,5 +18,5 @@ open class GameFightSynchronizeMessage : NetworkMessage() {
 			fighters.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9316
+	override fun getNetworkMessageId(): Int = 4483
 }

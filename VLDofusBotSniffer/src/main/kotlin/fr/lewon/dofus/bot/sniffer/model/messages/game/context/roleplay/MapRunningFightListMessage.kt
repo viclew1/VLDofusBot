@@ -18,5 +18,5 @@ open class MapRunningFightListMessage : NetworkMessage() {
 			fights.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4622
+	override fun getNetworkMessageId(): Int = 6504
 }

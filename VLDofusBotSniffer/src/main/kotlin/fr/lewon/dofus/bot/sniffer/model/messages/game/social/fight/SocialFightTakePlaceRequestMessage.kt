@@ -16,5 +16,5 @@ open class SocialFightTakePlaceRequestMessage : NetworkMessage() {
 		socialFightInfo.deserialize(stream)
 		replacedCharacterId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 7961
+	override fun getNetworkMessageId(): Int = 6499
 }

@@ -14,5 +14,5 @@ open class PaginationRequestAbstractMessage : NetworkMessage() {
 		offset = stream.readDouble().toDouble()
 		count = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5683
+	override fun getNetworkMessageId(): Int = 5210
 }

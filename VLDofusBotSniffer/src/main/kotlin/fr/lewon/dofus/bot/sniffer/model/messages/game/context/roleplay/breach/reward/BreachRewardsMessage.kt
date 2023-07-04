@@ -18,5 +18,5 @@ open class BreachRewardsMessage : NetworkMessage() {
 			rewards.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 971
+	override fun getNetworkMessageId(): Int = 9196
 }

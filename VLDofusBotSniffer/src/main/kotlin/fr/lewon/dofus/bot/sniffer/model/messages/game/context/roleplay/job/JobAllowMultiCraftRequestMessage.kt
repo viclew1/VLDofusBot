@@ -12,5 +12,5 @@ open class JobAllowMultiCraftRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		enabled = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 3486
+	override fun getNetworkMessageId(): Int = 2314
 }

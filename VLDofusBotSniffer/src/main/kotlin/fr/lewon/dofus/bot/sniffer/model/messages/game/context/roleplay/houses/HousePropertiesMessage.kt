@@ -22,5 +22,5 @@ open class HousePropertiesMessage : NetworkMessage() {
 		properties = ProtocolTypeManager.getInstance<HouseInstanceInformations>(stream.readUnsignedShort())
 		properties.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6142
+	override fun getNetworkMessageId(): Int = 8296
 }

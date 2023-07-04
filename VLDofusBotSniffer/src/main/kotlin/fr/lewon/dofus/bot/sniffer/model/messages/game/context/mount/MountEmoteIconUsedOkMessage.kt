@@ -14,5 +14,5 @@ open class MountEmoteIconUsedOkMessage : NetworkMessage() {
 		mountId = stream.readVarInt().toInt()
 		reactionType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6868
+	override fun getNetworkMessageId(): Int = 4678
 }

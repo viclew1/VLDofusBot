@@ -13,5 +13,5 @@ open class GuildBulletinSetRequestMessage : SocialNoticeSetRequestMessage() {
 		super.deserialize(stream)
 		content = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 3594
+	override fun getNetworkMessageId(): Int = 9739
 }

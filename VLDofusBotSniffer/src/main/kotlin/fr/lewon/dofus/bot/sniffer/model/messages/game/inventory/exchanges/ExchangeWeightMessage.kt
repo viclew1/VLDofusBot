@@ -14,5 +14,5 @@ open class ExchangeWeightMessage : NetworkMessage() {
 		currentWeight = stream.readVarInt().toInt()
 		maxWeight = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5457
+	override fun getNetworkMessageId(): Int = 944
 }

@@ -26,7 +26,7 @@ object SubAreaManager : VldbManager {
             val mapIds = it["mapIds"] as List<Double>
             val customWorldMap = it["customWorldMap"] as List<Int>
             val monsterIds = it["monsters"] as List<Double>
-            val monsters = monsterIds.map { monsterId -> MonsterManager.getMonster(monsterId) }
+            val monsters = monsterIds.mapNotNull { monsterId -> MonsterManager.getMonsterOrNull(monsterId) }
             val harvestableIds = it["harvestables"] as List<Int>
             val harvestables = harvestableIds.map { itemId -> ItemManager.getItem(itemId.toDouble()) }
             val psiAllowed = it["psiAllowed"].toString().toBoolean()

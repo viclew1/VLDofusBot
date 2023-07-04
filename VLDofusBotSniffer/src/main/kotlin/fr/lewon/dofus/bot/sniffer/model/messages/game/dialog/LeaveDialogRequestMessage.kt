@@ -10,5 +10,5 @@ open class LeaveDialogRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2076
+	override fun getNetworkMessageId(): Int = 9511
 }

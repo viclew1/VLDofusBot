@@ -10,5 +10,5 @@ open class PartyLocateMembersRequestMessage : AbstractPartyMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9244
+	override fun getNetworkMessageId(): Int = 1037
 }

@@ -14,5 +14,5 @@ open class ExchangeIsReadyMessage : NetworkMessage() {
 		id = stream.readDouble().toDouble()
 		ready = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 1240
+	override fun getNetworkMessageId(): Int = 5230
 }

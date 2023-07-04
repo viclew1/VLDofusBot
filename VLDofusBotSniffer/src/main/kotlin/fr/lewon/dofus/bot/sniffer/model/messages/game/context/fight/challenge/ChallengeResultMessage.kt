@@ -11,8 +11,8 @@ open class ChallengeResultMessage : NetworkMessage() {
 	var success: Boolean = false
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
-		challengeId = stream.readVarShort().toInt()
+		challengeId = stream.readVarInt().toInt()
 		success = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6642
+	override fun getNetworkMessageId(): Int = 6302
 }

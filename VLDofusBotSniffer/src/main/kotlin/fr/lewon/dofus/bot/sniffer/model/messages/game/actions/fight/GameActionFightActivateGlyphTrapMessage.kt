@@ -15,5 +15,5 @@ open class GameActionFightActivateGlyphTrapMessage : AbstractGameActionMessage()
 		markId = stream.readUnsignedShort().toInt()
 		active = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2648
+	override fun getNetworkMessageId(): Int = 9295
 }

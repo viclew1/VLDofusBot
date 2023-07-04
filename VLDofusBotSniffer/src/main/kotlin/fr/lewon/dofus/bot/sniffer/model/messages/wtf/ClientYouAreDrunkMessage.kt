@@ -11,5 +11,5 @@ open class ClientYouAreDrunkMessage : DebugInClientMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8568
+	override fun getNetworkMessageId(): Int = 2273
 }

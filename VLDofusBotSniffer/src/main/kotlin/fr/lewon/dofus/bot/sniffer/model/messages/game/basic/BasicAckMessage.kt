@@ -14,5 +14,5 @@ open class BasicAckMessage : NetworkMessage() {
 		seq = stream.readVarInt().toInt()
 		lastPacketId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4433
+	override fun getNetworkMessageId(): Int = 8309
 }

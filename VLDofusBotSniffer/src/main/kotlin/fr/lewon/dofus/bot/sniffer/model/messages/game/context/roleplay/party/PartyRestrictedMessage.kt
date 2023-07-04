@@ -12,5 +12,5 @@ open class PartyRestrictedMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		restricted = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 1451
+	override fun getNetworkMessageId(): Int = 1488
 }

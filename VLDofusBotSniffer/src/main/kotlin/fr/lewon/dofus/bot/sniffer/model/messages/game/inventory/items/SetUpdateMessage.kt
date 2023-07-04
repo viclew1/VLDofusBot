@@ -26,5 +26,5 @@ open class SetUpdateMessage : NetworkMessage() {
 			setEffects.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8372
+	override fun getNetworkMessageId(): Int = 3055
 }

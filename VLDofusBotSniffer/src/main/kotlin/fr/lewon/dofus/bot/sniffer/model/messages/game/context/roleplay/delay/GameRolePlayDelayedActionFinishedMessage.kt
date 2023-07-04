@@ -14,5 +14,5 @@ open class GameRolePlayDelayedActionFinishedMessage : NetworkMessage() {
 		delayedCharacterId = stream.readDouble().toDouble()
 		delayTypeId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7643
+	override fun getNetworkMessageId(): Int = 4342
 }

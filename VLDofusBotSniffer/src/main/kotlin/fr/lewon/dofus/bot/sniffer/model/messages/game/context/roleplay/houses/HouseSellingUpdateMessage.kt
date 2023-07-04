@@ -22,5 +22,5 @@ open class HouseSellingUpdateMessage : NetworkMessage() {
 		buyerTag = AccountTagInformation()
 		buyerTag.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7328
+	override fun getNetworkMessageId(): Int = 27
 }

@@ -16,5 +16,5 @@ open class BreachInvitationRequestMessage : NetworkMessage() {
 			guests.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7890
+	override fun getNetworkMessageId(): Int = 1657
 }

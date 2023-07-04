@@ -14,5 +14,5 @@ open class AllianceFightFinishedMessage : NetworkMessage() {
 		allianceFightInfo = SocialFightInfo()
 		allianceFightInfo.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6966
+	override fun getNetworkMessageId(): Int = 3017
 }

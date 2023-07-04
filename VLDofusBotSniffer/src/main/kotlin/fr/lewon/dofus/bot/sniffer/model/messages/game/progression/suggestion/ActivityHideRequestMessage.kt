@@ -12,5 +12,5 @@ open class ActivityHideRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		activityId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3903
+	override fun getNetworkMessageId(): Int = 5559
 }

@@ -15,5 +15,5 @@ open class BreachGameFightEndMessage : GameFightEndMessage() {
 		super.deserialize(stream)
 		budget = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7322
+	override fun getNetworkMessageId(): Int = 3085
 }

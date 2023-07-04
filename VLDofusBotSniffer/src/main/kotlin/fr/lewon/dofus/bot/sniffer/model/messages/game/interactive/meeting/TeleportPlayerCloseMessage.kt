@@ -14,5 +14,5 @@ open class TeleportPlayerCloseMessage : NetworkMessage() {
 		mapId = stream.readDouble().toDouble()
 		requesterId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5332
+	override fun getNetworkMessageId(): Int = 6790
 }

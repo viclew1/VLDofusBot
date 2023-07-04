@@ -18,5 +18,5 @@ open class GameFightOptionStateUpdateMessage : NetworkMessage() {
 		option = stream.readUnsignedByte().toInt()
 		state = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 4152
+	override fun getNetworkMessageId(): Int = 448
 }

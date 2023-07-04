@@ -12,5 +12,5 @@ open class AllianceJoinAutomaticallyRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		allianceId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7226
+	override fun getNetworkMessageId(): Int = 8203
 }

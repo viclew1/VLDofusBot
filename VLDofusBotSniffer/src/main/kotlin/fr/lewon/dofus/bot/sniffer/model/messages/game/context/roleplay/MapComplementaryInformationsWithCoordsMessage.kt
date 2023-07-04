@@ -21,5 +21,5 @@ open class MapComplementaryInformationsWithCoordsMessage : MapComplementaryInfor
 		worldX = stream.readUnsignedShort().toInt()
 		worldY = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3562
+	override fun getNetworkMessageId(): Int = 3302
 }

@@ -10,5 +10,5 @@ open class AllianceRanksRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 812
+	override fun getNetworkMessageId(): Int = 8832
 }

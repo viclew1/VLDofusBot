@@ -14,5 +14,5 @@ open class ShowCellMessage : NetworkMessage() {
 		sourceId = stream.readDouble().toDouble()
 		cellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4855
+	override fun getNetworkMessageId(): Int = 9767
 }

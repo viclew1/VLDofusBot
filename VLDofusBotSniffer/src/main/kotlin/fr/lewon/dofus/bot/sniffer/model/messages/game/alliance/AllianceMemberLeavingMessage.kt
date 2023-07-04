@@ -14,5 +14,5 @@ open class AllianceMemberLeavingMessage : NetworkMessage() {
 		kicked = stream.readBoolean()
 		memberId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5336
+	override fun getNetworkMessageId(): Int = 945
 }

@@ -14,5 +14,5 @@ open class MimicryObjectPreviewMessage : NetworkMessage() {
 		result = ObjectItem()
 		result.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6872
+	override fun getNetworkMessageId(): Int = 6951
 }

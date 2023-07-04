@@ -10,5 +10,5 @@ open class ExchangeRequestOnTaxCollectorMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9955
+	override fun getNetworkMessageId(): Int = 4495
 }

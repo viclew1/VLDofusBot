@@ -12,5 +12,5 @@ open class AchievementRewardRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		achievementId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5633
+	override fun getNetworkMessageId(): Int = 1218
 }

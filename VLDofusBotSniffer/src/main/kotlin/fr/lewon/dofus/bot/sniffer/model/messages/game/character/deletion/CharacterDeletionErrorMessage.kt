@@ -12,5 +12,5 @@ open class CharacterDeletionErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6358
+	override fun getNetworkMessageId(): Int = 8975
 }

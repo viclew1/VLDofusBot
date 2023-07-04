@@ -16,5 +16,5 @@ open class DungeonPartyFinderRegisterRequestMessage : NetworkMessage() {
 			dungeonIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6935
+	override fun getNetworkMessageId(): Int = 9338
 }

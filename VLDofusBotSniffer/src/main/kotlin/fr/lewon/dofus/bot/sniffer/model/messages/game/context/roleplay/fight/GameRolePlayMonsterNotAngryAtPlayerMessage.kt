@@ -14,5 +14,5 @@ open class GameRolePlayMonsterNotAngryAtPlayerMessage : NetworkMessage() {
 		playerId = stream.readVarLong().toDouble()
 		monsterGroupId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 9214
+	override fun getNetworkMessageId(): Int = 6627
 }

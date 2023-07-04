@@ -12,5 +12,5 @@ open class ClientUIOpenedByObjectMessage : ClientUIOpenedMessage() {
 		super.deserialize(stream)
 		uid = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 953
+	override fun getNetworkMessageId(): Int = 5305
 }

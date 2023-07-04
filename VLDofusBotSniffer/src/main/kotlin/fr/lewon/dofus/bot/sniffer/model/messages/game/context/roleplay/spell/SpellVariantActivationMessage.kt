@@ -14,5 +14,5 @@ open class SpellVariantActivationMessage : NetworkMessage() {
 		spellId = stream.readVarShort().toInt()
 		result = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9799
+	override fun getNetworkMessageId(): Int = 2329
 }

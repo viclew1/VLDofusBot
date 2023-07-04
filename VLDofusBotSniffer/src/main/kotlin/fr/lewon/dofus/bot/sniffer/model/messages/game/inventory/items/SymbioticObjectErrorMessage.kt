@@ -12,5 +12,5 @@ open class SymbioticObjectErrorMessage : ObjectErrorMessage() {
 		super.deserialize(stream)
 		errorCode = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3035
+	override fun getNetworkMessageId(): Int = 7722
 }

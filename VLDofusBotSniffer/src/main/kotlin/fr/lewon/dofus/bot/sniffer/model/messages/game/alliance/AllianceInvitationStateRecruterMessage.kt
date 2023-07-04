@@ -14,5 +14,5 @@ open class AllianceInvitationStateRecruterMessage : NetworkMessage() {
 		recrutedName = stream.readUTF()
 		invitationState = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9106
+	override fun getNetworkMessageId(): Int = 6001
 }

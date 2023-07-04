@@ -12,5 +12,5 @@ open class ExchangeMultiCraftSetCrafterCanUseHisRessourcesMessage : NetworkMessa
 		super.deserialize(stream)
 		allow = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7592
+	override fun getNetworkMessageId(): Int = 7719
 }

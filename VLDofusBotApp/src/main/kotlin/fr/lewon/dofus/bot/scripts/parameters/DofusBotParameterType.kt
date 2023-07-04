@@ -5,4 +5,5 @@ enum class DofusBotParameterType {
     BOOLEAN,
     INTEGER,
     CHOICE,
+    MULTIPLE_CHOICE
 }

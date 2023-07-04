@@ -16,5 +16,5 @@ open class EmotePlayMassiveMessage : EmotePlayAbstractMessage() {
 			actorIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8072
+	override fun getNetworkMessageId(): Int = 5777
 }

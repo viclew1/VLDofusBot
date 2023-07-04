@@ -12,5 +12,5 @@ open class AlignmentWarEffortDonationResultMessage : NetworkMessage() {
 		super.deserialize(stream)
 		result = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7571
+	override fun getNetworkMessageId(): Int = 7579
 }

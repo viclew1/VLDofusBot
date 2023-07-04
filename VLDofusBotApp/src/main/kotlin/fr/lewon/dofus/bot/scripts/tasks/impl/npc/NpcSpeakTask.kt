@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.npc
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.npc.NpcDialogCreationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.npc.NpcDialogQuestionMessage
@@ -14,7 +14,7 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 import kotlin.math.max
 import kotlin.math.min
 
-class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : DofusBotTask<Boolean>() {
+class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : BooleanDofusBotTask() {
 
     companion object {
         private val TOP_OPTION_LOCATION = PointRelative(0.36847493f, 0.6508951f)
@@ -23,7 +23,7 @@ class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : D
         private const val MAX_OPTION_COUNT = 5
     }
 
-    override fun execute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         WaitUtil.sleep(1500)
         val npcLocation = InteractiveUtil.getNpcClickPosition(gameInfo, npcId)
         gameInfo.eventStore.clear()

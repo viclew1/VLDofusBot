@@ -12,5 +12,5 @@ open class DungeonPartyFinderListenErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		dungeonId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5246
+	override fun getNetworkMessageId(): Int = 8513
 }

@@ -16,5 +16,5 @@ open class TeleportToBuddyOfferMessage : NetworkMessage() {
 		buddyId = stream.readVarLong().toDouble()
 		timeLeft = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2361
+	override fun getNetworkMessageId(): Int = 8992
 }

@@ -12,5 +12,5 @@ open class GameDataPaddockObjectRemoveMessage : NetworkMessage() {
 		super.deserialize(stream)
 		cellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 490
+	override fun getNetworkMessageId(): Int = 2233
 }

@@ -18,5 +18,5 @@ open class JobCrafterDirectorySettingsMessage : NetworkMessage() {
 			craftersSettings.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4121
+	override fun getNetworkMessageId(): Int = 6629
 }

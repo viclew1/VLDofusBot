@@ -14,5 +14,5 @@ open class PresetUseResultMessage : NetworkMessage() {
 		presetId = stream.readUnsignedShort().toInt()
 		code = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2390
+	override fun getNetworkMessageId(): Int = 1648
 }

@@ -14,5 +14,5 @@ open class ObjectMovementMessage : NetworkMessage() {
 		objectUID = stream.readVarInt().toInt()
 		position = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7541
+	override fun getNetworkMessageId(): Int = 6536
 }

@@ -18,5 +18,5 @@ open class ExchangeStartOkMountMessage : ExchangeStartOkMountWithOutPaddockMessa
 			paddockedMountsDescription.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3405
+	override fun getNetworkMessageId(): Int = 8655
 }

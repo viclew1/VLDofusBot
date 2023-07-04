@@ -10,5 +10,5 @@ open class GameContextQuitMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8957
+	override fun getNetworkMessageId(): Int = 5896
 }

@@ -16,5 +16,5 @@ open class SelectedServerRefusedMessage : NetworkMessage() {
 		error = stream.readUnsignedByte().toInt()
 		serverStatus = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8451
+	override fun getNetworkMessageId(): Int = 5669
 }

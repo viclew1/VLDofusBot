@@ -4,7 +4,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.game.action.fight.FightDispellable
 import fr.lewon.dofus.bot.sniffer.model.types.game.actions.fight.GameActionMark
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightEffectTriggerCount
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightSpellCooldown
-import fr.lewon.dofus.bot.sniffer.model.types.game.idol.Idol
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
@@ -26,5 +25,5 @@ open class GameFightResumeMessage : GameFightSpectateMessage() {
 		summonCount = stream.readUnsignedByte().toInt()
 		bombCount = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 920
+	override fun getNetworkMessageId(): Int = 1829
 }

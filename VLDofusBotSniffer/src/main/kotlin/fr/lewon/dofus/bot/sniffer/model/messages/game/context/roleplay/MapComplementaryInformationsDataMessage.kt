@@ -68,5 +68,5 @@ open class MapComplementaryInformationsDataMessage : NetworkMessage() {
 		fightStartPositions = FightStartingPositions()
 		fightStartPositions.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 45
+	override fun getNetworkMessageId(): Int = 695
 }

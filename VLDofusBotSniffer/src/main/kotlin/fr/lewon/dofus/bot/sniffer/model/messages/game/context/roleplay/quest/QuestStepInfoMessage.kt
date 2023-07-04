@@ -14,5 +14,5 @@ open class QuestStepInfoMessage : NetworkMessage() {
 		infos = ProtocolTypeManager.getInstance<QuestActiveInformations>(stream.readUnsignedShort())
 		infos.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4001
+	override fun getNetworkMessageId(): Int = 1723
 }

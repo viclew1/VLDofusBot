@@ -19,5 +19,5 @@ open class GuildSummaryMessage : PaginationAnswerAbstractMessage() {
 			guilds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9716
+	override fun getNetworkMessageId(): Int = 7331
 }

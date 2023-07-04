@@ -11,5 +11,5 @@ open class AllianceListApplicationRequestMessage : PaginationRequestAbstractMess
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9111
+	override fun getNetworkMessageId(): Int = 2579
 }

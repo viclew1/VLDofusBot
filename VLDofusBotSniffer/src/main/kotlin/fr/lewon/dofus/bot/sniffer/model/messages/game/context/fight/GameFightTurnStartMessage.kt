@@ -14,5 +14,5 @@ open class GameFightTurnStartMessage : NetworkMessage() {
 		id = stream.readDouble().toDouble()
 		waitTime = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4715
+	override fun getNetworkMessageId(): Int = 1987
 }

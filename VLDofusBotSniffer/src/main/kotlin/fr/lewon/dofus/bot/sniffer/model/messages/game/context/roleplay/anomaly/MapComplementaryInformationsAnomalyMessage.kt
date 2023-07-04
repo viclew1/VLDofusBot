@@ -22,5 +22,5 @@ open class MapComplementaryInformationsAnomalyMessage : MapComplementaryInformat
 		level = stream.readVarShort().toInt()
 		closingTime = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2672
+	override fun getNetworkMessageId(): Int = 52
 }

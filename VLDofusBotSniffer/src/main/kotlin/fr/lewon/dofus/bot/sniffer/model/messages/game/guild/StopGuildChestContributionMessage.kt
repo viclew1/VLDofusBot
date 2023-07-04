@@ -10,5 +10,5 @@ open class StopGuildChestContributionMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5417
+	override fun getNetworkMessageId(): Int = 9562
 }

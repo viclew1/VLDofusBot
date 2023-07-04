@@ -12,5 +12,5 @@ open class GuildCreationResultMessage : NetworkMessage() {
 		super.deserialize(stream)
 		result = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4958
+	override fun getNetworkMessageId(): Int = 7399
 }

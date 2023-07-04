@@ -14,5 +14,5 @@ open class LivingObjectDissociateMessage : NetworkMessage() {
 		livingUID = stream.readVarInt().toInt()
 		livingPosition = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2542
+	override fun getNetworkMessageId(): Int = 7311
 }

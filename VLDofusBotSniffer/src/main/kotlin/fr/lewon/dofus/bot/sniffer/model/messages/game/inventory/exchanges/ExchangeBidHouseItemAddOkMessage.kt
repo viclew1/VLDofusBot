@@ -14,5 +14,5 @@ open class ExchangeBidHouseItemAddOkMessage : NetworkMessage() {
 		itemInfo = ObjectItemToSellInBid()
 		itemInfo.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 467
+	override fun getNetworkMessageId(): Int = 6413
 }

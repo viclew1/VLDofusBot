@@ -17,5 +17,5 @@ open class GameRolePlayArenaUpdatePlayerInfosAllQueuesMessage : GameRolePlayAren
 		duel = ArenaRankInfos()
 		duel.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7676
+	override fun getNetworkMessageId(): Int = 8232
 }

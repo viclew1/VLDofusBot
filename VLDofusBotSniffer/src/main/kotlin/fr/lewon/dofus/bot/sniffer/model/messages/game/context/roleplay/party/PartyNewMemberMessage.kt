@@ -11,5 +11,5 @@ open class PartyNewMemberMessage : PartyUpdateMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5390
+	override fun getNetworkMessageId(): Int = 9480
 }

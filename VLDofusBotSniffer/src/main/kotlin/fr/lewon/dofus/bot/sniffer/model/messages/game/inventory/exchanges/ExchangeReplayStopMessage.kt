@@ -10,5 +10,5 @@ open class ExchangeReplayStopMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8413
+	override fun getNetworkMessageId(): Int = 8738
 }

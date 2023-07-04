@@ -12,5 +12,5 @@ open class PortalDialogCreationMessage : NpcDialogCreationMessage() {
 		super.deserialize(stream)
 		type = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4266
+	override fun getNetworkMessageId(): Int = 6077
 }

@@ -10,5 +10,5 @@ open class AlreadyConnectedMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 255
+	override fun getNetworkMessageId(): Int = 2660
 }

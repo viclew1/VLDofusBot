@@ -14,5 +14,5 @@ open class RecycleResultMessage : NetworkMessage() {
 		nuggetsForPrism = stream.readVarInt().toInt()
 		nuggetsForPlayer = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9164
+	override fun getNetworkMessageId(): Int = 913
 }

@@ -12,5 +12,5 @@ open class ContactLookRequestByNameMessage : ContactLookRequestMessage() {
 		super.deserialize(stream)
 		playerName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 8972
+	override fun getNetworkMessageId(): Int = 7171
 }

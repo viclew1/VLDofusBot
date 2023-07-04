@@ -16,5 +16,5 @@ open class RefreshCharacterStatsMessage : NetworkMessage() {
 		stats = GameFightCharacteristics()
 		stats.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4610
+	override fun getNetworkMessageId(): Int = 7193
 }

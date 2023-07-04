@@ -18,5 +18,5 @@ open class UpdateAllGuildRankRequestMessage : NetworkMessage() {
 			ranks.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4006
+	override fun getNetworkMessageId(): Int = 8535
 }

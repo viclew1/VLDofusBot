@@ -12,5 +12,5 @@ open class FriendSetStatusShareMessage : NetworkMessage() {
 		super.deserialize(stream)
 		share = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6572
+	override fun getNetworkMessageId(): Int = 4131
 }

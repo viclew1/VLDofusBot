@@ -12,5 +12,5 @@ open class CompassResetMessage : NetworkMessage() {
 		super.deserialize(stream)
 		type = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1538
+	override fun getNetworkMessageId(): Int = 8704
 }

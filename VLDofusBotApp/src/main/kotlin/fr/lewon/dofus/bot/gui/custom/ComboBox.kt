@@ -47,6 +47,7 @@ fun <T> ComboBox(
     getItemText: (item: T) -> String,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     maxDropDownHeight: Dp = Dp.Infinity,
+    multipleChoice: Boolean = false,
     getItemIconPainter: (item: T) -> Painter? = { null }
 ) {
     var state by remember(selectedItem) { mutableStateOf(ComboBoxState(selectedItem, getItemText(selectedItem))) }

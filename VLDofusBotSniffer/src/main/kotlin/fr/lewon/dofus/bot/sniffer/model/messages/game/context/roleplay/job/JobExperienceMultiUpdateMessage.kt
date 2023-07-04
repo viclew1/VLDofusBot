@@ -18,5 +18,5 @@ open class JobExperienceMultiUpdateMessage : NetworkMessage() {
 			experiencesUpdate.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7720
+	override fun getNetworkMessageId(): Int = 7739
 }

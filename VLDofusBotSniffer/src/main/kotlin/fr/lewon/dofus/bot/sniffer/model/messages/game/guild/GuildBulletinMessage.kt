@@ -11,5 +11,5 @@ open class GuildBulletinMessage : BulletinMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 285
+	override fun getNetworkMessageId(): Int = 7460
 }

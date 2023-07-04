@@ -14,5 +14,5 @@ open class AuthenticationTicketMessage : NetworkMessage() {
 		lang = stream.readUTF()
 		ticket = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 4176
+	override fun getNetworkMessageId(): Int = 1775
 }

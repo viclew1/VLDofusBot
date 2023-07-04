@@ -32,5 +32,5 @@ open class GameFightEndMessage : NetworkMessage() {
 			namedPartyTeamsOutcomes.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4634
+	override fun getNetworkMessageId(): Int = 1070
 }

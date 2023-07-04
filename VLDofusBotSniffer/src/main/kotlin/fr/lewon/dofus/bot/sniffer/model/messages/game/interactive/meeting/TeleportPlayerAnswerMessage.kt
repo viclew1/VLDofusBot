@@ -14,5 +14,5 @@ open class TeleportPlayerAnswerMessage : NetworkMessage() {
 		accept = stream.readBoolean()
 		requesterId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2730
+	override fun getNetworkMessageId(): Int = 8212
 }

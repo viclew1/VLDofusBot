@@ -10,5 +10,5 @@ open class AchievementAlmostFinishedDetailedListRequestMessage : NetworkMessage(
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2158
+	override fun getNetworkMessageId(): Int = 8667
 }

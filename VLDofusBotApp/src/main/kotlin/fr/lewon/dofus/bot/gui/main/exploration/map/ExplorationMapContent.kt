@@ -22,10 +22,7 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isOutOfBounds
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
@@ -84,7 +81,7 @@ fun ExplorationMapContent() {
             }
         }
     }.onClick {
-        ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(selectedMapDrawCell = null)
+        ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(selectedSubAreaIds = emptyList())
     }.onGloballyPositioned {
         mapAvailableSize.value = it.size.toSize()
         calculateOffset(Offset.Zero, it.size.toSize())
@@ -154,6 +151,7 @@ private fun OverlayContent(painter: Painter) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CellsContent() {
     Canvas(Modifier.fillMaxSize().pointerInput(Unit) {
@@ -171,10 +169,41 @@ private fun CellsContent() {
             }
         }
     }.pointerInput(Unit) {
-        detectTapGestures {
-            ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
-                selectedMapDrawCell = getMapDrawCell(it)
-            )
+        detectTapGestures(keyboardModifiers = { this.isCtrlPressed }) {
+            val mapUiStateValue = ExplorationUIUtil.mapUIState.value
+            val clickedSubAreaId = getMapDrawCell(it)?.subAreaId
+            if (clickedSubAreaId != null) {
+                val clickedSubAreaIndex = mapUiStateValue.selectedSubAreaIds.indexOf(clickedSubAreaId)
+                val newUiStateValue = if (clickedSubAreaIndex >= 0) {
+                    mapUiStateValue.copy(
+                        selectedSubAreaIds = mapUiStateValue.selectedSubAreaIds.minus(clickedSubAreaId),
+                        selectedSubAreaIndex = if (mapUiStateValue.selectedSubAreaIndex >= clickedSubAreaIndex) {
+                            mapUiStateValue.selectedSubAreaIndex - 1
+                        } else mapUiStateValue.selectedSubAreaIndex
+                    )
+                } else if (mapUiStateValue.selectedSubAreaIds.size < ExplorationUIUtil.MAX_AREAS_TO_EXPLORE) {
+                    mapUiStateValue.copy(
+                        selectedSubAreaIds = mapUiStateValue.selectedSubAreaIds.plus(clickedSubAreaId),
+                        selectedSubAreaIndex = mapUiStateValue.selectedSubAreaIds.size
+                    )
+                } else mapUiStateValue
+                ExplorationUIUtil.mapUIState.value = newUiStateValue
+            }
+        }
+    }.pointerInput(Unit) {
+        detectTapGestures(keyboardModifiers = { !this.isCtrlPressed }) {
+            val mapUiStateValue = ExplorationUIUtil.mapUIState.value
+            val clickedSubAreaId = getMapDrawCell(it)?.subAreaId
+            if (clickedSubAreaId != null) {
+                ExplorationUIUtil.mapUIState.value = mapUiStateValue.copy(
+                    selectedSubAreaIds = listOf(clickedSubAreaId),
+                    selectedSubAreaIndex = 0
+                )
+            } else {
+                ExplorationUIUtil.mapUIState.value = mapUiStateValue.copy(
+                    selectedSubAreaIds = emptyList()
+                )
+            }
         }
     }) {
         for (mapDrawCell in ExplorationUIUtil.worldMapHelper.value.priorityMapDrawCells) {
@@ -195,16 +224,20 @@ private fun getColor(mapId: Double): Color = colorByMapId.value[mapId] ?: Color.
 private fun SelectedSubAreaOverlay() {
     Canvas(Modifier.fillMaxSize()) {
         val mapUiStateValue = ExplorationUIUtil.mapUIState.value
-        val selectedMapDrawCell = mapUiStateValue.selectedMapDrawCell
-        val selectedSubAreaId = selectedMapDrawCell?.subAreaId
+        val selectedSubAreaIds = mapUiStateValue.selectedSubAreaIds
         val hoveredMapDrawCell = mapUiStateValue.hoveredMapDrawCell
         mapUiStateValue.areaExploredByCharacter.forEach { (character, subArea) ->
-            val wallWidth = if (selectedSubAreaId == subArea.id || hoveredMapDrawCell?.subAreaId == subArea.id) {
+            val wallWidth = if (subArea.id in selectedSubAreaIds || hoveredMapDrawCell?.subAreaId == subArea.id) {
                 4f
             } else 2f
             drawSubArea(subArea.id, Color.Yellow, wallWidth)
         }
-        selectedSubAreaId?.let { drawSubArea(selectedSubAreaId, AppColors.primaryDarkColor, 1.8f) }
+        selectedSubAreaIds.sortedByDescending {
+            val maps = ExplorationUIUtil.worldMapHelper.value.mapDrawCellsBySubAreaId[it] ?: emptyList()
+            maps.size
+        }.forEach {
+            drawSubArea(it, AppColors.primaryDarkColor, 1.8f)
+        }
         hoveredMapDrawCell?.let {
             drawSubArea(hoveredMapDrawCell.subAreaId, AppColors.primaryColor, 1.5f)
             drawCell(hoveredMapDrawCell, Stroke(1f), AppColors.primaryDarkColor)

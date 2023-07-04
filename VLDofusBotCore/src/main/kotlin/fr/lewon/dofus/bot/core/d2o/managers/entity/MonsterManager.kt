@@ -58,7 +58,8 @@ object MonsterManager : VldbManager {
 
     fun getMonsters() = monsterById.values.toList()
 
-    fun getMonster(monsterId: Double) = monsterById[monsterId]
+    fun getMonster(monsterId: Double) = getMonsterOrNull(monsterId)
         ?: error("No monster for id : $monsterId")
 
+    fun getMonsterOrNull(monsterId: Double) = monsterById[monsterId]
 }

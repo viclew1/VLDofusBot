@@ -27,5 +27,5 @@ open class TaxCollectorDialogQuestionExtendedMessage : TaxCollectorDialogQuestio
 		pods = stream.readVarInt().toInt()
 		itemsValue = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2917
+	override fun getNetworkMessageId(): Int = 6709
 }

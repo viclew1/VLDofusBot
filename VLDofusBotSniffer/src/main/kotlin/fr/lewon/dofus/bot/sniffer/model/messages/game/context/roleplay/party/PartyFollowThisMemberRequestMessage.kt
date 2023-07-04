@@ -12,5 +12,5 @@ open class PartyFollowThisMemberRequestMessage : PartyFollowMemberRequestMessage
 		super.deserialize(stream)
 		enabled = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2541
+	override fun getNetworkMessageId(): Int = 5237
 }

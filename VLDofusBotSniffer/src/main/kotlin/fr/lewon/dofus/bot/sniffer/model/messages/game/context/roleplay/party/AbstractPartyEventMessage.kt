@@ -10,5 +10,5 @@ open class AbstractPartyEventMessage : AbstractPartyMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7612
+	override fun getNetworkMessageId(): Int = 9359
 }

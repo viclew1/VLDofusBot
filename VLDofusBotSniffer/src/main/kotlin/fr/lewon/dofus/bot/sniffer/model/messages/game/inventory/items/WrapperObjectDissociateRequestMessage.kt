@@ -14,5 +14,5 @@ open class WrapperObjectDissociateRequestMessage : NetworkMessage() {
 		hostUID = stream.readVarInt().toInt()
 		hostPos = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5678
+	override fun getNetworkMessageId(): Int = 1058
 }

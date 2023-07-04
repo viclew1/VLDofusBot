@@ -12,5 +12,5 @@ open class PartyMemberRemoveMessage : AbstractPartyEventMessage() {
 		super.deserialize(stream)
 		leavingPlayerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5746
+	override fun getNetworkMessageId(): Int = 6692
 }

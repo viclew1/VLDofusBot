@@ -16,5 +16,5 @@ open class MigratedServerListMessage : NetworkMessage() {
 			migratedServerIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5300
+	override fun getNetworkMessageId(): Int = 2940
 }

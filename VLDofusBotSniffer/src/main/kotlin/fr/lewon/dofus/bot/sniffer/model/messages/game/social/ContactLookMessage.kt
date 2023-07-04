@@ -20,5 +20,5 @@ open class ContactLookMessage : NetworkMessage() {
 		look = EntityLook()
 		look.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9243
+	override fun getNetworkMessageId(): Int = 782
 }

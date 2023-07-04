@@ -18,5 +18,5 @@ open class MapObstacleUpdateMessage : NetworkMessage() {
 			obstacles.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6038
+	override fun getNetworkMessageId(): Int = 5033
 }

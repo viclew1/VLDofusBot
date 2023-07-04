@@ -18,5 +18,5 @@ open class ForceAccountStatusMessage : NetworkMessage() {
 		forcedNickname = stream.readUTF()
 		forcedTag = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 6016
+	override fun getNetworkMessageId(): Int = 7528
 }

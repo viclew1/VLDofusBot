@@ -14,5 +14,5 @@ open class InteractiveUseErrorMessage : NetworkMessage() {
 		elemId = stream.readVarInt().toInt()
 		skillInstanceUid = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9315
+	override fun getNetworkMessageId(): Int = 5734
 }

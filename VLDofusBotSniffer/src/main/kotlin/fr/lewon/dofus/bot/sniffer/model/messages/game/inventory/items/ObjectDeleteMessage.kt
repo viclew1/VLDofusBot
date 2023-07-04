@@ -14,5 +14,5 @@ open class ObjectDeleteMessage : NetworkMessage() {
 		objectUID = stream.readVarInt().toInt()
 		quantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3499
+	override fun getNetworkMessageId(): Int = 2859
 }

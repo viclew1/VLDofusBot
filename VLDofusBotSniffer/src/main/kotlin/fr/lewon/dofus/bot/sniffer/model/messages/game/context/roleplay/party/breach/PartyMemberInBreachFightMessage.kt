@@ -15,5 +15,5 @@ open class PartyMemberInBreachFightMessage : AbstractPartyMemberInFightMessage()
 		floor = stream.readVarInt().toInt()
 		room = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7439
+	override fun getNetworkMessageId(): Int = 101
 }

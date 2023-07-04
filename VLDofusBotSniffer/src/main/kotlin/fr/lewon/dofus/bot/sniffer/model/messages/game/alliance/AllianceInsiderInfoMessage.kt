@@ -38,5 +38,5 @@ open class AllianceInsiderInfoMessage : NetworkMessage() {
 			taxCollectors.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5093
+	override fun getNetworkMessageId(): Int = 8929
 }

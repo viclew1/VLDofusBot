@@ -14,5 +14,5 @@ open class GuildMemberOnlineStatusMessage : NetworkMessage() {
 		memberId = stream.readVarLong().toDouble()
 		online = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 4218
+	override fun getNetworkMessageId(): Int = 214
 }

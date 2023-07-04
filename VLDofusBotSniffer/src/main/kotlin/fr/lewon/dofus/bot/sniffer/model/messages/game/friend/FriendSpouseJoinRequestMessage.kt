@@ -10,5 +10,5 @@ open class FriendSpouseJoinRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8004
+	override fun getNetworkMessageId(): Int = 8233
 }

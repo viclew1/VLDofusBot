@@ -12,5 +12,5 @@ open class FocusedExchangeReadyMessage : ExchangeReadyMessage() {
 		super.deserialize(stream)
 		focusActionId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1522
+	override fun getNetworkMessageId(): Int = 9025
 }

@@ -18,5 +18,5 @@ open class GameRolePlayMonsterAngryAtPlayerMessage : NetworkMessage() {
 		angryStartTime = stream.readDouble().toDouble()
 		attackTime = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1587
+	override fun getNetworkMessageId(): Int = 8414
 }

@@ -20,5 +20,5 @@ open class EntityTalkMessage : NetworkMessage() {
 			parameters.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1753
+	override fun getNetworkMessageId(): Int = 9057
 }

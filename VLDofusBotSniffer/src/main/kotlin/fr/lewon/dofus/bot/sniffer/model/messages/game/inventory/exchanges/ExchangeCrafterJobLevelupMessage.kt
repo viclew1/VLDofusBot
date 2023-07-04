@@ -12,5 +12,5 @@ open class ExchangeCrafterJobLevelupMessage : NetworkMessage() {
 		super.deserialize(stream)
 		crafterJobLevel = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1187
+	override fun getNetworkMessageId(): Int = 4924
 }

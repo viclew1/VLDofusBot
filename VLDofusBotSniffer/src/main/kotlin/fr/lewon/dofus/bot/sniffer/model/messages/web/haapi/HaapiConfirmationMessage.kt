@@ -20,5 +20,5 @@ open class HaapiConfirmationMessage : NetworkMessage() {
 		action = stream.readUnsignedByte().toInt()
 		transaction = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 1734
+	override fun getNetworkMessageId(): Int = 7136
 }

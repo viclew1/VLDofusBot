@@ -16,5 +16,5 @@ open class GameDataPlayFarmObjectAnimationMessage : NetworkMessage() {
 			cellId.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6882
+	override fun getNetworkMessageId(): Int = 9266
 }

@@ -12,5 +12,5 @@ open class ExchangeBidHousePriceMessage : NetworkMessage() {
 		super.deserialize(stream)
 		objectGID = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 88
+	override fun getNetworkMessageId(): Int = 8009
 }

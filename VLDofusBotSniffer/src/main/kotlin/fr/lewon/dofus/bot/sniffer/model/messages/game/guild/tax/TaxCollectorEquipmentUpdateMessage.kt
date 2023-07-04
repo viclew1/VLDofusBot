@@ -22,5 +22,5 @@ open class TaxCollectorEquipmentUpdateMessage : NetworkMessage() {
 		characteristics = CharacterCharacteristics()
 		characteristics.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9349
+	override fun getNetworkMessageId(): Int = 5895
 }

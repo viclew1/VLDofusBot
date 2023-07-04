@@ -12,5 +12,5 @@ open class GameActionFightNoSpellCastMessage : NetworkMessage() {
 		super.deserialize(stream)
 		spellLevelId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5817
+	override fun getNetworkMessageId(): Int = 1241
 }

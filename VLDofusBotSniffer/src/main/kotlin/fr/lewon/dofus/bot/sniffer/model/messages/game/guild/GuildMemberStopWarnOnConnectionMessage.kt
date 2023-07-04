@@ -10,5 +10,5 @@ open class GuildMemberStopWarnOnConnectionMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 216
+	override fun getNetworkMessageId(): Int = 2325
 }

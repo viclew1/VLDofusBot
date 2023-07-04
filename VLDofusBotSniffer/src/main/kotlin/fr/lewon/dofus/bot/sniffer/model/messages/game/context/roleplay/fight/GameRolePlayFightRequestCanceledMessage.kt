@@ -16,5 +16,5 @@ open class GameRolePlayFightRequestCanceledMessage : NetworkMessage() {
 		sourceId = stream.readDouble().toDouble()
 		targetId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 4207
+	override fun getNetworkMessageId(): Int = 2752
 }

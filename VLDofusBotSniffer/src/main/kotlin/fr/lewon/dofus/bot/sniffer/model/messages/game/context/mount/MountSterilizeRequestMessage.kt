@@ -10,5 +10,5 @@ open class MountSterilizeRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 72
+	override fun getNetworkMessageId(): Int = 3111
 }

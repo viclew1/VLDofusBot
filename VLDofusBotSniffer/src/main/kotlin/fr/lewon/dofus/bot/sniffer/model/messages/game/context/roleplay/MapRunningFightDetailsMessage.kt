@@ -27,5 +27,5 @@ open class MapRunningFightDetailsMessage : NetworkMessage() {
 			defenders.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8143
+	override fun getNetworkMessageId(): Int = 2947
 }

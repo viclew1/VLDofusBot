@@ -14,5 +14,5 @@ open class PrismRemoveMessage : NetworkMessage() {
 		prism = PrismGeolocalizedInformation()
 		prism.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5201
+	override fun getNetworkMessageId(): Int = 1921
 }

@@ -20,5 +20,5 @@ open class DebtsUpdateMessage : NetworkMessage() {
 			debts.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5682
+	override fun getNetworkMessageId(): Int = 2498
 }

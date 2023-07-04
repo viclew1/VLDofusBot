@@ -1,10 +1,14 @@
 package fr.lewon.dofus.bot.util.game
 
 import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
+import fr.lewon.dofus.bot.core.d2p.elem.graphical.GraphicalElementData
 import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.EntityGraphicalElementData
 import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementData
+import fr.lewon.dofus.bot.core.d2p.gfx.D2PWorldGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
+import fr.lewon.dofus.bot.core.d2p.maps.element.GraphicalElement
 import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.core.ui.UIRectangle
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
@@ -16,6 +20,8 @@ import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
+import java.io.ByteArrayInputStream
+import javax.imageio.ImageIO
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -42,7 +48,7 @@ object InteractiveUtil {
         },
         485282 to { bounds: RectangleAbsolute -> // -1 ; -42
             listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))
-        }
+        },
     )
 
     fun getElementCellData(gameInfo: GameInfo, interactiveElement: InteractiveElement): CompleteCellData =
@@ -62,6 +68,47 @@ object InteractiveUtil {
             ?: error("No graphical element found for element : ${interactiveElement.elementId}")
 
         val elementData = D2PElementsAdapter.getElement(graphicalElement.elementId)
+        val bounds = getRawInteractiveBounds(gameInfo, destCellCompleteData, elementData, graphicalElement)
+        val boundsCropDelta = getBoundsCropDelta(bounds)
+        return cropBounds(bounds, boundsCropDelta).toRectangleAbsolute(gameInfo)
+    }
+
+    private fun cropBounds(bounds: UIRectangle, boundsCropDelta: UIRectangleDelta): UIRectangle {
+        return UIRectangle(
+            position = bounds.position.transpose(x = boundsCropDelta.leftDelta, y = boundsCropDelta.topDelta),
+            size = bounds.size.transpose(
+                x = -boundsCropDelta.rightDelta - boundsCropDelta.leftDelta,
+                y = -boundsCropDelta.bottomDelta - boundsCropDelta.topDelta
+            ).let {
+                UIPoint(x = max(0f, it.x), y = max(0f, it.y))
+            }
+        )
+    }
+
+    private data class UIRectangleDelta(
+        val leftDelta: Float,
+        val rightDelta: Float,
+        val topDelta: Float,
+        val bottomDelta: Float
+    )
+
+    private fun getBoundsCropDelta(bounds: UIRectangle): UIRectangleDelta {
+        val minPoint = PointRelative(0.03f, 0.018f).toUIPoint()
+        val maxPoint = PointRelative(0.97f, 0.88f).toUIPoint()
+        return UIRectangleDelta(
+            leftDelta = max(0f, minPoint.x - bounds.position.x),
+            rightDelta = max(0f, bounds.position.x + bounds.size.x - maxPoint.x),
+            topDelta = max(0f, minPoint.y - bounds.position.y),
+            bottomDelta = max(0f, bounds.position.y + bounds.size.y - maxPoint.y),
+        )
+    }
+
+    private fun getRawInteractiveBounds(
+        gameInfo: GameInfo,
+        destCellCompleteData: CompleteCellData,
+        elementData: GraphicalElementData,
+        graphicalElement: GraphicalElement
+    ): UIRectangle {
         val destCellId = destCellCompleteData.cellId
         val cell = gameInfo.dofusBoard.getCell(destCellId)
         val dToOrigin: UIPoint
@@ -95,50 +142,46 @@ object InteractiveUtil {
             y = graphicalElement.pixelOffset.y + altitudeYOffset
         )
         val cellCenter = cell.getCenter().toUIPoint().transpose(offset)
-        val minPoint = PointRelative(0.03f, 0.018f).toUIPoint()
-        val maxPoint = PointRelative(0.97f, 0.88f).toUIPoint()
-        val rawX1 = cellCenter.x - dToOrigin.x
-        val rawY1 = cellCenter.y - dToOrigin.y
-        val rawX2 = cellCenter.x - dToOrigin.x + size.x
-        val rawY2 = cellCenter.y - dToOrigin.y + size.y
-        val topLeft = UIPoint(
-            x = max(minPoint.x, min(rawX1, maxPoint.x)),
-            y = max(minPoint.y, min(rawY1, maxPoint.y))
-        ).toPointAbsolute(gameInfo)
-        val bottomRight = UIPoint(
-            x = max(minPoint.x, min(rawX2, maxPoint.x)),
-            y = max(minPoint.y, min(rawY2, maxPoint.y))
-        ).toPointAbsolute(gameInfo)
-        return RectangleAbsolute.build(topLeft, bottomRight)
+        val x = cellCenter.x - dToOrigin.x
+        val y = cellCenter.y - dToOrigin.y
+        return UIRectangle(UIPoint(x, y), size)
     }
 
     fun getInteractivePotentialClickLocations(gameInfo: GameInfo, elementId: Int): List<PointAbsolute> {
-        val bounds = getInteractiveBounds(gameInfo, elementId).let {
-            val margin = PointAbsolute(it.width / 10, it.height / 10)
-            RectangleAbsolute.build(
-                topLeft = it.getTopLeft().getSum(margin),
-                bottomRight = it.getBottomRight().getDifference(margin)
-            )
-        }
+        val interactiveElement = getInteractiveElement(gameInfo, elementId)
+        val destCellCompleteData = getElementCellData(gameInfo, interactiveElement)
+        val graphicalElement = destCellCompleteData.graphicalElements
+            .firstOrNull { it.identifier == interactiveElement.elementId }
+            ?: error("No graphical element found for element : ${interactiveElement.elementId}")
+
+        val elementData = D2PElementsAdapter.getElement(graphicalElement.elementId)
+        val rawBounds = getRawInteractiveBounds(gameInfo, destCellCompleteData, elementData, graphicalElement)
+        val boundsCropDelta = getBoundsCropDelta(rawBounds)
+        val realBounds = cropBounds(rawBounds, boundsCropDelta)
         CUSTOM_CLICK_LOCATIONS_BY_INTERACTIVE[elementId]?.let {
-            return it(bounds)
+            return it(realBounds.toRectangleAbsolute(gameInfo))
         }
-        val center = bounds.getCenter()
-        val boundsRelative = bounds.toRectangleRelative(gameInfo)
-        if (boundsRelative.width < 0.035f && boundsRelative.height < 0.03f) {
-            return listOf(center.getSum(PointAbsolute(0, -bounds.height / 3)))
+        val gfx = if (elementData is NormalGraphicalElementData) {
+            val gfxByteArray = D2PWorldGfxAdapter.getWorldGfxImageData(elementData.gfxId.toDouble())
+            ImageIO.read(ByteArrayInputStream(gfxByteArray))
+        } else null
+        val horizontalSymmetry = if (elementData is NormalGraphicalElementData) {
+            elementData.horizontalSymmetry
+        } else false
+        val size = realBounds.size
+        val clickDeltaLocations = gfx?.let {
+            GfxPointToCheck.getPoints(boundsCropDelta).filter {
+                val x = it.xPoint.getPoint(size.x) + boundsCropDelta.leftDelta
+                val y = it.yPoint.getPoint(size.y) + boundsCropDelta.topDelta
+                val realX = if (horizontalSymmetry) gfx.data.width - x else x
+                gfx.getRGB(realX.toInt(), y.toInt()) != 0
+            }.takeIf { it.isNotEmpty() }
+        } ?: listOf(GfxPointToCheck.TopCenter)
+        return clickDeltaLocations.map {
+            val x = it.xPoint.getPoint(size.x)
+            val y = it.yPoint.getPoint(size.y)
+            realBounds.position.transpose(UIPoint(x, y)).toPointAbsolute(gameInfo)
         }
-        return listOf(
-            center, // Center
-            center.getSum(PointAbsolute(-bounds.width / 3, -bounds.height / 3)), // Top left
-            center.getSum(PointAbsolute(bounds.width / 3, -bounds.height / 3)), // Top right
-            center.getSum(PointAbsolute(-bounds.width / 3, bounds.height / 3)), // Bottom left
-            center.getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)), // Bottom right
-            center.getSum(PointAbsolute(0, -bounds.height / 3)), // Center top
-            center.getSum(PointAbsolute(0, bounds.height / 3)), // Center bottom
-            center.getSum(PointAbsolute(-bounds.width / 3, 0)), // Center left
-            center.getSum(PointAbsolute(bounds.width / 3, 0)), // Center right
-        )
     }
 
     private fun getElementClickPosition(gameInfo: GameInfo, elementId: Int): PointAbsolute {
@@ -251,4 +294,46 @@ object InteractiveUtil {
         )
     }
 
+    private enum class GfxPointToCheck(val xPoint: UIXPoint, val yPoint: UIYPoint) {
+        TopLeft(UIXPoint.Left, UIYPoint.Top),
+        TopCenter(UIXPoint.Center, UIYPoint.Top),
+        TopRight(UIXPoint.Right, UIYPoint.Top),
+        CenterLeft(UIXPoint.Left, UIYPoint.Center),
+        Center(UIXPoint.Center, UIYPoint.Center),
+        CenterRight(UIXPoint.Right, UIYPoint.Center),
+        BottomLeft(UIXPoint.Left, UIYPoint.Bottom),
+        BottomCenter(UIXPoint.Center, UIYPoint.Bottom),
+        BottomRight(UIXPoint.Right, UIYPoint.Bottom);
+
+        companion object {
+            fun getPoints(boundsCropDelta: UIRectangleDelta): List<GfxPointToCheck> {
+                val points = values().toMutableList()
+                if (boundsCropDelta.leftDelta > 0) {
+                    points.removeIf { it.xPoint == UIXPoint.Right }
+                }
+                if (boundsCropDelta.rightDelta > 0) {
+                    points.removeIf { it.xPoint == UIXPoint.Left }
+                }
+                if (boundsCropDelta.topDelta > 0) {
+                    points.removeIf { it.yPoint == UIYPoint.Bottom }
+                }
+                if (boundsCropDelta.bottomDelta > 0) {
+                    points.removeIf { it.yPoint == UIYPoint.Top }
+                }
+                return points
+            }
+        }
+    }
+
+    private enum class UIXPoint(val getPoint: (width: Float) -> Float) {
+        Left({ width -> width / 5 }),
+        Center({ width -> width / 2 }),
+        Right({ width -> width * 4 / 5 })
+    }
+
+    private enum class UIYPoint(val getPoint: (height: Float) -> Float) {
+        Top({ height -> height / 5 }),
+        Center({ height -> height / 2 }),
+        Bottom({ height -> height * 4 / 5 })
+    }
 }

@@ -14,5 +14,5 @@ open class AccessoryPreviewMessage : NetworkMessage() {
 		look = EntityLook()
 		look.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 879
+	override fun getNetworkMessageId(): Int = 8720
 }

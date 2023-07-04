@@ -12,5 +12,5 @@ open class PartyPledgeLoyaltyRequestMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		loyal = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 327
+	override fun getNetworkMessageId(): Int = 550
 }

@@ -10,5 +10,5 @@ open class MountUnSetMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9768
+	override fun getNetworkMessageId(): Int = 6291
 }

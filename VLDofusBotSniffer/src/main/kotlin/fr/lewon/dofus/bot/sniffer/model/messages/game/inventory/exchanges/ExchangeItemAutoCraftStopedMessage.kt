@@ -12,5 +12,5 @@ open class ExchangeItemAutoCraftStopedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2138
+	override fun getNetworkMessageId(): Int = 3953
 }

@@ -18,5 +18,5 @@ open class DecraftResultMessage : NetworkMessage() {
 			results.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3725
+	override fun getNetworkMessageId(): Int = 951
 }

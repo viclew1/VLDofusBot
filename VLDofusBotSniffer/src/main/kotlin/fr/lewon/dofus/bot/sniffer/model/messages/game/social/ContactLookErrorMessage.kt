@@ -12,5 +12,5 @@ open class ContactLookErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		requestId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3592
+	override fun getNetworkMessageId(): Int = 4487
 }

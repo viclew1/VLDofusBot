@@ -55,7 +55,7 @@ object UIOverlay : AbstractOverlay() {
         }
 
         private fun addRectangles(container: Container) {
-            val rectAbs = container.bounds.toRectangleAbsolute()
+            val rectAbs = container.bounds.toRectangleAbsolute(gameInfo)
             toDrawRectangles.add(container to Rectangle(rectAbs.x, rectAbs.y, rectAbs.width, rectAbs.height))
             for (subContainer in container.children) {
                 addRectangles(subContainer)

@@ -25,5 +25,5 @@ open class TopTaxCollectorListMessage : NetworkMessage() {
 			worldTaxCollectorsInformation.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4096
+	override fun getNetworkMessageId(): Int = 2349
 }

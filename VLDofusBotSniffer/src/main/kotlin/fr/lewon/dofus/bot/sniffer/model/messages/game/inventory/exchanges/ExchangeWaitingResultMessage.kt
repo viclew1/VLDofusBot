@@ -12,5 +12,5 @@ open class ExchangeWaitingResultMessage : NetworkMessage() {
 		super.deserialize(stream)
 		bwait = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6631
+	override fun getNetworkMessageId(): Int = 2296
 }

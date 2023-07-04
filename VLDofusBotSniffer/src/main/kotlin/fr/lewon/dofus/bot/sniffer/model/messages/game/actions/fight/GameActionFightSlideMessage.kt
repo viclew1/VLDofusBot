@@ -17,5 +17,5 @@ open class GameActionFightSlideMessage : AbstractGameActionMessage() {
 		startCellId = stream.readUnsignedShort().toInt()
 		endCellId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7834
+	override fun getNetworkMessageId(): Int = 9026
 }

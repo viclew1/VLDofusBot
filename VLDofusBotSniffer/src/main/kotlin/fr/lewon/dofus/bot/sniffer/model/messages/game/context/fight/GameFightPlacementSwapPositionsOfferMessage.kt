@@ -20,5 +20,5 @@ open class GameFightPlacementSwapPositionsOfferMessage : NetworkMessage() {
 		requestedId = stream.readDouble().toDouble()
 		requestedCellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7939
+	override fun getNetworkMessageId(): Int = 4399
 }

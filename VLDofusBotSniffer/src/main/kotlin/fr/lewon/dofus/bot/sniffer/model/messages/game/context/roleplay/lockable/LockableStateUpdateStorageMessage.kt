@@ -14,5 +14,5 @@ open class LockableStateUpdateStorageMessage : LockableStateUpdateAbstractMessag
 		mapId = stream.readDouble().toDouble()
 		elementId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4602
+	override fun getNetworkMessageId(): Int = 491
 }

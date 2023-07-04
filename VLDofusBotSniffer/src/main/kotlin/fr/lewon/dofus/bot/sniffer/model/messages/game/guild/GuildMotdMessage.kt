@@ -11,5 +11,5 @@ open class GuildMotdMessage : SocialNoticeMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 1271
+	override fun getNetworkMessageId(): Int = 5087
 }

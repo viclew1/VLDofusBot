@@ -21,5 +21,5 @@ open class HouseBuyResultMessage : NetworkMessage() {
 		instanceId = stream.readInt().toInt()
 		realPrice = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8928
+	override fun getNetworkMessageId(): Int = 4144
 }

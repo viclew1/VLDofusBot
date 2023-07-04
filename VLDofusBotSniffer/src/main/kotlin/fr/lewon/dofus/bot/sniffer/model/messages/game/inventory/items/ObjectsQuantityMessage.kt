@@ -18,5 +18,5 @@ open class ObjectsQuantityMessage : NetworkMessage() {
 			objectsUIDAndQty.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1544
+	override fun getNetworkMessageId(): Int = 6590
 }

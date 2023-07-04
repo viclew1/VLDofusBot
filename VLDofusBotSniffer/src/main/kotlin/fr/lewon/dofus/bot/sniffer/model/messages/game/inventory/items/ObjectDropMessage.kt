@@ -14,5 +14,5 @@ open class ObjectDropMessage : NetworkMessage() {
 		objectUID = stream.readVarInt().toInt()
 		quantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8779
+	override fun getNetworkMessageId(): Int = 430
 }

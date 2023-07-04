@@ -16,5 +16,5 @@ open class LockableStateUpdateHouseDoorMessage : LockableStateUpdateAbstractMess
 		instanceId = stream.readInt().toInt()
 		secondHand = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9404
+	override fun getNetworkMessageId(): Int = 2441
 }

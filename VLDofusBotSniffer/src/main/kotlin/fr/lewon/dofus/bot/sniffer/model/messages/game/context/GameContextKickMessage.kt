@@ -12,5 +12,5 @@ open class GameContextKickMessage : NetworkMessage() {
 		super.deserialize(stream)
 		targetId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 995
+	override fun getNetworkMessageId(): Int = 7588
 }

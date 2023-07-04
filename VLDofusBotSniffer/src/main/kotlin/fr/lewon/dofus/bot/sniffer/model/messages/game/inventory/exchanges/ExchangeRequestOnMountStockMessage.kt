@@ -10,5 +10,5 @@ open class ExchangeRequestOnMountStockMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8858
+	override fun getNetworkMessageId(): Int = 9758
 }

@@ -12,5 +12,5 @@ open class GameFightPlacementPositionRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		cellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5466
+	override fun getNetworkMessageId(): Int = 8071
 }

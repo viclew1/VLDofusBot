@@ -11,5 +11,5 @@ open class GameFightShowFighterRandomStaticPoseMessage : GameFightShowFighterMes
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 1910
+	override fun getNetworkMessageId(): Int = 2392
 }

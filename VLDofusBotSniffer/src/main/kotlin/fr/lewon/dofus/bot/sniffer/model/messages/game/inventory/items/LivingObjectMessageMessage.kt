@@ -18,5 +18,5 @@ open class LivingObjectMessageMessage : NetworkMessage() {
 		owner = stream.readUTF()
 		objectGenericId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6744
+	override fun getNetworkMessageId(): Int = 6766
 }

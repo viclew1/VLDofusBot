@@ -12,5 +12,5 @@ open class JobCrafterDirectoryListRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		jobId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6705
+	override fun getNetworkMessageId(): Int = 5761
 }

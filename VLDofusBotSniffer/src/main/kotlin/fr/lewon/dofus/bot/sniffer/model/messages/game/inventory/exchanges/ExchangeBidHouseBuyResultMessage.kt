@@ -14,5 +14,5 @@ open class ExchangeBidHouseBuyResultMessage : NetworkMessage() {
 		uid = stream.readVarInt().toInt()
 		bought = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 1337
+	override fun getNetworkMessageId(): Int = 7405
 }

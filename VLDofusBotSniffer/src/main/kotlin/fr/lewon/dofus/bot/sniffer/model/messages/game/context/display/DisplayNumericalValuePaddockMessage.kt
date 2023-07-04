@@ -16,5 +16,5 @@ open class DisplayNumericalValuePaddockMessage : NetworkMessage() {
 		value = stream.readInt().toInt()
 		type = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5202
+	override fun getNetworkMessageId(): Int = 4937
 }

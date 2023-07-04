@@ -14,5 +14,5 @@ open class StorageObjectUpdateMessage : NetworkMessage() {
 		obj = ObjectItem()
 		obj.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4366
+	override fun getNetworkMessageId(): Int = 44
 }

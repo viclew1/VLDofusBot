@@ -14,5 +14,5 @@ open class FriendAddRequestMessage : NetworkMessage() {
 		target = ProtocolTypeManager.getInstance<AbstractPlayerSearchInformation>(stream.readUnsignedShort())
 		target.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8715
+	override fun getNetworkMessageId(): Int = 6143
 }

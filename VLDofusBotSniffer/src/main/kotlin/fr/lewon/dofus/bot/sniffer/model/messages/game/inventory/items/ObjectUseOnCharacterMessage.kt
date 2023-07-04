@@ -12,5 +12,5 @@ open class ObjectUseOnCharacterMessage : ObjectUseMessage() {
 		super.deserialize(stream)
 		characterId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6271
+	override fun getNetworkMessageId(): Int = 5850
 }

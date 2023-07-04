@@ -16,5 +16,5 @@ open class GameRolePlayDelayedActionMessage : NetworkMessage() {
 		delayTypeId = stream.readUnsignedByte().toInt()
 		delayEndTime = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 7558
+	override fun getNetworkMessageId(): Int = 4763
 }

@@ -16,5 +16,5 @@ open class TaxCollectorHarvestedMessage : NetworkMessage() {
 		harvesterId = stream.readVarLong().toDouble()
 		harvesterName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 7837
+	override fun getNetworkMessageId(): Int = 9412
 }

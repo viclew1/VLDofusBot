@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.util.filemanagers.impl
 
 import fr.lewon.dofus.bot.core.criterion.DofusCriterionParser
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
+import fr.lewon.dofus.bot.core.model.move.Direction
 import fr.lewon.dofus.bot.core.world.Edge
 import fr.lewon.dofus.bot.core.world.Transition
 import fr.lewon.dofus.bot.core.world.TransitionType
@@ -39,9 +40,10 @@ object CustomTransitionManager : ToInitManager {
         1.95301388E8, // -7;3 -> RIGHT
         28049666.0, // -55;14
         160169984.0, // 33;4 underground
+        146187.0 // unknown
     )
 
-    private val TO_UPDATE_TRANSITION = listOf(
+    private val TO_UPDATE_TRANSITIONS = listOf(
         TransitionUpdate(
             28049920.0,
             24118282.0,
@@ -65,6 +67,16 @@ object CustomTransitionManager : ToInitManager {
             { it.criterion = IMPOSSIBLE_CRITERION }), // 1;-8 to 1;-7
     )
 
+    private val TO_CREATE_TRANSITIONS = listOf(
+        TransitionCreate(
+            fromMapId = 100141313.0,
+            toMapId = 100141827.0,
+            type = TransitionType.SCROLL,
+            direction = Direction.TOP.directionInt,
+            cellId = 8
+        )
+    )
+
     override fun initManager() {
         TO_DISABLE_INTERACTIVE_IDS.forEach {
             WorldGraphUtil.addInvalidInteractiveId(it)
@@ -72,10 +84,25 @@ object CustomTransitionManager : ToInitManager {
         TO_DISABLE_MAP_IDS.forEach {
             WorldGraphUtil.addInvalidMapId(it)
         }
-        TO_UPDATE_TRANSITION.forEach { transitionUpdate ->
+        TO_UPDATE_TRANSITIONS.forEach { transitionUpdate ->
             getTransitions(transitionUpdate.fromMapId, transitionUpdate.toMapId)
                 .filter { transitionUpdate.updateIf(it) }
                 .forEach { transitionUpdate.update(it) }
+        }
+        TO_CREATE_TRANSITIONS.forEach { transitionCreate ->
+            val edge = getEdge(transitionCreate.fromMapId, transitionCreate.toMapId)
+            edge.transitions.add(
+                Transition(
+                    edge,
+                    direction = transitionCreate.direction,
+                    type = transitionCreate.type,
+                    skillId = transitionCreate.skillId,
+                    criterion = transitionCreate.criterion,
+                    transitionMapId = transitionCreate.toMapId,
+                    cellId = transitionCreate.cellId,
+                    id = transitionCreate.id
+                )
+            )
         }
         registerCustomCriteria()
         val allNewTransitions = ArrayList<CustomTransition>()
@@ -181,6 +208,17 @@ object CustomTransitionManager : ToInitManager {
         val toMapId: Double,
         val updateIf: (Transition) -> Boolean,
         val update: (Transition) -> Unit
+    )
+
+    private class TransitionCreate(
+        val fromMapId: Double,
+        val toMapId: Double,
+        var type: TransitionType,
+        var direction: Int = 0,
+        var skillId: Int = 0,
+        var criterion: String = "",
+        var cellId: Int = 0,
+        var id: Double = 0.0
     )
 
 }

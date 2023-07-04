@@ -12,5 +12,5 @@ open class GuildPaddockRemovedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		paddockId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1279
+	override fun getNetworkMessageId(): Int = 48
 }

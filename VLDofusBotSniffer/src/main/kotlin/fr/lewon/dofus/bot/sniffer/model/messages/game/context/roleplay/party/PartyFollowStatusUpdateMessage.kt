@@ -17,5 +17,5 @@ open class PartyFollowStatusUpdateMessage : AbstractPartyMessage() {
 		isFollowed = BooleanByteWrapper.getFlag(_box0, 1)
 		followedId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8901
+	override fun getNetworkMessageId(): Int = 4903
 }

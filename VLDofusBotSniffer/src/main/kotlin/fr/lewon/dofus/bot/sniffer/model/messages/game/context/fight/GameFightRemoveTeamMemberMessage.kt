@@ -16,5 +16,5 @@ open class GameFightRemoveTeamMemberMessage : NetworkMessage() {
 		teamId = stream.readUnsignedByte().toInt()
 		charId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2209
+	override fun getNetworkMessageId(): Int = 2527
 }

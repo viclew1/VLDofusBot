@@ -12,5 +12,5 @@ open class AllianceApplicationDeletedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		deleted = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 819
+	override fun getNetworkMessageId(): Int = 5178
 }

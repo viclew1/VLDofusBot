@@ -16,5 +16,5 @@ open class TeleportToBuddyAnswerMessage : NetworkMessage() {
 		buddyId = stream.readVarLong().toDouble()
 		accept = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 5991
+	override fun getNetworkMessageId(): Int = 5795
 }

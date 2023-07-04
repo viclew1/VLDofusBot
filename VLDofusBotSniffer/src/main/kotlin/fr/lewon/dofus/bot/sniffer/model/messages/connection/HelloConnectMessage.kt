@@ -18,5 +18,5 @@ open class HelloConnectMessage : NetworkMessage() {
 			key.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2203
+	override fun getNetworkMessageId(): Int = 2909
 }

@@ -16,5 +16,5 @@ open class StorageObjectsRemoveMessage : NetworkMessage() {
 			objectUIDList.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5486
+	override fun getNetworkMessageId(): Int = 1932
 }

@@ -10,5 +10,5 @@ open class ZaapRespawnSaveRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2071
+	override fun getNetworkMessageId(): Int = 153
 }

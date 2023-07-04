@@ -22,5 +22,5 @@ open class GuildInformationsGeneralMessage : NetworkMessage() {
 		expNextLevelFloor = stream.readVarLong().toDouble()
 		creationDate = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8823
+	override fun getNetworkMessageId(): Int = 4169
 }

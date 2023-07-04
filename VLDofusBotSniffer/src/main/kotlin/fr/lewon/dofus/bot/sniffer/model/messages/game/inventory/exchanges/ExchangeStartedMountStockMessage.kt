@@ -18,5 +18,5 @@ open class ExchangeStartedMountStockMessage : NetworkMessage() {
 			objectsInfos.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3260
+	override fun getNetworkMessageId(): Int = 3292
 }

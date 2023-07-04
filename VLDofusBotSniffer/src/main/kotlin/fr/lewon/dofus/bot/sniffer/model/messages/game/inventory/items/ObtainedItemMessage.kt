@@ -14,5 +14,5 @@ open class ObtainedItemMessage : NetworkMessage() {
 		genericId = stream.readVarInt().toInt()
 		baseQuantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6585
+	override fun getNetworkMessageId(): Int = 5780
 }

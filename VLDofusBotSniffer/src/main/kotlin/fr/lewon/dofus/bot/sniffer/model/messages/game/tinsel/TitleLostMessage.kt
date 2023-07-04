@@ -12,5 +12,5 @@ open class TitleLostMessage : NetworkMessage() {
 		super.deserialize(stream)
 		titleId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5346
+	override fun getNetworkMessageId(): Int = 541
 }

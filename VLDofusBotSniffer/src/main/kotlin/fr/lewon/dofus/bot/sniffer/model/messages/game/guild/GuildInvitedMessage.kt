@@ -16,5 +16,5 @@ open class GuildInvitedMessage : NetworkMessage() {
 		guildInfo = GuildInformations()
 		guildInfo.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4875
+	override fun getNetworkMessageId(): Int = 296
 }

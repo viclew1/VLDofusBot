@@ -16,5 +16,5 @@ open class GameRolePlayPlayerFightRequestMessage : NetworkMessage() {
 		targetCellId = stream.readUnsignedShort().toInt()
 		friendly = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6454
+	override fun getNetworkMessageId(): Int = 1697
 }

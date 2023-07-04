@@ -12,5 +12,5 @@ open class GameFightPlacementSwapPositionsAcceptMessage : NetworkMessage() {
 		super.deserialize(stream)
 		requestId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8331
+	override fun getNetworkMessageId(): Int = 9664
 }

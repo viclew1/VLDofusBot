@@ -14,5 +14,5 @@ open class GuildUpdateNoteMessage : NetworkMessage() {
 		memberId = stream.readVarLong().toDouble()
 		note = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 3826
+	override fun getNetworkMessageId(): Int = 15
 }

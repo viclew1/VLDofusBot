@@ -12,5 +12,5 @@ open class KamasUpdateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		kamasTotal = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2130
+	override fun getNetworkMessageId(): Int = 5667
 }

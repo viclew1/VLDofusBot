@@ -16,5 +16,5 @@ open class AllianceRankCreateRequestMessage : NetworkMessage() {
 		gfxId = stream.readVarInt().toInt()
 		name = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 7068
+	override fun getNetworkMessageId(): Int = 9206
 }

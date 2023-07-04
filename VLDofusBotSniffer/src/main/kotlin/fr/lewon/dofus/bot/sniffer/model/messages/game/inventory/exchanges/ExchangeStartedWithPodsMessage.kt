@@ -22,5 +22,5 @@ open class ExchangeStartedWithPodsMessage : ExchangeStartedMessage() {
 		secondCharacterCurrentWeight = stream.readVarInt().toInt()
 		secondCharacterMaxWeight = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2583
+	override fun getNetworkMessageId(): Int = 7482
 }

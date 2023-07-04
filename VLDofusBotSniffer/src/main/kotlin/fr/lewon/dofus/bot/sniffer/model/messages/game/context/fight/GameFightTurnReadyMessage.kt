@@ -12,5 +12,5 @@ open class GameFightTurnReadyMessage : NetworkMessage() {
 		super.deserialize(stream)
 		isReady = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 8591
+	override fun getNetworkMessageId(): Int = 6559
 }

@@ -18,5 +18,5 @@ open class ServerSessionConstantsMessage : NetworkMessage() {
 			variables.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 857
+	override fun getNetworkMessageId(): Int = 9531
 }

@@ -138,6 +138,7 @@ open class FightTask(
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         gameInfo.eventStore.clear()
+        KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, 60 * 1000)
 

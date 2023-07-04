@@ -10,5 +10,5 @@ open class AllianceMemberStartWarningOnConnectionMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 561
+	override fun getNetworkMessageId(): Int = 7557
 }

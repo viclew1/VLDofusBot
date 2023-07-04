@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.sniffer.model.types.game.actions.fight.GameActionMark
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightEffectTriggerCount
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightResumeSlaveInfo
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightSpellCooldown
-import fr.lewon.dofus.bot.sniffer.model.types.game.idol.Idol
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
@@ -23,5 +22,5 @@ open class GameFightResumeWithSlavesMessage : GameFightResumeMessage() {
 			slavesInfo.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1237
+	override fun getNetworkMessageId(): Int = 7814
 }

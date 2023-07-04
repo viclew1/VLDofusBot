@@ -10,5 +10,5 @@ open class CredentialsAcknowledgementMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2476
+	override fun getNetworkMessageId(): Int = 8100
 }

@@ -12,5 +12,5 @@ open class TreasureHuntDigRequestAnswerFailedMessage : TreasureHuntDigRequestAns
 		super.deserialize(stream)
 		wrongFlagCount = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2301
+	override fun getNetworkMessageId(): Int = 3228
 }

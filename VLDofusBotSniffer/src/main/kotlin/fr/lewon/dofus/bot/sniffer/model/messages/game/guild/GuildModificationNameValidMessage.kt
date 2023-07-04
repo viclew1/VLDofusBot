@@ -12,5 +12,5 @@ open class GuildModificationNameValidMessage : NetworkMessage() {
 		super.deserialize(stream)
 		guildName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 605
+	override fun getNetworkMessageId(): Int = 4859
 }

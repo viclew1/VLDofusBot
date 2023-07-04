@@ -27,29 +27,41 @@ enum class SpellModificationType(
     CAST_INTERVAL(6, { spell, value ->
         spell.copy(minCastInterval = spell.minCastInterval - value)
     }),
-    CAST_INTERVAL_SET(7, { spell, value ->
-        spell // Not implemented yet
-    }),
-    CRITICAL_HIT_BONUS(8, { spell, value ->
+    CRITICAL_HIT_BONUS(7, { spell, value ->
         spell.copy(criticalHitProbability = spell.criticalHitProbability + value)
     }),
-    CAST_LINE(9, { spell, value ->
+    CAST_LINE(8, { spell, value ->
         spell.copy(castInLine = value == 0)
     }),
-    LOS(10, { spell, value ->
+    LOS(9, { spell, value ->
         spell.copy(castTestLos = value == 0)
     }),
-    MAX_CAST_PER_TURN(11, { spell, value ->
+    MAX_CAST_PER_TURN(10, { spell, value ->
         spell.copy(maxCastPerTurn = spell.maxCastPerTurn + value)
     }),
-    MAX_CAST_PER_TARGET(12, { spell, value ->
+    MAX_CAST_PER_TARGET(11, { spell, value ->
         spell.copy(maxCastPerTarget = spell.maxCastPerTarget + value)
     }),
-    RANGE_MAX(13, { spell, value ->
+    RANGE_MAX(12, { spell, value ->
         spell.copy(maxRange = spell.maxRange + value)
     }),
-    RANGE_MIN(14, { spell, value ->
+    RANGE_MIN(13, { spell, value ->
         spell.copy(minRange = spell.minRange + value)
+    }),
+    OCCUPIED_CELL(14, { spell, value ->
+        spell // Not implemented yet
+    }),
+    FREE_CELL(15, { spell, value ->
+        spell // Not implemented yet
+    }),
+    VISIBLE_TARGET(16, { spell, value ->
+        spell // Not implemented yet
+    }),
+    PORTAL_FREE_CELL(17, { spell, value ->
+        spell // Not implemented yet
+    }),
+    PORTAL_PROJECTION(18, { spell, value ->
+        spell // Not implemented yet
     });
 
     companion object {

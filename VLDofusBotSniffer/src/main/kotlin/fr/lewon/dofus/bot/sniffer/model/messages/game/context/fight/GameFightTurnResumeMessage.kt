@@ -12,5 +12,5 @@ open class GameFightTurnResumeMessage : GameFightTurnStartMessage() {
 		super.deserialize(stream)
 		remainingTime = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7121
+	override fun getNetworkMessageId(): Int = 55
 }

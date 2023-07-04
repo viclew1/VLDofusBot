@@ -14,5 +14,5 @@ open class BreachRoomUnlockResultMessage : NetworkMessage() {
 		roomId = stream.readUnsignedByte().toInt()
 		result = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 998
+	override fun getNetworkMessageId(): Int = 8037
 }

@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.interactive.SkillManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.entity.DofusNPC
+import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
@@ -56,10 +57,10 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
             ?: return
         val transitionsLogItem = gameInfo.logger.addSubLog("Transitions :", mapLogItem, 100)
         val edges = WorldGraphUtil.getOutgoingEdges(currentVertex)
-        edges.forEach { edge ->
+        edges.filter { it.transitions.any { t -> t.type != TransitionType.UNSPECIFIED } }.forEach { edge ->
             val toMapId = edge.to.mapId
             val edgeLogItem = gameInfo.logger.addSubLog("Edge to : $toMapId", transitionsLogItem)
-            edge.transitions.forEach {
+            edge.transitions.filter { it.type != TransitionType.UNSPECIFIED }.forEach {
                 val transitionLogItem = gameInfo.logger.addSubLog("Transition :", edgeLogItem)
                 gameInfo.logger.addSubLog("ID : ${it.id}", transitionLogItem)
                 gameInfo.logger.addSubLog("type : ${it.type}", transitionLogItem)

@@ -10,5 +10,5 @@ open class GameFightTurnStartPlayingMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8421
+	override fun getNetworkMessageId(): Int = 2368
 }

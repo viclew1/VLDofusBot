@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.core
 
 import fr.lewon.dofus.bot.core.d2o.D2OUtil
+import fr.lewon.dofus.bot.core.d2p.AbstractD2PUrlLoaderAdapter
 import fr.lewon.dofus.bot.core.d2p.elem.D2PElementsAdapter
 import fr.lewon.dofus.bot.core.d2p.gfx.D2PItemsGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.gfx.D2PMonstersGfxAdapter
@@ -41,26 +42,18 @@ object VldbCoreInitializer {
         D2PMapsAdapter.DECRYPTION_KEY = mapsDecryptionKey
         D2PMapsAdapter.DECRYPTION_KEY_CHARSET = mapsDecryptionKeyCharset
         val mapsPath = "${VldbFilesUtil.getDofusDirectory()}/content/maps"
+        loadD2P(D2PMapsAdapter, mapsPath)
         D2PElementsAdapter.initStream("$mapsPath/elements.ele")
-        File(mapsPath).listFiles()
+        loadD2P(D2PWorldGfxAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/world")
+        loadD2P(D2PItemsGfxAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/items")
+        loadD2P(D2PMonstersGfxAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/monsters")
+    }
+
+    private fun loadD2P(d2pLoaderAdapter: AbstractD2PUrlLoaderAdapter, path: String) {
+        File(path).listFiles()
             ?.filter { it.absolutePath.endsWith(".d2p") }
-            ?.forEach { D2PMapsAdapter.initStream(it.absolutePath) }
-            ?: error("Maps directory not found : $mapsPath}")
-        val worldGfxPath = "${VldbFilesUtil.getDofusDirectory()}/content/gfx/world"
-        File(worldGfxPath).listFiles()
-            ?.filter { it.absolutePath.endsWith(".d2p") }
-            ?.forEach { D2PWorldGfxAdapter.initStream(it.absolutePath) }
-            ?: error("World gfx directory not found : $worldGfxPath}")
-        val itemsGfxPath = "${VldbFilesUtil.getDofusDirectory()}/content/gfx/items"
-        File(itemsGfxPath).listFiles()
-            ?.filter { it.absolutePath.endsWith(".d2p") }
-            ?.forEach { D2PItemsGfxAdapter.initStream(it.absolutePath) }
-            ?: error("Items gfx directory not found : $worldGfxPath}")
-        val monstersGfxPath = "${VldbFilesUtil.getDofusDirectory()}/content/gfx/monsters"
-        File(monstersGfxPath).listFiles()
-            ?.filter { it.absolutePath.endsWith(".d2p") }
-            ?.forEach { D2PMonstersGfxAdapter.initStream(it.absolutePath) }
-            ?: error("Monsters gfx directory not found : $worldGfxPath}")
+            ?.forEach { d2pLoaderAdapter.initStream(it.absolutePath) }
+            ?: error("D2P directory not found : $path}")
     }
 
     private fun initVldbManagers() {

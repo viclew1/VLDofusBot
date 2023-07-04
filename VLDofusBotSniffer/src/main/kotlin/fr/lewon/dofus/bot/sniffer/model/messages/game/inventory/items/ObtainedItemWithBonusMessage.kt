@@ -12,5 +12,5 @@ open class ObtainedItemWithBonusMessage : ObtainedItemMessage() {
 		super.deserialize(stream)
 		bonusQuantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8511
+	override fun getNetworkMessageId(): Int = 3479
 }

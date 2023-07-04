@@ -12,5 +12,5 @@ open class AlmanachCalendarDateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		date = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4698
+	override fun getNetworkMessageId(): Int = 271
 }

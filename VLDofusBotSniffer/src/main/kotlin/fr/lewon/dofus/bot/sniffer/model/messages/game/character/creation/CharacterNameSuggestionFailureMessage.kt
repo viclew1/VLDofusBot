@@ -12,5 +12,5 @@ open class CharacterNameSuggestionFailureMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7460
+	override fun getNetworkMessageId(): Int = 3968
 }

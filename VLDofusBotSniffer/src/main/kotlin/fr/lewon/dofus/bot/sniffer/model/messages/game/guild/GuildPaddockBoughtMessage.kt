@@ -14,5 +14,5 @@ open class GuildPaddockBoughtMessage : NetworkMessage() {
 		paddockInfo = PaddockContentInformations()
 		paddockInfo.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3932
+	override fun getNetworkMessageId(): Int = 5692
 }

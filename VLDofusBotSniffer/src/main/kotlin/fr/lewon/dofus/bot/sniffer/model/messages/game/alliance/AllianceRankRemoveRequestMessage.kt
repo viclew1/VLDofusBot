@@ -14,5 +14,5 @@ open class AllianceRankRemoveRequestMessage : NetworkMessage() {
 		rankId = stream.readVarInt().toInt()
 		newRankId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7332
+	override fun getNetworkMessageId(): Int = 8022
 }

@@ -13,7 +13,6 @@ import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
-import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
@@ -21,7 +20,7 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.MetamobConfigManager
 
 @Composable
 fun SubAreaMonstersContent(subArea: DofusSubArea) {
-    Box(Modifier.fillMaxSize().darkGrayBoxStyle()) {
+    Box(Modifier.fillMaxSize()) {
         val state = rememberScrollState()
         Column(Modifier.fillMaxSize().padding(5.dp).padding(end = 8.dp).verticalScroll(state)) {
             if (subArea.monsters.isEmpty()) {
@@ -46,7 +45,7 @@ fun SubAreaMonstersContent(subArea: DofusSubArea) {
 @Composable
 private fun ResourcesListContent(title: String, monsters: List<DofusMonster>) {
     if (monsters.isNotEmpty()) {
-        HorizontalSeparator(title, Modifier.padding(vertical = 10.dp))
+        HorizontalSeparator(title, modifier = Modifier.padding(vertical = 10.dp))
         for (monster in monsters) {
             Row {
                 OwnedIndicatorContent(monster)

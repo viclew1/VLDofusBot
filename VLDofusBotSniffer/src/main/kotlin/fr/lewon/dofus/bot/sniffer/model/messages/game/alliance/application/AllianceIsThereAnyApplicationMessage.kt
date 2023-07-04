@@ -10,5 +10,5 @@ open class AllianceIsThereAnyApplicationMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3940
+	override fun getNetworkMessageId(): Int = 6004
 }

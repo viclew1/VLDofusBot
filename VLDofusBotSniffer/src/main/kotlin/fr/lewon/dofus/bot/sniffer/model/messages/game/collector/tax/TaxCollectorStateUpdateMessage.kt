@@ -14,5 +14,5 @@ open class TaxCollectorStateUpdateMessage : NetworkMessage() {
 		uniqueId = stream.readDouble().toDouble()
 		state = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5932
+	override fun getNetworkMessageId(): Int = 9183
 }

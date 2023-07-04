@@ -14,5 +14,5 @@ open class ActivityLockRequestMessage : NetworkMessage() {
 		activityId = stream.readVarShort().toInt()
 		lock = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7347
+	override fun getNetworkMessageId(): Int = 5899
 }

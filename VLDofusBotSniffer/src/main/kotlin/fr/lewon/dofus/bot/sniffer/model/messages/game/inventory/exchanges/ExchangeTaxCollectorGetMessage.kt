@@ -40,5 +40,5 @@ open class ExchangeTaxCollectorGetMessage : NetworkMessage() {
 		look = EntityLook()
 		look.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7672
+	override fun getNetworkMessageId(): Int = 5477
 }

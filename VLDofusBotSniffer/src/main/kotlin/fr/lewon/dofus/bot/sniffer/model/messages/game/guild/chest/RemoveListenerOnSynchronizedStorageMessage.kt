@@ -12,5 +12,5 @@ open class RemoveListenerOnSynchronizedStorageMessage : NetworkMessage() {
 		super.deserialize(stream)
 		player = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 2281
+	override fun getNetworkMessageId(): Int = 8548
 }

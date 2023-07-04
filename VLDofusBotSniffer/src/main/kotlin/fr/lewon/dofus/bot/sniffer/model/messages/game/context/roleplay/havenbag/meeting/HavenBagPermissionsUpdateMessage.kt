@@ -12,5 +12,5 @@ open class HavenBagPermissionsUpdateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		permissions = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8096
+	override fun getNetworkMessageId(): Int = 1314
 }

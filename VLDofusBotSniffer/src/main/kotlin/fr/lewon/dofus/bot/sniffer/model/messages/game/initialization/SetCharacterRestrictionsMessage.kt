@@ -16,5 +16,5 @@ open class SetCharacterRestrictionsMessage : NetworkMessage() {
 		restrictions = ActorRestrictionsInformations()
 		restrictions.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 1657
+	override fun getNetworkMessageId(): Int = 8088
 }

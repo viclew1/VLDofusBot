@@ -16,5 +16,5 @@ open class NotificationListMessage : NetworkMessage() {
 			flags.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6598
+	override fun getNetworkMessageId(): Int = 6597
 }

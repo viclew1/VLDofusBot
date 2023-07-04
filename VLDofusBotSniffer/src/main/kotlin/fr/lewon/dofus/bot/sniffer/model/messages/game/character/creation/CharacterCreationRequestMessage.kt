@@ -24,5 +24,5 @@ open class CharacterCreationRequestMessage : NetworkMessage() {
 		}
 		cosmeticId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1393
+	override fun getNetworkMessageId(): Int = 7608
 }

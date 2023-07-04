@@ -14,5 +14,5 @@ open class GuildUpdateApplicationMessage : NetworkMessage() {
 		applyText = stream.readUTF()
 		guildId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1048
+	override fun getNetworkMessageId(): Int = 3891
 }

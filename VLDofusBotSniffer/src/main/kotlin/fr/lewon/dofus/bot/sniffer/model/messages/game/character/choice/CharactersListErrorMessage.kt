@@ -10,5 +10,5 @@ open class CharactersListErrorMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4418
+	override fun getNetworkMessageId(): Int = 5340
 }

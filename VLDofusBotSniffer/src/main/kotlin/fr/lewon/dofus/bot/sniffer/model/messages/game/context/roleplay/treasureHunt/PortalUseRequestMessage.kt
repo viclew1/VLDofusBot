@@ -12,5 +12,5 @@ open class PortalUseRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		portalId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9795
+	override fun getNetworkMessageId(): Int = 1836
 }

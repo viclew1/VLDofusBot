@@ -21,5 +21,5 @@ open class PurchasableDialogMessage : NetworkMessage() {
 		purchasableInstanceId = stream.readInt().toInt()
 		price = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8325
+	override fun getNetworkMessageId(): Int = 1096
 }

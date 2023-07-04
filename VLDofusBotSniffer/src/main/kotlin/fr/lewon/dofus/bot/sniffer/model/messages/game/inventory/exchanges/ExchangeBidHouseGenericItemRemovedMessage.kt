@@ -12,5 +12,5 @@ open class ExchangeBidHouseGenericItemRemovedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		objGenericId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5061
+	override fun getNetworkMessageId(): Int = 1069
 }

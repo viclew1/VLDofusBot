@@ -14,5 +14,5 @@ open class PaddockMoveItemRequestMessage : NetworkMessage() {
 		oldCellId = stream.readVarShort().toInt()
 		newCellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8223
+	override fun getNetworkMessageId(): Int = 2761
 }

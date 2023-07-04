@@ -15,5 +15,5 @@ open class CharacterReplayWithRemodelRequestMessage : CharacterReplayRequestMess
 		remodel = RemodelingInformation()
 		remodel.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6123
+	override fun getNetworkMessageId(): Int = 2258
 }

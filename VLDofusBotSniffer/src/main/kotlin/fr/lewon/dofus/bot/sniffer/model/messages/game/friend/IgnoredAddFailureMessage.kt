@@ -12,5 +12,5 @@ open class IgnoredAddFailureMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4971
+	override fun getNetworkMessageId(): Int = 6611
 }

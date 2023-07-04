@@ -20,5 +20,5 @@ open class TaxCollectorOrderedSpellUpdatedMessage : NetworkMessage() {
 			taxCollectorSpells.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5033
+	override fun getNetworkMessageId(): Int = 7681
 }

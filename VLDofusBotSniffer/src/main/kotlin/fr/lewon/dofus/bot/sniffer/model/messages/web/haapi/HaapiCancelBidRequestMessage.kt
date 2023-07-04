@@ -14,5 +14,5 @@ open class HaapiCancelBidRequestMessage : NetworkMessage() {
 		id = stream.readVarLong().toDouble()
 		type = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9597
+	override fun getNetworkMessageId(): Int = 3692
 }

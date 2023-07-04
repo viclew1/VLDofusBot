@@ -16,5 +16,5 @@ open class GameFightUpdateTeamMessage : NetworkMessage() {
 		team = FightTeamInformations()
 		team.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3327
+	override fun getNetworkMessageId(): Int = 9852
 }

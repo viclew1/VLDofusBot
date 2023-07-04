@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.sniffer.model.messages.game.idol
+package fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.challenge
 
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
@@ -6,11 +6,11 @@ import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
 import fr.lewon.dofus.bot.sniffer.model.ProtocolTypeManager
 import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
 
-open class IdolPartyLostMessage : NetworkMessage() {
-	var idolId: Int = 0
+open class ChallengeSelectionMessage : NetworkMessage() {
+	var challengeId: Int = 0
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
-		idolId = stream.readVarShort().toInt()
+		challengeId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1705
+	override fun getNetworkMessageId(): Int = 7424
 }

@@ -10,5 +10,5 @@ open class DebugClearHighlightCellsMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2753
+	override fun getNetworkMessageId(): Int = 3788
 }

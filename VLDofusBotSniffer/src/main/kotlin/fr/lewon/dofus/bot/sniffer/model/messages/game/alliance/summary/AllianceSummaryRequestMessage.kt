@@ -46,5 +46,5 @@ open class AllianceSummaryRequestMessage : PaginationRequestAbstractMessage() {
 		minPlayerLevelFilter = stream.readUnsignedShort().toInt()
 		maxPlayerLevelFilter = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7327
+	override fun getNetworkMessageId(): Int = 8794
 }

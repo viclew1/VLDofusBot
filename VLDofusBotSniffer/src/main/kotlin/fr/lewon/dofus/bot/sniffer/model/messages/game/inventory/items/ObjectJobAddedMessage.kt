@@ -12,5 +12,5 @@ open class ObjectJobAddedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		jobId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4955
+	override fun getNetworkMessageId(): Int = 6036
 }

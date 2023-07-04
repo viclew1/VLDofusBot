@@ -12,5 +12,5 @@ open class BreachInvitationAnswerMessage : NetworkMessage() {
 		super.deserialize(stream)
 		accept = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7004
+	override fun getNetworkMessageId(): Int = 40
 }

@@ -18,5 +18,5 @@ open class ExchangeBidPriceForSellerMessage : ExchangeBidPriceMessage() {
 			minimalPrices.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9117
+	override fun getNetworkMessageId(): Int = 7196
 }

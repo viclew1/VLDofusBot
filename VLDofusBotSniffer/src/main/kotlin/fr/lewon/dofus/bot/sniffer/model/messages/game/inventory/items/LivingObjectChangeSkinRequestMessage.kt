@@ -16,5 +16,5 @@ open class LivingObjectChangeSkinRequestMessage : NetworkMessage() {
 		livingPosition = stream.readUnsignedByte().toInt()
 		skinId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3753
+	override fun getNetworkMessageId(): Int = 3485
 }

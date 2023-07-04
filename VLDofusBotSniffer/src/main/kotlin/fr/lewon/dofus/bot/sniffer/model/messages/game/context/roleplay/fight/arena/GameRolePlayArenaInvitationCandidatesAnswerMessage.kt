@@ -18,5 +18,5 @@ open class GameRolePlayArenaInvitationCandidatesAnswerMessage : NetworkMessage()
 			candidates.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9162
+	override fun getNetworkMessageId(): Int = 6700
 }

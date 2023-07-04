@@ -12,6 +12,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.ButtonWithTooltip
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.CustomShapes
+import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 
@@ -42,6 +43,8 @@ fun ColumnScope.SubAreaContent(subArea: DofusSubArea) {
             )
         }
         Divider(Modifier.fillMaxWidth().padding(end = 8.dp).height(1.dp))
-        currentSubAreaContentTabValue.content(subArea)
+        Row(Modifier.fillMaxSize().darkGrayBoxStyle()) {
+            currentSubAreaContentTabValue.content(subArea)
+        }
     }
 }

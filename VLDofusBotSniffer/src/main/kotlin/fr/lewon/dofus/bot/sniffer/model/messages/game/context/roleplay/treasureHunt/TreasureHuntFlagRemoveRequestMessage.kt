@@ -14,5 +14,5 @@ open class TreasureHuntFlagRemoveRequestMessage : NetworkMessage() {
 		questType = stream.readUnsignedByte().toInt()
 		index = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2487
+	override fun getNetworkMessageId(): Int = 6564
 }

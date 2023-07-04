@@ -12,5 +12,5 @@ open class GameFightLeaveMessage : NetworkMessage() {
 		super.deserialize(stream)
 		charId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1471
+	override fun getNetworkMessageId(): Int = 3124
 }

@@ -14,5 +14,5 @@ open class JobCrafterDirectoryAddMessage : NetworkMessage() {
 		listEntry = JobCrafterDirectoryListEntry()
 		listEntry.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5082
+	override fun getNetworkMessageId(): Int = 2994
 }

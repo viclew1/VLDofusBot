@@ -10,5 +10,5 @@ open class ExchangeObjectTransfertExistingFromInvMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9319
+	override fun getNetworkMessageId(): Int = 4358
 }

@@ -18,5 +18,5 @@ open class GameContextMoveMultipleElementsMessage : NetworkMessage() {
 			movements.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4844
+	override fun getNetworkMessageId(): Int = 4072
 }

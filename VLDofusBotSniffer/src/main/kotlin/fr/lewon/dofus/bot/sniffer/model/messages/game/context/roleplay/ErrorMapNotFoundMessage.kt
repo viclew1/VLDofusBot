@@ -12,5 +12,5 @@ open class ErrorMapNotFoundMessage : NetworkMessage() {
 		super.deserialize(stream)
 		mapId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8995
+	override fun getNetworkMessageId(): Int = 9984
 }

@@ -16,5 +16,5 @@ open class DumpedEntityStatsMessage : NetworkMessage() {
 		stats = CharacterCharacteristics()
 		stats.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6162
+	override fun getNetworkMessageId(): Int = 8612
 }

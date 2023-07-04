@@ -15,7 +15,7 @@ object CharacterStatsListEventHandler : IEventHandler<CharacterStatsListMessage>
         gameInfo.playerBaseCharacteristics = characteristics.associate {
             it.characteristicId to DofusCharacteristicUtil.getCharacteristicValue(it)
         }
-        gameInfo.spellModifications = socketResult.stats.spellModifications
+        gameInfo.spellModifiers = socketResult.stats.spellModifiers
         gameInfo.updatePlayerFighter()
         CharacterGlobalInformationUIUtil.updateCharacterKamas(
             gameInfo.character.name,

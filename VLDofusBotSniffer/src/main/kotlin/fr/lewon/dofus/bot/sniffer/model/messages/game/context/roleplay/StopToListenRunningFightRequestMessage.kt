@@ -10,5 +10,5 @@ open class StopToListenRunningFightRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3897
+	override fun getNetworkMessageId(): Int = 445
 }

@@ -20,5 +20,5 @@ open class PaddockToSellFilterMessage : NetworkMessage() {
 		maxPrice = stream.readVarLong().toDouble()
 		orderBy = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1882
+	override fun getNetworkMessageId(): Int = 1854
 }

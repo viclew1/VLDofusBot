@@ -14,5 +14,5 @@ open class ExchangeReadyMessage : NetworkMessage() {
 		ready = stream.readBoolean()
 		step = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9745
+	override fun getNetworkMessageId(): Int = 4758
 }

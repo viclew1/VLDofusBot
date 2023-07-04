@@ -12,5 +12,5 @@ open class MountReleasedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		mountId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1929
+	override fun getNetworkMessageId(): Int = 6651
 }

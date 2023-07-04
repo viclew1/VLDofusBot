@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic
 
 import fr.lewon.dofus.bot.sniffer.model.types.game.character.alignment.ActorExtendedAlignmentInformations
+import fr.lewon.dofus.bot.sniffer.model.types.game.character.spellmodifier.SpellModifierMessage
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
@@ -16,7 +17,7 @@ open class CharacterCharacteristicsInformations : NetworkType() {
 	lateinit var alignmentInfos: ActorExtendedAlignmentInformations
 	var criticalHitWeapon: Int = 0
 	var characteristics: ArrayList<CharacterCharacteristic> = ArrayList()
-	var spellModifications: ArrayList<CharacterSpellModification> = ArrayList()
+	var spellModifiers: ArrayList<SpellModifierMessage> = ArrayList()
 	var probationTime: Double = 0.0
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
@@ -34,11 +35,11 @@ open class CharacterCharacteristicsInformations : NetworkType() {
 			item.deserialize(stream)
 			characteristics.add(item)
 		}
-		spellModifications = ArrayList()
+		spellModifiers = ArrayList()
 		for (i in 0 until stream.readUnsignedShort().toInt()) {
-			val item = CharacterSpellModification()
+			val item = SpellModifierMessage()
 			item.deserialize(stream)
-			spellModifications.add(item)
+			spellModifiers.add(item)
 		}
 		probationTime = stream.readDouble().toDouble()
 	}

@@ -14,5 +14,5 @@ open class CharacterCreationResultMessage : NetworkMessage() {
 		result = stream.readUnsignedByte().toInt()
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5421
+	override fun getNetworkMessageId(): Int = 5976
 }

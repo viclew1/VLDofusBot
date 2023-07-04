@@ -12,5 +12,5 @@ open class BreachRewardBuyMessage : NetworkMessage() {
 		super.deserialize(stream)
 		id = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6992
+	override fun getNetworkMessageId(): Int = 9930
 }

@@ -1,18 +1,16 @@
-package fr.lewon.dofus.bot.sniffer.model.messages.game.idol
+package fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.challenge
 
-import fr.lewon.dofus.bot.sniffer.model.types.game.idol.PartyIdol
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
 import fr.lewon.dofus.bot.sniffer.model.types.NetworkType
 import fr.lewon.dofus.bot.sniffer.model.ProtocolTypeManager
 import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
 
-open class IdolPartyRefreshMessage : NetworkMessage() {
-	lateinit var partyIdol: PartyIdol
+open class ChallengeModSelectedMessage : NetworkMessage() {
+	var challengeMod: Int = 0
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
-		partyIdol = PartyIdol()
-		partyIdol.deserialize(stream)
+		challengeMod = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7021
+	override fun getNetworkMessageId(): Int = 2631
 }

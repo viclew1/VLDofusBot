@@ -12,5 +12,5 @@ open class GuildCharacsUpgradeRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		charaTypeTarget = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8175
+	override fun getNetworkMessageId(): Int = 3299
 }

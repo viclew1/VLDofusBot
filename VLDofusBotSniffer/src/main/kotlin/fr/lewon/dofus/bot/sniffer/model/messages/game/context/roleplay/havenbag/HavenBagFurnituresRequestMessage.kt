@@ -28,5 +28,5 @@ open class HavenBagFurnituresRequestMessage : NetworkMessage() {
 			orientations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4554
+	override fun getNetworkMessageId(): Int = 1830
 }

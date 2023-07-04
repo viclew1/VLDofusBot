@@ -16,5 +16,5 @@ open class AllianceInvitedMessage : NetworkMessage() {
 		allianceInfo = AllianceInformation()
 		allianceInfo.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8538
+	override fun getNetworkMessageId(): Int = 1579
 }

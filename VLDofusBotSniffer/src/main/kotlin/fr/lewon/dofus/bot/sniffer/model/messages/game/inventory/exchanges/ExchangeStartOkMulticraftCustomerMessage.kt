@@ -14,5 +14,5 @@ open class ExchangeStartOkMulticraftCustomerMessage : NetworkMessage() {
 		skillId = stream.readVarInt().toInt()
 		crafterJobLevel = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 839
+	override fun getNetworkMessageId(): Int = 128
 }

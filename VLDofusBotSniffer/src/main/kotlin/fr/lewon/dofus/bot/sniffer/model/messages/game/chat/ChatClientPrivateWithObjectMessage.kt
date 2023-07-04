@@ -19,5 +19,5 @@ open class ChatClientPrivateWithObjectMessage : ChatClientPrivateMessage() {
 			objects.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 817
+	override fun getNetworkMessageId(): Int = 7469
 }

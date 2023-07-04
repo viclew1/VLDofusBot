@@ -10,5 +10,5 @@ open class FriendsGetListMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4042
+	override fun getNetworkMessageId(): Int = 3554
 }

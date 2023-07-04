@@ -32,5 +32,5 @@ open class AllianceFactsMessage : NetworkMessage() {
 		leaderCharacterId = stream.readVarLong().toDouble()
 		leaderCharacterName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 4615
+	override fun getNetworkMessageId(): Int = 3798
 }

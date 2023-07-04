@@ -10,5 +10,5 @@ open class PopupWarningClosedMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8085
+	override fun getNetworkMessageId(): Int = 7639
 }

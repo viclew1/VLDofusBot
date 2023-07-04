@@ -18,5 +18,5 @@ open class TaxCollectorMovementsOfflineMessage : NetworkMessage() {
 			movements.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 503
+	override fun getNetworkMessageId(): Int = 7893
 }

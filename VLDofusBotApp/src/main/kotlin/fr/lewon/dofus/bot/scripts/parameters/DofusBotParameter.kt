@@ -11,3 +11,5 @@ data class DofusBotParameter(
     var parametersGroup: Int? = null,
     var displayCondition: (scriptValues: ScriptValues) -> Boolean = { true },
 )
+
+const val MultipleParameterValuesSeparator = "/__;__/"

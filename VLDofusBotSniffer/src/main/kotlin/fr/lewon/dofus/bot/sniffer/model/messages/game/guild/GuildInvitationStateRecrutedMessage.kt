@@ -12,5 +12,5 @@ open class GuildInvitationStateRecrutedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		invitationState = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2398
+	override fun getNetworkMessageId(): Int = 3782
 }

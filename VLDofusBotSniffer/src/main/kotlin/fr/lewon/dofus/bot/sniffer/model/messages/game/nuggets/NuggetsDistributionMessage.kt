@@ -18,5 +18,5 @@ open class NuggetsDistributionMessage : NetworkMessage() {
 			beneficiaries.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6730
+	override fun getNetworkMessageId(): Int = 3737
 }

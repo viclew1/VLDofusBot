@@ -14,5 +14,5 @@ open class ExchangeStartedTaxCollectorEquipmentMessage : NetworkMessage() {
 		information = TaxCollectorInformations()
 		information.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4276
+	override fun getNetworkMessageId(): Int = 4235
 }

@@ -6,7 +6,8 @@ import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
-import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUiUtil
+import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
@@ -21,9 +22,8 @@ class ExploreSubAreaTask(
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
     private val itemIdsToHarvest: List<Double>,
-    private val runForever: Boolean,
     private val explorationThresholdMinutes: Int
-) : BooleanDofusBotTask() {
+) : DofusBotTask<ExplorationStatus>() {
 
     companion object {
         val SUB_AREA_ID_FULLY_ALLOWED = listOf(
@@ -33,44 +33,57 @@ class ExploreSubAreaTask(
         )
     }
 
-    override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
-        ExplorationUIUtil.onAreaExplorationStart(gameInfo.character, subArea)
-        val initialExploreMapsList = MapManager.getDofusMaps(subArea)
+    override fun execute(logItem: LogItem, gameInfo: GameInfo): ExplorationStatus {
+        val toExploreMaps = MapManager.getDofusMaps(subArea)
             .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
-            .filter { explorationThresholdMinutes <= 0 || getMinutesSinceLastExploration(it.id) > explorationThresholdMinutes }
-        if (initialExploreMapsList.isEmpty()) {
+            .toMutableList()
+        if (toExploreMaps.isEmpty()) {
             error("Nothing to explore in this area")
         }
-        var toExploreMaps = initialExploreMapsList.toMutableList()
-        if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
-            error("Couldn't reach area")
+        val alreadyExploredMaps = toExploreMaps.filter {
+            getMinutesSinceLastExploration(it.id) < explorationThresholdMinutes
         }
-        toExploreMaps.remove(gameInfo.currentMap)
-        var success = false
+        var exploredCount = alreadyExploredMaps.size
+        ExplorationUIUtil.onAreaExplorationStart(gameInfo.character, subArea)
+        LastExplorationUiUtil.updateExplorationProgress(
+            character = gameInfo.character,
+            currentSubArea = subArea,
+            toExploreCount = toExploreMaps.size,
+            progress = exploredCount
+        )
+        toExploreMaps.removeAll(alreadyExploredMaps)
+        if (toExploreMaps.isEmpty()) {
+            return ExplorationStatus.Finished
+        }
+        if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
+            return ExplorationStatus.NoMapExplored
+        }
+        if (toExploreMaps.remove(gameInfo.currentMap)) {
+            LastExplorationUiUtil.updateExplorationProgress(
+                character = gameInfo.character,
+                progress = ++exploredCount
+            )
+        }
         while (toExploreMaps.isNotEmpty()) {
             if (foundSearchedMonster(gameInfo)) {
-                return true
+                return ExplorationStatus.FoundSomething
             }
             if (killEverything) {
                 killMonsters(logItem, gameInfo)
             }
             if (!HarvestAllResourcesTask(itemIdsToHarvest).run(logItem, gameInfo)) {
-                return false
+                error("Failed to harvest")
             }
             if (!ReachMapTask(toExploreMaps, emptyList()).run(logItem, gameInfo)) {
-                if (success && runForever) {
-                    toExploreMaps = initialExploreMapsList.toMutableList()
-                } else {
-                    error("Failed to move")
-                }
+                return if (exploredCount == 0) ExplorationStatus.NoMapExplored else ExplorationStatus.PartiallyComplete
             }
-            success = true
             toExploreMaps.remove(gameInfo.currentMap)
-            if (toExploreMaps.isEmpty() && runForever) {
-                toExploreMaps = initialExploreMapsList.toMutableList()
-            }
+            LastExplorationUiUtil.updateExplorationProgress(
+                character = gameInfo.character,
+                progress = ++exploredCount
+            )
         }
-        return success
+        return ExplorationStatus.Finished
     }
 
     private fun getMinutesSinceLastExploration(mapId: Double): Long {
@@ -122,7 +135,6 @@ class ExploreSubAreaTask(
     }
 
     override fun onStarted(): String {
-        return "Exploring sub area [${subArea.label})]"
+        return "Exploring sub area [${subArea.label}]"
     }
-
 }

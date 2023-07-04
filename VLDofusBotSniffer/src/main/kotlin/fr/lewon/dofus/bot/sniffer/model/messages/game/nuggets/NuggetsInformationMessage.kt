@@ -12,5 +12,5 @@ open class NuggetsInformationMessage : NetworkMessage() {
 		super.deserialize(stream)
 		nuggetsQuantity = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2927
+	override fun getNetworkMessageId(): Int = 7361
 }

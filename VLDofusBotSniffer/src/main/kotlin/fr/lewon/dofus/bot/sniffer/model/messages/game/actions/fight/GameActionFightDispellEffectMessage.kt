@@ -12,5 +12,5 @@ open class GameActionFightDispellEffectMessage : GameActionFightDispellMessage()
 		super.deserialize(stream)
 		boostUID = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3025
+	override fun getNetworkMessageId(): Int = 339
 }

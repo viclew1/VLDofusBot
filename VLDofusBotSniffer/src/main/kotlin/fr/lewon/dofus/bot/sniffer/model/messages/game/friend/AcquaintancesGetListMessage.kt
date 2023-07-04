@@ -10,5 +10,5 @@ open class AcquaintancesGetListMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2953
+	override fun getNetworkMessageId(): Int = 8067
 }

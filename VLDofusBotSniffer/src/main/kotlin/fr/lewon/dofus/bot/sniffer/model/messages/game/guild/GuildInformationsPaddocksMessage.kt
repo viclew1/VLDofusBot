@@ -20,5 +20,5 @@ open class GuildInformationsPaddocksMessage : NetworkMessage() {
 			paddocksInformations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1938
+	override fun getNetworkMessageId(): Int = 7863
 }

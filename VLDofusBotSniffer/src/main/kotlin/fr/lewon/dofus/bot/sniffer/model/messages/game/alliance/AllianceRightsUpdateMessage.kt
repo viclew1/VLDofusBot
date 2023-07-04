@@ -18,5 +18,5 @@ open class AllianceRightsUpdateMessage : NetworkMessage() {
 			rights.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9385
+	override fun getNetworkMessageId(): Int = 7383
 }

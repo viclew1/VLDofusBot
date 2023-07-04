@@ -10,5 +10,5 @@ open class GuildDeleteApplicationRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3184
+	override fun getNetworkMessageId(): Int = 9302
 }

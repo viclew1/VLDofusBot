@@ -50,5 +50,5 @@ open class GuildSummaryRequestMessage : PaginationRequestAbstractMessage() {
 		maxSuccessFilter = stream.readVarInt().toInt()
 		sortType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6701
+	override fun getNetworkMessageId(): Int = 8581
 }

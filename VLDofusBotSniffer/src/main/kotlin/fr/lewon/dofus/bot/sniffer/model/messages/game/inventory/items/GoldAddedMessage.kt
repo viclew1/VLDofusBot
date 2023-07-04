@@ -14,5 +14,5 @@ open class GoldAddedMessage : NetworkMessage() {
 		gold = GoldItem()
 		gold.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3731
+	override fun getNetworkMessageId(): Int = 7533
 }

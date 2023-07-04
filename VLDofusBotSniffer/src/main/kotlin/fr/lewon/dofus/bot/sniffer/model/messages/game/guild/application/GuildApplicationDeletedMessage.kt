@@ -12,5 +12,5 @@ open class GuildApplicationDeletedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		deleted = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7009
+	override fun getNetworkMessageId(): Int = 6357
 }

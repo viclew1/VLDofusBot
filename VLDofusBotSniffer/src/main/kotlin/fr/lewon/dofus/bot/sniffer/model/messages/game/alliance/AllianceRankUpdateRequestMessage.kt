@@ -14,5 +14,5 @@ open class AllianceRankUpdateRequestMessage : NetworkMessage() {
 		rank = RankInformation()
 		rank.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4814
+	override fun getNetworkMessageId(): Int = 4114
 }
