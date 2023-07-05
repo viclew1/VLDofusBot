@@ -15,13 +15,14 @@ enum class DofusUIElement(
     ZAAP_SELECTION("zaapiSelection.xml", OverrideType.ADD_OVERRIDE, "zaapSelection", "window281"),
     BANNER("banner.xml", OverrideType.REPLACE, "banner", "mainCtr"),
     TREASURE_HUNT("treasureHunt.xml", OverrideType.REPLACE, "treasureHunt", "ctr_hunt"),
-    ARENA("pvpArena.xml", OverrideType.REPLACE, "pvpArena", "window888"),
+    ARENA("pvpArena.xml", OverrideType.REPLACE, "pvpArena", "window921"),
     MOUNT_PADDOCK("mountPaddock.xml"),
     STORAGE("storage.xml"),
     LVL_UP("LevelUp.xml"),
     LVL_UP_WITH_SPELL("LevelUpWithSpell.xml"),
     LVL_UP_OMEGA("LevelUpOmega.xml"),
     QUEST_BASE("questBase.xml", OverrideType.REPLACE, key = "questBase", ctr = "mainCtr"),
+    CHALLENGE_DISPLAY("challengeDisplay.xml", OverrideType.REPLACE, key = "challengeDisplay", ctr = "mainCtr")
     ;
 
     companion object {

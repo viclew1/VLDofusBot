@@ -1,8 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 enum class ExplorationStatus {
-    PartiallyComplete,
+    NotFinished,
     Finished,
     FoundSomething,
-    NoMapExplored
 }

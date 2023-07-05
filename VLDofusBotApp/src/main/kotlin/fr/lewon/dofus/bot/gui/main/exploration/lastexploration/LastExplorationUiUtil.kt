@@ -18,18 +18,18 @@ object LastExplorationUiUtil : ComposeUIUtil() {
 
     fun updateExplorationProgress(
         character: DofusCharacter,
-        currentSubArea: DofusSubArea? = null,
-        toExploreCount: Int? = null,
-        progress: Int
+        subArea: DofusSubArea,
+        current: Int,
+        total: Int
     ) = lock.executeSyncOperation {
         val uiStateValue = uiState.value
         uiStateValue.lastExplorationByCharacter[character.name]?.let { lastExploration ->
             uiState.value = uiStateValue.copy(
                 lastExplorationByCharacter = uiStateValue.lastExplorationByCharacter.plus(
                     character.name to lastExploration.copy(
-                        currentSubAreaId = currentSubArea?.id ?: lastExploration.currentSubAreaId,
-                        currentAreaTotalCount = toExploreCount ?: lastExploration.currentAreaTotalCount,
-                        currentAreaProgress = progress
+                        progressBySubArea = lastExploration.progressBySubArea.plus(
+                            subArea to ExplorationProgress(current = current, total = total, started = true)
+                        )
                     )
                 )
             )
@@ -43,7 +43,9 @@ object LastExplorationUiUtil : ComposeUIUtil() {
         val uiStateValue = uiState.value
         uiState.value = uiStateValue.copy(
             lastExplorationByCharacter = uiStateValue.lastExplorationByCharacter.plus(
-                character.name to LastExploration(subAreas)
+                character.name to LastExploration(subAreas.associateWith {
+                    ExplorationProgress(0, 0, false)
+                })
             )
         )
     }
@@ -55,19 +57,6 @@ object LastExplorationUiUtil : ComposeUIUtil() {
                 lastExplorationByCharacter = uiStateValue.lastExplorationByCharacter.plus(
                     character.name to lastExploration.copy(
                         explorationStopped = true
-                    )
-                )
-            )
-        }
-    }
-
-    fun finishExploration(character: DofusCharacter) = lock.executeSyncOperation {
-        val uiStateValue = uiState.value
-        uiStateValue.lastExplorationByCharacter[character.name]?.let { lastExploration ->
-            uiState.value = uiStateValue.copy(
-                lastExplorationByCharacter = uiStateValue.lastExplorationByCharacter.plus(
-                    character.name to lastExploration.copy(
-                        explorationFinished = true
                     )
                 )
             )

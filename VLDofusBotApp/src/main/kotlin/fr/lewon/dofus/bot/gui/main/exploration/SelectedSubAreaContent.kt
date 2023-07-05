@@ -135,7 +135,11 @@ fun ExplorationScriptLauncherContent(subAreas: List<DofusSubArea>) {
                 Row(Modifier.size(25.dp)) {
                     val enabled = availableCharacterNames.isNotEmpty()
                     ButtonWithTooltip(
-                        onClick = { ExplorationUIUtil.startExploration(subAreas) },
+                        onClick = {
+                            ExplorationUIUtil.explorerUIState.value.selectedCharacterName?.let { characterName ->
+                                ExplorationUIUtil.startExploration(subAreas, characterName)
+                            }
+                        },
                         title = "",
                         shape = RoundedCornerShape(15),
                         hoverBackgroundColor = Color.Gray,

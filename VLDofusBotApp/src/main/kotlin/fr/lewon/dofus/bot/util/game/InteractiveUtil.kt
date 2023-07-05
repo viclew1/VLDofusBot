@@ -42,15 +42,6 @@ object InteractiveUtil {
 
     private val INVALID_SKILL_IDS = listOf(339, 360, 361, 362)
 
-    private val CUSTOM_CLICK_LOCATIONS_BY_INTERACTIVE = mapOf(
-        518476 to { bounds: RectangleAbsolute -> // 20 ; -36
-            listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0)))
-        },
-        485282 to { bounds: RectangleAbsolute -> // -1 ; -42
-            listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))
-        },
-    )
-
     fun getElementCellData(gameInfo: GameInfo, interactiveElement: InteractiveElement): CompleteCellData =
         gameInfo.mapData.completeCellDataByCellId.values
             .firstOrNull { it.graphicalElements.map { ge -> ge.identifier }.contains(interactiveElement.elementId) }
@@ -158,8 +149,8 @@ object InteractiveUtil {
         val rawBounds = getRawInteractiveBounds(gameInfo, destCellCompleteData, elementData, graphicalElement)
         val boundsCropDelta = getBoundsCropDelta(rawBounds)
         val realBounds = cropBounds(rawBounds, boundsCropDelta)
-        CUSTOM_CLICK_LOCATIONS_BY_INTERACTIVE[elementId]?.let {
-            return it(realBounds.toRectangleAbsolute(gameInfo))
+        getCustomClickLocations(elementId, realBounds.toRectangleAbsolute(gameInfo))?.let {
+            return it
         }
         val gfx = if (elementData is NormalGraphicalElementData) {
             val gfxByteArray = D2PWorldGfxAdapter.getWorldGfxImageData(elementData.gfxId.toDouble())
@@ -182,6 +173,14 @@ object InteractiveUtil {
             val y = it.yPoint.getPoint(size.y)
             realBounds.position.transpose(UIPoint(x, y)).toPointAbsolute(gameInfo)
         }
+    }
+
+    private fun getCustomClickLocations(elementId: Int, bounds: RectangleAbsolute) = when (elementId) {
+        518476 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0))) // 20 ; -36
+        485282 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))// -1 ; -42
+        523968 -> listOf(bounds.getCenter())// -24 ; 39
+        523592 -> listOf(bounds.getCenter())// -23 ; 39
+        else -> null
     }
 
     private fun getElementClickPosition(gameInfo: GameInfo, elementId: Int): PointAbsolute {

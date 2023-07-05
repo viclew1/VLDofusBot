@@ -21,7 +21,7 @@ object DevToolsUiUtil : ComposeUIUtil() {
             loading = false,
             selectedModuleListState = LazyListState(),
             selectedModuleItems = D2OUtil.getObjects(d2oModuleName).map { item ->
-                val id = item["id"]?.toString()?.toIntOrNull() ?: 0
+                val id = item["id"]?.toString()?.toDoubleOrNull()?.toLong() ?: 0L
                 val nameId = item["nameId"]?.toString()?.toInt()
                 val name = nameId?.let { I18NUtil.getLabel(nameId) }
                 val descriptionId = item["descriptionId"]?.toString()?.toInt()

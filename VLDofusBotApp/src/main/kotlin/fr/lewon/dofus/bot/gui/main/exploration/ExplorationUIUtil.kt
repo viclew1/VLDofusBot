@@ -67,19 +67,17 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
         mapUpdated.value = true
     }
 
-    fun startExploration(subAreas: List<DofusSubArea>) =
-        explorerUIState.value.selectedCharacterName?.let { characterName ->
-            CharacterManager.getCharacter(characterName)?.let { character ->
-                val scriptValues = ScriptValues()
-                explorerUIState.value.explorationParameterValuesByParameter.forEach {
-                    scriptValues.updateParamValue(it.key, it.value)
-                }
-                scriptValues.updateParamValue(
-                    ExploreAreaScriptBuilder.subAreasParameter,
-                    subAreas.joinToString(MultipleParameterValuesSeparator) { it.label }
-                )
-                ScriptRunner.runScript(character, ExploreAreaScriptBuilder, scriptValues)
+    fun startExploration(subAreas: List<DofusSubArea>, characterName: String) =
+        CharacterManager.getCharacter(characterName)?.let { character ->
+            val scriptValues = ScriptValues()
+            explorerUIState.value.explorationParameterValuesByParameter.forEach {
+                scriptValues.updateParamValue(it.key, it.value)
             }
+            scriptValues.updateParamValue(
+                ExploreAreaScriptBuilder.subAreasParameter,
+                subAreas.joinToString(MultipleParameterValuesSeparator) { it.label }
+            )
+            ScriptRunner.runScript(character, ExploreAreaScriptBuilder, scriptValues)
         }
 
     fun onAreaExplorationStart(character: DofusCharacter, subArea: DofusSubArea) = lock.executeSyncOperation {

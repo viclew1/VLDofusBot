@@ -11,7 +11,9 @@ import java.awt.Graphics
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.ItemEvent
+import javax.swing.JCheckBox
 import javax.swing.JComboBox
+import javax.swing.JLabel
 import javax.swing.JPanel
 
 object UIOverlay : AbstractOverlay() {
@@ -36,20 +38,29 @@ object UIOverlay : AbstractOverlay() {
     private class UIOverlayPanel(overlay: AbstractOverlay) : AbstractOverlayPanel(overlay) {
 
         private val toDrawRectangles = ArrayList<Pair<Container, Rectangle>>()
+        private val fightContextCheckbox = JCheckBox()
         private val uiElementComboBox = JComboBox(DofusUIElement.values())
         private var hoveredContainer: Container? = null
 
         init {
             uiElementComboBox.addItemListener {
-                if (it.stateChange == ItemEvent.SELECTED) {
+                if (it.stateChange == ItemEvent.SELECTED || it.stateChange == ItemEvent.DESELECTED) {
+                    updateContainer()
+                }
+            }
+            fightContextCheckbox.addItemListener {
+                if (it.stateChange == ItemEvent.SELECTED || it.stateChange == ItemEvent.DESELECTED) {
                     updateContainer()
                 }
             }
             add(uiElementComboBox)
+            add(JLabel("Fight context : "))
+            add(fightContextCheckbox)
         }
 
         fun updateContainer() {
-            val container = (uiElementComboBox.selectedItem as DofusUIElement).getContainer()
+            val fightContext = fightContextCheckbox.isSelected
+            val container = (uiElementComboBox.selectedItem as DofusUIElement).getContainer(fightContext)
             toDrawRectangles.clear()
             addRectangles(container)
         }

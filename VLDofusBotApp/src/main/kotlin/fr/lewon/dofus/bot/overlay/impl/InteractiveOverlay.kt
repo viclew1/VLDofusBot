@@ -65,6 +65,7 @@ object InteractiveOverlay : AbstractOverlay() {
                 g.color = Color.LIGHT_GRAY
                 g.fillRect(rect.x, rect.y, rect.width, rect.height)
                 g.color = Color.BLACK
+                g.drawString(interactive.interactiveElement.elementId.toString(), rect.x, rect.y)
                 g.drawRect(rect.x, rect.y, rect.width, rect.height)
                 interactive.clickLocations.forEach { point ->
                     g.drawLine(point.x - 5, point.y, point.x + 5, point.y)

@@ -22,13 +22,15 @@ class ExploreSubAreasTask(
             LastExplorationUiUtil.onExplorationStart(gameInfo.character, subAreas)
             for (subArea in subAreas) {
                 when (exploreSubArea(logItem, gameInfo, subArea)) {
-                    ExplorationStatus.FoundSomething -> return true
-                    ExplorationStatus.NoMapExplored -> return false
-                    else -> {}
+                    ExplorationStatus.FoundSomething ->
+                        return true
+                    ExplorationStatus.NotFinished ->
+                        return false
+                    ExplorationStatus.Finished ->
+                        LastExplorationUiUtil.updateExplorationProgress(gameInfo.character, subArea, 1, 1)
                 }
             }
         } while (runForever)
-        LastExplorationUiUtil.finishExploration(gameInfo.character)
         return true
     }
 

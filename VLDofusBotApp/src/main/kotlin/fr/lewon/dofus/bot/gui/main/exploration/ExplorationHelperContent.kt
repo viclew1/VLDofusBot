@@ -25,7 +25,6 @@ fun ExplorationHelperContent() {
         Box(Modifier.fillMaxSize()) {
             ExplorationMapContent()
             Row(Modifier.align(Alignment.TopEnd)) {
-                ConnectedCharactersContent()
                 SelectedSubAreasContent()
             }
             Column(Modifier.padding(5.dp)) {

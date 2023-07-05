@@ -13,7 +13,7 @@ data class DevToolsUiState(
 )
 
 data class ModuleItem(
-    val id: Int?,
+    val id: Long?,
     val name: String?,
     val description: String?,
     val content: String

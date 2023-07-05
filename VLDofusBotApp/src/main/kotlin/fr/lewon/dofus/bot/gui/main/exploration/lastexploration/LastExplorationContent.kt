@@ -3,20 +3,19 @@ package fr.lewon.dofus.bot.gui.main.exploration.lastexploration
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Start
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -27,12 +26,17 @@ import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
+import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
+import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
+import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.scripts.impl.ReachMapScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
 fun LastExplorationsContent() {
@@ -53,7 +57,7 @@ fun LastExplorationsContent() {
                 for (character in connectedCharactersUIStates) {
                     val lastExploration = uiState.lastExplorationByCharacter[character.name]
                     Column(Modifier.padding(bottom = 20.dp)) {
-                        LastExplorationHeaderContent(character.name, lastExploration)
+                        LastExplorationHeaderContent(connectedCharactersUIStates, character.name, lastExploration)
                         Spacer(Modifier.height(3.dp))
                         if (lastExploration == null) {
                             CommonText(
@@ -62,20 +66,13 @@ fun LastExplorationsContent() {
                                 fontWeight = FontWeight.Bold
                             )
                         } else {
-                            val currentSubAreaIndex = lastExploration.subAreasToExplore.indexOfFirst {
-                                it.id == lastExploration.currentSubAreaId
-                            }
-                            for ((index, subArea) in lastExploration.subAreasToExplore.withIndex()) {
-                                Row(Modifier.height(20.dp)) {
+                            for ((subArea, explorationProgress) in lastExploration.progressBySubArea) {
+                                Row(Modifier.height(20.dp).padding(start = 6.dp)) {
                                     Row(
                                         Modifier.width(20.dp).height(15.dp).padding(end = 5.dp)
                                             .align(Alignment.CenterVertically)
                                     ) {
-                                        if (lastExploration.explorationFinished
-                                            || currentSubAreaIndex > index
-                                            || currentSubAreaIndex == index
-                                            && lastExploration.currentAreaProgress == lastExploration.currentAreaTotalCount
-                                        ) {
+                                        if (explorationProgress.started && explorationProgress.current >= explorationProgress.total) {
                                             Image(
                                                 painter = UiResource.CHECK.imagePainter,
                                                 "",
@@ -83,15 +80,7 @@ fun LastExplorationsContent() {
                                                 modifier = Modifier.height(15.dp).align(Alignment.CenterVertically)
                                                     .padding(start = 2.dp)
                                             )
-                                        } else if (currentSubAreaIndex == index) {
-                                            CircularProgressIndicator(
-                                                color = if (lastExploration.explorationStopped) AppColors.ORANGE else AppColors.GREEN,
-                                                progress = if (lastExploration.currentAreaTotalCount <= 0) 0f else {
-                                                    lastExploration.currentAreaProgress.toFloat() / lastExploration.currentAreaTotalCount.toFloat()
-                                                },
-                                                backgroundColor = AppColors.VERY_DARK_BG_COLOR,
-                                            )
-                                        } else if (lastExploration.explorationStopped) {
+                                        } else if (lastExploration.explorationStopped && explorationProgress.current == 0) {
                                             Image(
                                                 imageVector = Icons.Default.Close,
                                                 "",
@@ -99,11 +88,19 @@ fun LastExplorationsContent() {
                                                 modifier = Modifier.height(15.dp).align(Alignment.CenterVertically)
                                                     .padding(start = 2.dp)
                                             )
+                                        } else if (explorationProgress.started) {
+                                            CircularProgressIndicator(
+                                                color = if (lastExploration.explorationStopped) AppColors.ORANGE else AppColors.GREEN,
+                                                progress = if (explorationProgress.total > 0) {
+                                                    explorationProgress.current.toFloat() / explorationProgress.total.toFloat()
+                                                } else 0f,
+                                                backgroundColor = AppColors.VERY_DARK_BG_COLOR,
+                                            )
                                         }
                                     }
                                     CommonText(
                                         subArea.name,
-                                        modifier = Modifier.align(Alignment.CenterVertically).padding(start = 10.dp),
+                                        modifier = Modifier.align(Alignment.CenterVertically).padding(start = 5.dp),
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 1
                                     )
@@ -122,21 +119,26 @@ fun LastExplorationsContent() {
 }
 
 @Composable
-private fun LastExplorationHeaderContent(characterName: String, lastExploration: LastExploration?) {
+private fun LastExplorationHeaderContent(
+    connectedCharacterUIStates: List<CharacterUIState>,
+    characterName: String,
+    lastExploration: LastExploration?
+) {
     val characterUIState = CharactersUIUtil.getCharacterUIState(characterName).value
     val character = CharacterManager.getCharacter(characterName)
         ?: error("Character not found : $characterName")
     val breedAssets = BreedAssetManager.getAssets(characterUIState.dofusClassId)
     Row(Modifier.fillMaxWidth()) {
-        Divider(
-            Modifier.align(Alignment.CenterVertically).width(30.dp).padding(start = 8.dp, end = 5.dp).height(1.dp)
-        )
-        Image(
-            painter = breedAssets.simpleIconPainter,
-            "",
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier.height(25.dp)
-        )
+        TooltipTarget(
+            characterUIState.activityState.labelBuilder(character),
+            modifier = Modifier.align(Alignment.CenterVertically).padding(end = 5.dp, start = 6.dp)
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = characterUIState.activityState.color,
+                modifier = Modifier.size(15.dp)
+            ) {}
+        }
         Spacer(Modifier.width(5.dp))
         CommonText(
             characterName,
@@ -145,47 +147,95 @@ private fun LastExplorationHeaderContent(characterName: String, lastExploration:
             modifier = Modifier.align(Alignment.CenterVertically)
         )
         Spacer(Modifier.width(5.dp))
-        TooltipTarget(
-            characterUIState.activityState.labelBuilder(character),
-            modifier = Modifier.align(Alignment.CenterVertically)
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = characterUIState.activityState.color,
-                modifier = Modifier.size(15.dp)
-            ) {}
-        }
+        Image(
+            painter = breedAssets.simpleIconPainter,
+            "",
+            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.height(25.dp)
+        )
         Divider(
-            Modifier.align(Alignment.CenterVertically).fillMaxWidth().padding(start = 5.dp, end = 8.dp).height(1.dp)
+            Modifier.align(Alignment.CenterVertically).fillMaxWidth().padding(start = 5.dp, end = 5.dp).height(1.dp)
                 .weight(1f)
         )
-        if (false && lastExploration != null) { //TODO impl buttons
-            Row(Modifier.size(20.dp)) {
-                val isRestartHovered = mutableStateOf(false)
-                ButtonWithTooltip(
-                    onClick = {},
-                    title = "Restart",
-                    imageVector = Icons.Default.RestartAlt,
-                    shape = RectangleShape,
-                    hoverBackgroundColor = AppColors.primaryLightColor,
-                    iconColor = if (isRestartHovered.value) Color.Black else Color.White,
-                    isHovered = isRestartHovered,
-                    delayMillis = 0
-                )
-            }
-            if (lastExploration.explorationStopped) {
-                Spacer(Modifier.width(5.dp))
-                Row(Modifier.size(20.dp)) {
-                    val isResumeHovered = mutableStateOf(false)
+        val buttonSize = 25.dp
+        if (lastExploration != null) {
+            val toExploreAgain = lastExploration.progressBySubArea.filter {
+                it.value.total == 0 || it.value.current < it.value.total
+            }.keys.toList()
+            if (characterUIState.activityState != CharacterActivityState.BUSY && toExploreAgain.isNotEmpty()) {
+                Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
                     ButtonWithTooltip(
-                        onClick = {},
+                        onClick = { ExplorationUIUtil.startExploration(toExploreAgain, characterName) },
                         title = "Resume",
                         imageVector = Icons.Default.Start,
-                        shape = RectangleShape,
-                        hoverBackgroundColor = AppColors.primaryLightColor,
-                        iconColor = if (isResumeHovered.value) Color.Black else Color.White,
-                        isHovered = isResumeHovered,
-                        delayMillis = 0
+                        shape = RoundedCornerShape(15),
+                        hoverBackgroundColor = Color.Gray,
+                        defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                        hoverAnimation = false,
+                        delayMillis = 0,
+                        width = buttonSize
+                    )
+                }
+            }
+        }
+        if (characterUIState.activityState != CharacterActivityState.BUSY && characterUIState.currentMap != null) {
+            val toGatherCharacters = connectedCharacterUIStates.filter { it.name != characterUIState.name }
+            val gatherButtonEnabled = toGatherCharacters.isNotEmpty()
+            Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
+                ButtonWithTooltip(
+                    onClick = {
+                        toGatherCharacters.forEach {
+                            val toGatherCharacter = CharacterManager.getCharacter(it.name)
+                            if (toGatherCharacter != null && !ScriptRunner.isScriptRunning(toGatherCharacter)) {
+                                ScriptRunner.runScript(
+                                    toGatherCharacter,
+                                    ReachMapScriptBuilder,
+                                    ScriptValues().also { scriptValues ->
+                                        scriptValues.updateParamValue(
+                                            ReachMapScriptBuilder.reachMapTypeParameter,
+                                            ReachMapScriptBuilder.ReachMapType.BY_MAP_ID.label
+                                        )
+                                        scriptValues.updateParamValue(
+                                            ReachMapScriptBuilder.mapIdParameter,
+                                            characterUIState.currentMap.id.toString()
+                                        )
+                                    })
+                            }
+                        }
+                    },
+                    title = "Gather available characters",
+                    shape = RoundedCornerShape(15),
+                    hoverBackgroundColor = Color.Gray,
+                    defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                    enabled = gatherButtonEnabled,
+                    delayMillis = 0,
+                    width = buttonSize
+                ) {
+                    Image(
+                        UiResource.GATHER.imagePainter,
+                        "",
+                        modifier = Modifier.fillMaxSize(),
+                        colorFilter = ColorFilter.tint(if (gatherButtonEnabled) AppColors.primaryColor else Color.Gray)
+                    )
+                }
+            }
+        }
+        if (characterUIState.activityState == CharacterActivityState.BUSY) {
+            Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
+                ButtonWithTooltip(
+                    onClick = { ScriptRunner.stopScript(characterUIState.name) },
+                    title = "Stop running script",
+                    shape = RoundedCornerShape(15),
+                    hoverBackgroundColor = Color.Gray,
+                    defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                    delayMillis = 0,
+                    width = buttonSize
+                ) {
+                    Image(
+                        Icons.Default.Stop,
+                        "",
+                        modifier = Modifier.fillMaxSize(),
+                        colorFilter = ColorFilter.tint(AppColors.RED)
                     )
                 }
             }

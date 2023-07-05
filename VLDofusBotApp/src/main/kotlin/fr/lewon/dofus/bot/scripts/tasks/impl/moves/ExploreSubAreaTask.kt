@@ -10,9 +10,11 @@ import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUi
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
 import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
+import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 class ExploreSubAreaTask(
@@ -36,6 +38,7 @@ class ExploreSubAreaTask(
     override fun execute(logItem: LogItem, gameInfo: GameInfo): ExplorationStatus {
         val toExploreMaps = MapManager.getDofusMaps(subArea)
             .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
+            .filter { it.canSpawnMonsters }
             .toMutableList()
         if (toExploreMaps.isEmpty()) {
             error("Nothing to explore in this area")
@@ -43,25 +46,31 @@ class ExploreSubAreaTask(
         val alreadyExploredMaps = toExploreMaps.filter {
             getMinutesSinceLastExploration(it.id) < explorationThresholdMinutes
         }
-        var exploredCount = alreadyExploredMaps.size
         ExplorationUIUtil.onAreaExplorationStart(gameInfo.character, subArea)
+        var exploredCount = alreadyExploredMaps.size
+        val toExploreTotal = toExploreMaps.size
         LastExplorationUiUtil.updateExplorationProgress(
             character = gameInfo.character,
-            currentSubArea = subArea,
-            toExploreCount = toExploreMaps.size,
-            progress = exploredCount
+            subArea = subArea,
+            current = exploredCount,
+            total = toExploreTotal
         )
         toExploreMaps.removeAll(alreadyExploredMaps)
         if (toExploreMaps.isEmpty()) {
             return ExplorationStatus.Finished
         }
+        LeaveHavenBagTask().run(logItem, gameInfo)
+        TravelUtil.getPath(gameInfo, toExploreMaps, gameInfo.buildCharacterBasicInfo())
+            ?: return ExplorationStatus.Finished
         if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
-            return ExplorationStatus.NoMapExplored
+            return ExplorationStatus.NotFinished
         }
         if (toExploreMaps.remove(gameInfo.currentMap)) {
             LastExplorationUiUtil.updateExplorationProgress(
                 character = gameInfo.character,
-                progress = ++exploredCount
+                subArea = subArea,
+                current = ++exploredCount,
+                total = toExploreTotal
             )
         }
         while (toExploreMaps.isNotEmpty()) {
@@ -74,13 +83,17 @@ class ExploreSubAreaTask(
             if (!HarvestAllResourcesTask(itemIdsToHarvest).run(logItem, gameInfo)) {
                 error("Failed to harvest")
             }
+            TravelUtil.getPath(gameInfo, toExploreMaps, gameInfo.buildCharacterBasicInfo())
+                ?: return ExplorationStatus.Finished
             if (!ReachMapTask(toExploreMaps, emptyList()).run(logItem, gameInfo)) {
-                return if (exploredCount == 0) ExplorationStatus.NoMapExplored else ExplorationStatus.PartiallyComplete
+                return ExplorationStatus.NotFinished
             }
             toExploreMaps.remove(gameInfo.currentMap)
             LastExplorationUiUtil.updateExplorationProgress(
                 character = gameInfo.character,
-                progress = ++exploredCount
+                subArea = subArea,
+                current = ++exploredCount,
+                total = toExploreTotal
             )
         }
         return ExplorationStatus.Finished
@@ -133,6 +146,8 @@ class ExploreSubAreaTask(
             }
         }
     }
+
+    override fun shouldClearSubLogItems(result: ExplorationStatus): Boolean = false
 
     override fun onStarted(): String {
         return "Exploring sub area [${subArea.label}]"
