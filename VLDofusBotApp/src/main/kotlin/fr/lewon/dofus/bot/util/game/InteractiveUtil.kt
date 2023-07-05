@@ -165,7 +165,9 @@ object InteractiveUtil {
                 val x = it.xPoint.getPoint(size.x) + boundsCropDelta.leftDelta
                 val y = it.yPoint.getPoint(size.y) + boundsCropDelta.topDelta
                 val realX = if (horizontalSymmetry) gfx.data.width - x else x
-                gfx.getRGB(realX.toInt(), y.toInt()) != 0
+                if (realX.toInt() <= gfx.width && y.toInt() <= gfx.height) {
+                    gfx.getRGB(realX.toInt(), y.toInt()) != 0
+                } else false
             }.takeIf { it.isNotEmpty() }
         } ?: listOf(GfxPointToCheck.TopCenter)
         return clickDeltaLocations.map {
@@ -180,6 +182,7 @@ object InteractiveUtil {
         485282 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))// -1 ; -42
         523968 -> listOf(bounds.getCenter())// -24 ; 39
         523592 -> listOf(bounds.getCenter())// -23 ; 39
+        515577 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, -bounds.height / 3))) // 5 ; -17
         else -> null
     }
 

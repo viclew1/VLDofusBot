@@ -38,7 +38,6 @@ class ExploreSubAreaTask(
     override fun execute(logItem: LogItem, gameInfo: GameInfo): ExplorationStatus {
         val toExploreMaps = MapManager.getDofusMaps(subArea)
             .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
-            .filter { it.canSpawnMonsters }
             .toMutableList()
         if (toExploreMaps.isEmpty()) {
             error("Nothing to explore in this area")
