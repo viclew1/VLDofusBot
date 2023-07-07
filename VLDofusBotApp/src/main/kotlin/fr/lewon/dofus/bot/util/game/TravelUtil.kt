@@ -38,17 +38,10 @@ object TravelUtil {
     fun getPath(
         gameInfo: GameInfo, destMaps: List<DofusMap>,
         characterInfo: DofusCharacterBasicInfo
-    ): List<Transition>? {
-        val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("Couldn't find player cell id (player ID : ${gameInfo.playerId})")
-        val cellData = gameInfo.mapData.completeCellDataByCellId[playerCellId]?.cellData
-            ?: error("Couldn't find cell data (cell ID : $playerCellId)")
-        return WorldGraphUtil.getPath(
-            gameInfo.currentMap.id,
-            cellData.getLinkedZoneRP(),
-            destMaps.map { it.id },
-            characterInfo
-        )
-    }
+    ): List<Transition>? = WorldGraphUtil.getPath(
+        listOf(getCurrentVertex(gameInfo)),
+        destMaps.map { it.id },
+        characterInfo
+    )
 
 }

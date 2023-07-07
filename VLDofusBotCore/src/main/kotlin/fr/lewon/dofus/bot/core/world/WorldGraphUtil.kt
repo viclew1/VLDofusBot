@@ -101,7 +101,7 @@ object WorldGraphUtil {
                     return node.getTransitions()
                 }
                 val newNodes = getOutgoingEdges(node.vertex)
-                    .filter { !invalidMapIds.contains(it.to.mapId) && !explored.contains(it.to) }
+                    .filter { !explored.contains(it.to) }
                     .flatMap { buildNodes(node, it, characterInfo) }
                     .onEach { explored.add(it.vertex) }
                 newFrontier.addAll(newNodes)
@@ -111,12 +111,15 @@ object WorldGraphUtil {
         return null
     }
 
-    private fun buildNodes(parentNode: Node, edge: Edge, characterInfo: DofusCharacterBasicInfo): List<Node> {
-        return edge.transitions
-            .filter { isTransitionValid(it, characterInfo) }
-            .sortedBy { it.type.typeInt }
-            .map { Node(parentNode, edge.to, it) }
-    }
+    private fun buildNodes(parentNode: Node, edge: Edge, characterInfo: DofusCharacterBasicInfo): List<Node> =
+        getFilteredTransitions(edge, characterInfo).map { Node(parentNode, edge.to, it) }
+
+    fun getFilteredTransitions(edge: Edge, characterInfo: DofusCharacterBasicInfo) =
+        getSortedTransitions(edge.transitions.filter { isTransitionValid(it, characterInfo) })
+
+    fun getSortedTransitions(transitions: List<Transition>) = transitions.sortedWith(
+        compareBy({ it.type }, { it.direction })
+    )
 
     fun isTransitionValid(transition: Transition, characterInfo: DofusCharacterBasicInfo): Boolean {
         if (invalidInteractiveIds.contains(transition.id)) {
@@ -144,7 +147,9 @@ object WorldGraphUtil {
     fun getVertices(mapId: Double) = vertices[mapId]?.values?.toList()
         ?: emptyList()
 
-    fun getOutgoingEdges(vertex: Vertex) = outgoingEdges[vertex.uid] ?: emptyList()
+    fun getOutgoingEdges(vertex: Vertex) = outgoingEdges[vertex.uid]?.filter {
+        !invalidMapIds.contains(it.to.mapId)
+    } ?: emptyList()
 
     private class Node(private val parent: Node?, val vertex: Vertex, val transition: Transition?) {
         fun getTransitions(): List<Transition> {

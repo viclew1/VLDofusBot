@@ -7,7 +7,6 @@ import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
-import fr.lewon.dofus.bot.core.world.Edge
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
@@ -115,17 +114,19 @@ class ExploreSubAreaTask(
         characterInfo: DofusCharacterBasicInfo
     ): Vertex? {
         val toExploreMapIds = toExploreMaps.map { it.id }
-        val explored = mutableListOf(gameInfo.currentMap.id)
-        var frontier = listOf(TravelUtil.getCurrentVertex(gameInfo))
+        val initialVertex = TravelUtil.getCurrentVertex(gameInfo)
+        val explored = mutableListOf(initialVertex)
+        var frontier = listOf(initialVertex)
         while (frontier.isNotEmpty()) {
             val newFrontier = ArrayList<Vertex>()
             for (vertex in frontier) {
-                val newNodes = WorldGraphUtil.getOutgoingEdges(vertex)
-                    .filter { !explored.contains(it.to.mapId) }
-                    .flatMap { edge -> getTransitions(edge, characterInfo) }
-                    .sortedBy { it.direction }.map { it.edge.to }
-                    .onEach { explored.add(it.mapId) }
-                newFrontier.addAll(newNodes)
+                val newVertices = WorldGraphUtil.getOutgoingEdges(vertex)
+                    .filter { edge -> !explored.contains(edge.to) }
+                    .flatMap { edge -> WorldGraphUtil.getFilteredTransitions(edge, characterInfo) }
+                    .let(WorldGraphUtil::getSortedTransitions)
+                    .map { transition -> transition.edge.to }
+                    .onEach { destVertex -> explored.add(destVertex) }
+                newFrontier.addAll(newVertices)
             }
             val validVertices = newFrontier.filter { it.mapId in toExploreMapIds }
             selectBestVertex(validVertices, toExploreMapIds, characterInfo)?.let {
@@ -148,13 +149,10 @@ class ExploreSubAreaTask(
     }
 
     private fun getSubVertices(vertex: Vertex, characterInfo: DofusCharacterBasicInfo) =
-        WorldGraphUtil.getOutgoingEdges(vertex).flatMap { getTransitions(it, characterInfo) }
-            .sortedBy { it.direction }.map { it.edge.to }
+        WorldGraphUtil.getOutgoingEdges(vertex)
+            .flatMap { WorldGraphUtil.getFilteredTransitions(it, characterInfo) }
+            .map { it.edge.to }
 
-
-    private fun getTransitions(edge: Edge, characterInfo: DofusCharacterBasicInfo) = edge.transitions.filter {
-        WorldGraphUtil.isTransitionValid(it, characterInfo)
-    }
 
     private fun getMinutesSinceLastExploration(mapId: Double): Long {
         val lastExplorationTime = ExplorationRecordManager.getLastExplorationTime(mapId) ?: 0L
