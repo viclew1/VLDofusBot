@@ -48,15 +48,7 @@ object MoveUtil {
 
     fun buildDirectionalPath(
         gameInfo: GameInfo, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int
-    ): List<Transition>? {
-        val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
-            ?: error("Can't find player cell id")
-        val cellData = gameInfo.mapData.completeCellDataByCellId[playerCellId]?.cellData
-            ?: error("Can't find player cell data")
-        val startVertex = WorldGraphUtil.getVertex(gameInfo.currentMap.id, cellData.getLinkedZoneRP())
-            ?: error("No vertex found")
-        return buildDirectionalPath(startVertex, direction, stopFunc, limit)
-    }
+    ): List<Transition>? = buildDirectionalPath(TravelUtil.getCurrentVertex(gameInfo), direction, stopFunc, limit)
 
     fun buildDirectionalPath(
         startVertex: Vertex, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int

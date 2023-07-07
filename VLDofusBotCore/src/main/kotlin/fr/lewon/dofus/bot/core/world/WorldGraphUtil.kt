@@ -3,7 +3,6 @@ package fr.lewon.dofus.bot.core.world
 import fr.lewon.dofus.bot.core.criterion.DofusCriterionParser
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
-import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import java.util.*
 
 object WorldGraphUtil {
@@ -63,24 +62,33 @@ object WorldGraphUtil {
     }
 
     fun getPath(
-        fromMap: DofusMap,
+        fromMapId: Double,
         fromZone: Int,
-        toMaps: List<DofusMap>,
-        characterInfo: DofusCharacterBasicInfo
+        toMapIds: List<Double>,
+        characterInfo: DofusCharacterBasicInfo,
     ): List<Transition>? {
-        val fromVertex = vertices[fromMap.id]?.get(fromZone) ?: return null
-        return getPath(listOf(fromVertex), toMaps, characterInfo)
+        val fromVertex = vertices[fromMapId]?.get(fromZone) ?: return null
+        return getPath(listOf(fromVertex), toMapIds, characterInfo)
     }
 
     fun getPath(
         fromVertices: List<Vertex>,
-        toMaps: List<DofusMap>,
-        characterInfo: DofusCharacterBasicInfo
+        toMapIds: List<Double>,
+        characterInfo: DofusCharacterBasicInfo,
     ): List<Transition>? {
-        var destVertices = toMaps.flatMap { getVertices(it.id) }.takeIf { it.isNotEmpty() }
+        var destVertices = toMapIds.flatMap { getVertices(it) }.takeIf { it.isNotEmpty() }
             ?: return null
         destVertices = destVertices.filter { it.zoneId == 1 }.takeIf { it.isNotEmpty() }
             ?: destVertices
+        return getPath(fromVertices, destVertices, characterInfo)
+    }
+
+    @JvmName("getPath2")
+    fun getPath(
+        fromVertices: List<Vertex>,
+        destVertices: List<Vertex>,
+        characterInfo: DofusCharacterBasicInfo,
+    ): List<Transition>? {
         val explored = ArrayList<Vertex>()
         var frontier = ArrayList<Node>()
         val initialNodes = fromVertices.map { Node(null, it, null) }
@@ -110,7 +118,7 @@ object WorldGraphUtil {
             .map { Node(parentNode, edge.to, it) }
     }
 
-    private fun isTransitionValid(transition: Transition, characterInfo: DofusCharacterBasicInfo): Boolean {
+    fun isTransitionValid(transition: Transition, characterInfo: DofusCharacterBasicInfo): Boolean {
         if (invalidInteractiveIds.contains(transition.id)) {
             return false
         }
@@ -138,14 +146,13 @@ object WorldGraphUtil {
 
     fun getOutgoingEdges(vertex: Vertex) = outgoingEdges[vertex.uid] ?: emptyList()
 
-    private class Node(val parent: Node?, val vertex: Vertex, val transition: Transition?) {
+    private class Node(private val parent: Node?, val vertex: Vertex, val transition: Transition?) {
         fun getTransitions(): List<Transition> {
             val transitions = LinkedList<Transition>()
-            transitions.addFirst(transition)
-            var parentNode = parent
-            while (parentNode?.transition != null) {
-                transitions.addFirst(parentNode.transition)
-                parentNode = parentNode.parent
+            var currentNode: Node? = this
+            while (currentNode?.transition != null) {
+                transitions.addFirst(currentNode.transition)
+                currentNode = currentNode.parent
             }
             return transitions
         }

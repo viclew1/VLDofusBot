@@ -3,8 +3,13 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
+import fr.lewon.dofus.bot.core.world.Edge
+import fr.lewon.dofus.bot.core.world.Vertex
+import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUiUtil
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
@@ -58,7 +63,9 @@ class ExploreSubAreaTask(
         if (toExploreMaps.isEmpty()) {
             return ExplorationStatus.Finished
         }
-        LeaveHavenBagTask().run(logItem, gameInfo)
+        if (!LeaveHavenBagTask().run(logItem, gameInfo)) {
+            return ExplorationStatus.NotFinished
+        }
         TravelUtil.getPath(gameInfo, toExploreMaps, gameInfo.buildCharacterBasicInfo())
             ?: return ExplorationStatus.Finished
         if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
@@ -82,9 +89,13 @@ class ExploreSubAreaTask(
             if (!HarvestAllResourcesTask(itemIdsToHarvest).run(logItem, gameInfo)) {
                 error("Failed to harvest")
             }
-            TravelUtil.getPath(gameInfo, toExploreMaps, gameInfo.buildCharacterBasicInfo())
+            val characterInfo = gameInfo.buildCharacterBasicInfo(TravelUtil.getAllZaapMaps().map { it.id })
+            val nextVertex = getNextVertexToExplore(gameInfo, toExploreMaps, characterInfo)
                 ?: return ExplorationStatus.Finished
-            if (!ReachMapTask(toExploreMaps, emptyList()).run(logItem, gameInfo)) {
+            val nextMapToExplore = MapManager.getDofusMap(nextVertex.mapId)
+            TravelUtil.getPath(gameInfo, nextMapToExplore, characterInfo)
+                ?: return ExplorationStatus.Finished
+            if (!ReachMapTask(listOf(nextMapToExplore), emptyList()).run(logItem, gameInfo)) {
                 return ExplorationStatus.NotFinished
             }
             toExploreMaps.remove(gameInfo.currentMap)
@@ -98,29 +109,72 @@ class ExploreSubAreaTask(
         return ExplorationStatus.Finished
     }
 
+    private fun getNextVertexToExplore(
+        gameInfo: GameInfo,
+        toExploreMaps: List<DofusMap>,
+        characterInfo: DofusCharacterBasicInfo
+    ): Vertex? {
+        val toExploreMapIds = toExploreMaps.map { it.id }
+        val explored = mutableListOf(gameInfo.currentMap.id)
+        var frontier = listOf(TravelUtil.getCurrentVertex(gameInfo))
+        while (frontier.isNotEmpty()) {
+            val newFrontier = ArrayList<Vertex>()
+            for (vertex in frontier) {
+                val newNodes = WorldGraphUtil.getOutgoingEdges(vertex)
+                    .filter { !explored.contains(it.to.mapId) }
+                    .flatMap { edge -> getTransitions(edge, characterInfo) }
+                    .sortedBy { it.direction }.map { it.edge.to }
+                    .onEach { explored.add(it.mapId) }
+                newFrontier.addAll(newNodes)
+            }
+            val validVertices = newFrontier.filter { it.mapId in toExploreMapIds }
+            selectBestVertex(validVertices, toExploreMapIds, characterInfo)?.let {
+                return it
+            }
+            frontier = newFrontier
+        }
+        return null
+    }
+
+    private fun selectBestVertex(
+        validVertices: List<Vertex>,
+        toExploreMapIds: List<Double>,
+        characterInfo: DofusCharacterBasicInfo,
+    ): Vertex? {
+        return validVertices.minByOrNull { vertex ->
+            val newToExploreMapIds = toExploreMapIds.minus(vertex.mapId)
+            getSubVertices(vertex, characterInfo).filter { it.mapId in newToExploreMapIds }.size
+        }
+    }
+
+    private fun getSubVertices(vertex: Vertex, characterInfo: DofusCharacterBasicInfo) =
+        WorldGraphUtil.getOutgoingEdges(vertex).flatMap { getTransitions(it, characterInfo) }
+            .sortedBy { it.direction }.map { it.edge.to }
+
+
+    private fun getTransitions(edge: Edge, characterInfo: DofusCharacterBasicInfo) = edge.transitions.filter {
+        WorldGraphUtil.isTransitionValid(it, characterInfo)
+    }
+
     private fun getMinutesSinceLastExploration(mapId: Double): Long {
         val lastExplorationTime = ExplorationRecordManager.getLastExplorationTime(mapId) ?: 0L
         val millisSinceLastExploration = System.currentTimeMillis() - lastExplorationTime
         return millisSinceLastExploration / (60_000)
     }
 
-    private fun foundSearchedMonster(gameInfo: GameInfo): Boolean {
-        return searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }
+    private fun foundSearchedMonster(gameInfo: GameInfo): Boolean =
+        searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }
                 || stopWhenArchMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isArchMonster(it) }
                 || stopWhenWantedMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isWantedMonster(it) }
-    }
 
-    private fun isWantedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean {
-        return isAnyMonsterMatchingPredicate(monsterInfo) { it.isQuestMonster }
-    }
+    private fun isWantedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
+        isAnyMonsterMatchingPredicate(monsterInfo) { it.isQuestMonster }
 
-    private fun isSearchedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean {
-        return isAnyMonsterMatchingPredicate(monsterInfo) { it.name.lowercase() == searchedMonsterName.lowercase() }
-    }
+    private fun isSearchedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
+        isAnyMonsterMatchingPredicate(monsterInfo) { it.name.lowercase() == searchedMonsterName.lowercase() }
 
-    private fun isArchMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean {
-        return isAnyMonsterMatchingPredicate(monsterInfo) { it.isMiniBoss }
-    }
+    private fun isArchMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
+        isAnyMonsterMatchingPredicate(monsterInfo) { it.isMiniBoss }
 
     private fun isAnyMonsterMatchingPredicate(
         monsterInfo: GameRolePlayGroupMonsterInformations,

@@ -44,9 +44,7 @@ class ExploreSubAreasTask(
         explorationThresholdMinutes = explorationThresholdMinutes,
     ).run(logItem, gameInfo)
 
-    override
-
-    fun onStarted(): String {
+    override fun onStarted(): String {
         return "Exploring sub areas [${subAreas.joinToString(", ") { it.label }})]"
     }
 

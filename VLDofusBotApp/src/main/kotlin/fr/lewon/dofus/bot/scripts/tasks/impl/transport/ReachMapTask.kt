@@ -27,7 +27,7 @@ open class ReachMapTask(
 
         val fromVertex = getCurrentVertex(gameInfo)
             ?: error("No vertex found")
-        val path = WorldGraphUtil.getPath(listOf(fromVertex), destMaps, characterInfo)
+        val path = WorldGraphUtil.getPath(listOf(fromVertex), destMaps.map { it.id }, characterInfo)
             ?: error("No path found to any of the destinations : ${getDestMapsStr()}")
         val destMap = path.lastOrNull()?.edge?.to?.mapId?.let { MapManager.getDofusMap(it) }
             ?: error("No transition in path")

@@ -29,20 +29,23 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
         val playerPosition = gameInfo.dofusBoard.getCell(playerCellId)
         val zaapPosition = playerPosition.getCenter().getSum(PointRelative(0f, -4.3f * DofusBoard.TILE_HEIGHT))
         gameInfo.eventStore.clear()
-        val getZaapDestMessageFun = { gameInfo.eventStore.getLastEvent(ZaapDestinationsMessage::class.java) }
         RetryUtil.tryUntilSuccess(
             { MouseUtil.leftClick(gameInfo, zaapPosition) },
-            { WaitUtil.waitUntil(8000) { getZaapDestMessageFun() != null } },
+            { WaitUtil.waitUntil(8000) { getZaapDestMessage(gameInfo) != null } },
             3
-        ) ?: error("Couldn't open zaap selection frame")
+        ) ?: error("Didn't receive ZaapDestinationsMessage")
+
+        val zaapDestMsg = getZaapDestMessage(gameInfo)
+            ?: error("ZaapDestinationsMessage not found")
         if (!waitForZaapFrameOpened(gameInfo)) {
             error("Couldn't open zaap selection frame")
         }
-        val zaapDestMsg = getZaapDestMessageFun()
-            ?: error("Zaap destinations not found")
 
         return zaapDestMsg.destinations.map { MapManager.getDofusMap(it.mapId) }
     }
+
+    private fun getZaapDestMessage(gameInfo: GameInfo) =
+        gameInfo.eventStore.getLastEvent(ZaapDestinationsMessage::class.java)
 
     private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {
         WaitUtil.waitForEvents(gameInfo, ZaapDestinationsMessage::class.java, BasicNoOperationMessage::class.java)
