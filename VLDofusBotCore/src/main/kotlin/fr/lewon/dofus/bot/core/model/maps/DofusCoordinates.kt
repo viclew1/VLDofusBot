@@ -8,4 +8,5 @@ data class DofusCoordinates(val x: Int, val y: Int) {
         return abs(x - coordinates.x) + abs(y - coordinates.y)
     }
 
+    override fun toString(): String = "($x; $y)"
 }

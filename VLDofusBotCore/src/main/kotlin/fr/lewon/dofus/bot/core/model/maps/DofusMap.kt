@@ -18,4 +18,6 @@ data class DofusMap(
     val canReachHavenBag = capabilities and 8 != 0 && capabilities and 4 != 0
     val canFightMonster = capabilities and 16384 != 0
     val canSpawnMonsters = capabilities and 8192 != 0
+
+    override fun toString(): String = "$coordinates (ID : ${id.toLong()})"
 }
