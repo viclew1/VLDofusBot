@@ -54,10 +54,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
     private fun getCustomTransitionDescription(transition: Transition): String {
         return when (transition) {
             is NpcTransition -> "NPC ${transition.npcId}"
-            is ZaapTransition -> {
-                val map = MapManager.getDofusMap(transition.edge.to.mapId)
-                "Zaap (${map.posX} ; ${map.posY})"
-            }
+            is ZaapTransition -> "Zaap ${MapManager.getDofusMap(transition.edge.to.mapId).coordinates}"
             else -> error("Transition not implemented yet : ${transition::class.java.simpleName}")
         }
     }
@@ -68,7 +65,7 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
         }
         if (gameInfo.currentMap.id != transition.edge.to.mapId) {
             val map = MapManager.getDofusMap(transition.edge.to.mapId)
-            error("Movement failed : did not reach expected map (${map.posX}, ${map.posY})")
+            error("Movement failed : did not reach expected map ${map.coordinates}")
         }
         return true
     }

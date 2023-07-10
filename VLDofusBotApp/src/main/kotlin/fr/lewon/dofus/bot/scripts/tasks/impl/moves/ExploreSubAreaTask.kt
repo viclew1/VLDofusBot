@@ -91,19 +91,22 @@ class ExploreSubAreaTask(
             val characterInfo = gameInfo.buildCharacterBasicInfo(TravelUtil.getAllZaapMaps().map { it.id })
             val nextVertex = getNextVertexToExplore(gameInfo, toExploreMaps, characterInfo)
                 ?: return ExplorationStatus.Finished
-            val nextMapToExplore = MapManager.getDofusMap(nextVertex.mapId)
-            TravelUtil.getPath(gameInfo, nextMapToExplore, characterInfo)
+            val fromVertex = TravelUtil.getCurrentVertex(gameInfo)
+            val path = WorldGraphUtil.getPath(listOf(fromVertex), listOf(nextVertex), characterInfo)
                 ?: return ExplorationStatus.Finished
-            if (!ReachMapTask(listOf(nextMapToExplore), emptyList()).run(logItem, gameInfo)) {
+            val nextTransition = path.firstOrNull()
+                ?: return ExplorationStatus.Finished
+            if (!MoveTask(listOf(nextTransition)).run(logItem, gameInfo)) {
                 return ExplorationStatus.NotFinished
             }
-            toExploreMaps.remove(gameInfo.currentMap)
-            LastExplorationUiUtil.updateExplorationProgress(
-                character = gameInfo.character,
-                subArea = subArea,
-                current = ++exploredCount,
-                total = toExploreTotal
-            )
+            if (toExploreMaps.remove(gameInfo.currentMap)) {
+                LastExplorationUiUtil.updateExplorationProgress(
+                    character = gameInfo.character,
+                    subArea = subArea,
+                    current = ++exploredCount,
+                    total = toExploreTotal
+                )
+            }
         }
         return ExplorationStatus.Finished
     }

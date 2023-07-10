@@ -178,11 +178,18 @@ object InteractiveUtil {
     }
 
     private fun getCustomClickLocations(elementId: Int, bounds: RectangleAbsolute) = when (elementId) {
-        518476 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0))) // 20 ; -36
-        485282 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))// -1 ; -42
-        523968 -> listOf(bounds.getCenter())// -24 ; 39
-        523592 -> listOf(bounds.getCenter())// -23 ; 39
-        515577 -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, -bounds.height / 3))) // 5 ; -17
+        518476, // 20 ; -36
+        -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0)))
+        485282, // -1 ; -42
+        -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))
+        523968, // -24 ; 39
+        523592, // -23 ; 39
+        -> listOf(bounds.getCenter())
+        515577, // 5 ; -17
+        483927, // 22 ; 22
+        -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, -bounds.height / 3)))
+        521652 // -36 ; -60
+        -> listOf(bounds.getCenter().getSum(PointAbsolute(-bounds.width / 3, bounds.height / 3)))
         else -> null
     }
 
@@ -303,9 +310,10 @@ object InteractiveUtil {
         CenterLeft(UIXPoint.Left, UIYPoint.Center),
         Center(UIXPoint.Center, UIYPoint.Center),
         CenterRight(UIXPoint.Right, UIYPoint.Center),
-        BottomLeft(UIXPoint.Left, UIYPoint.Bottom),
-        BottomCenter(UIXPoint.Center, UIYPoint.Bottom),
-        BottomRight(UIXPoint.Right, UIYPoint.Bottom);
+        //BottomLeft(UIXPoint.Left, UIYPoint.Bottom),
+        //BottomCenter(UIXPoint.Center, UIYPoint.Bottom),
+        //BottomRight(UIXPoint.Right, UIYPoint.Bottom)
+        ;
 
         companion object {
             fun getPoints(boundsCropDelta: UIRectangleDelta): List<GfxPointToCheck> {

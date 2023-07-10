@@ -80,8 +80,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         map: DofusMap
     ) {
         soundType.playSound()
-        val mapStr = "(${map.posX}, ${map.posY}) (ID : ${map.id.toLong()})"
-        val statusText = "$monsterLabel [${monster.name}] seen on map $mapStr"
+        val statusText = "$monsterLabel [${monster.name}] seen on map $map"
         StatusBarUIUtil.changeText(gameInfo.character, statusText)
     }
 

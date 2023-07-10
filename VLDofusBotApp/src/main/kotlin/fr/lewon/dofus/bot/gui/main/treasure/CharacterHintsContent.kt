@@ -98,7 +98,7 @@ private fun HeaderContent(uiState: TreasureHuntUiState) {
             val loadedStr = uiState.loadedMap?.let {
                 val character = uiState.loadedCharacter
                 val map = uiState.loadedMap
-                "${character?.name} - [ ${map.posX} ; ${map.posY} ] - ${map.id}"
+                "${character?.name} - ${map.coordinates} - ${map.id}"
             } ?: "/"
             CommonText(
                 "Loaded : $loadedStr",
@@ -158,7 +158,7 @@ private fun SelectedHintContent(uiState: TreasureHuntUiState) {
     val character = uiState.loadedCharacter
     val map = uiState.loadedMap
     ExpandedContent(
-        title = "Selected GFX - ${character?.name} - [ ${map?.posX} ; ${map?.posY} ]",
+        title = "Selected GFX - ${character?.name} - ${map?.coordinates}",
         onReduceButtonClick = { TreasureHuntUiUtil.setSelectedGfx(null) },
         key = selectedGfx ?: Unit,
         defaultHeight = 60.dp,
