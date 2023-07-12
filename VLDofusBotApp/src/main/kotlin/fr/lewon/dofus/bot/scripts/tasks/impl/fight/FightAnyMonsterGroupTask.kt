@@ -13,12 +13,28 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 class FightAnyMonsterGroupTask(
     private val fightArchmonsters: Boolean = false,
     private val fightQuestMonsters: Boolean = false,
-    private val stopIfNoMonsterPresent: Boolean = false
+    private val stopIfNoMonsterPresent: Boolean = false,
+    private val maxMonsterGroupLevel: Int = 0,
+    private val maxMonsterGroupSize: Int = 0
 ) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         gameInfo.eventStore.clear()
-        val couldStartFight = RetryUtil.tryUntilSuccess({ tryToStartFight(gameInfo) }, 20, {
+        val validMonsterEntityIds = gameInfo.monsterInfoByEntityId.filter { entry ->
+            val mainMonster = gameInfo.mainMonstersByGroupOnMap[entry.value]
+            val groupLevel = entry.value.staticInfos.underlings.sumOf { monster -> monster.level } +
+                    entry.value.staticInfos.mainCreatureLightInfos.level
+            val groupSize = entry.value.staticInfos.underlings.size + 1
+            mainMonster != null
+                    && (!mainMonster.isMiniBoss || fightArchmonsters)
+                    && (!mainMonster.isQuestMonster || fightQuestMonsters)
+                    && (maxMonsterGroupLevel <= 0 || groupLevel <= maxMonsterGroupLevel)
+                    && (maxMonsterGroupSize <= 0 || groupSize <= maxMonsterGroupSize)
+        }.keys.toList()
+        if (validMonsterEntityIds.isEmpty()) {
+            return false
+        }
+        val couldStartFight = RetryUtil.tryUntilSuccess({ tryToStartFight(gameInfo, validMonsterEntityIds) }, 20, {
             if (stopIfNoMonsterPresent && gameInfo.monsterInfoByEntityId.isEmpty()) {
                 error("No monster on map")
             }
@@ -30,13 +46,7 @@ class FightAnyMonsterGroupTask(
         return FightTask().run(logItem, gameInfo)
     }
 
-    private fun tryToStartFight(gameInfo: GameInfo): Boolean {
-        val monsterEntityIds = gameInfo.monsterInfoByEntityId.filter {
-            val mainMonster = gameInfo.mainMonstersByGroupOnMap[it.value]
-            mainMonster != null
-                    && (!mainMonster.isMiniBoss || fightArchmonsters)
-                    && (!mainMonster.isQuestMonster || fightQuestMonsters)
-        }.keys
+    private fun tryToStartFight(gameInfo: GameInfo, monsterEntityIds: List<Double>): Boolean {
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player")
         val distanceByEntityId = HashMap<Double, Int>()

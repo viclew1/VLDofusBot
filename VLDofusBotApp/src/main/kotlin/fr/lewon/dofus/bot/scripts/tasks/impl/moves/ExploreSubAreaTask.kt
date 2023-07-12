@@ -24,6 +24,8 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 class ExploreSubAreaTask(
     private val subArea: DofusSubArea,
     private val killEverything: Boolean,
+    private val maxMonsterGroupLevel: Int,
+    private val maxMonsterGroupSize: Int,
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
@@ -195,7 +197,12 @@ class ExploreSubAreaTask(
 
     private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
         while (gameInfo.monsterInfoByEntityId.isNotEmpty()) {
-            if (!FightAnyMonsterGroupTask(stopIfNoMonsterPresent = true).run(logItem, gameInfo)) {
+            if (!FightAnyMonsterGroupTask(
+                    stopIfNoMonsterPresent = true,
+                    maxMonsterGroupLevel = maxMonsterGroupLevel,
+                    maxMonsterGroupSize = maxMonsterGroupSize
+                ).run(logItem, gameInfo)
+            ) {
                 return
             }
         }

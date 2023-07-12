@@ -11,6 +11,8 @@ data class ExplorationExplorerUIState(
         ExploreAreaScriptBuilder.stopWhenQuestMonsterFoundParameter,
         ExploreAreaScriptBuilder.searchedMonsterParameter,
         ExploreAreaScriptBuilder.killEverythingParameter,
+        ExploreAreaScriptBuilder.maxMonsterGroupLevelParameter,
+        ExploreAreaScriptBuilder.maxMonsterGroupSizeParameter,
         ExploreAreaScriptBuilder.runForeverParameter,
         ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter
     ).associateWith { it.defaultValue }

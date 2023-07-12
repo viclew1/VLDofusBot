@@ -9,6 +9,8 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 class ExploreSubAreasTask(
     private val subAreas: List<DofusSubArea>,
     private val killEverything: Boolean,
+    private val maxMonsterGroupLevel: Int,
+    private val maxMonsterGroupSize: Int,
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
@@ -37,6 +39,8 @@ class ExploreSubAreasTask(
     private fun exploreSubArea(logItem: LogItem, gameInfo: GameInfo, subArea: DofusSubArea) = ExploreSubAreaTask(
         subArea = subArea,
         killEverything = killEverything,
+        maxMonsterGroupLevel = maxMonsterGroupLevel,
+        maxMonsterGroupSize = maxMonsterGroupSize,
         searchedMonsterName = searchedMonsterName,
         stopWhenArchMonsterFound = stopWhenArchMonsterFound,
         stopWhenWantedMonsterFound = stopWhenWantedMonsterFound,

@@ -59,6 +59,24 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         parametersGroup = 2
     )
 
+    val maxMonsterGroupLevelParameter = DofusBotParameter(
+        "Max monster group level",
+        "Avoid monster groups above this level. 0 to fight anything",
+        "0",
+        DofusBotParameterType.INTEGER,
+        parametersGroup = 2,
+        displayCondition = { it.getParamValue(killEverythingParameter) == "true" }
+    )
+
+    val maxMonsterGroupSizeParameter = DofusBotParameter(
+        "Max monster group size",
+        "Avoid monster groups bigger this size. 0 to fight anything",
+        "0",
+        DofusBotParameterType.INTEGER,
+        parametersGroup = 2,
+        displayCondition = { it.getParamValue(killEverythingParameter) == "true" }
+    )
+
     val searchedMonsterParameter = DofusBotParameter(
         "Searched monster",
         "Monster which will stop exploration when found. Leave empty if you're not seeking a monster",
@@ -152,6 +170,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         ExploreSubAreasTask(
             subAreas = subAreas,
             killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
+            maxMonsterGroupLevel = scriptValues.getParamValue(maxMonsterGroupLevelParameter).toInt(),
+            maxMonsterGroupSize = scriptValues.getParamValue(maxMonsterGroupSizeParameter).toInt(),
             searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
             stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
