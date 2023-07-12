@@ -135,6 +135,8 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         searchedMonsterParameter,
         runForeverParameter,
         killEverythingParameter,
+        maxMonsterGroupLevelParameter,
+        maxMonsterGroupSizeParameter,
         ignoreMapsExploredRecentlyParameter,
         harvestParameter,
     )
