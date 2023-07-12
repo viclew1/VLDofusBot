@@ -61,7 +61,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
 
     val maxMonsterGroupLevelParameter = DofusBotParameter(
         "Max monster group level",
-        "Avoid monster groups above this level. 0 to fight anything",
+        "Avoid monster groups above this level. 0 to ignore",
         "0",
         DofusBotParameterType.INTEGER,
         parametersGroup = 2,
@@ -70,7 +70,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
 
     val maxMonsterGroupSizeParameter = DofusBotParameter(
         "Max monster group size",
-        "Avoid monster groups bigger than this size. 0 to fight anything",
+        "Avoid monster groups bigger than this size. 0 to ignore",
         "0",
         DofusBotParameterType.INTEGER,
         parametersGroup = 2,
