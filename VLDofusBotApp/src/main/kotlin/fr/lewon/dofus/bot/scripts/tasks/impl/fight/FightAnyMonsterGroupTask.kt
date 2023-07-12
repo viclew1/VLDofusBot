@@ -10,8 +10,9 @@ import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-class FightMonsterGroupTask(
-    private val preferredEntityId: Double? = null,
+class FightAnyMonsterGroupTask(
+    private val fightArchmonsters: Boolean = false,
+    private val fightQuestMonsters: Boolean = false,
     private val stopIfNoMonsterPresent: Boolean = false
 ) : BooleanDofusBotTask() {
 
@@ -30,8 +31,12 @@ class FightMonsterGroupTask(
     }
 
     private fun tryToStartFight(gameInfo: GameInfo): Boolean {
-        val monsterEntityIds = preferredEntityId?.let { listOf(it) }
-            ?: gameInfo.monsterInfoByEntityId.keys
+        val monsterEntityIds = gameInfo.monsterInfoByEntityId.filter {
+            val mainMonster = gameInfo.mainMonstersByGroupOnMap[it.value]
+            mainMonster != null
+                    && (!mainMonster.isMiniBoss || fightArchmonsters)
+                    && (!mainMonster.isQuestMonster || fightQuestMonsters)
+        }.keys
         val playerCellId = gameInfo.entityPositionsOnMapByEntityId[gameInfo.playerId]
             ?: error("Couldn't find player")
         val distanceByEntityId = HashMap<Double, Int>()

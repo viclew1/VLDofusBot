@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.gui.main.exploration.map.subarea
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,10 +48,12 @@ private fun ResourcesListContent(title: String, monsters: List<DofusMonster>) {
     if (monsters.isNotEmpty()) {
         HorizontalSeparator(title, modifier = Modifier.padding(vertical = 10.dp))
         for (monster in monsters) {
-            Row {
-                OwnedIndicatorContent(monster)
-                Spacer(Modifier.width(5.dp))
-                CommonText(monster.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            SelectionContainer {
+                Row {
+                    OwnedIndicatorContent(monster)
+                    Spacer(Modifier.width(5.dp))
+                    CommonText(monster.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
             }
         }
     }

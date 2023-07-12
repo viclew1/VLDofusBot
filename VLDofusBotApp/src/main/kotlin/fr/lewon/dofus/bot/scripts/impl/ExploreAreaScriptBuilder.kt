@@ -51,14 +51,6 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         parametersGroup = 1
     )
 
-    val runForeverParameter = DofusBotParameter(
-        "Run forever",
-        "Explores this area until you manually stop",
-        "false",
-        DofusBotParameterType.BOOLEAN,
-        parametersGroup = 2
-    )
-
     val killEverythingParameter = DofusBotParameter(
         "Kill everything",
         "Fights every group of monsters present on the maps",
@@ -91,12 +83,21 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         parametersGroup = 3
     )
 
+    val runForeverParameter = DofusBotParameter(
+        "Run forever",
+        "Explores this area until you manually stop",
+        "false",
+        DofusBotParameterType.BOOLEAN,
+        parametersGroup = 4
+    )
+
     val ignoreMapsExploredRecentlyParameter = DofusBotParameter(
         "Ignore maps you explored in the last X min. (0 to explore all)",
         "Ignore maps any of your character explored less than the passed value (in minutes). Set to 0 or less to ignore.",
         "15",
         DofusBotParameterType.INTEGER,
-        parametersGroup = 4
+        parametersGroup = 4,
+        displayCondition = { it.getParamValue(runForeverParameter) == "false" }
     )
 
     val harvestParameter = DofusBotParameter(
@@ -144,14 +145,18 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         }
         val harvestableSetName = scriptValues.getParamValue(harvestParameter)
         val itemIdsToHarvest = HarvestableSetsManager.getItemsToHarvest(harvestableSetName)
+        val runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
+        val explorationThresholdMinutes = if (!runForever) {
+            scriptValues.getParamValue(ignoreMapsExploredRecentlyParameter).toInt()
+        } else 0
         ExploreSubAreasTask(
             subAreas = subAreas,
             killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
             searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
             stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
-            runForever = scriptValues.getParamValue(runForeverParameter).toBoolean(),
-            explorationThresholdMinutes = scriptValues.getParamValue(ignoreMapsExploredRecentlyParameter).toInt(),
+            runForever = runForever,
+            explorationThresholdMinutes = explorationThresholdMinutes,
             itemIdsToHarvest = itemIdsToHarvest
         ).run(logItem, gameInfo)
     }

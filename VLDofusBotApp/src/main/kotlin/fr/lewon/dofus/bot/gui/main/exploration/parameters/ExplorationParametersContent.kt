@@ -6,6 +6,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.ParameterInput
 import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
@@ -24,25 +25,31 @@ fun ExplorationParametersContent() {
             )
         }
         Column(Modifier.padding(5.dp)) {
+            val selectedSubAreas = ExplorationUIUtil.mapUIState.value.selectedSubAreaIds.map {
+                SubAreaManager.getSubArea(it)
+            }
+            val scriptValues = ExplorationUIUtil.buildScriptValues(selectedSubAreas)
             for ((parameter, value) in ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByParameter) {
-                Row(Modifier.padding(vertical = 5.dp)) {
-                    val widthRatio = if (parameter.type == DofusBotParameterType.CHOICE) 0.5f else 0.7f
-                    Column(Modifier.fillMaxWidth(widthRatio).align(Alignment.CenterVertically)) {
-                        CommonText(parameter.key)
-                    }
-                    Spacer(Modifier.width(10.dp))
-                    Spacer(Modifier.fillMaxWidth().weight(1f))
-                    ParameterInput(
-                        Modifier,
-                        parameter,
-                        getParamValue = { value },
-                        onParamUpdate = {
-                            ExplorationUIUtil.explorerUIState.value = ExplorationUIUtil.explorerUIState.value.copy(
-                                explorationParameterValuesByParameter = ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByParameter
-                                    .plus(parameter to it)
-                            )
+                if (parameter.displayCondition(scriptValues)) {
+                    Row(Modifier.padding(vertical = 5.dp)) {
+                        val widthRatio = if (parameter.type == DofusBotParameterType.CHOICE) 0.5f else 0.7f
+                        Column(Modifier.fillMaxWidth(widthRatio).align(Alignment.CenterVertically)) {
+                            CommonText(parameter.key)
                         }
-                    )
+                        Spacer(Modifier.width(10.dp))
+                        Spacer(Modifier.fillMaxWidth().weight(1f))
+                        ParameterInput(
+                            Modifier,
+                            parameter,
+                            getParamValue = { value },
+                            onParamUpdate = {
+                                ExplorationUIUtil.explorerUIState.value = ExplorationUIUtil.explorerUIState.value.copy(
+                                    explorationParameterValuesByParameter = ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByParameter
+                                        .plus(parameter to it)
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

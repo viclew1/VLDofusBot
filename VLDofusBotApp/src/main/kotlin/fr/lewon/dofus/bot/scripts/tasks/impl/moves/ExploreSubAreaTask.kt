@@ -12,7 +12,7 @@ import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUiUtil
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightMonsterGroupTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightAnyMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
@@ -195,7 +195,7 @@ class ExploreSubAreaTask(
 
     private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
         while (gameInfo.monsterInfoByEntityId.isNotEmpty()) {
-            if (!FightMonsterGroupTask(stopIfNoMonsterPresent = true).run(logItem, gameInfo)) {
+            if (!FightAnyMonsterGroupTask(stopIfNoMonsterPresent = true).run(logItem, gameInfo)) {
                 return
             }
         }

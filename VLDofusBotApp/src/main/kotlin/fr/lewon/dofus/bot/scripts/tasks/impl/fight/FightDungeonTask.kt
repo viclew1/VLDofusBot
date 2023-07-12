@@ -21,7 +21,7 @@ class FightDungeonTask(private val dungeon: Dungeon, private val shouldExit: Boo
         MoveUtil.waitForMapChangeFinished(gameInfo)
         while (!gameInfo.entityIdByNpcId.keys.contains(dungeon.exitNpcId)) {
             val monsterGroupPassed = RetryUtil.tryUntilSuccess(
-                { FightMonsterGroupTask().run(logItem, gameInfo) },
+                { FightAnyMonsterGroupTask().run(logItem, gameInfo) },
                 20,
                 { WaitUtil.waitUntil { gameInfo.eventStore.getLastEvent(GameRolePlayShowActorMessage::class.java) != null } }
             )

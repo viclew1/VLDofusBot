@@ -9,9 +9,9 @@ data class ExplorationExplorerUIState(
         ExploreAreaScriptBuilder.harvestParameter,
         ExploreAreaScriptBuilder.stopWhenArchMonsterFoundParameter,
         ExploreAreaScriptBuilder.stopWhenQuestMonsterFoundParameter,
+        ExploreAreaScriptBuilder.searchedMonsterParameter,
         ExploreAreaScriptBuilder.killEverythingParameter,
         ExploreAreaScriptBuilder.runForeverParameter,
-        ExploreAreaScriptBuilder.searchedMonsterParameter,
         ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter
     ).associateWith { it.defaultValue }
 )

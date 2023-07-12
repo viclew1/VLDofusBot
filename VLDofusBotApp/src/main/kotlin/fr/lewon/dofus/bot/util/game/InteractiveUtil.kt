@@ -181,6 +181,7 @@ object InteractiveUtil {
         518476, // 20 ; -36
         -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0)))
         485282, // -1 ; -42
+        522746, // -28 ; 35
         -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))
         523968, // -24 ; 39
         523592, // -23 ; 39
@@ -188,7 +189,8 @@ object InteractiveUtil {
         515577, // 5 ; -17
         483927, // 22 ; 22
         -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, -bounds.height / 3)))
-        521652 // -36 ; -60
+        521652, // -36 ; -60
+        523654, // -33 ; -58
         -> listOf(bounds.getCenter().getSum(PointAbsolute(-bounds.width / 3, bounds.height / 3)))
         else -> null
     }

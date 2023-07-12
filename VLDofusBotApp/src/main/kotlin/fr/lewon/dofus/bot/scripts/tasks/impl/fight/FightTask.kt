@@ -27,6 +27,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightEnd
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightOptionStateUpdateMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightTurnEndMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightTurnStartPlayingMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.challenge.ChallengeModSelectMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.initialization.SetCharacterRestrictionsMessage
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
@@ -46,6 +47,8 @@ open class FightTask(
 ) : BooleanDofusBotTask() {
 
     companion object {
+
+        private val CHALLENGE_RANDOM = 1
 
         private val REF_TOP_LEFT_POINT = PointRelative(0.4016129f, 0.88508064f)
 
@@ -138,7 +141,6 @@ open class FightTask(
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
 
         gameInfo.eventStore.clear()
-        KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 0)
         waitForMessage(gameInfo, GameFightTurnStartPlayingMessage::class.java, 60 * 1000)
 
@@ -304,7 +306,6 @@ open class FightTask(
         val fightOptionsReceived = WaitUtil.waitUntil {
             getBlockHelpOptionValue(gameInfo) != null && getRestrictToTeamOptionValue(gameInfo) != null
         }
-
         if (!fightOptionsReceived) {
             error("Fight option values not received")
         }
@@ -325,6 +326,14 @@ open class FightTask(
                 MouseUtil.leftClick(gameInfo, creatureModeBounds.getCenter())
             }
             gameInfo.isCreatureModeToggled = true
+        }
+
+        if (WaitUtil.waitUntil(2000) { gameInfo.eventStore.getLastEvent(ChallengeModSelectMessage::class.java) != null }) {
+            val challengeMessage = gameInfo.eventStore.getLastEvent(ChallengeModSelectMessage::class.java)
+            if (challengeMessage != null && challengeMessage.challengeMod != CHALLENGE_RANDOM) {
+                MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo))
+                KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_F1, 500)
+            }
         }
 
         gameInfo.eventStore.clearUntilLast(GameEntitiesDispositionMessage::class.java)
