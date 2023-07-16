@@ -62,7 +62,7 @@ install the bot and type these commands :
 
 - ```git clone https://github.com/viclew1/VLDofusBot```
 - ```cd VLDofusBot```
-- ```gradlew build```
+- ```gradle build```
 
 Then, you can launch the built jar located in VLDofusBot\VLDofusBotApp\build\libs\VLDofusBotApp-xxx.jar
 
