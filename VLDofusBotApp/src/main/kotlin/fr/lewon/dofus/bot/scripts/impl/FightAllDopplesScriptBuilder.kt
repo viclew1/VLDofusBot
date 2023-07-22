@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.quest.QuestManager
 import fr.lewon.dofus.bot.core.d2o.managers.quest.QuestObjectiveManager
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -21,7 +21,7 @@ object FightAllDopplesScriptBuilder : DofusBotScriptBuilder("Fight all dopples")
 
     private val countStat = DofusBotScriptStat("Count")
 
-    override fun getParameters(): List<DofusBotParameter> = emptyList()
+    override fun getParameters(): List<DofusBotParameter<*>> = emptyList()
 
     override fun getDefaultStats(): List<DofusBotScriptStat> {
         return emptyList()
@@ -34,8 +34,8 @@ object FightAllDopplesScriptBuilder : DofusBotScriptBuilder("Fight all dopples")
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
         UpdateQuestsTask().run(logItem, gameInfo)
         val objectiveIds = if (!gameInfo.activeQuestIds.contains(DOPPLE_GLOBAL_QUEST_ID)) {
@@ -77,7 +77,7 @@ object FightAllDopplesScriptBuilder : DofusBotScriptBuilder("Fight all dopples")
         gameInfo: GameInfo,
         logItem: LogItem,
         mapIds: List<Double>,
-        npcOptionIds: List<Int>
+        npcOptionIds: List<Int>,
     ) {
         val maps = mapIds.map { mapId -> MapManager.getDofusMap(mapId) }
         if (!ReachMapTask(maps).run(logItem, gameInfo)) {

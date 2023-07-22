@@ -1,16 +1,13 @@
 package fr.lewon.dofus.bot.gui.main.exploration.map
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.onDrag
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -22,14 +19,13 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import fr.lewon.dofus.bot.gui.custom.CommonText
-import fr.lewon.dofus.bot.gui.custom.defaultHoverManager
 import fr.lewon.dofus.bot.gui.custom.handPointerIcon
+import fr.lewon.dofus.bot.gui.custom.onMouseMove
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.MapDrawCell
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.WorldMapHelperOverlay
@@ -39,9 +35,7 @@ import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import kotlinx.coroutines.delay
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
+import kotlinx.coroutines.launch
 
 private val cap = StrokeCap.Square
 private val blendMode = BlendMode.Src
@@ -52,40 +46,39 @@ private const val characterIconDelta = (characterIconSize - 1f) / 2f
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExplorationMapContent() {
-    val mapAvailableSize = remember { mutableStateOf(Size.Zero) }
-    val modifier = if (ExplorationUIUtil.mapUIState.value.hoveredMapDrawCell != null) {
+    val mapUiStateValue = ExplorationUIUtil.mapUIState.value
+    val modifier = if (mapUiStateValue.hoveredMapDrawCell != null) {
         Modifier.handPointerIcon()
     } else Modifier
-    Box(modifier.fillMaxSize().clip(RectangleShape).pointerInput(Unit) {
-        detectDragGestures(
-            onDrag = { _, dragAmount ->
-                calculateOffset(dragAmount, mapAvailableSize.value)
-            }
-        )
-    }.pointerInput(Unit) {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent()
-                // Disabled zoom while it's bugged
-                if (false && event.type == PointerEventType.Scroll && event.changes.isNotEmpty() && event.changes.all { !it.isConsumed }) {
-                    val currentUIState = ExplorationUIUtil.mapUIState.value
-                    val delta = event.changes.sumOf { it.scrollDelta.y.toInt() }
-                    ExplorationUIUtil.mapUIState.value = currentUIState.copy(
-                        scale = min(
-                            ExplorationUIUtil.MAX_ZOOM,
-                            max(ExplorationUIUtil.MIN_ZOOM, currentUIState.scale - delta.toFloat())
-                        )
-                    )
-                    calculateOffset(Offset.Zero, mapAvailableSize.value)
+    val coroutineScope = rememberCoroutineScope()
+    val dragging = remember { mutableStateOf(false) }
+    Box(
+        modifier.fillMaxSize()
+            .horizontalScroll(mapUiStateValue.horizontalScrollState, false)
+            .verticalScroll(mapUiStateValue.verticalScrollState, false)
+            .clip(RectangleShape)
+            .onDrag(
+                onDragStart = { dragging.value = true },
+                onDragEnd = { dragging.value = false },
+                onDragCancel = { dragging.value = false },
+                onDrag = { dragAmount ->
+                    coroutineScope.launch {
+                        ExplorationUIUtil.mapUIState.value.horizontalScrollState.scrollBy(-dragAmount.x)
+                        ExplorationUIUtil.mapUIState.value.verticalScrollState.scrollBy(-dragAmount.y)
+                    }
                 }
+            ).onMouseMove { location, _ ->
+                if (!dragging.value) {
+                    ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
+                        hoveredMapDrawCell = getMapDrawCell(location)
+                    )
+                }
+            }.onClick {
+                ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
+                    selectedSubAreaIds = emptyList()
+                )
             }
-        }
-    }.onClick {
-        ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(selectedSubAreaIds = emptyList())
-    }.onGloballyPositioned {
-        mapAvailableSize.value = it.size.toSize()
-        calculateOffset(Offset.Zero, it.size.toSize())
-    }) {
+    ) {
         val refreshColors = {
             val newColorByMap = HashMap<Double, Color>()
             val now = System.currentTimeMillis()
@@ -109,28 +102,13 @@ fun ExplorationMapContent() {
                 refreshColors()
             }
         }
-        val scale = ExplorationUIUtil.mapUIState.value.scale
-        Box(
-            Modifier.offset(
-                ExplorationUIUtil.mapUIState.value.offset.x.dp,
-                ExplorationUIUtil.mapUIState.value.offset.y.dp
-            ).requiredSize(ExplorationUIUtil.totalWidth.dp * scale, ExplorationUIUtil.totalHeight.dp * scale)
-        ) {
-            Box(
-                Modifier.scale(scale).defaultHoverManager(onExit = {
-                    ExplorationUIUtil.mapUIState.value =
-                        ExplorationUIUtil.mapUIState.value.copy(hoveredMapDrawCell = null)
-                })
-            ) {
-                Row(Modifier.fillMaxSize().defaultHoverManager(onHover = {
-                    ExplorationUIUtil.mapUIState.value =
-                        ExplorationUIUtil.mapUIState.value.copy(hoveredMapDrawCell = null)
-                })) {}
+        Box(Modifier.requiredSize(ExplorationUIUtil.totalWidth.dp, ExplorationUIUtil.totalHeight.dp)) {
+            Box {
                 OverlayContent(WorldMapHelperOverlay)
                 CellsContent()
                 OverlayContent(ExplorationUIUtil.worldMapHelper.value.mapOverlayPainter)
             }
-            Box(Modifier.scale(scale)) {
+            Box {
                 SelectedSubAreaOverlay()
                 CharactersContent()
             }
@@ -155,20 +133,6 @@ private fun OverlayContent(painter: Painter) {
 @Composable
 private fun CellsContent() {
     Canvas(Modifier.fillMaxSize().pointerInput(Unit) {
-        awaitPointerEventScope {
-            while (true) {
-                val pass = PointerEventPass.Initial
-                val event = awaitPointerEvent(pass)
-                val isOutsideRelease = event.type == PointerEventType.Release &&
-                        event.changes[0].isOutOfBounds(size, Size.Zero)
-                if (event.type != PointerEventType.Exit && !isOutsideRelease) {
-                    ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
-                        hoveredMapDrawCell = getMapDrawCell(event.changes[0].position)
-                    )
-                }
-            }
-        }
-    }.pointerInput(Unit) {
         detectTapGestures(keyboardModifiers = { this.isCtrlPressed }) {
             val mapUiStateValue = ExplorationUIUtil.mapUIState.value
             val clickedSubAreaId = getMapDrawCell(it)?.subAreaId
@@ -181,7 +145,7 @@ private fun CellsContent() {
                             mapUiStateValue.selectedSubAreaIndex - 1
                         } else mapUiStateValue.selectedSubAreaIndex
                     )
-                } else if (mapUiStateValue.selectedSubAreaIds.size < ExplorationUIUtil.MAX_AREAS_TO_EXPLORE) {
+                } else if (mapUiStateValue.selectedSubAreaIds.size < ExplorationUIUtil.MinAreasToExplore) {
                     mapUiStateValue.copy(
                         selectedSubAreaIds = mapUiStateValue.selectedSubAreaIds.plus(clickedSubAreaId),
                         selectedSubAreaIndex = mapUiStateValue.selectedSubAreaIds.size
@@ -214,8 +178,8 @@ private fun CellsContent() {
 
 private fun getMapDrawCell(position: Offset): MapDrawCell? =
     ExplorationUIUtil.worldMapHelper.value.getPriorityMapDrawCell(
-        ExplorationUIUtil.minPosX + (position.x / ExplorationUIUtil.CELL_SIZE).toInt(),
-        ExplorationUIUtil.minPosY + (position.y / ExplorationUIUtil.CELL_SIZE).toInt(),
+        ExplorationUIUtil.minPosX + (position.x / ExplorationUIUtil.CellSize).toInt(),
+        ExplorationUIUtil.minPosY + (position.y / ExplorationUIUtil.CellSize).toInt(),
     )
 
 private fun getColor(mapId: Double): Color = colorByMapId.value[mapId] ?: Color.Red
@@ -259,9 +223,9 @@ private fun CharactersContent() {
                     Image(
                         BreedAssetManager.getAssets(characterUiState.dofusClassId).simpleIconPainter,
                         "",
-                        modifier = Modifier.size((ExplorationUIUtil.CELL_SIZE * characterIconSize).dp).offset(
-                            priorityMapDrawCell.topLeft.x.dp - (ExplorationUIUtil.CELL_SIZE * characterIconDelta).dp,
-                            priorityMapDrawCell.topLeft.y.dp - (ExplorationUIUtil.CELL_SIZE * characterIconDelta).dp
+                        modifier = Modifier.size((ExplorationUIUtil.CellSize * characterIconSize).dp).offset(
+                            priorityMapDrawCell.topLeft.x.dp - (ExplorationUIUtil.CellSize * characterIconDelta).dp,
+                            priorityMapDrawCell.topLeft.y.dp - (ExplorationUIUtil.CellSize * characterIconDelta).dp
                         )
                     )
                 }
@@ -273,7 +237,7 @@ private fun CharactersContent() {
 private fun DrawScope.drawSubArea(subAreaId: Double, wallColor: Color, wallWidth: Float) {
     val subAreaMaps = ExplorationUIUtil.worldMapHelper.value.mapDrawCellsBySubAreaId[subAreaId]
         ?: emptyList()
-    val size = Size(ExplorationUIUtil.CELL_SIZE, ExplorationUIUtil.CELL_SIZE)
+    val size = Size(ExplorationUIUtil.CellSize, ExplorationUIUtil.CellSize)
     val overColor = Color.White.copy(alpha = 0.2f)
     for (mapDrawCell in subAreaMaps) {
         drawRect(getColor(mapDrawCell.mapId), mapDrawCell.topLeft, size, blendMode = blendMode)
@@ -290,7 +254,7 @@ private fun DrawScope.drawLine(
     from: Offset,
     to: Offset,
     wallColor: Color,
-    wallWidth: Float
+    wallWidth: Float,
 ) {
     val (width, color) = if (isWallPresent) wallWidth to wallColor else 0.3f to Color.DarkGray
     drawLine(color, from, to, cap = cap, strokeWidth = width, blendMode = blendMode)
@@ -299,7 +263,7 @@ private fun DrawScope.drawLine(
 private fun DrawScope.drawCell(mapDrawCell: MapDrawCell, style: DrawStyle, color: Color) = drawRect(
     color = color,
     topLeft = mapDrawCell.topLeft,
-    size = Size(ExplorationUIUtil.CELL_SIZE, ExplorationUIUtil.CELL_SIZE),
+    size = Size(ExplorationUIUtil.CellSize, ExplorationUIUtil.CellSize),
     blendMode = blendMode,
     style = style
 )
@@ -307,13 +271,9 @@ private fun DrawScope.drawCell(mapDrawCell: MapDrawCell, style: DrawStyle, color
 @Composable
 private fun PositionTooltip() {
     ExplorationUIUtil.mapUIState.value.hoveredMapDrawCell?.let { mapDrawCell ->
-        val scale = ExplorationUIUtil.mapUIState.value.scale
         Row(
             Modifier.offset(mapDrawCell.topRight.x.dp, mapDrawCell.topRight.y.dp)
-                .offset(
-                    (-ExplorationUIUtil.centerX + mapDrawCell.x).dp * ExplorationUIUtil.CELL_SIZE * (scale - 1),
-                    (-ExplorationUIUtil.centerY + mapDrawCell.y).dp * ExplorationUIUtil.CELL_SIZE * (scale - 1)
-                ).padding(start = 10.dp)
+                .padding(start = 10.dp)
                 .background(AppColors.VERY_DARK_BG_COLOR)
                 .padding(5.dp)
         ) {
@@ -325,21 +285,4 @@ private fun PositionTooltip() {
             CommonText("[${mapDrawCell.x},${mapDrawCell.y}]$charactersSuffix")
         }
     }
-}
-
-private fun calculateOffset(dragAmount: Offset, mapAvailableSize: Size) {
-    val currentUIState = ExplorationUIUtil.mapUIState.value
-    val scaledTotalWidth = ExplorationUIUtil.totalWidth * currentUIState.scale
-    val scaledTotalHeight = ExplorationUIUtil.totalHeight * currentUIState.scale
-    val maxOffset = Offset(
-        abs(mapAvailableSize.width - scaledTotalWidth),
-        abs(mapAvailableSize.height - scaledTotalHeight)
-    )
-    val minOffset = Offset(
-        0f, 0f
-    )
-    val offset = currentUIState.offset + dragAmount
-    ExplorationUIUtil.mapUIState.value = currentUIState.copy(
-        offset = Offset(min(maxOffset.x, max(minOffset.x, offset.x)), min(maxOffset.y, max(minOffset.y, offset.y)))
-    )
 }

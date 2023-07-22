@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.gui.main.exploration.seenmonsters.SeenMonstersUiUtil
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.gui.main.status.StatusBarUIUtil
@@ -70,6 +71,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         if (questMonster != null) {
             notifyMonsterSeen(gameInfo, SoundType.QUEST_MONSTER_FOUND, "Quest monster", questMonster, map)
         }
+        SeenMonstersUiUtil.updateSeenMonsters(map, listOfNotNull(archMonster, questMonster))
     }
 
     private fun notifyMonsterSeen(
@@ -77,7 +79,7 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         soundType: SoundType,
         monsterLabel: String,
         monster: DofusMonster,
-        map: DofusMap
+        map: DofusMap,
     ) {
         soundType.playSound()
         val statusText = "$monsterLabel [${monster.name}] seen on map $map"

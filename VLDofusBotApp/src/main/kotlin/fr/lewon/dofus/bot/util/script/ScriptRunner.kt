@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.util.script
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.util.SoundType
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.tasks.impl.init.InitAllTask
@@ -35,7 +35,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
     }
 
     @Synchronized
-    fun runScript(character: DofusCharacter, scriptBuilder: DofusBotScriptBuilder, scriptValues: ScriptValues) {
+    fun runScript(character: DofusCharacter, scriptBuilder: DofusBotScriptBuilder, parameterValues: ParameterValues) {
         if (isScriptRunning(character)) {
             error("Cannot run script, there is already one running")
         }
@@ -47,7 +47,7 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
                 val gameInfo = prepareScriptExecution(character, logItem)
                 gameInfo.eventStore.clear()
                 val script = scriptBuilder.buildScript()
-                script.execute(logItem, gameInfo, scriptValues, stats)
+                script.execute(logItem, gameInfo, parameterValues, stats)
                 onScriptOk(character, logItem)
             } catch (e: InterruptedException) {
                 onScriptCanceled(character, logItem)
@@ -118,6 +118,6 @@ object ScriptRunner : ListenableByCharacter<ScriptRunnerListener>(), CharacterMa
         val scriptBuilder: DofusBotScriptBuilder,
         val thread: Thread,
         val stats: Map<DofusBotScriptStat, String>,
-        val startTime: Long = System.currentTimeMillis()
+        val startTime: Long = System.currentTimeMillis(),
     )
 }

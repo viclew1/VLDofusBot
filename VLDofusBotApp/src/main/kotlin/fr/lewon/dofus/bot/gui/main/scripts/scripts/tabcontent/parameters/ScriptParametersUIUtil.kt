@@ -1,81 +1,45 @@
 package fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.parameters
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
-import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTab
-import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
-import fr.lewon.dofus.bot.model.characters.scriptvalues.CharacterScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.util.filemanagers.impl.ScriptValuesManager
+import java.util.concurrent.locks.ReentrantLock
 
 object ScriptParametersUIUtil : ComposeUIUtil() {
 
-    private val uiStateByParameterByScript = HashMap<DofusBotScriptBuilder, MutableState<ScriptBuilderUIState>>()
-    private val globalScriptValues = CharacterScriptValues()
+    private val lock = ReentrantLock()
+    private val uiState = mutableStateOf(ScriptParametersUiState())
 
-    fun getCurrentScriptParameters(): List<DofusBotParameter> {
-        return ScriptTabsUIUtil.getCurrentScriptBuilder().getParameters()
+    fun getUiStateValue() = lock.executeSyncOperation {
+        uiState.value
     }
 
-    private fun getScriptBuilderUIState(scriptBuilder: DofusBotScriptBuilder): MutableState<ScriptBuilderUIState> {
-        return uiStateByParameterByScript.computeIfAbsent(scriptBuilder) { mutableStateOf(ScriptBuilderUIState(emptyMap())) }
+    fun getParameterValues(scriptBuilder: DofusBotScriptBuilder) = lock.executeSyncOperation {
+        val uiStateValue = getUiStateValue()
+        val parameterValuesByScript = uiStateValue.parameterValuesByScript
+        val parameterValues = uiStateValue.parameterValuesByScript[scriptBuilder]
+            ?: ParameterValues()
+        uiState.value = uiStateValue.copy(
+            parameterValuesByScript = parameterValuesByScript.plus(scriptBuilder to parameterValues)
+        )
+        parameterValues.deepCopy()
     }
 
-    fun getScriptParameterUIState(
+    fun <T> updateParameterValue(
         scriptBuilder: DofusBotScriptBuilder,
-        parameter: DofusBotParameter
-    ): ScriptParameterUIState {
-        val builderUIState = getScriptBuilderUIState(scriptBuilder)
-        var uiState = builderUIState.value.scriptParameterUIStateByParameter[parameter]
-        if (uiState == null) {
-            uiState = ScriptParameterUIState(parameter, false, getParamValue(scriptBuilder, parameter))
-            val uiStateByParameter = builderUIState.value.scriptParameterUIStateByParameter.plus(parameter to uiState)
-            builderUIState.value = builderUIState.value.copy(scriptParameterUIStateByParameter = uiStateByParameter)
-        }
-        return uiState
-    }
-
-    fun updateParamValue(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter, value: String) {
-        when (ScriptTabsUIUtil.getCurrentTab()) {
-            ScriptTab.INDIVIDUAL ->
-                ScriptValuesManager.updateParamValue(getSelectedCharacterName(), scriptBuilder, parameter, value)
-            ScriptTab.GLOBAL ->
-                globalScriptValues.getValues(scriptBuilder).updateParamValue(parameter, value)
-        }
-        updateParameters(scriptBuilder)
-    }
-
-    private fun getSelectedCharacterName(): String {
-        return CharactersUIUtil.getSelectedCharacterUIState()?.value?.name
-            ?: error("A character should be selected")
-    }
-
-    fun updateParameters(scriptBuilder: DofusBotScriptBuilder) {
-        val scriptValues = getScriptValuesStore().getValues(scriptBuilder)
-        val parameters = scriptBuilder.getParameters()
-        val builderUIState = getScriptBuilderUIState(scriptBuilder)
-        val uiStateByParameter = parameters.associateWith { parameter ->
-            ScriptParameterUIState(
-                parameter,
-                parameter.displayCondition(scriptValues),
-                getParamValue(scriptBuilder, parameter)
+        parameter: DofusBotParameter<T>,
+        value: T,
+    ) = lock.executeSyncOperation {
+        val uiStateValue = getUiStateValue()
+        val parameterValues = getParameterValues(scriptBuilder)
+        parameterValues.updateParamValue(parameter, value)
+        uiState.value = uiStateValue.copy(
+            parameterValuesByScript = uiStateValue.parameterValuesByScript.plus(
+                scriptBuilder to parameterValues
             )
-        }
-        builderUIState.value = builderUIState.value.copy(scriptParameterUIStateByParameter = uiStateByParameter)
+        )
     }
-
-    private fun getParamValue(scriptBuilder: DofusBotScriptBuilder, parameter: DofusBotParameter): String {
-        return getScriptValuesStore().getValues(scriptBuilder).getParamValue(parameter)
-    }
-
-    fun getScriptValuesStore(): CharacterScriptValues {
-        return when (ScriptTabsUIUtil.getCurrentTab()) {
-            ScriptTab.INDIVIDUAL -> ScriptValuesManager.getCharacterScriptValues(getSelectedCharacterName())
-            ScriptTab.GLOBAL -> globalScriptValues
-        }
-    }
-
 }

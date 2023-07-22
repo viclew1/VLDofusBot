@@ -15,7 +15,8 @@ object AreaManager : VldbManager {
             val nameId = it["nameId"].toString().toInt()
             val name = I18NUtil.getLabel(nameId) ?: "UNKNOWN_AREA_NAME"
             val superAreaId = it["superAreaId"].toString().toInt()
-            id to DofusArea(id, name, superAreaId)
+            val hasWorldMap = it["hasWorldMap"].toString().toBoolean()
+            id to DofusArea(id, name, superAreaId, hasWorldMap)
         }
     }
 

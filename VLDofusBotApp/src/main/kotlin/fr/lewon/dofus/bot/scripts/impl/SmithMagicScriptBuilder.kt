@@ -4,11 +4,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.item.EffectManager
 import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.util.SoundType
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.scripts.parameters.impl.ChoiceParameter
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicCharacteristics
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicLine
 import fr.lewon.dofus.bot.scripts.smithmagic.SmithMagicStrategy
@@ -43,15 +43,16 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
     private val FIRST_ITEM_POSITION = PointRelative(0.7781022f, 0.17883211f)
     private val MERGE_BUTTON_POSITION = PointRelative(0.56642336f, 0.21715327f)
 
-    private val strategyParameter = DofusBotParameter(
+    private val strategyParameter = ChoiceParameter(
         "Strategy",
         "Smithing Strategy used to improve the item",
         STRATEGIES.keys.first(),
-        DofusBotParameterType.CHOICE,
-        STRATEGIES.keys.toList()
+        getAvailableValues = { STRATEGIES.keys.toList() },
+        itemValueToString = { it },
+        stringToItemValue = { it }
     )
 
-    override fun getParameters(): List<DofusBotParameter> {
+    override fun getParameters(): List<DofusBotParameter<*>> {
         return listOf(
             strategyParameter
         )
@@ -68,10 +69,10 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        val strategyParamValue = scriptValues.getParamValue(strategyParameter)
+        val strategyParamValue = parameterValues.getParamValue(strategyParameter)
         val strategy = STRATEGIES[strategyParamValue] ?: error("No strategy selected")
         openNeededWorkshop(gameInfo, strategy.getSmithMagicType())
         gameInfo.logger.addSubLog("Workshop opened.", logItem)
@@ -113,7 +114,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         gameInfo: GameInfo,
         characteristic: SmithMagicCharacteristics,
         runeSize: Int,
-        previousSearchedCharacteristic: SmithMagicCharacteristics? = null
+        previousSearchedCharacteristic: SmithMagicCharacteristics? = null,
     ) {
         if (characteristic != previousSearchedCharacteristic) {
             MouseUtil.leftClick(gameInfo, CLEAR_SEARCH_POSITION)
@@ -129,7 +130,7 @@ object SmithMagicScriptBuilder : DofusBotScriptBuilder("Smith magic") {
         gameInfo: GameInfo,
         linesByKeyword: MutableMap<String, SmithMagicLine>,
         correspondingLine: SmithMagicLine,
-        runeSize: Int
+        runeSize: Int,
     ) {
         val lineIndex = getLineIndex(linesByKeyword.values, correspondingLine)
         val runeClickPosition = getRuneClickPosition(lineIndex, runeSize)

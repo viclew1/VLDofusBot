@@ -82,7 +82,7 @@ private fun HeaderContent(uiState: TreasureHuntUiState) {
         }
         Row(Modifier.fillMaxWidth().padding(vertical = 2.dp, horizontal = 40.dp)) {
             SimpleTextField(
-                value = uiState.hintFilter,
+                text = uiState.hintFilter,
                 onValueChange = { TreasureHuntUiUtil.updateHintFilter(it) },
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
                 backgroundColor = AppColors.DARK_BG_COLOR,

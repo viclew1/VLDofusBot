@@ -2,11 +2,11 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.scripts.parameters.impl.BooleanParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.OpenZaapInterfaceTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
@@ -19,16 +19,14 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
 
     private val exploredStat = DofusBotScriptStat("Explored")
 
-
-    private val useZaapsParameter = DofusBotParameter(
+    private val useZaapsParameter = BooleanParameter(
         "Use zaaps",
         "Check if you want to allow zaaps for the travel",
-        "true",
-        DofusBotParameterType.BOOLEAN,
+        true,
         parametersGroup = 2
     )
 
-    override fun getParameters(): List<DofusBotParameter> {
+    override fun getParameters(): List<DofusBotParameter<*>> {
         return listOf(useZaapsParameter)
     }
 
@@ -43,10 +41,10 @@ object ExploreAllZaapsScriptBuilder : DofusBotScriptBuilder("Explore all zaaps")
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        val useZaaps = scriptValues.getParamValue(useZaapsParameter).toBoolean()
+        val useZaaps = parameterValues.getParamValue(useZaapsParameter)
         val allZaapMaps = TravelUtil.getAllZaapMaps()
         val registeredZaaps = OpenZaapInterfaceTask().run(logItem, gameInfo).toMutableList()
         val nonExploredZaaps = allZaapMaps.minus(registeredZaaps.toSet()).toMutableList()

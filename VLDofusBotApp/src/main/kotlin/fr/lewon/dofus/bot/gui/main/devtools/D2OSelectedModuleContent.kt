@@ -34,8 +34,7 @@ fun D2OSelectedModuleContent() {
                     val id = it.id
                     (name == null || StringUtil.removeAccents(name)
                         .contains(StringUtil.removeAccents(uiState.moduleItemNameFilter))) &&
-                            (id == null || uiState.moduleItemIdFilter.toIntOrNull() == 0 || StringUtil.removeAccents(id.toString())
-                                .startsWith(StringUtil.removeAccents(uiState.moduleItemIdFilter)))
+                        (id == null || uiState.moduleItemIdFilter == 0 || id == uiState.moduleItemIdFilter.toLong())
                 }
                 val expandedItems = remember(uiState.selectedD2OModule) { mutableStateOf(emptyList<ModuleItem>()) }
                 LazyColumn(Modifier.fillMaxSize().padding(end = 10.dp), state = listState) {
@@ -92,8 +91,8 @@ private fun FilterLine(uiState: DevToolsUiState) {
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
             )
             IntegerTextField(
-                value = uiState.moduleItemIdFilter,
-                onUpdate = { DevToolsUiUtil.updateModuleItemIdFilter(if (it == "0") "" else it) },
+                value = uiState.moduleItemIdFilter.toString(),
+                onUpdate = { DevToolsUiUtil.updateModuleItemIdFilter(it.toIntOrNull() ?: 0) },
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically).width(150.dp),
             )
         }
@@ -103,7 +102,7 @@ private fun FilterLine(uiState: DevToolsUiState) {
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
             )
             SimpleTextField(
-                value = uiState.moduleItemNameFilter,
+                text = uiState.moduleItemNameFilter,
                 onValueChange = { DevToolsUiUtil.updateModuleItemNameFilter(it) },
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically).width(150.dp),
             )

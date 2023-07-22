@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.entity.DofusNPC
 import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -20,7 +20,7 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info", true) {
 
-    override fun getParameters(): List<DofusBotParameter> {
+    override fun getParameters(): List<DofusBotParameter<*>> {
         return emptyList()
     }
 
@@ -35,8 +35,8 @@ object PrintAllMapInfoScriptBuilder : DofusBotScriptBuilder("Print all map info"
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
         val currentMap = gameInfo.currentMap
         val mapD2OInfo =

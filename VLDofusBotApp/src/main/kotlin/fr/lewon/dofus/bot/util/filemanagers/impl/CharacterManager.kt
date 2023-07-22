@@ -87,7 +87,6 @@ object CharacterManager : ToInitManager {
         fileManager.updateStore { store ->
             store.characters.remove(character)
         }
-        ScriptValuesManager.removeScriptValues(character.name)
         CharacterSpellManager.removeSpells(character.name)
         ScriptRunner.removeListeners(character)
         GameSnifferUtil.removeListeners(character)
@@ -98,7 +97,7 @@ object CharacterManager : ToInitManager {
         name: String,
         dofusClassId: Int? = null,
         isOtomaiTransportAvailable: Boolean? = null,
-        isFrigost2Available: Boolean? = null
+        isFrigost2Available: Boolean? = null,
     ) {
         val storedCharacter = getCharacter(name)
             ?: error("Character not found in store : $name")

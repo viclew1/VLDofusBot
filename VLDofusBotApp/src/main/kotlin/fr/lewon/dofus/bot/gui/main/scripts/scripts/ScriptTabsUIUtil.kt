@@ -51,18 +51,17 @@ object ScriptTabsUIUtil : ComposeUIUtil() {
 
     fun toggleScript() {
         val isStarted = isScriptStarted()
-        val uiState = ScriptSelectorUIUtil.uiState.value
         val selectedCharactersUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
         Thread {
-            ScriptSelectorUIUtil.uiState.value = uiState.copy(isStartButtonEnabled = false)
+            ScriptSelectorUIUtil.uiState.value = ScriptSelectorUIUtil.uiState.value.copy(isStartButtonEnabled = false)
             val selectedCharactersNames = selectedCharactersUIStates.map { it.value.name }
             val selectedCharacters = CharacterManager.getCharacters(selectedCharactersNames)
             if (isStarted) {
                 selectedCharacters.forEach { ScriptRunner.stopScript(it.name) }
             } else {
                 val scriptBuilder = getCurrentScriptBuilder()
-                val scriptValues = ScriptParametersUIUtil.getScriptValuesStore().getValues(scriptBuilder)
-                selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, scriptValues) }
+                val parameterValues = ScriptParametersUIUtil.getParameterValues(scriptBuilder)
+                selectedCharacters.forEach { ScriptRunner.runScript(it, scriptBuilder, parameterValues) }
             }
         }.start()
     }

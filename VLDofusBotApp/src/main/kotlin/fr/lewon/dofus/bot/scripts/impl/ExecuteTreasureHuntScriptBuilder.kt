@@ -2,12 +2,14 @@ package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.gui.util.SoundType
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.model.hunt.HuntLevel
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.scripts.parameters.impl.BooleanParameter
+import fr.lewon.dofus.bot.scripts.parameters.impl.ChoiceParameter
+import fr.lewon.dofus.bot.scripts.parameters.impl.IntParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.ExecuteHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.FetchHuntTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.RefreshHuntTask
@@ -19,22 +21,26 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasure hunt") {
 
-    private val huntLevelParameter = DofusBotParameter(
-        "Hunt level", "Hunt level", "200", DofusBotParameterType.CHOICE, HuntLevel.values().map { it.label }
+    private val huntLevelParameter = ChoiceParameter(
+        "Hunt level",
+        "Hunt level",
+        HuntLevel.LVL200,
+        getAvailableValues = { HuntLevel.values().toList() },
+        itemValueToString = { it.label },
+        stringToItemValue = { HuntLevel.fromLabel(it) ?: error("Invalid hunt level") }
     )
 
-    private val huntCountParameter = DofusBotParameter(
-        "Hunt count", "Amount of hunts to process before stopping", "50", DofusBotParameterType.INTEGER
+    private val huntCountParameter = IntParameter(
+        "Hunt count", "Amount of hunts to process before stopping", 50
     )
 
-    private val continueOnFailureParameter = DofusBotParameter(
+    private val continueOnFailureParameter = BooleanParameter(
         "Continue on failure",
         "If true, the bot gives up a hunt when it fails to find a hint and fetches a new one",
-        "true",
-        DofusBotParameterType.BOOLEAN
+        true,
     )
 
-    override fun getParameters(): List<DofusBotParameter> {
+    override fun getParameters(): List<DofusBotParameter<*>> {
         return listOf(
             huntLevelParameter,
             huntCountParameter,
@@ -65,8 +71,8 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
         if (gameInfo.treasureHunt == null && TreasureHuntUtil.isHuntPresent(gameInfo)) {
             if (!RefreshHuntTask().run(logItem, gameInfo)) {
@@ -74,13 +80,12 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
             }
         }
         var successCount = 0
-        val huntLevel = HuntLevel.fromLabel(scriptValues.getParamValue(huntLevelParameter))
-            ?: error("Invalid hunt level")
-        val continueOnFailure = scriptValues.getParamValue(continueOnFailureParameter).toBoolean()
+        val huntLevel = parameterValues.getParamValue(huntLevelParameter)
+        val continueOnFailure = parameterValues.getParamValue(continueOnFailureParameter)
         val huntFetchDurations = ArrayList<Long>()
         val huntDurations = ArrayList<Long>()
 
-        for (i in 0 until scriptValues.getParamValue(huntCountParameter).toInt()) {
+        for (i in 0 until parameterValues.getParamValue(huntCountParameter)) {
             val fetchStartTimeStamp = System.currentTimeMillis()
             if (gameInfo.treasureHunt == null) {
                 if (FetchHuntTask(huntLevel).run(logItem, gameInfo)) {

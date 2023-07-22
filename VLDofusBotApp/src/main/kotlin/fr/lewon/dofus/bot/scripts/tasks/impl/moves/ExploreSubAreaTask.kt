@@ -30,10 +30,11 @@ class ExploreSubAreaTask(
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
     private val itemIdsToHarvest: List<Double>,
-    private val explorationThresholdMinutes: Int
+    private val explorationThresholdMinutes: Int,
 ) : DofusBotTask<ExplorationStatus>() {
 
     companion object {
+
         val SUB_AREA_ID_FULLY_ALLOWED = listOf(
             99.0, 100.0, 181.0, // Astrub undergrounds
             7.0, // Amakna crypts
@@ -80,10 +81,10 @@ class ExploreSubAreaTask(
                 total = toExploreTotal
             )
         }
+        if (foundSearchedMonster(gameInfo)) {
+            return ExplorationStatus.FoundSomething
+        }
         while (toExploreMaps.isNotEmpty()) {
-            if (foundSearchedMonster(gameInfo)) {
-                return ExplorationStatus.FoundSomething
-            }
             if (killEverything) {
                 killMonsters(logItem, gameInfo)
             }
@@ -101,6 +102,9 @@ class ExploreSubAreaTask(
             if (!MoveTask(listOf(nextTransition)).run(logItem, gameInfo)) {
                 return ExplorationStatus.NotFinished
             }
+            if (foundSearchedMonster(gameInfo)) {
+                return ExplorationStatus.FoundSomething
+            }
             if (toExploreMaps.remove(gameInfo.currentMap)) {
                 LastExplorationUiUtil.updateExplorationProgress(
                     character = gameInfo.character,
@@ -116,7 +120,7 @@ class ExploreSubAreaTask(
     private fun getNextVertexToExplore(
         gameInfo: GameInfo,
         toExploreMaps: List<DofusMap>,
-        characterInfo: DofusCharacterBasicInfo
+        characterInfo: DofusCharacterBasicInfo,
     ): Vertex? {
         val toExploreMapIds = toExploreMaps.map { it.id }
         val initialVertex = TravelUtil.getCurrentVertex(gameInfo)
@@ -158,7 +162,6 @@ class ExploreSubAreaTask(
             .flatMap { WorldGraphUtil.getFilteredTransitions(it, characterInfo) }
             .map { it.edge.to }
 
-
     private fun getMinutesSinceLastExploration(mapId: Double): Long {
         val lastExplorationTime = ExplorationRecordManager.getLastExplorationTime(mapId) ?: 0L
         val millisSinceLastExploration = System.currentTimeMillis() - lastExplorationTime
@@ -167,8 +170,8 @@ class ExploreSubAreaTask(
 
     private fun foundSearchedMonster(gameInfo: GameInfo): Boolean =
         searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }
-                || stopWhenArchMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isArchMonster(it) }
-                || stopWhenWantedMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isWantedMonster(it) }
+            || stopWhenArchMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isArchMonster(it) }
+            || stopWhenWantedMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isWantedMonster(it) }
 
     private fun isWantedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
         isAnyMonsterMatchingPredicate(monsterInfo) { it.isQuestMonster }
@@ -181,7 +184,7 @@ class ExploreSubAreaTask(
 
     private fun isAnyMonsterMatchingPredicate(
         monsterInfo: GameRolePlayGroupMonsterInformations,
-        predicate: (DofusMonster) -> Boolean
+        predicate: (DofusMonster) -> Boolean,
     ): Boolean {
         val mainMonster = MonsterManager.getMonster(monsterInfo.staticInfos.mainCreatureLightInfos.genericId.toDouble())
         if (predicate(mainMonster)) {

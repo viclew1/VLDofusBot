@@ -1,14 +1,13 @@
 package fr.lewon.dofus.bot.gui.main.exploration.lastexploration
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Start
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.runtime.Composable
@@ -21,19 +20,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.gui.custom.ButtonWithTooltip
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui.main.TooltipPlacement
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterUIState
 import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
-import fr.lewon.dofus.bot.scripts.impl.ReachMapScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
@@ -41,23 +39,80 @@ import fr.lewon.dofus.bot.util.script.ScriptRunner
 @Composable
 fun LastExplorationsContent() {
     val uiState = LastExplorationUiUtil.getUiStateValue()
-    Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
+    Column(Modifier.fillMaxWidth().height(190.dp).padding(horizontal = 5.dp).padding(bottom = 5.dp).grayBoxStyle()) {
         Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
             CommonText(
                 "Last explorations",
                 modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
                 fontWeight = FontWeight.SemiBold
             )
+            Row(Modifier.height(25.dp).align(Alignment.CenterVertically)) {
+                Spacer(Modifier.width(5.dp))
+                val resumeAllEnabled = uiState.lastExplorationByCharacter.values.any {
+                    it.explorationStopped && it.getSubAreasToExploreAgain().isNotEmpty()
+                }
+                ButtonWithTooltip(
+                    onClick = {
+                        uiState.lastExplorationByCharacter.filter {
+                            it.value.explorationStopped && it.value.getSubAreasToExploreAgain().isNotEmpty()
+                        }.forEach { (characterName, lastExploration) ->
+                            ExplorationUIUtil.startExploration(
+                                lastExploration.getSubAreasToExploreAgain(),
+                                characterName
+                            )
+                        }
+                    },
+                    title = "Resume all explorations",
+                    imageVector = Icons.Default.Start,
+                    shape = RoundedCornerShape(15),
+                    hoverBackgroundColor = Color.Gray,
+                    defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                    hoverAnimation = false,
+                    delayMillis = 0,
+                    width = 25.dp,
+                    enabled = resumeAllEnabled,
+                    iconColor = if (resumeAllEnabled) Color.White else Color.DarkGray
+                )
+                Spacer(Modifier.width(5.dp))
+                val busyCharacterUiStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }.filter {
+                    it.activityState == CharacterActivityState.BUSY
+                }
+                val stopAllScriptsEnabled = busyCharacterUiStates.isNotEmpty()
+                ButtonWithTooltip(
+                    onClick = {
+                        busyCharacterUiStates.forEach { characterUiState ->
+                            ScriptRunner.stopScript(characterUiState.name)
+                        }
+                    },
+                    title = "Stop all running scripts",
+                    imageVector = Icons.Default.Stop,
+                    shape = RoundedCornerShape(15),
+                    hoverBackgroundColor = Color.Gray,
+                    defaultBackgroundColor = AppColors.DARK_BG_COLOR,
+                    delayMillis = 0,
+                    width = 25.dp,
+                    enabled = stopAllScriptsEnabled,
+                    iconColor = if (stopAllScriptsEnabled) AppColors.RED else Color.DarkGray
+                )
+            }
         }
-        Box(Modifier.padding(5.dp).fillMaxSize()) {
-            val scrollState = rememberScrollState()
-            Column(Modifier.padding(end = 10.dp).verticalScroll(scrollState)) {
-                val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
-                    .filter { it.activityState != CharacterActivityState.DISCONNECTED }
-                for (character in connectedCharactersUIStates) {
-                    val lastExploration = uiState.lastExplorationByCharacter[character.name]
-                    Column(Modifier.padding(bottom = 20.dp)) {
-                        LastExplorationHeaderContent(connectedCharactersUIStates, character.name, lastExploration)
+        Row(Modifier.padding(5.dp).fillMaxSize()) {
+            val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
+                .filter { it.activityState != CharacterActivityState.DISCONNECTED }
+            for (characterUiState in connectedCharactersUIStates) {
+                val character = CharacterManager.getCharacter(characterUiState.name)
+                    ?: error("Character not found : ${characterUiState.name}")
+                val lastExploration = uiState.lastExplorationByCharacter[characterUiState.name]
+                Row(Modifier.width(190.dp).padding(horizontal = 5.dp).darkGrayBoxStyle()) {
+                    TooltipTarget(
+                        text = characterUiState.activityState.labelBuilder(character),
+                        tooltipPlacement = TooltipPlacement.Top,
+                        delayMillis = 1000
+                    ) {
+                        Row(Modifier.width(5.dp).fillMaxHeight().background(characterUiState.activityState.color)) {}
+                    }
+                    Column(Modifier.padding(horizontal = 5.dp).padding(bottom = 5.dp)) {
+                        LastExplorationHeaderContent(characterUiState.name, lastExploration)
                         Spacer(Modifier.height(3.dp))
                         if (lastExploration == null) {
                             CommonText(
@@ -110,35 +165,21 @@ fun LastExplorationsContent() {
                     }
                 }
             }
-            VerticalScrollbar(
-                modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
-                adapter = rememberScrollbarAdapter(scrollState),
-            )
         }
     }
 }
 
 @Composable
-private fun LastExplorationHeaderContent(
-    connectedCharacterUIStates: List<CharacterUIState>,
-    characterName: String,
-    lastExploration: LastExploration?
-) {
+private fun LastExplorationHeaderContent(characterName: String, lastExploration: LastExploration?) {
     val characterUIState = CharactersUIUtil.getCharacterUIState(characterName).value
-    val character = CharacterManager.getCharacter(characterName)
-        ?: error("Character not found : $characterName")
     val breedAssets = BreedAssetManager.getAssets(characterUIState.dofusClassId)
-    Row(Modifier.fillMaxWidth()) {
-        TooltipTarget(
-            characterUIState.activityState.labelBuilder(character),
-            modifier = Modifier.align(Alignment.CenterVertically).padding(end = 5.dp, start = 6.dp)
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = characterUIState.activityState.color,
-                modifier = Modifier.size(15.dp)
-            ) {}
-        }
+    Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+        Image(
+            painter = breedAssets.simpleIconPainter,
+            "",
+            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.height(25.dp)
+        )
         Spacer(Modifier.width(5.dp))
         CommonText(
             characterName,
@@ -146,22 +187,10 @@ private fun LastExplorationHeaderContent(
             fontSize = 13.sp,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
-        Spacer(Modifier.width(5.dp))
-        Image(
-            painter = breedAssets.simpleIconPainter,
-            "",
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier.height(25.dp)
-        )
-        Divider(
-            Modifier.align(Alignment.CenterVertically).fillMaxWidth().padding(start = 5.dp, end = 5.dp).height(1.dp)
-                .weight(1f)
-        )
+        Spacer(Modifier.fillMaxWidth().weight(1f))
         val buttonSize = 25.dp
         if (lastExploration != null) {
-            val toExploreAgain = lastExploration.progressBySubArea.filter {
-                it.value.total == 0 || it.value.current < it.value.total
-            }.keys.toList()
+            val toExploreAgain = lastExploration.getSubAreasToExploreAgain()
             if (characterUIState.activityState != CharacterActivityState.BUSY && toExploreAgain.isNotEmpty()) {
                 Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
                     ButtonWithTooltip(
@@ -178,45 +207,30 @@ private fun LastExplorationHeaderContent(
                 }
             }
         }
-        if (characterUIState.activityState != CharacterActivityState.BUSY && characterUIState.currentMap != null) {
-            val toGatherCharacters = connectedCharacterUIStates.filter { it.name != characterUIState.name }
-            val gatherButtonEnabled = toGatherCharacters.isNotEmpty()
+        if (characterUIState.activityState != CharacterActivityState.BUSY) {
+            val subAreas = ExplorationUIUtil.mapUIState.value.selectedSubAreaIds.map(SubAreaManager::getSubArea)
             Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
                 ButtonWithTooltip(
                     onClick = {
-                        toGatherCharacters.forEach {
-                            val toGatherCharacter = CharacterManager.getCharacter(it.name)
-                            if (toGatherCharacter != null && !ScriptRunner.isScriptRunning(toGatherCharacter)) {
-                                ScriptRunner.runScript(
-                                    toGatherCharacter,
-                                    ReachMapScriptBuilder,
-                                    ScriptValues().also { scriptValues ->
-                                        scriptValues.updateParamValue(
-                                            ReachMapScriptBuilder.reachMapTypeParameter,
-                                            ReachMapScriptBuilder.ReachMapType.BY_MAP_ID.label
-                                        )
-                                        scriptValues.updateParamValue(
-                                            ReachMapScriptBuilder.mapIdParameter,
-                                            characterUIState.currentMap.id.toString()
-                                        )
-                                    })
-                            }
-                        }
+                        ExplorationUIUtil.startExploration(subAreas, characterName)
+                        ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
+                            selectedSubAreaIds = emptyList()
+                        )
                     },
-                    title = "Gather available characters",
+                    title = "Start exploration",
                     shape = RoundedCornerShape(15),
+                    enabled = subAreas.isNotEmpty(),
                     hoverBackgroundColor = Color.Gray,
-                    defaultBackgroundColor = AppColors.DARK_BG_COLOR,
-                    enabled = gatherButtonEnabled,
-                    delayMillis = 0,
-                    width = buttonSize
+                    defaultBackgroundColor = AppColors.VERY_DARK_BG_COLOR,
                 ) {
-                    Image(
-                        UiResource.GATHER.imagePainter,
-                        "",
-                        modifier = Modifier.fillMaxSize(),
-                        colorFilter = ColorFilter.tint(if (gatherButtonEnabled) AppColors.primaryColor else Color.Gray)
-                    )
+                    Box(Modifier.fillMaxSize()) {
+                        Image(
+                            Icons.Default.PlayArrow,
+                            "",
+                            modifier = Modifier.fillMaxSize(),
+                            colorFilter = ColorFilter.tint(if (subAreas.isNotEmpty()) AppColors.GREEN else Color.Gray)
+                        )
+                    }
                 }
             }
         }

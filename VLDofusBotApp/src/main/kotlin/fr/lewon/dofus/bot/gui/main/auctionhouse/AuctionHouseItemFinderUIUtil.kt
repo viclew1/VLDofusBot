@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import fr.lewon.dofus.bot.core.d2o.managers.item.EffectManager
 import fr.lewon.dofus.bot.core.d2o.managers.item.ItemManager
 import fr.lewon.dofus.bot.core.model.item.DofusEffect
+import fr.lewon.dofus.bot.core.model.item.DofusItemEffect
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.BidExchangerObjectInfo
@@ -14,6 +15,7 @@ import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 
 object AuctionHouseItemFinderUIUtil : ComposeUIUtil() {
+
     val VALID_EFFECT_IDS_WITHOUT_VALUE = listOf(
         EffectIds.HUNTING_WEAPON_EFFECT_ID,
         EffectIds.PREVENT_SMITHMAGIC_EFFECT_ID
@@ -59,14 +61,16 @@ object AuctionHouseItemFinderUIUtil : ComposeUIUtil() {
     fun updateAdditionalFilter(
         filter: AdditionalFilter,
         minValue: Int? = filter.minValue,
-        effect: DofusEffect = filter.effect
+        effect: DofusEffect = filter.effect,
     ) {
         lock.executeSyncOperation {
             val uiStateValue = getUiState()
             val newAdditionalFilters = uiStateValue.additionalFilters.toMutableList()
             val index = newAdditionalFilters.indexOf(filter)
-            newAdditionalFilters[index] = AdditionalFilter(effect, minValue)
-            uiState.value = uiStateValue.copy(additionalFilters = newAdditionalFilters)
+            if (index != -1) {
+                newAdditionalFilters[index] = AdditionalFilter(effect, minValue)
+                uiState.value = uiStateValue.copy(additionalFilters = newAdditionalFilters)
+            }
         }
     }
 
@@ -91,20 +95,25 @@ object AuctionHouseItemFinderUIUtil : ComposeUIUtil() {
     fun updateItem(objectGID: Int, itemTypeDescriptions: List<BidExchangerObjectInfo>) {
         lock.executeSyncOperation {
             val item = ItemManager.getItem(objectGID.toDouble())
+            val nativeItemEffects = item.effects.filter { it.effect.characteristic != null }
+                .filter { it.effect.operator == "+" || it.effect.operator == "-" }
             uiState.value = uiState.value.copy(
                 item = item,
+                nativeItemEffects = nativeItemEffects,
                 updateTimeMillis = System.currentTimeMillis(),
                 refreshing = false,
                 nativeMinValuesByEffect = emptyMap(),
-                additionalFilters = buildDefaultAdditionalFilters(),
+                additionalFilters = buildDefaultAdditionalFilters(nativeItemEffects),
                 availableItems = itemTypeDescriptions
             )
         }
     }
 
-    private fun buildDefaultAdditionalFilters() = listOf(
+    private fun buildDefaultAdditionalFilters(nativeItemEffects: List<DofusItemEffect>) = listOf(
         EffectIds.AP_EFFECT_ID,
         EffectIds.MP_EFFECT_ID,
         EffectIds.RANGE_EFFECT_ID
-    ).map { AdditionalFilter(EffectManager.getEffect(it) ?: error("No effect for ID : $it"), null) }
+    ).filter { effectId ->
+        nativeItemEffects.none { itemEffect -> itemEffect.effect.id == effectId }
+    }.map { AdditionalFilter(EffectManager.getEffect(it) ?: error("No effect for ID : $it"), null) }
 }

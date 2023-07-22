@@ -1,15 +1,16 @@
 package fr.lewon.dofus.bot.scripts.parameters
 
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 
-data class DofusBotParameter(
-    var key: String = "",
-    var description: String = "",
-    var defaultValue: String = "",
-    var type: DofusBotParameterType = DofusBotParameterType.STRING,
-    var possibleValues: List<String> = emptyList(),
-    var parametersGroup: Int? = null,
-    var displayCondition: (scriptValues: ScriptValues) -> Boolean = { true },
-)
+abstract class DofusBotParameter<T>(
+    val key: String,
+    val description: String,
+    val defaultValue: T,
+    val parametersGroup: Int? = null,
+    val displayCondition: (parameterValues: ParameterValues) -> Boolean = { true },
+) {
 
-const val MultipleParameterValuesSeparator = "/__;__/"
+    abstract fun stringToValue(rawValue: String): T
+
+    abstract fun valueToString(value: T): String
+}

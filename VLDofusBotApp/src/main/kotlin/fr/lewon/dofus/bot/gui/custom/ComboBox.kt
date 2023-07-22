@@ -34,7 +34,7 @@ private data class ComboBoxState<T>(
     val textFieldSize: Size = Size.Zero,
     val expanded: Boolean = false,
     val filterItems: Boolean = false,
-    val lastUpdateTime: Long = System.currentTimeMillis()
+    val lastUpdateTime: Long = System.currentTimeMillis(),
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -48,7 +48,7 @@ fun <T> ComboBox(
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     maxDropDownHeight: Dp = Dp.Infinity,
     multipleChoice: Boolean = false,
-    getItemIconPainter: (item: T) -> Painter? = { null }
+    getItemIconPainter: (item: T) -> Painter? = { null },
 ) {
     var state by remember(selectedItem) { mutableStateOf(ComboBoxState(selectedItem, getItemText(selectedItem))) }
 
@@ -92,7 +92,7 @@ fun <T> ComboBox(
     }
 
     SimpleTextField(
-        value = state.selectedText,
+        text = state.selectedText,
         onValueChange = {
             if (it != state.selectedText) {
                 resetState(

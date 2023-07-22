@@ -80,7 +80,7 @@ object InteractiveUtil {
         val leftDelta: Float,
         val rightDelta: Float,
         val topDelta: Float,
-        val bottomDelta: Float
+        val bottomDelta: Float,
     )
 
     private fun getBoundsCropDelta(bounds: UIRectangle): UIRectangleDelta {
@@ -98,7 +98,7 @@ object InteractiveUtil {
         gameInfo: GameInfo,
         destCellCompleteData: CompleteCellData,
         elementData: GraphicalElementData,
-        graphicalElement: GraphicalElement
+        graphicalElement: GraphicalElement,
     ): UIRectangle {
         val destCellId = destCellCompleteData.cellId
         val cell = gameInfo.dofusBoard.getCell(destCellId)
@@ -182,6 +182,7 @@ object InteractiveUtil {
         -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, 0)))
         485282, // -1 ; -42
         522746, // -28 ; 35
+        484082, // -30; -11
         -> listOf(bounds.getCenter().getSum(PointAbsolute(bounds.width / 3, bounds.height / 3)))
         523968, // -24 ; 39
         523592, // -23 ; 39
@@ -192,6 +193,8 @@ object InteractiveUtil {
         521652, // -36 ; -60
         523654, // -33 ; -58
         -> listOf(bounds.getCenter().getSum(PointAbsolute(-bounds.width / 3, bounds.height / 3)))
+        522812, // -23 ; 38
+        -> listOf(bounds.getTopRight().getSum(PointAbsolute(-2, 2)))
         else -> null
     }
 
@@ -230,14 +233,14 @@ object InteractiveUtil {
 
     private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1500) {
         gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java) != null
-                || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
     }
 
     private fun doUseInteractive(
         gameInfo: GameInfo,
         elementClickLocation: PointRelative,
         skills: List<InteractiveElementSkill>,
-        skillIndex: Int
+        skillIndex: Int,
     ) {
         if (skills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }.size > 1) {
             if (!RetryUtil.tryUntilSuccess({ clickOption(gameInfo, elementClickLocation, skillIndex) }, 10)) {
@@ -251,7 +254,7 @@ object InteractiveUtil {
     private fun clickOption(
         gameInfo: GameInfo,
         interactiveLocation: PointRelative,
-        skillIndex: Int
+        skillIndex: Int,
     ): Boolean {
         val optionHeaderRect = REF_HEADER_RECT.getTranslation(REF_INTERACTIVE_LOCATION.opposite())
             .getTranslation(interactiveLocation)
@@ -268,7 +271,7 @@ object InteractiveUtil {
     private fun isOptionFound(
         gameInfo: GameInfo,
         elementClickLocation: PointRelative,
-        optionHeaderRect: RectangleRelative
+        optionHeaderRect: RectangleRelative,
     ): Boolean {
         MouseUtil.move(gameInfo, elementClickLocation)
         return ScreenUtil.colorCount(
@@ -318,6 +321,7 @@ object InteractiveUtil {
         ;
 
         companion object {
+
             fun getPoints(boundsCropDelta: UIRectangleDelta): List<GfxPointToCheck> {
                 val points = values().toMutableList()
                 if (boundsCropDelta.leftDelta > 0) {

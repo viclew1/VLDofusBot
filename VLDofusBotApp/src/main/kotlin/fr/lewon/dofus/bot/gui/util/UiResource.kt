@@ -31,7 +31,9 @@ enum class UiResource(path: String) {
     ZAAP("/icon/ui/zaap.png"),
     UNKNOWN("/icon/ui/unknown.png"),
     WARNING("/icon/ui/warning.png"),
-    TREASURE_HUNT("/icon/ui/treasure_hunt.png")
+    TREASURE_HUNT("/icon/ui/treasure_hunt.png"),
+    ARCHMONSTER("/icon/ui/archmonster.png"),
+    QUEST_MONSTER("/icon/ui/quest_monster.png"),
     ;
 
     val imageData = javaClass.getResourceAsStream(path)?.readAllBytes()

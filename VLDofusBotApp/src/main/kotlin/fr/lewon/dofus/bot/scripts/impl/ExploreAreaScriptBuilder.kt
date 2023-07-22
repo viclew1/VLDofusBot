@@ -4,12 +4,11 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
-import fr.lewon.dofus.bot.scripts.parameters.MultipleParameterValuesSeparator
+import fr.lewon.dofus.bot.scripts.parameters.impl.*
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreasTask
 import fr.lewon.dofus.bot.util.StringUtil
@@ -21,9 +20,9 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     private val SUB_AREAS = SubAreaManager.getAllSubAreas()
         .filter {
             ExploreSubAreaTask.SUB_AREA_ID_FULLY_ALLOWED.contains(it.id)
-                    || MapManager.getDofusMaps(it).isNotEmpty()
-                    && it.area.superAreaId == 0
-                    && hasNoBoss(it)
+                || MapManager.getDofusMaps(it).isNotEmpty()
+                && it.area.superAreaId == 0
+                && hasNoBoss(it)
         }
 
     private fun hasNoBoss(subArea: DofusSubArea): Boolean {
@@ -31,103 +30,95 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     }
 
     private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { it.label }
-    private val SUB_AREA_LABELS = SUB_AREA_BY_LABEL.keys.sortedBy { StringUtil.removeAccents(it) }
 
-    val currentAreaParameter = DofusBotParameter(
+    val currentAreaParameter = BooleanParameter(
         "Run in current area",
         "If checked, ignores sub area parameter and explores current area",
-        "false",
-        DofusBotParameterType.BOOLEAN,
+        false,
         parametersGroup = 1
     )
 
-    val subAreasParameter = DofusBotParameter(
+    val subAreasParameter = MultiChoiceParameter(
         "Sub areas",
         "Sub areas to explore",
-        SUB_AREA_LABELS.firstOrNull() ?: "",
-        DofusBotParameterType.MULTIPLE_CHOICE,
-        SUB_AREA_LABELS,
-        displayCondition = { it.getParamValue(currentAreaParameter) == "false" },
+        listOf(SUB_AREA_BY_LABEL.values.first()),
+        getAvailableValues = { SUB_AREA_BY_LABEL.entries.sortedBy { StringUtil.removeAccents(it.key) }.map { it.value } },
+        displayCondition = { !it.getParamValue(currentAreaParameter) },
+        itemValueToString = { it.label },
+        stringToItemValue = { SUB_AREA_BY_LABEL[it] ?: error("Sub area not found : $it") },
         parametersGroup = 1
     )
 
-    val killEverythingParameter = DofusBotParameter(
+    val killEverythingParameter = BooleanParameter(
         "Kill everything",
         "Fights every group of monsters present on the maps",
-        "false",
-        DofusBotParameterType.BOOLEAN,
+        false,
         parametersGroup = 2
     )
 
-    val maxMonsterGroupLevelParameter = DofusBotParameter(
+    val maxMonsterGroupLevelParameter = IntParameter(
         "Max monster group level",
         "Avoid monster groups above this level. 0 to ignore",
-        "0",
-        DofusBotParameterType.INTEGER,
+        0,
         parametersGroup = 2,
-        displayCondition = { it.getParamValue(killEverythingParameter) == "true" }
+        displayCondition = { it.getParamValue(killEverythingParameter) }
     )
 
-    val maxMonsterGroupSizeParameter = DofusBotParameter(
+    val maxMonsterGroupSizeParameter = IntParameter(
         "Max monster group size",
         "Avoid monster groups bigger than this size. 0 to ignore",
-        "0",
-        DofusBotParameterType.INTEGER,
+        0,
         parametersGroup = 2,
-        displayCondition = { it.getParamValue(killEverythingParameter) == "true" }
+        displayCondition = { it.getParamValue(killEverythingParameter) }
     )
 
-    val searchedMonsterParameter = DofusBotParameter(
+    val searchedMonsterParameter = StringParameter(
         "Searched monster",
         "Monster which will stop exploration when found. Leave empty if you're not seeking a monster",
         "",
-        DofusBotParameterType.STRING,
         parametersGroup = 3
     )
 
-    val stopWhenArchMonsterFoundParameter = DofusBotParameter(
+    val stopWhenArchMonsterFoundParameter = BooleanParameter(
         "Stop when arch monster found",
         "Stops exploration when you find an arch monster",
-        "true",
-        DofusBotParameterType.BOOLEAN,
+        true,
         parametersGroup = 3
     )
 
-    val stopWhenQuestMonsterFoundParameter = DofusBotParameter(
+    val stopWhenQuestMonsterFoundParameter = BooleanParameter(
         "Stop when quest monster found",
         "Stops exploration when you find a quest monster",
-        "false",
-        DofusBotParameterType.BOOLEAN,
+        false,
         parametersGroup = 3
     )
 
-    val runForeverParameter = DofusBotParameter(
+    val runForeverParameter = BooleanParameter(
         "Run forever",
         "Explores this area until you manually stop",
-        "false",
-        DofusBotParameterType.BOOLEAN,
+        false,
         parametersGroup = 4
     )
 
-    val ignoreMapsExploredRecentlyParameter = DofusBotParameter(
+    val ignoreMapsExploredRecentlyParameter = IntParameter(
         "Ignore maps you explored in the last X min. (0 to explore all)",
         "Ignore maps any of your character explored less than the passed value (in minutes). Set to 0 or less to ignore.",
-        "15",
-        DofusBotParameterType.INTEGER,
+        15,
         parametersGroup = 4,
-        displayCondition = { it.getParamValue(runForeverParameter) == "false" }
+        displayCondition = { !it.getParamValue(runForeverParameter) }
     )
 
-    val harvestParameter = DofusBotParameter(
+    val harvestParameter = ChoiceParameter(
         "Harvestable set",
         "Harvest any resource in this set",
         HarvestableSetsManager.defaultHarvestableIdsBySetName.keys.first(),
-        DofusBotParameterType.CHOICE,
-        possibleValues = HarvestableSetsManager.getHarvestableIdsBySetName().keys.toList(),
+        getAvailableValues = { HarvestableSetsManager.getHarvestableIdsBySetName().keys.toList() },
+        itemValueToString = { it },
+        stringToItemValue = { it },
         parametersGroup = 5
     )
 
-    override fun getParameters(): List<DofusBotParameter> = listOf(
+    override fun getParameters(): List<DofusBotParameter<*>> = listOf(
         currentAreaParameter,
         subAreasParameter,
         stopWhenArchMonsterFoundParameter,
@@ -152,31 +143,26 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        val currentAreaParameterValue = scriptValues.getParamValue(currentAreaParameter).toBoolean()
-        val subAreas = if (currentAreaParameterValue) {
+        val subAreas = if (parameterValues.getParamValue(currentAreaParameter)) {
             listOf(gameInfo.currentMap.subArea)
-        } else {
-            val subAreaParameterValue = scriptValues.getParamValue(subAreasParameter)
-            val labels = subAreaParameterValue.split(MultipleParameterValuesSeparator)
-            labels.map { SUB_AREA_BY_LABEL[it] ?: error("Sub area not found : $it") }
-        }
-        val harvestableSetName = scriptValues.getParamValue(harvestParameter)
+        } else parameterValues.getParamValue(subAreasParameter)
+        val harvestableSetName = parameterValues.getParamValue(harvestParameter)
         val itemIdsToHarvest = HarvestableSetsManager.getItemsToHarvest(harvestableSetName)
-        val runForever = scriptValues.getParamValue(runForeverParameter).toBoolean()
+        val runForever = parameterValues.getParamValue(runForeverParameter)
         val explorationThresholdMinutes = if (!runForever) {
-            scriptValues.getParamValue(ignoreMapsExploredRecentlyParameter).toInt()
+            parameterValues.getParamValue(ignoreMapsExploredRecentlyParameter)
         } else 0
         ExploreSubAreasTask(
             subAreas = subAreas,
-            killEverything = scriptValues.getParamValue(killEverythingParameter).toBoolean(),
-            maxMonsterGroupLevel = scriptValues.getParamValue(maxMonsterGroupLevelParameter).toInt(),
-            maxMonsterGroupSize = scriptValues.getParamValue(maxMonsterGroupSizeParameter).toInt(),
-            searchedMonsterName = scriptValues.getParamValue(searchedMonsterParameter),
-            stopWhenArchMonsterFound = scriptValues.getParamValue(stopWhenArchMonsterFoundParameter).toBoolean(),
-            stopWhenWantedMonsterFound = scriptValues.getParamValue(stopWhenQuestMonsterFoundParameter).toBoolean(),
+            killEverything = parameterValues.getParamValue(killEverythingParameter),
+            maxMonsterGroupLevel = parameterValues.getParamValue(maxMonsterGroupLevelParameter),
+            maxMonsterGroupSize = parameterValues.getParamValue(maxMonsterGroupSizeParameter),
+            searchedMonsterName = parameterValues.getParamValue(searchedMonsterParameter),
+            stopWhenArchMonsterFound = parameterValues.getParamValue(stopWhenArchMonsterFoundParameter),
+            stopWhenWantedMonsterFound = parameterValues.getParamValue(stopWhenQuestMonsterFoundParameter),
             runForever = runForever,
             explorationThresholdMinutes = explorationThresholdMinutes,
             itemIdsToHarvest = itemIdsToHarvest

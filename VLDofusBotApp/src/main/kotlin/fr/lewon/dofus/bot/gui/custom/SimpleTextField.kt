@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.util.AppColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -32,7 +35,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SimpleTextField(
-    value: String,
+    text: String,
     onValueChange: (value: String) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -43,45 +46,67 @@ fun SimpleTextField(
     trailingIcon: Painter? = null,
     inputHandlers: List<KeyHandler> = emptyList(),
     placeHolderText: String = "",
-    placeHolderColor: Color = getPlaceHolderColor(backgroundColor)
+    placeHolderColor: Color = getPlaceHolderColor(backgroundColor),
 ) {
-    val textFieldValueState = remember { mutableStateOf(TextFieldValue(text = value, composition = TextRange(0, 0))) }
-    val textFieldValue = textFieldValueState.value.copy(text = value)
-    val previousText = mutableStateOf(textFieldValue.text)
+    val textFieldValueState = remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = text,
+                composition = TextRange(0, 0)
+            )
+        )
+    }
+    LaunchedEffect(text) {
+        textFieldValueState.value = textFieldValueState.value.copy(text = text)
+    }
+    val previousText = mutableStateOf(textFieldValueState.value.text)
     val textSelectionColors = TextSelectionColors(
         handleColor = Color.White,
         backgroundColor = Color.Gray,
     )
+    val coroutineScope = rememberCoroutineScope()
     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
         BasicTextField(
-            value = textFieldValue,
+            value = textFieldValueState.value,
             enabled = enabled,
             onValueChange = { newValue ->
                 val newText = newValue.text.replace("\n", "")
                 if (isContentValid(newText)) {
                     onValueChange(newText)
-                    textFieldValueState.value = newValue
-                    previousText.value = newText
-                } else {
-                    val backupTfv = TextFieldValue(previousText.value, TextRange(textFieldValue.selection.start))
-                    textFieldValueState.value = backupTfv
-                    onValueChange("INVALID_$newText")
-                    onValueChange(previousText.value)
                 }
+                textFieldValueState.value = newValue
+                previousText.value = newText
             },
             maxLines = 1,
-            modifier = modifier.onFocusSelectAll(textFieldValueState).onFocusLeaveResetSelection(textFieldValueState)
-                .onPreviewKeyEvent { keyEvent ->
-                    keyEvent.isCtrlPressed && keyEvent.key == Key.Backspace && textFieldValue.text.isEmpty()
-                            || keyEvent.type == KeyEventType.KeyDown
-                            && inputHandlers.filter { it.checkKey(keyEvent) }.onEach { it.handleKeyEvent() }
-                        .isNotEmpty()
-                },
+            modifier = modifier.onFocusChanged {
+                val hasFocus = it.isFocused || it.hasFocus
+                coroutineScope.launch {
+                    onValueChange(textFieldValueState.value.text)
+                    textFieldValueState.value = textFieldValueState.value.copy(
+                        selection = if (hasFocus) {
+                            TextRange(0, textFieldValueState.value.text.length)
+                        } else TextRange(0, 0),
+                        composition = if (hasFocus) {
+                            textFieldValueState.value.composition
+                        } else TextRange(0, 0),
+                        text = if (!isContentValid(textFieldValueState.value.text)) {
+                            text
+                        } else textFieldValueState.value.text
+                    )
+                }
+            }.onPreviewKeyEvent { keyEvent ->
+                keyEvent.isCtrlPressed && keyEvent.key == Key.Backspace && textFieldValueState.value.text.isEmpty()
+                    || keyEvent.type == KeyEventType.KeyDown
+                    && inputHandlers.filter { it.checkKey(keyEvent) }.onEach { it.handleKeyEvent() }
+                    .isNotEmpty()
+            },
             cursorBrush = SolidColor(Color.White),
             textStyle = TextStyle(fontSize = 13.sp, color = Color.White),
+            singleLine = false,
             decorationBox = { innerTextField ->
                 Row(
                     Modifier.background(backgroundColor, RoundedCornerShape(5.dp))
+                        .height(25.dp)
                         .padding(3.dp)
                         .border(BorderStroke(1.dp, borderColor)).padding(horizontal = 5.dp)
                 ) {
@@ -89,7 +114,7 @@ fun SimpleTextField(
                         Image(it, "", Modifier.height(23.dp).align(Alignment.CenterVertically).padding(end = 5.dp))
                     }
                     Box(Modifier.align(Alignment.CenterVertically).fillMaxWidth().weight(1f)) {
-                        if (textFieldValue.text.isEmpty()) {
+                        if (textFieldValueState.value.text.isEmpty()) {
                             CommonText(
                                 placeHolderText,
                                 enabledColor = placeHolderColor,
@@ -98,6 +123,18 @@ fun SimpleTextField(
                             )
                         }
                         innerTextField()
+                    }
+                    if (!isContentValid(textFieldValueState.value.text)) {
+                        TooltipTarget(
+                            "Invalid content",
+                            modifier = Modifier.height(23.dp).align(Alignment.CenterVertically)
+                        ) {
+                            Image(
+                                Icons.Default.Warning,
+                                "",
+                                colorFilter = ColorFilter.tint(Color.Red)
+                            )
+                        }
                     }
                     trailingIcon?.let {
                         Image(
@@ -125,13 +162,12 @@ private fun getPlaceHolderColor(backgroundColor: Color): Color {
 }
 
 @Composable
-private fun Modifier.onFocusLeaveResetSelection(
+private fun Modifier.onFocusLeaveReset(
     textFieldValueState: MutableState<TextFieldValue>,
-    scope: CoroutineScope = rememberCoroutineScope()
+    scope: CoroutineScope = rememberCoroutineScope(),
 ): Modifier = onFocusChanged {
     if (!it.isFocused && !it.hasFocus) {
         scope.launch {
-            delay(20)
             textFieldValueState.value = textFieldValueState.value.copy(
                 selection = TextRange(0, 0),
                 composition = TextRange(0, 0)
@@ -143,7 +179,7 @@ private fun Modifier.onFocusLeaveResetSelection(
 @Composable
 private fun Modifier.onFocusSelectAll(
     textFieldValueState: MutableState<TextFieldValue>,
-    scope: CoroutineScope = rememberCoroutineScope()
+    scope: CoroutineScope = rememberCoroutineScope(),
 ): Modifier = onFocusChanged {
     if (it.isFocused || it.hasFocus) {
         scope.launch {

@@ -66,7 +66,7 @@ private fun FilterLine(uiState: DevToolsUiState) {
             fontWeight = FontWeight.SemiBold
         )
         SimpleTextField(
-            value = uiState.nameFilter,
+            text = uiState.nameFilter,
             onValueChange = { DevToolsUiUtil.updateNameFilter(it) },
             modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
         )

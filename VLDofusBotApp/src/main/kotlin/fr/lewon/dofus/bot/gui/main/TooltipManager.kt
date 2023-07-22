@@ -32,7 +32,7 @@ private val tooltipInfo = mutableStateOf<TooltipInfo?>(null)
 @Composable
 fun TooltipManageable(
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     var globalPosition by remember { mutableStateOf(Offset.Zero) }
     var globalSize by remember { mutableStateOf(IntSize.Zero) }
@@ -48,8 +48,8 @@ fun TooltipManageable(
             Box(modifier = Modifier.graphicsLayer {
                 if (tooltipSize.width != 0) {
                     val requiredWidth = tooltipSize.width +
-                            currentTooltipInfo.elementPosition.x +
-                            currentTooltipInfo.elementSize.width
+                        currentTooltipInfo.elementPosition.x +
+                        currentTooltipInfo.elementSize.width
                     val dx: Int
                     if (requiredWidth < globalSize.width) {
                         dx = currentTooltipInfo.elementSize.width
@@ -99,7 +99,7 @@ fun TooltipTarget(
     delayMillis: Int = 0,
     modifier: Modifier = Modifier,
     tooltipPlacement: TooltipPlacement = TooltipPlacement.Centered,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val tooltipContent: (@Composable RowScope.() -> Unit)? = if (text.isNotEmpty()) ({
         Row(Modifier.height(height)) {
@@ -128,7 +128,7 @@ fun TooltipTarget(
     tooltipPlacement: TooltipPlacement = TooltipPlacement.Centered,
     delayMillis: Int = 0,
     modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var elementPosition by remember { mutableStateOf(Offset.Zero) }
@@ -159,12 +159,17 @@ fun TooltipTarget(
         tooltipInfo.value = null
     }
 
-    Box(modifier = modifier.defaultHoverManager(onHover = show, onExit = hide, key = key).onGloballyPositioned {
-        elementPosition = it.localToWindow(Offset.Zero)
-        elementSize = it.size
-    }.pointerInput(Unit) {
-        detectDown { hide() }
-    }) {
+    Box(
+        modifier = modifier.defaultHoverManager(
+            onHover = { show() },
+            onExit = { hide() },
+            key = key
+        ).onGloballyPositioned {
+            elementPosition = it.localToWindow(Offset.Zero)
+            elementSize = it.size
+        }.pointerInput(Unit) {
+            detectDown { hide() }
+        }) {
         content()
     }
 }
@@ -184,11 +189,12 @@ suspend fun PointerInputScope.detectDown(onDown: (Offset) -> Unit) {
 enum class TooltipPlacement(val computeYOffset: (contentHeight: Int, tooltipHeight: Int) -> Float) {
     Centered({ contentHeight, tooltipHeight -> contentHeight / 2f - tooltipHeight / 2f }),
     TopCornerAttached({ contentHeight, _ -> contentHeight / 2f }),
+    Top({ _, _ -> 0f }),
 }
 
 data class TooltipInfo(
     val tooltipContent: @Composable RowScope.() -> Unit,
     val tooltipPlacement: TooltipPlacement,
     val elementPosition: Offset,
-    val elementSize: IntSize
+    val elementSize: IntSize,
 )

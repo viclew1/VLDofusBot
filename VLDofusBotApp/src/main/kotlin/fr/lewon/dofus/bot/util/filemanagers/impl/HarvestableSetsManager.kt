@@ -3,7 +3,6 @@ package fr.lewon.dofus.bot.util.filemanagers.impl
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.model.characters.jobs.HarvestableIdsBySetName
 import fr.lewon.dofus.bot.model.jobs.HarvestJobs
-import fr.lewon.dofus.bot.scripts.impl.ExploreAreaScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.FileManager
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterSpellManagerListener
@@ -34,7 +33,6 @@ object HarvestableSetsManager : ListenableByCharacter<CharacterSpellManagerListe
                 it.computeIfAbsent(setName) { HashSet() }
             }
         }
-        ExploreAreaScriptBuilder.harvestParameter.possibleValues = getHarvestableIdsBySetName().keys.toList()
     }
 
     fun addItemToHarvest(setName: String, itemId: Double) = lock.executeSyncOperation {
@@ -63,7 +61,6 @@ object HarvestableSetsManager : ListenableByCharacter<CharacterSpellManagerListe
         fileManager.updateStore {
             it.remove(setName)
         }
-        ExploreAreaScriptBuilder.harvestParameter.possibleValues = getHarvestableIdsBySetName().keys.toList()
     }
 
 }

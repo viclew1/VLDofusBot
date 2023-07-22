@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.gui.custom.ParameterLine
 import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
 import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 
 @Composable
 fun MetamobFiltersContent() {
@@ -23,13 +24,9 @@ fun MetamobFiltersContent() {
             )
         }
         Column(Modifier.padding(10.dp)) {
-            for ((filter, value) in MetamobHelperUIUtil.getUiStateValue().valueByFilter) {
-                ParameterLine(
-                    filter.parameter,
-                    getParamValue = { value },
-                    onParamUpdate = { MetamobHelperUIUtil.updateFilter(filter, it) },
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
+            val filterValues = MetamobHelperUIUtil.getUiStateValue().filterValues
+            for (filter in MonsterFilters) {
+                FilterLine(filter, filterValues)
             }
         }
         Spacer(Modifier.fillMaxHeight().weight(1f))
@@ -38,4 +35,14 @@ fun MetamobFiltersContent() {
             CommonText("Total displayed : ${MetamobHelperUIUtil.getFilteredMonsters().size}")
         }
     }
+}
+
+@Composable
+private fun <T> FilterLine(filter: MonsterFilter<T>, filterValues: ParameterValues) {
+    ParameterLine(
+        filter.parameter,
+        filterValues,
+        onParamUpdate = { MetamobHelperUIUtil.updateFilter(filter, it) },
+        modifier = Modifier.padding(vertical = 2.dp)
+    )
 }

@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
@@ -14,7 +14,7 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object RaiseMountsScriptBuilder : DofusBotScriptBuilder("Raise mounts") {
 
-    override fun getParameters(): List<DofusBotParameter> {
+    override fun getParameters(): List<DofusBotParameter<*>> {
         return emptyList()
     }
 
@@ -29,8 +29,8 @@ object RaiseMountsScriptBuilder : DofusBotScriptBuilder("Raise mounts") {
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
         removeAllPaddockItems(gameInfo)
     }

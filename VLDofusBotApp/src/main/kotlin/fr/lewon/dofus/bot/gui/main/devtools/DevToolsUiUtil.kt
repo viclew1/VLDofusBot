@@ -32,7 +32,7 @@ object DevToolsUiUtil : ComposeUIUtil() {
                 ModuleItem(id, name, description, content)
             }.sortedBy { it.id },
             moduleItemNameFilter = "",
-            moduleItemIdFilter = "",
+            moduleItemIdFilter = 0,
         )
     }
 
@@ -44,7 +44,7 @@ object DevToolsUiUtil : ComposeUIUtil() {
         uiState.value = uiState.value.copy(moduleItemNameFilter = moduleItemNameFilter)
     }
 
-    fun updateModuleItemIdFilter(moduleItemIdFilter: String) {
+    fun updateModuleItemIdFilter(moduleItemIdFilter: Int) {
         uiState.value = uiState.value.copy(moduleItemIdFilter = moduleItemIdFilter)
     }
 

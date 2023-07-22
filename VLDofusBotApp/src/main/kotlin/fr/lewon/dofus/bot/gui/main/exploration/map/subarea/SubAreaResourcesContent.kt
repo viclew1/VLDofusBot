@@ -44,10 +44,9 @@ fun SubAreaResourcesContent(subArea: DofusSubArea) {
 
 @Composable
 private fun ResourcesListContent(job: HarvestJobs, subArea: DofusSubArea) {
-    val toHarvestItemIds =
-        ExplorationUIUtil.explorerUIState.value.explorationParameterValuesByParameter[ExploreAreaScriptBuilder.harvestParameter]
-            ?.let { HarvestableSetsManager.getItemsToHarvest(it) }
-            ?: emptyList()
+    val harvestableSetName = ExplorationUIUtil.explorerUIState.value.explorationParameterValues
+        .getParamValue(ExploreAreaScriptBuilder.harvestParameter)
+    val toHarvestItemIds = HarvestableSetsManager.getItemsToHarvest(harvestableSetName)
     val harvestables = job.items.filter { subArea.harvestables.contains(it) }.distinct()
     if (harvestables.isNotEmpty()) {
         HorizontalSeparator(job.jobName, modifier = Modifier.padding(vertical = 10.dp))

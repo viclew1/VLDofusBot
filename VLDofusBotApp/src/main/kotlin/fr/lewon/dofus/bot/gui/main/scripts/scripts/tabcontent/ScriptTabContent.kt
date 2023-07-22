@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.parameters.ScriptParametersContent
-import fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.parameters.ScriptParametersUIUtil
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.scriptinfo.CurrentScriptInfoContent
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.selector.ScriptSelectorContent
 
@@ -19,7 +18,7 @@ import fr.lewon.dofus.bot.gui.main.scripts.scripts.tabcontent.selector.ScriptSel
 fun ScriptTabContent() {
     Column {
         ScriptSelectorContent()
-        val parameters = ScriptParametersUIUtil.getCurrentScriptParameters()
+        val parameters = ScriptTabsUIUtil.getCurrentScriptBuilder().getParameters()
         Column(Modifier.fillMaxHeight().weight(1f)) {
             AnimatedVisibility(
                 parameters.isNotEmpty(),

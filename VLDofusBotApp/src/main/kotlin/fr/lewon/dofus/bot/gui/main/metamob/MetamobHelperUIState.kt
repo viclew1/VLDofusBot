@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.gui.main.metamob
 
-import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.util.external.metamob.model.MetamobMonster
 
 data class MetamobHelperUIState(
     val metamobMonsters: List<MetamobMonster> = emptyList(),
-    val valueByFilter: Map<MonsterFilter, String> = MonsterFilter.values().associateWith { it.parameter.defaultValue },
+    val filterValues: ParameterValues = ParameterValues(),
     val priceByArchmonsterId: Map<Int, Long> = HashMap(),
     val refreshingPrices: Boolean = false,
     val lastPriceRefreshTimeMillis: Long? = null,

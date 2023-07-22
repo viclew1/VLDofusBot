@@ -12,14 +12,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.scripts.scripts.ScriptTabsUIUtil
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
+import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
+import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 
 @Composable
 fun ScriptParametersContent() {
     val builder = ScriptTabsUIUtil.getCurrentScriptBuilder()
-    val parameters = ScriptParametersUIUtil.getCurrentScriptParameters()
+    val parameters = builder.getParameters()
     val parametersGroups = parameters.groupBy { it.parametersGroup }.entries
         .sortedBy { it.value.firstOrNull()?.parametersGroup ?: Int.MAX_VALUE }
         .map { it.value }
+    val parameterValues = ScriptParametersUIUtil.getParameterValues(builder)
     Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
         Row(Modifier.fillMaxWidth().height(30.dp).darkGrayBoxStyle()) {
             CommonText(
@@ -32,21 +36,9 @@ fun ScriptParametersContent() {
             Box(Modifier.fillMaxSize()) {
                 val state = rememberScrollState()
                 Column(Modifier.verticalScroll(state).padding(end = 10.dp)) {
-                    ScriptParametersUIUtil.updateParameters(builder)
                     for (parameterGroup in parametersGroups) {
                         for (parameter in parameterGroup) {
-                            if (ScriptParametersUIUtil.getScriptParameterUIState(builder, parameter).displayed) {
-                                Row(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 5.dp)) {
-                                    ParameterLine(parameter, getParamValue = {
-                                        ScriptParametersUIUtil.getScriptParameterUIState(
-                                            builder,
-                                            parameter
-                                        ).parameterValue
-                                    }, onParamUpdate = {
-                                        ScriptParametersUIUtil.updateParamValue(builder, parameter, it)
-                                    })
-                                }
-                            }
+                            ParameterRow(builder, parameter, parameterValues)
                         }
                         HorizontalSeparator(modifier = Modifier.padding(start = 2.dp))
                     }
@@ -56,6 +48,21 @@ fun ScriptParametersContent() {
                     adapter = rememberScrollbarAdapter(state),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun <T> ParameterRow(
+    scriptBuilder: DofusBotScriptBuilder,
+    parameter: DofusBotParameter<T>,
+    parameterValues: ParameterValues,
+) {
+    if (parameter.displayCondition(parameterValues)) {
+        Row(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 5.dp)) {
+            ParameterLine(parameter, parameterValues, onParamUpdate = {
+                ScriptParametersUIUtil.updateParameterValue(scriptBuilder, parameter, it)
+            })
         }
     }
 }

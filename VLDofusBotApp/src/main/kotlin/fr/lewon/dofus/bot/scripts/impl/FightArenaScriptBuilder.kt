@@ -1,11 +1,11 @@
 package fr.lewon.dofus.bot.scripts.impl
 
 import fr.lewon.dofus.bot.core.logs.LogItem
-import fr.lewon.dofus.bot.model.characters.scriptvalues.ScriptValues
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameterType
+import fr.lewon.dofus.bot.scripts.parameters.impl.IntParameter
 import fr.lewon.dofus.bot.scripts.tasks.impl.arena.ProcessArenaGameTask
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
@@ -13,14 +13,13 @@ object FightArenaScriptBuilder : DofusBotScriptBuilder("Fight in arena") {
 
     private val winRatioStat = DofusBotScriptStat("Win ratio")
 
-    private val fightCountParameter = DofusBotParameter(
+    private val fightCountParameter = IntParameter(
         "Fight count",
         "Amount of arena fights to do before stopping",
-        "20",
-        DofusBotParameterType.INTEGER
+        20,
     )
 
-    override fun getParameters(): List<DofusBotParameter> {
+    override fun getParameters(): List<DofusBotParameter<*>> {
         return listOf(fightCountParameter)
     }
 
@@ -35,10 +34,10 @@ object FightArenaScriptBuilder : DofusBotScriptBuilder("Fight in arena") {
     override fun doExecuteScript(
         logItem: LogItem,
         gameInfo: GameInfo,
-        scriptValues: ScriptValues,
-        statValues: HashMap<DofusBotScriptStat, String>
+        parameterValues: ParameterValues,
+        statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        val fightCount = scriptValues.getParamValue(fightCountParameter).toInt()
+        val fightCount = parameterValues.getParamValue(fightCountParameter)
         for (i in 0 until fightCount) {
             if (!ProcessArenaGameTask().run(logItem, gameInfo)) {
                 error("Failed to process an arena game")

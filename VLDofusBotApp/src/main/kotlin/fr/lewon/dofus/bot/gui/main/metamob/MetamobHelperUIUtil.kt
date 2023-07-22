@@ -5,6 +5,8 @@ import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilter
+import fr.lewon.dofus.bot.gui.main.metamob.filter.MonsterFilters
+import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.exchanges.ExchangeTypesItemsExchangerDescriptionForUserMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.data.items.effects.ObjectEffectDice
 import fr.lewon.dofus.bot.util.external.metamob.MetamobMonstersHelper
@@ -24,10 +26,19 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
     fun getUiStateValue() = uiState.value
 
     fun getFilteredMonsters(): List<MetamobMonster> {
-        val filters = uiState.value.valueByFilter
+        val filterValues = uiState.value.filterValues
         return uiState.value.metamobMonsters.filter { monster ->
-            filters.all { it.key.isMonsterValid(it.value, monster) }
+            MonsterFilters.all { checkMonsterMatchesFilter(monster, it, filterValues) }
         }
+    }
+
+    private fun <T> checkMonsterMatchesFilter(
+        monster: MetamobMonster,
+        filter: MonsterFilter<T>,
+        filterValues: ParameterValues,
+    ): Boolean {
+        val value = filterValues.getParamValue(filter.parameter)
+        return filter.isMonsterValid(value, monster)
     }
 
     fun refreshMonsters() = lock.executeSyncOperation {
@@ -92,9 +103,11 @@ object MetamobHelperUIUtil : ComposeUIUtil() {
         return priceByMonsterId
     }
 
-    fun updateFilter(filter: MonsterFilter, newValue: String) = lock.executeSyncOperation {
+    fun <T> updateFilter(filter: MonsterFilter<T>, newValue: T) = lock.executeSyncOperation {
+        val filterValues = uiState.value.filterValues.deepCopy()
+        filterValues.updateParamValue(filter.parameter, newValue)
         uiState.value = uiState.value.copy(
-            valueByFilter = uiState.value.valueByFilter.plus(filter to newValue)
+            filterValues = filterValues
         )
     }
 

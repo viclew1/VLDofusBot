@@ -50,12 +50,14 @@ fun AuctionHouseItemFinderContent() {
 @Composable
 fun ItemFiltersContent() {
     Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
-        val item = AuctionHouseItemFinderUIUtil.getUiState().item
+        val uiState = AuctionHouseItemFinderUIUtil.getUiState()
+        val item = uiState.item
+        val nativeItemEffects = uiState.nativeItemEffects
         Header(item)
         HorizontalSeparator()
-        NativeStatsFilterContent(item)
+        NativeStatsFilterContent(item, nativeItemEffects)
         HorizontalSeparator()
-        AdditionalStatsFilterContent(item)
+        AdditionalStatsFilterContent(item, nativeItemEffects)
     }
 }
 
@@ -91,18 +93,15 @@ private fun Header(item: DofusItem?) {
 }
 
 @Composable
-private fun ColumnScope.NativeStatsFilterContent(item: DofusItem?) {
+private fun ColumnScope.NativeStatsFilterContent(item: DofusItem?, nativeItemEffects: List<DofusItemEffect>) {
     val uiState = AuctionHouseItemFinderUIUtil.getUiState()
-    val effects = item?.effects?.filter { it.effect.characteristic != null }
-        ?.filter { it.effect.operator == "+" || it.effect.operator == "-" }
-        ?: emptyList()
     Column(Modifier.fillMaxSize().weight(1f)) {
         val state = rememberScrollState()
         SubTitleText("Native characteristics", modifier = Modifier.padding(start = 10.dp, top = 5.dp))
         if (item != null) {
             Box(Modifier.fillMaxWidth().padding(10.dp)) {
                 Column(Modifier.verticalScroll(state).padding(end = 10.dp)) {
-                    for (effect in effects) {
+                    for (effect in nativeItemEffects) {
                         NativeFilterLine(uiState, item, effect)
                     }
                 }
@@ -136,7 +135,7 @@ private fun NativeFilterLine(
 }
 
 @Composable
-private fun ColumnScope.AdditionalStatsFilterContent(item: DofusItem?) {
+private fun ColumnScope.AdditionalStatsFilterContent(item: DofusItem?, nativeItemEffects: List<DofusItemEffect>) {
     val uiState = AuctionHouseItemFinderUIUtil.getUiState()
     Column(Modifier.fillMaxSize().weight(1f)) {
         val state = rememberScrollState()
@@ -158,7 +157,7 @@ private fun ColumnScope.AdditionalStatsFilterContent(item: DofusItem?) {
                         CommonText("Add filter", modifier = Modifier.align(Alignment.CenterVertically))
                     }
                     for ((index, filter) in uiState.additionalFilters.withIndex()) {
-                        AdditionalFilterLine(filter, index)
+                        AdditionalFilterLine(filter, index, nativeItemEffects)
                     }
                 }
                 VerticalScrollbar(
@@ -171,7 +170,7 @@ private fun ColumnScope.AdditionalStatsFilterContent(item: DofusItem?) {
 }
 
 @Composable
-private fun AdditionalFilterLine(filter: AdditionalFilter, index: Int) {
+private fun AdditionalFilterLine(filter: AdditionalFilter, index: Int, nativeItemEffects: List<DofusItemEffect>) {
     val characteristic = filter.effect.characteristic
     if (characteristic != null) {
         Row(Modifier.fillMaxWidth().padding(2.dp).height(20.dp)) {
@@ -191,7 +190,10 @@ private fun AdditionalFilterLine(filter: AdditionalFilter, index: Int) {
                 Modifier.width(50.dp).align(Alignment.CenterVertically)
             )
             Spacer(Modifier.width(10.dp))
-            val availableEffects = AuctionHouseItemFinderUIUtil.getAvailableAdditionalEffects()
+            val nativeEffects = nativeItemEffects.map { it.effect }
+            val availableEffects = AuctionHouseItemFinderUIUtil.getAvailableAdditionalEffects().filter {
+                !nativeEffects.contains(it)
+            }
             ComboBox(
                 selectedItem = filter.effect,
                 items = availableEffects,
@@ -335,7 +337,7 @@ private fun getEffectTextStyle(item: DofusItem, effect: DofusEffect, value: Int?
         val realMaxValue = itemEffect.realMaxValue
         val realMinValue = itemEffect.realMinValue
         val color = if (value != null && realMinValue != null && value < realMinValue) {
-            Color(255, 140, 0)// Orange
+            Color(255, 140, 0) // Orange
         } else if (value != null && value > 0) {
             AppColors.GREEN
         } else if (value != null && value < 0) {

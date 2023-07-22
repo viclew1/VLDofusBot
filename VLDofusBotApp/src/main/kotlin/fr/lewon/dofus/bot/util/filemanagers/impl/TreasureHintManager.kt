@@ -46,7 +46,7 @@ object TreasureHintManager : ToInitManager {
     }
 
     fun isPointOfInterestOnMap(map: DofusMap, pointOfInterest: DofusPointOfInterest): Boolean {
-        val gfxIds = gfxIdsByPoiLabel[pointOfInterest.label] ?: error("Unknown POI element")
+        val gfxIds = gfxIdsByPoiLabel[pointOfInterest.label] ?: error("Hint not registered : ${pointOfInterest.label}")
         val mapData = D2PMapsAdapter.getMapData(map.id)
         return mapData.completeCellDataByCellId.flatMap { it.value.graphicalElements }
             .asSequence()
@@ -71,11 +71,11 @@ object TreasureHintManager : ToInitManager {
         val bottomOk = cellId <= mapCellsCount - mapWidth * 2 || ge.pixelOffset.y <= cellHalfHeight
         val divideLeftover = cellId % (mapWidth * 2)
         val leftOk = divideLeftover != 0 && divideLeftover != mapWidth
-                || divideLeftover == 0 && ge.pixelOffset.x >= -1.2 * cellHalfWidth
-                || divideLeftover == mapWidth && ge.pixelOffset.x >= -2.3 * cellHalfWidth
+            || divideLeftover == 0 && ge.pixelOffset.x >= -1.2 * cellHalfWidth
+            || divideLeftover == mapWidth && ge.pixelOffset.x >= -2.3 * cellHalfWidth
         val rightOk = divideLeftover != mapWidth * 2 - 1 && divideLeftover != mapWidth - 1
-                || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 1.2f
-                || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 2.3f
+            || divideLeftover == mapWidth * 2 - 1 && ge.pixelOffset.x <= cellHalfWidth * 1.2f
+            || divideLeftover == mapWidth - 1 && ge.pixelOffset.x <= cellHalfWidth * 2.3f
         return topOk && bottomOk && leftOk && rightOk
     }
 

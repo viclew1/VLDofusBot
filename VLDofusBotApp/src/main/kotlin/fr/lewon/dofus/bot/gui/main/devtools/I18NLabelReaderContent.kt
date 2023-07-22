@@ -16,7 +16,7 @@ import fr.lewon.dofus.bot.gui.custom.*
 
 @Composable
 fun I18NLabelReaderContent() {
-    val labelId = remember { mutableStateOf("") }
+    val labelId = remember { mutableStateOf(0) }
     val label = remember { mutableStateOf("/") }
     Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle().padding(5.dp)) {
         Row {
@@ -32,12 +32,12 @@ fun I18NLabelReaderContent() {
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically),
             )
             IntegerTextField(
-                value = labelId.value,
-                onUpdate = { labelId.value = it },
+                value = labelId.value.toString(),
+                onUpdate = { labelId.value = it.toIntOrNull() ?: 0 },
                 modifier = Modifier.padding(4.dp).align(Alignment.CenterVertically).fillMaxWidth().weight(1f),
             )
             ButtonWithTooltip(
-                onClick = { label.value = I18NUtil.getLabel(labelId.value.toIntOrNull() ?: -1) ?: "[NO LABEL FOUND]" },
+                onClick = { label.value = I18NUtil.getLabel(labelId.value) ?: "[NO LABEL FOUND]" },
                 title = "Search label",
                 shape = RectangleShape,
                 imageVector = Icons.Default.Search,
