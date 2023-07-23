@@ -40,13 +40,12 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
   check [this issue](https://github.com/viclew1/VLDofusBot/issues/8) to learn how to use it).
 - [x] Smith magic (only 1 recipe for now, but everything's ready to implement more)
 - [x] Filter items available in equipments auction house
+- [x] Harvest jobs resources
+- [x] Fight Dopples
 - [ ] Raise mounts
 - [ ] Fight in arena
-- [x] Harvest jobs resources
 - [ ] Return to bank when inventory full
 - [ ] Dungeons + challenges
-- [ ] Game's chat visible in the bot interface
-- [x] Fight Dopples
 
 ## Getting started
 
@@ -54,6 +53,7 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 
 To get started, you'll first need to install the bot. For this, you'll need :
 
+- Java (at least version 11)
 - Git : [Download](https://git-scm.com/downloads)
 - Npcap to use the sniffer : [Download](https://npcap.com/#download)
 
