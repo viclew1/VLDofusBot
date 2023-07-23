@@ -34,7 +34,6 @@ private data class ComboBoxState<T>(
     val textFieldSize: Size = Size.Zero,
     val expanded: Boolean = false,
     val filterItems: Boolean = false,
-    val lastUpdateTime: Long = System.currentTimeMillis(),
 )
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -71,7 +70,6 @@ fun <T> ComboBox(
             selectedText = getItemText(newItem),
             filterItems = false,
             expanded = false,
-            lastUpdateTime = System.currentTimeMillis()
         )
         onItemSelect(newItem)
     }
@@ -87,7 +85,6 @@ fun <T> ComboBox(
             selectedText = selectedText,
             filterItems = filterItems,
             expanded = expanded,
-            lastUpdateTime = System.currentTimeMillis()
         )
     }
 
@@ -109,17 +106,15 @@ fun <T> ComboBox(
             .onFocusHighlight()
             .handPointerIcon()
             .onPointerEvent(PointerEventType.Press) {
-                if (state.expanded && it.buttons.isPrimaryPressed && System.currentTimeMillis() - state.lastUpdateTime > 50) {
+                if (state.expanded && it.buttons.isPrimaryPressed) {
                     selectNewItem(state.preSelectedItem)
+                } else if (!state.expanded) {
+                    resetState()
                 }
             }
             .onFocusEvent {
-                if (System.currentTimeMillis() - state.lastUpdateTime > 50) {
-                    if (state.expanded && !it.isFocused && !it.hasFocus) {
-                        selectNewItem(state.preSelectedItem)
-                    } else if (it.isFocused && it.hasFocus && !state.expanded) {
-                        resetState()
-                    }
+                if (state.expanded && !it.isFocused && !it.hasFocus) {
+                    selectNewItem(state.preSelectedItem)
                 }
             },
         backgroundColor = colors.backgroundColor(true).value,

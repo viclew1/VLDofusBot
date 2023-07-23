@@ -194,6 +194,7 @@ object InteractiveUtil {
         523654, // -33 ; -58
         -> listOf(bounds.getCenter().getSum(PointAbsolute(-bounds.width / 3, bounds.height / 3)))
         522812, // -23 ; 38
+        510178, // -22 ; 23
         -> listOf(bounds.getTopRight().getSum(PointAbsolute(-2, 2)))
         else -> null
     }

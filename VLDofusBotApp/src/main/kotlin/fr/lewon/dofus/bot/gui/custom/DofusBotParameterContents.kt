@@ -91,7 +91,7 @@ private fun <T> MultiChoiceParameterInput(
     ComboBox(
         selectedItem = parameterValues.getParamValue(parameter).first(),
         items = parameter.getAvailableValues(parameterValues),
-        onItemSelect = { onParamUpdate(it) },
+        onItemSelect = { onParamUpdate(listOf(it) as T) },
         getItemText = { parameter.valueToString(listOf(it)) },
         maxDropDownHeight = 300.dp,
         multipleChoice = true,
