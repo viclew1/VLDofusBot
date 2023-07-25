@@ -1,7 +1,6 @@
 package fr.lewon.dofus.bot.gui.main.exploration.lastexploration
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
@@ -54,7 +53,11 @@ fun LastExplorationsContent() {
                 ButtonWithTooltip(
                     onClick = {
                         uiState.lastExplorationByCharacter.filter {
-                            it.value.explorationStopped && it.value.getSubAreasToExploreAgain().isNotEmpty()
+                            val character = CharacterManager.getCharacter(it.key)
+                            character != null
+                                && !ScriptRunner.isScriptRunning(character)
+                                && it.value.explorationStopped
+                                && it.value.getSubAreasToExploreAgain().isNotEmpty()
                         }.forEach { (characterName, lastExploration) ->
                             ExplorationUIUtil.startExploration(
                                 lastExploration.getSubAreasToExploreAgain(),
@@ -96,7 +99,8 @@ fun LastExplorationsContent() {
                 )
             }
         }
-        Row(Modifier.padding(5.dp).fillMaxSize()) {
+        val scrollState = rememberScrollState()
+        Row(Modifier.padding(5.dp).fillMaxSize().weight(1f).horizontalScroll(scrollState)) {
             val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
                 .filter { it.activityState != CharacterActivityState.DISCONNECTED }
             for (characterUiState in connectedCharactersUIStates) {
@@ -166,6 +170,10 @@ fun LastExplorationsContent() {
                 }
             }
         }
+        HorizontalScrollbar(
+            modifier = Modifier.height(8.dp).fillMaxWidth().padding(bottom = 5.dp),
+            adapter = rememberScrollbarAdapter(scrollState),
+        )
     }
 }
 

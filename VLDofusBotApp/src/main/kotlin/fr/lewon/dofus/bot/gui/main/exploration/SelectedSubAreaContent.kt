@@ -91,7 +91,7 @@ fun HeaderContent(subAreas: List<DofusSubArea>) {
     Column {
         Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
             CommonText(
-                "Explore Area(s) : (${subAreas.size} / ${ExplorationUIUtil.MinAreasToExplore})",
+                "Selected Area(s) : (${subAreas.size} / ${ExplorationUIUtil.MinAreasToExplore})",
                 modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
                 fontWeight = FontWeight.SemiBold
             )

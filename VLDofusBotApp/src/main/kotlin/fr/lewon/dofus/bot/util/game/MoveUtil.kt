@@ -47,11 +47,11 @@ object MoveUtil {
         buildDirectionalPath(gameInfo, direction, { _, count -> count == amount }, amount)
 
     fun buildDirectionalPath(
-        gameInfo: GameInfo, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int
+        gameInfo: GameInfo, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int,
     ): List<Transition>? = buildDirectionalPath(TravelUtil.getCurrentVertex(gameInfo), direction, stopFunc, limit)
 
     fun buildDirectionalPath(
-        startVertex: Vertex, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int
+        startVertex: Vertex, direction: Direction, stopFunc: (DofusMap, Int) -> Boolean, limit: Int,
     ): List<Transition>? {
         val path = ArrayList<Transition>()
         var currentVertex = startVertex
@@ -94,7 +94,7 @@ object MoveUtil {
     private fun getPotentialDirectionalTransitions(
         direction: Direction,
         transitions: List<Transition>,
-        fromMap: DofusMap
+        fromMap: DofusMap,
     ): List<Transition> = transitions.filter {
         val destMapCoordinates = MapManager.getDofusMap(it.edge.to.mapId).coordinates
         when (direction) {
@@ -138,21 +138,21 @@ object MoveUtil {
 
     private fun waitUntilMapChangeRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1500) {
         gameInfo.eventStore.getLastEvent(ChangeMapMessage::class.java) != null
-                || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
-                || gameInfo.eventStore.getLastEvent(GameCautiousMapMovementRequestMessage::class.java) != null
-                || gameInfo.eventStore.getLastEvent(MapInformationsRequestMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(GameCautiousMapMovementRequestMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(MapInformationsRequestMessage::class.java) != null
     }
 
     fun isMapChanged(
         gameInfo: GameInfo,
-        complementaryInformationClass: Class<out MapComplementaryInformationsDataMessage> = MapComplementaryInformationsDataMessage::class.java
+        complementaryInformationClass: Class<out MapComplementaryInformationsDataMessage> = MapComplementaryInformationsDataMessage::class.java,
     ): Boolean = gameInfo.eventStore.getAllEvents(SetCharacterRestrictionsMessage::class.java).isNotEmpty()
-            && gameInfo.eventStore.getAllEvents(CurrentMapMessage::class.java).isNotEmpty()
-            && gameInfo.eventStore.getAllEvents(complementaryInformationClass).isNotEmpty()
+        && gameInfo.eventStore.getAllEvents(CurrentMapMessage::class.java).isNotEmpty()
+        && gameInfo.eventStore.getAllEvents(complementaryInformationClass).isNotEmpty()
 
     fun waitForMapChangeFinished(
         gameInfo: GameInfo,
-        complementaryInformationClass: Class<out MapComplementaryInformationsDataMessage> = MapComplementaryInformationsDataMessage::class.java
+        complementaryInformationClass: Class<out MapComplementaryInformationsDataMessage> = MapComplementaryInformationsDataMessage::class.java,
     ) {
         WaitUtil.waitForEvents(
             gameInfo,
@@ -163,7 +163,9 @@ object MoveUtil {
         gameInfo.eventStore.clearUntilLast(CurrentMapMessage::class.java)
         WaitUtil.waitForEvents(gameInfo, SetCharacterRestrictionsMessage::class.java)
         gameInfo.eventStore.clearUntilFirst(SetCharacterRestrictionsMessage::class.java)
-        WaitUtil.waitForEvent(gameInfo, BasicNoOperationMessage::class.java)
+        WaitUtil.waitUntil(3000) {
+            gameInfo.eventStore.getLastEvent(BasicNoOperationMessage::class.java) != null
+        }
     }
 
 }
