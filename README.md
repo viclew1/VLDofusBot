@@ -1,5 +1,7 @@
 # VLDofusBot
 
+[![fr](https://img.shields.io/badge/README-Français-red.svg)](README_FR.md)
+
 Welcome to VLDofusBot, its goal is to help you automatize tedious tasks in the game. This is not a socket bot, it
 will sniff the network to read the game's packets and will simulate clicks on the game window. No message will be sent
 to the game server directly by the bot.
@@ -53,7 +55,7 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 
 To get started, you'll first need to install the bot. For this, you'll need :
 
-- Java (at least version 11)
+- Java <span style="color:red">**(at least version 11)**</span>
 - Git : [Download](https://git-scm.com/downloads)
 - Npcap to use the sniffer : [Download](https://npcap.com/#download)
 
@@ -133,10 +135,8 @@ two characters selected on which the selected script will run.
 
 #### Individual scripts
 
-If you select a character (by clicking on its card), you'll enter **Individual** mode. In this mode, you can edit
-your character's AI and run scripts only for him.
-
-On the right, you can edit the spells your character will use when fighting.
+If you select a character (by clicking on its card), you'll enter **Individual** mode. In this mode, you can run scripts
+on one character only, and you can edit the spells your character's AI can use on the right.
 
 ![Scripts individual](demo/scripts_screen_individual.png)
 
@@ -169,8 +169,8 @@ You can dynamically view your metamob monsters in this tab. You can filter the l
 you're missing, etc. It will be automatically updated every time a monster event is received (capture, trade,
 purchase) but you can also manually refresh it if needed.
 
-The soul's price will also be displayed for every archmonster (and updated every time you open the auction house
-archmonsters soul stone offers).
+The soul's price will be displayed and updated for every archmonster every time you open the auction house
+archmonsters soul stone offers.
 
 #### Trade Helper
 
