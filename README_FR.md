@@ -14,8 +14,8 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
 * [Installation](#installation)
     - [Prérequis](#prérequis)
     - [Installer le bot](#installer-le-bot)
-    - [Configuration de l'interface](#configuration-de-l'interface)
-* [Onglets](#tabs)
+    - [Configuration de l'interface](#configuration-de-linterface)
+* [Onglets](#onglets)
     - [Chargement](#chargement)
     - [Scripts](#scripts)
         - [Personnages](#personnages)
@@ -25,10 +25,10 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
     - [Metamob helper](#metamob-helper)
         - [Fonctionnement](#fonctionnement)
         - [Affichage des monstres](#affichage-des-monstres)
-        - [Assistant d'échange](#assistant-d'échange)
+        - [Assistant d'échange](#assistant-déchange)
     - [Exploration](#exploration)
     - [Métiers](#métiers)
-    - [Recherche d'items en HDV](#recherche-d'items-en-hdv)
+    - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
     - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
     - [Outils de Dev](#outils-de-dev)
 
@@ -191,14 +191,14 @@ bouton "copy offer on clipboard" en bas du simulateur d'échange (pour l'exemple
 ### Exploration
 
 Sur cette carte, vous pouvez voir les maps que vous avez explorées au cours des 2 dernières heures. Plus la cellule est
-bleue, plus la map a été explorée récemment. Si la map est rouge, cela signifie qu'elle a été explorée il y a au moins 2
-heures (ou jamais).
+bleue, plus la map a été explorée récemment. Si la cellule est rouge, cela signifie qu'elle a été explorée il y a au
+moins 2 heures (ou jamais).
 Vous pouvez sélectionner jusqu'à 5 zones en utilisant ctrl + clic. Dans la section de droite, vous verrez quels
 monstres/ressources récoltables se trouvent dans ces zones, et, pour les monstres, lesquels vous avez déjà capturés.
 
 Les personnages qui sont connectés sont affichés en bas de la page, dans la section "Last explorations". Vous pouvez les
-envoyer
-explorer les zones sélectionnées (les paramètres sur la section de gauche seront pris en compte).
+envoyer explorer les zones sélectionnées (les paramètres dans la section "exploration parameters" sur la gauche seront
+pris en compte).
 
 Si vous souhaitez récolter des ressources pendant l'exploration, vous pouvez choisir un harvestable set (ensemble de
 récolte) dans les paramètres d'exploration. Pour plus d'informations sur les harvestable sets, voir [Métiers](#métiers).
@@ -215,9 +215,8 @@ la carte.
 ### Métiers
 
 Dans cet onglet, vous pouvez gérer et créer des harvestable sets. Deux sets sont créés par défaut : un set où aucune
-ressource
-récoltable n'est sélectionnée ("Nothing"), et un set où toutes les ressources récoltables sont sélectionnées ("
-Everything").
+ressource récoltable n'est sélectionnée ("Nothing"), et un set où toutes les ressources récoltables sont
+sélectionnées ("Everything").
 
 Pour créer un set, vous devez d'abord lui donner un nom et le créer en utilisant le bouton "ajouter". Ensuite, vous
 pouvez configurer le set en sélectionnant les différentes ressources que vous souhaitez récolter.
@@ -245,8 +244,8 @@ Cet onglet peut être utilisé pour enregistrer de nouveaux indices de chasses a
 déjà enregistrés.
 
 Pour ajouter un nouvel indice, vous devez charger les GFXs du personnage à l'aide du bouton de loupe en haut de la page.
-Vous verrez ainsi tous les GFXs (ceux que vous avez déjà ajoutés, ainsi que ceux que vous n'avez pas encore ajoutés) de
-la carte sur laquelle se trouve votre personnage. Ensuite, vous devez sélectionner le GFX de l'indice que vous
+Vous verrez ainsi tous les GFXs de la carte sur laquelle se trouve votre personnage (ceux que vous avez déjà ajoutés,
+ainsi que ceux que vous n'avez pas encore ajoutés). Ensuite, vous devez sélectionner le GFX de l'indice que vous
 recherchez et l'ajouter en utilisant le bouton "Add GFX to hint" en bas de la page.
 
 Si vous vous êtes trompés et souhaitez supprimer un indice, vous pouvez rechercher l'indice érroné et utiliser le
