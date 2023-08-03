@@ -43,7 +43,7 @@ import java.awt.event.KeyEvent
 
 open class FightTask(
     private val aiComplement: AIComplement = DefaultAIComplement(),
-    private val teamFight: Boolean = false
+    private val teamFight: Boolean = false,
 ) : BooleanDofusBotTask() {
 
     companion object {
@@ -99,7 +99,6 @@ open class FightTask(
         return null
     }
 
-
     private fun getLvlUpCloseButtonBounds(gameInfo: GameInfo): RectangleRelative? {
         val lvlUpUiElements = listOf(
             DofusUIElement.LVL_UP,
@@ -117,7 +116,7 @@ open class FightTask(
 
     private fun isFightEnded(gameInfo: GameInfo): Boolean {
         return gameInfo.eventStore.getLastEvent(GameFightEndMessage::class.java) != null
-                || gameInfo.eventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(MapComplementaryInformationsDataMessage::class.java) != null
     }
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
@@ -271,7 +270,7 @@ open class FightTask(
 
     private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(2000) {
         gameInfo.eventStore.getLastEvent(GameActionFightCastOnTargetRequestMessage::class.java) != null
-                || gameInfo.eventStore.getLastEvent(GameActionFightCastRequestMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(GameActionFightCastRequestMessage::class.java) != null
     }
 
     private fun waitForSequenceCompleteEnd(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(5000) {
@@ -290,7 +289,7 @@ open class FightTask(
     private fun waitForMessage(
         gameInfo: GameInfo,
         eventClass: Class<out NetworkMessage>,
-        timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS
+        timeOutMillis: Int = WaitUtil.DEFAULT_TIMEOUT_MILLIS,
     ): Boolean = WaitUtil.waitUntil(timeOutMillis) {
         isFightEnded(gameInfo) || gameInfo.eventStore.getLastEvent(eventClass) != null
     }
@@ -310,9 +309,10 @@ open class FightTask(
             error("Fight option values not received")
         }
 
-        WaitUtil.waitUntil(2000) {
+        WaitUtil.waitUntil(5000) {
             gameInfo.fightBoard.getPlayerFighter() != null && gameInfo.fightBoard.getEnemyFighters().isNotEmpty()
         }
+        gameInfo.updatePlayerFighter()
         WaitUtil.sleep(800)
 
         if (getBlockHelpOptionValue(gameInfo) == teamFight) {
