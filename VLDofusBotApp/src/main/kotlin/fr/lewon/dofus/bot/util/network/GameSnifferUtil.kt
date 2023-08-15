@@ -15,16 +15,15 @@ import java.io.InputStreamReader
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
-
 object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
 
     private const val netstatCommand = "cmd.exe /c netstat -aop TCP -n | findstr :5555"
     private val netstatDofusRegex = Regex(
         "\\s+TCP" +
-                "\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)" +
-                "\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+):(5555)" +
-                "\\s+ESTABLISHED" +
-                "\\s+(\\d+)"
+            "\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+):(\\d+)" +
+            "\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+):(5555)" +
+            "\\s+ESTABLISHED" +
+            "\\s+(\\d+)"
     )
     private val frameNameRegex = Regex("(.*?) - Dofus.*?")
 
@@ -120,7 +119,7 @@ object GameSnifferUtil : ListenableByCharacter<GameSnifferListener>() {
     private fun listenToConnections(newConnections: List<DofusConnection>) {
         for (connection in newConnections) {
             val character = CharacterManager.getCharacter(connection.characterName)
-                ?: CharacterManager.addCharacter(connection.characterName, 1, emptyList())
+                ?: CharacterManager.addCharacter(connection.characterName, 1)
             val gameInfo = connectionsByGameInfo.keys.firstOrNull { it.character == character }
                 ?: GameInfo(character).also { it.connection = connection }
             listenToConnection(gameInfo, connection)

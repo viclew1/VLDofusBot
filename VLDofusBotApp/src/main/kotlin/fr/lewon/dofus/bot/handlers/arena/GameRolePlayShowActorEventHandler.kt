@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.handlers.arena
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.GameRolePlayShowActorMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
@@ -10,6 +10,7 @@ import fr.lewon.dofus.bot.sniffer.store.IEventHandler
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 
 object GameRolePlayShowActorEventHandler : IEventHandler<GameRolePlayShowActorMessage> {
+
     override fun onEventReceived(socketResult: GameRolePlayShowActorMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         val entityInfo = socketResult.informations

@@ -24,21 +24,21 @@ import java.util.concurrent.locks.ReentrantLock
 
 class GameInfo(val character: DofusCharacter) {
 
-    var hp = 0
-    var maxHp = 0
-    val lock = ReentrantLock()
-    val logger = character.executionLogger
-
+    var shouldInitBoard = true
+    var isInHavenBag = false
     val eventStore = EventStore()
     lateinit var connection: DofusConnection
     var gameBounds = Rectangle()
     var completeBounds = Rectangle()
 
-    var shouldInitBoard = true
-    var isInHavenBag = false
+    var scriptConfiguration = ScriptConfiguration()
+
+    var hp = 0
+    var maxHp = 0
+    val lock = ReentrantLock()
+    val logger = character.executionLogger
 
     val dofusBoard = DofusBoard()
-
     val fightBoard = FightBoard(this)
     var spellModifiers: List<SpellModifierMessage> = emptyList()
     var isCreatureModeToggled = false
@@ -91,7 +91,7 @@ class GameInfo(val character: DofusCharacter) {
 
     fun buildCharacterBasicInfo(disabledZaapMapIds: List<Double> = emptyList()): DofusCharacterBasicInfo {
         val disabledTransitionZaapMapIds = disabledZaapMapIds.toMutableList()
-        if (!character.isFrigost2Available) {
+        if (!character.parameters.isFrigost2Available) {
             disabledTransitionZaapMapIds.add(54172489.0) // frigost 2 zaap map id
         }
         return DofusCharacterBasicInfo(
@@ -111,6 +111,10 @@ class GameInfo(val character: DofusCharacter) {
         mapData = D2PMapsAdapter.getMapData(mapId)
         dofusBoard.updateCells(mapData.completeCellDataByCellId.values.map { it.cellData })
         LOSOverlay.updateOverlay(this)
+    }
+
+    fun shouldReturnToBank(): Boolean {
+        return inventoryWeight >= 0 && weightMax >= 0 && inventoryWeight + character.parameters.minAvailableWeight > weightMax
     }
 
 }

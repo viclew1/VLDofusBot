@@ -12,9 +12,11 @@ import fr.lewon.dofus.bot.game.DofusCell
 import fr.lewon.dofus.bot.model.transition.NpcTransition
 import fr.lewon.dofus.bot.model.transition.zaap.ZaapTransition
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ZaapTowardTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
+import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 import fr.lewon.dofus.bot.util.game.GeneralUIGameUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
@@ -25,15 +27,22 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask() {
+class MoveTask(
+    private val transitions: List<Transition>,
+    private val harvestEnabled: Boolean = true,
+) : BooleanDofusBotTask() {
 
     override fun onStarted(): String {
-        return "Moving [${transitions.size}] cell(s) ..."
+        return "Moving [${transitions.size}] map(s) ..."
     }
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        val itemIdsToHarvest = HarvestableSetsManager.getItemsToHarvest(gameInfo.character.parameters.harvestableSet)
         for ((i, transition) in transitions.withIndex()) {
             gameInfo.logger.closeLog("[${getTransitionDescription(transition)}] $i/${transitions.size}", logItem, true)
+            if (harvestEnabled && itemIdsToHarvest.isNotEmpty()) {
+                HarvestAllResourcesTask().run(logItem, gameInfo)
+            }
             if (!processTransition(gameInfo, logItem, transition)) {
                 return false
             }
@@ -235,9 +244,9 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
 
     private fun isCellMoveValid(cell: DofusCell, neighbor: DofusCell): Boolean {
         return !neighbor.cellData.nonWalkableDuringRP
-                && neighbor.cellData.mov
-                && neighbor.cellData.linkedZone != 0
-                && abs(cell.cellData.floor - neighbor.cellData.floor) <= 50
+            && neighbor.cellData.mov
+            && neighbor.cellData.linkedZone != 0
+            && abs(cell.cellData.floor - neighbor.cellData.floor) <= 50
     }
 
     private fun getOverrideX(direction: Direction): Float? {
@@ -260,16 +269,16 @@ class MoveTask(private val transitions: List<Transition>) : BooleanDofusBotTask(
         val mapChangeData = cellData.mapChangeData
         return when (direction) {
             Direction.BOTTOM -> cellData.cellId >= DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2
-                    && (mapChangeData and 2 != 0 || mapChangeData and 4 != 0)
-                    && cellData.cellId != 532 && cellData.cellId != 559
+                && (mapChangeData and 2 != 0 || mapChangeData and 4 != 0)
+                && cellData.cellId != 532 && cellData.cellId != 559
             Direction.LEFT -> mapChangeData and 16 != 0
-                    || cellData.cellId >= DofusBoard.MAP_WIDTH * 2 && mapChangeData and 32 != 0
-                    || cellData.cellId < DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2 && mapChangeData and 8 != 0
+                || cellData.cellId >= DofusBoard.MAP_WIDTH * 2 && mapChangeData and 32 != 0
+                || cellData.cellId < DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2 && mapChangeData and 8 != 0
             Direction.RIGHT -> mapChangeData and 1 != 0
-                    || cellData.cellId < DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2 && mapChangeData and 2 != 0
+                || cellData.cellId < DofusBoard.MAP_CELLS_COUNT - DofusBoard.MAP_WIDTH * 2 && mapChangeData and 2 != 0
             Direction.TOP -> cellData.cellId < DofusBoard.MAP_WIDTH * 2
-                    && (mapChangeData and 32 != 0 || mapChangeData and 64 != 0 || mapChangeData and 128 != 0)
-                    && cellData.cellId != 0 && cellData.cellId != 27
+                && (mapChangeData and 32 != 0 || mapChangeData and 64 != 0 || mapChangeData and 128 != 0)
+                && cellData.cellId != 0 && cellData.cellId != 27
         }
     }
 

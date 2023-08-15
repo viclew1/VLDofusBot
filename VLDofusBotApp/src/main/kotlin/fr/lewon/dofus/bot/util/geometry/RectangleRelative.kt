@@ -8,11 +8,22 @@ class RectangleRelative(val x: Float, val y: Float, val width: Float, val height
         fun build(topLeft: PointRelative, bottomRight: PointRelative): RectangleRelative {
             return RectangleRelative(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y)
         }
-
     }
 
     override fun getCenter(): PointRelative {
         return PointRelative(x + width / 2f, y + height / 2f)
+    }
+
+    override fun getCenterLeft(): PointRelative {
+        return PointRelative(x, y + height / 2f)
+    }
+
+    override fun getCenterRight(): PointRelative {
+        return PointRelative(x + width, y + height / 2f)
+    }
+
+    override fun getTopCenter(): PointRelative {
+        return PointRelative(x + width / 2f, y)
     }
 
     override fun getTopLeft(): PointRelative {
@@ -21,6 +32,10 @@ class RectangleRelative(val x: Float, val y: Float, val width: Float, val height
 
     override fun getTopRight(): PointRelative {
         return PointRelative(x + width, y)
+    }
+
+    override fun getBottomCenter(): PointRelative {
+        return PointRelative(x + width / 2f, y + height)
     }
 
     override fun getBottomLeft(): PointRelative {

@@ -7,6 +7,8 @@ import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
 @Composable
 fun GlobalConfigContent() {
     Column {
+        GeneralParametersContent()
+        HorizontalSeparator()
         NotificationSoundsParametersContent()
         HorizontalSeparator()
         NetworkInterfaceParametersContent()

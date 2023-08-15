@@ -4,17 +4,19 @@ import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.seenmonsters.SeenMonstersUiUtil
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
-import fr.lewon.dofus.bot.gui.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.gui.main.status.StatusBarUIUtil
 import fr.lewon.dofus.bot.gui.util.SoundType
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.*
 import fr.lewon.dofus.bot.sniffer.store.IEventHandler
+import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
+import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapComplementaryInformationsDataMessage> :
     IEventHandler<T> {
@@ -67,6 +69,9 @@ abstract class AbstractMapComplementaryInformationsDataEventHandler<T : MapCompl
         val questMonster = gameInfo.mainMonstersByGroupOnMap.entries.firstOrNull { it.value.isQuestMonster }?.value
         if (archMonster != null) {
             notifyMonsterSeen(gameInfo, SoundType.ARCH_MONSTER_FOUND, "Arch monster", archMonster, map)
+            if (GlobalConfigManager.readConfig().stopAnyScriptOnArchmonsterFound) {
+                ScriptRunner.stopScript(gameInfo.character.name)
+            }
         }
         if (questMonster != null) {
             notifyMonsterSeen(gameInfo, SoundType.QUEST_MONSTER_FOUND, "Quest monster", questMonster, map)

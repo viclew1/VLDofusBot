@@ -1,30 +1,22 @@
 package fr.lewon.dofus.bot.gui.main.exploration.parameters
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
-import fr.lewon.dofus.bot.gui.custom.CommonText
+import fr.lewon.dofus.bot.gui.custom.CustomStyledColumn
 import fr.lewon.dofus.bot.gui.custom.ParameterLine
-import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
-import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 
 @Composable
 fun ExplorationParametersContent() {
-    Column(Modifier.padding(5.dp).fillMaxWidth().grayBoxStyle()) {
-        Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
-            CommonText(
-                "Exploration parameters",
-                modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+    CustomStyledColumn("Exploration parameters", Modifier.padding(5.dp).fillMaxWidth()) {
         Column(Modifier.padding(5.dp)) {
             val selectedSubAreas = ExplorationUIUtil.mapUIState.value.selectedSubAreaIds.map {
                 SubAreaManager.getSubArea(it)

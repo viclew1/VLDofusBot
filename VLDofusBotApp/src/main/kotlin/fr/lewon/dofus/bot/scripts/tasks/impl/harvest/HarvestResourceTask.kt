@@ -3,7 +3,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.harvest
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
-import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightStartingMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameContextDestroyMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseErrorMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.items.ObjectAddedMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.items.ObjectQuantityMessage
@@ -17,7 +17,10 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         gameInfo.eventStore.clear()
-        return RetryUtil.tryUntilSuccess({ harvestResource(logItem, gameInfo) }, 4)
+        return RetryUtil.tryUntilSuccess({
+            gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null
+                || harvestResource(logItem, gameInfo)
+        }, 4)
     }
 
     private fun harvestResource(logItem: LogItem, gameInfo: GameInfo): Boolean {
@@ -30,24 +33,19 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
 
         WaitUtil.waitUntil(8000) {
             gameInfo.eventStore.getLastEvent(ObjectQuantityMessage::class.java) != null ||
-                    gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null ||
-                    gameInfo.eventStore.getLastEvent(GameFightStartingMessage::class.java) != null ||
-                    gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null
+                gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null ||
+                gameInfo.eventStore.getLastEvent(GameContextDestroyMessage::class.java) != null ||
+                gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null
         }
 
-        WaitUtil.sleep(50)
+        WaitUtil.sleep(100)
 
-        if (gameInfo.eventStore.getLastEvent(GameFightStartingMessage::class.java) != null) {
+        if (gameInfo.eventStore.getLastEvent(GameContextDestroyMessage::class.java) != null) {
             return FightTask().run(logItem, gameInfo)
         }
-        if (gameInfo.eventStore.getLastEvent(ObjectQuantityMessage::class.java) != null ||
+        return gameInfo.eventStore.getLastEvent(ObjectQuantityMessage::class.java) != null ||
             gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null
-        ) {
-            return true
-        }
-        return false
     }
-
 
     override fun onStarted(): String {
         return "Harvesting resource ..."

@@ -13,7 +13,7 @@ import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUiUtil
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightAnyMonsterGroupTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.HarvestAllResourcesTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.TransferItemsToBankTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
@@ -29,7 +29,6 @@ class ExploreSubAreaTask(
     private val searchedMonsterName: String,
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
-    private val itemIdsToHarvest: List<Double>,
     private val explorationThresholdMinutes: Int,
 ) : DofusBotTask<ExplorationStatus>() {
 
@@ -85,11 +84,9 @@ class ExploreSubAreaTask(
             return ExplorationStatus.FoundSomething
         }
         while (toExploreMaps.isNotEmpty()) {
+            returnToBankIfNeeded(logItem, gameInfo)
             if (killEverything) {
                 killMonsters(logItem, gameInfo)
-            }
-            if (!HarvestAllResourcesTask(itemIdsToHarvest).run(logItem, gameInfo)) {
-                error("Failed to harvest")
             }
             val characterInfo = gameInfo.buildCharacterBasicInfo(TravelUtil.getAllZaapMaps().map { it.id })
             val nextVertex = getNextVertexToExplore(gameInfo, toExploreMaps, characterInfo)
@@ -199,14 +196,19 @@ class ExploreSubAreaTask(
     }
 
     private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
-        while (gameInfo.monsterInfoByEntityId.isNotEmpty()) {
-            if (!FightAnyMonsterGroupTask(
-                    stopIfNoMonsterPresent = true,
-                    maxMonsterGroupLevel = maxMonsterGroupLevel,
-                    maxMonsterGroupSize = maxMonsterGroupSize
-                ).run(logItem, gameInfo)
-            ) {
-                return
+        while (gameInfo.monsterInfoByEntityId.isNotEmpty() && FightAnyMonsterGroupTask(
+                stopIfNoMonsterPresent = true,
+                maxMonsterGroupLevel = maxMonsterGroupLevel,
+                maxMonsterGroupSize = maxMonsterGroupSize
+            ).run(logItem, gameInfo)) {
+            returnToBankIfNeeded(logItem, gameInfo)
+        }
+    }
+
+    private fun returnToBankIfNeeded(logItem: LogItem, gameInfo: GameInfo) {
+        if (gameInfo.shouldReturnToBank()) {
+            if (!TransferItemsToBankTask().run(logItem, gameInfo)) {
+                error("Couldn't transfer items to bank")
             }
         }
     }

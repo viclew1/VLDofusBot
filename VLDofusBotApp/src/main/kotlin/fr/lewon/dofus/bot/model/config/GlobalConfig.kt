@@ -11,7 +11,9 @@ data class GlobalConfig(
     @field:JsonProperty var enableSounds: Boolean = true,
     @field:JsonProperty var playArchMonsterSound: Boolean = true,
     @field:JsonProperty var playQuestMonsterSound: Boolean = true,
+    @field:JsonProperty var stopAnyScriptOnArchmonsterFound: Boolean = false,
 ) {
+
     fun deepCopy(): GlobalConfig {
         return GlobalConfig(
             displayOverlays,
@@ -19,7 +21,8 @@ data class GlobalConfig(
             networkInterfaceName,
             enableSounds,
             playArchMonsterSound,
-            playQuestMonsterSound
+            playQuestMonsterSound,
+            stopAnyScriptOnArchmonsterFound
         )
     }
 

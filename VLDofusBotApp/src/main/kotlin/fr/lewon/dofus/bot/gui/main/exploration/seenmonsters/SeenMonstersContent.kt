@@ -18,9 +18,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.core.d2p.gfx.D2PMonstersGfxAdapter
 import fr.lewon.dofus.bot.gui.custom.*
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterUIState
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.CharacterActivityState
+import fr.lewon.dofus.bot.gui.main.characters.CharacterUIState
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.gui.util.getBufferedImage
@@ -37,16 +37,9 @@ import java.util.*
 @Composable
 fun SeenMonstersContent() {
     val uiState = SeenMonstersUiUtil.getUiStateValue()
-    val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
+    val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates()
         .filter { it.activityState != CharacterActivityState.DISCONNECTED }
-    Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
-        Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
-            CommonText(
-                "Seen monsters",
-                modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+    CustomStyledColumn("Seen Monsters", Modifier.fillMaxSize().padding(5.dp)) {
         Box(Modifier.fillMaxSize().padding(5.dp)) {
             val scrollState = rememberScrollState()
             val seenMonsters = uiState.seenMonstersByMap.flatMap { it.value }

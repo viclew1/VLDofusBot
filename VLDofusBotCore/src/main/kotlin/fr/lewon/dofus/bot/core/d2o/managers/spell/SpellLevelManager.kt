@@ -115,7 +115,8 @@ object SpellLevelManager : VldbManager {
         val zoneTypeKey = effectZoneStr.firstOrNull() ?: return null
         val effectZoneType = DofusEffectZoneType.fromKey(zoneTypeKey) ?: return null
         val size = if (effectZoneStr.length > 1) {
-            effectZoneStr.substring(1).toIntOrNull() ?: return null
+            //TODO parse all the effect zone params
+            effectZoneStr[1].digitToIntOrNull() ?: return null
         } else 1
         return DofusEffectZone(effectZoneType, size)
     }

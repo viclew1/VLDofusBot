@@ -26,6 +26,7 @@ enum class DofusUIElement(
     ;
 
     companion object {
+
         private const val CONTEXT_DEFAULT = "default"
         private const val CONTEXT_FIGHT = "fight"
 

@@ -5,11 +5,9 @@ import fr.lewon.dofus.bot.model.characters.jobs.HarvestableIdsBySetName
 import fr.lewon.dofus.bot.model.jobs.HarvestJobs
 import fr.lewon.dofus.bot.util.filemanagers.FileManager
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
-import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterSpellManagerListener
-import fr.lewon.dofus.bot.util.listenable.ListenableByCharacter
 import java.util.concurrent.locks.ReentrantLock
 
-object HarvestableSetsManager : ListenableByCharacter<CharacterSpellManagerListener>(), ToInitManager {
+object HarvestableSetsManager : ToInitManager {
 
     val defaultHarvestableIdsBySetName = mapOf(
         "Nothing" to emptySet(),
@@ -23,9 +21,7 @@ object HarvestableSetsManager : ListenableByCharacter<CharacterSpellManagerListe
         fileManager = FileManager("harvestables", HarvestableIdsBySetName())
     }
 
-    override fun getNeededManagers(): List<ToInitManager> {
-        return listOf(CharacterManager)
-    }
+    override fun getNeededManagers(): List<ToInitManager> = emptyList()
 
     fun addSet(setName: String) = lock.executeSyncOperation {
         fileManager.updateStore {
@@ -58,6 +54,15 @@ object HarvestableSetsManager : ListenableByCharacter<CharacterSpellManagerListe
     }
 
     fun deleteSet(setName: String) = lock.executeSyncOperation {
+        CharacterManager.getCharacters().forEach { character ->
+            if (character.parameters.harvestableSet == setName) {
+                CharacterManager.updateCharacter(
+                    character.name, characterParameters = character.parameters.copy(
+                        harvestableSet = defaultHarvestableIdsBySetName.keys.first()
+                    )
+                )
+            }
+        }
         fileManager.updateStore {
             it.remove(setName)
         }

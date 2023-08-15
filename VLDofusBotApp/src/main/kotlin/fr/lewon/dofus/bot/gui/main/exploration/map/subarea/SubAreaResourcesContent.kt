@@ -13,12 +13,9 @@ import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.HorizontalSeparator
 import fr.lewon.dofus.bot.gui.custom.VerticalGrid
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
-import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.toPainter
 import fr.lewon.dofus.bot.model.jobs.HarvestJobs
-import fr.lewon.dofus.bot.scripts.impl.ExploreAreaScriptBuilder
-import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 
 @Composable
 fun SubAreaResourcesContent(subArea: DofusSubArea) {
@@ -44,9 +41,6 @@ fun SubAreaResourcesContent(subArea: DofusSubArea) {
 
 @Composable
 private fun ResourcesListContent(job: HarvestJobs, subArea: DofusSubArea) {
-    val harvestableSetName = ExplorationUIUtil.explorerUIState.value.explorationParameterValues
-        .getParamValue(ExploreAreaScriptBuilder.harvestParameter)
-    val toHarvestItemIds = HarvestableSetsManager.getItemsToHarvest(harvestableSetName)
     val harvestables = job.items.filter { subArea.harvestables.contains(it) }.distinct()
     if (harvestables.isNotEmpty()) {
         HorizontalSeparator(job.jobName, modifier = Modifier.padding(vertical = 10.dp))
@@ -55,11 +49,7 @@ private fun ResourcesListContent(job: HarvestJobs, subArea: DofusSubArea) {
             modifier = Modifier.padding(end = 8.dp),
             items = harvestables
         ) { harvestable ->
-            val color = if (toHarvestItemIds.contains(harvestable.id)) {
-                AppColors.primaryLightColor
-            } else {
-                Color.Red
-            }
+            val color = Color.Gray
             TooltipTarget(
                 text = "${harvestable.name} (${harvestable.level})",
                 modifier = Modifier.padding(3.dp).border(BorderStroke(1.dp, color)).padding(3.dp)

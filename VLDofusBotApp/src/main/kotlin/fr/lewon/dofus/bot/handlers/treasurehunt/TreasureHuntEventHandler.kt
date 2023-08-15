@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.handlers.treasurehunt
 
 import fr.lewon.dofus.bot.core.d2o.managers.hunt.PointOfInterestManager
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStepFollowDirectionToPOI

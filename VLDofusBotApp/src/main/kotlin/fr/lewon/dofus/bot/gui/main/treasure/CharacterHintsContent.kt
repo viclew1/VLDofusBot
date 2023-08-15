@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.CharacterActivityState
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.TreasureHintManager
@@ -51,7 +51,6 @@ fun CharacterHintsContent() {
 @Composable
 private fun HeaderContent(uiState: TreasureHuntUiState) {
     val initializedCharacters = CharactersUIUtil.getAllCharacterUIStates()
-        .map { it.value }
         .filter { it.activityState == CharacterActivityState.AVAILABLE || it.activityState == CharacterActivityState.BUSY }
         .map { it.name }
     val selectedCharacter = uiState.selectedCharacterName?.takeIf { initializedCharacters.contains(it) }

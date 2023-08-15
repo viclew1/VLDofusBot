@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.gui.main.exploration.lastexploration
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -20,28 +21,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
-import fr.lewon.dofus.bot.gui.custom.ButtonWithTooltip
-import fr.lewon.dofus.bot.gui.custom.CommonText
-import fr.lewon.dofus.bot.gui.custom.darkGrayBoxStyle
-import fr.lewon.dofus.bot.gui.custom.grayBoxStyle
+import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.main.TooltipPlacement
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
+import fr.lewon.dofus.bot.gui.main.characters.CharacterActivityState
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 
 @Composable
 fun LastExplorationsContent() {
     val uiState = LastExplorationUiUtil.getUiStateValue()
-    Column(Modifier.fillMaxWidth().height(190.dp).padding(horizontal = 5.dp).padding(bottom = 5.dp).grayBoxStyle()) {
+    Column(Modifier.fillMaxWidth().height(220.dp).padding(horizontal = 5.dp).padding(bottom = 5.dp).grayBoxStyle()) {
         Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
             CommonText(
-                "Last explorations",
+                "Last Explorations",
                 modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
                 fontWeight = FontWeight.SemiBold
             )
@@ -77,7 +76,7 @@ fun LastExplorationsContent() {
                     iconColor = if (resumeAllEnabled) Color.White else Color.DarkGray
                 )
                 Spacer(Modifier.width(5.dp))
-                val busyCharacterUiStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }.filter {
+                val busyCharacterUiStates = CharactersUIUtil.getAllCharacterUIStates().filter {
                     it.activityState == CharacterActivityState.BUSY
                 }
                 val stopAllScriptsEnabled = busyCharacterUiStates.isNotEmpty()
@@ -101,7 +100,7 @@ fun LastExplorationsContent() {
         }
         val scrollState = rememberScrollState()
         Row(Modifier.padding(5.dp).fillMaxSize().weight(1f).horizontalScroll(scrollState)) {
-            val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
+            val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates()
                 .filter { it.activityState != CharacterActivityState.DISCONNECTED }
             for (characterUiState in connectedCharactersUIStates) {
                 val character = CharacterManager.getCharacter(characterUiState.name)
@@ -118,12 +117,39 @@ fun LastExplorationsContent() {
                     Column(Modifier.padding(horizontal = 5.dp).padding(bottom = 5.dp)) {
                         LastExplorationHeaderContent(characterUiState.name, lastExploration)
                         Spacer(Modifier.height(3.dp))
-                        if (lastExploration == null) {
-                            CommonText(
-                                "No exploration started yet",
-                                modifier = Modifier.padding(start = 30.dp).padding(top = 4.dp),
-                                fontWeight = FontWeight.Bold
+                        Row(Modifier.height(25.dp)) {
+                            Image(
+                                painter = UiResource.JOBS.imagePainter,
+                                "",
+                                contentScale = ContentScale.FillHeight,
+                                modifier = Modifier.padding(start = 2.dp).align(Alignment.CenterVertically)
                             )
+                            Spacer(Modifier.width(5.dp))
+                            Row {
+                                ComboBox(
+                                    modifier = Modifier.align(Alignment.CenterVertically),
+                                    selectedItem = characterUiState.parameters.harvestableSet,
+                                    items = HarvestableSetsManager.getHarvestableIdsBySetName().keys.toList(),
+                                    onItemSelect = {
+                                        CharacterManager.updateCharacter(
+                                            name = characterUiState.name,
+                                            characterParameters = characterUiState.parameters.copy(harvestableSet = it)
+                                        )
+                                    },
+                                    getItemText = { it },
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = AppColors.backgroundColor)
+                                )
+                            }
+                        }
+                        HorizontalSeparator(modifier = Modifier.padding(vertical = 3.dp))
+                        if (lastExploration == null) {
+                            Box(Modifier.fillMaxSize()) {
+                                CommonText(
+                                    "No exploration started yet",
+                                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 30.dp),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         } else {
                             for ((subArea, explorationProgress) in lastExploration.progressBySubArea) {
                                 Row(Modifier.height(20.dp).padding(start = 6.dp)) {
@@ -230,6 +256,7 @@ private fun LastExplorationHeaderContent(characterName: String, lastExploration:
                     enabled = subAreas.isNotEmpty(),
                     hoverBackgroundColor = Color.Gray,
                     defaultBackgroundColor = AppColors.VERY_DARK_BG_COLOR,
+                    delayMillis = 0
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Image(

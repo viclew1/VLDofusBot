@@ -3,8 +3,8 @@ package fr.lewon.dofus.bot.util.filemanagers.impl
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.model.characters.CharacterStore
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
-import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
-import fr.lewon.dofus.bot.model.characters.spells.CharacterSpells
+import fr.lewon.dofus.bot.model.characters.DofusCharacterParameters
+import fr.lewon.dofus.bot.model.characters.sets.CharacterSet
 import fr.lewon.dofus.bot.util.filemanagers.FileManager
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
@@ -64,13 +64,13 @@ object CharacterManager : ToInitManager {
         }
     }
 
-    fun addCharacter(name: String, dofusClassId: Int, spells: List<CharacterSpell>): DofusCharacter {
+    fun addCharacter(name: String, dofusClassId: Int): DofusCharacter {
         return lock.executeSyncOperation {
             getCharacter(name)?.let {
                 error("Character already registered : [$name]")
             }
             DofusCharacter(name, dofusClassId).also { character ->
-                CharacterSpellManager.updateSpells(name, CharacterSpells(spells))
+                CharacterSetsManager.updateSet(name, CharacterSet(CharacterSetsManager.DefaultSetName))
                 fileManager.updateStore { store ->
                     store.characters.add(character)
                 }
@@ -87,7 +87,7 @@ object CharacterManager : ToInitManager {
         fileManager.updateStore { store ->
             store.characters.remove(character)
         }
-        CharacterSpellManager.removeSpells(character.name)
+        CharacterSetsManager.deleteSets(character.name)
         ScriptRunner.removeListeners(character)
         GameSnifferUtil.removeListeners(character)
         listeners.toList().forEach { it.onCharacterDelete(character) }
@@ -96,17 +96,14 @@ object CharacterManager : ToInitManager {
     fun updateCharacter(
         name: String,
         dofusClassId: Int? = null,
-        isOtomaiTransportAvailable: Boolean? = null,
-        isFrigost2Available: Boolean? = null,
+        characterParameters: DofusCharacterParameters? = null,
     ) {
         val storedCharacter = getCharacter(name)
             ?: error("Character not found in store : $name")
         storedCharacter.dofusClassId = dofusClassId
             ?: storedCharacter.dofusClassId
-        storedCharacter.isOtomaiTransportAvailable = isOtomaiTransportAvailable
-            ?: storedCharacter.isOtomaiTransportAvailable
-        storedCharacter.isFrigost2Available = isFrigost2Available
-            ?: storedCharacter.isFrigost2Available
+        storedCharacter.parameters = characterParameters
+            ?: storedCharacter.parameters
         fileManager.updateStore { }
         listeners.toList().forEach { it.onCharacterUpdate(storedCharacter) }
     }

@@ -10,7 +10,7 @@ import fr.lewon.dofus.bot.sniffer.model.types.game.character.characteristic.Char
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightCharacterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightFighterInformations
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.GameFightMonsterInformations
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSetsManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
@@ -79,7 +79,7 @@ class FightBoard(private val gameInfo: GameInfo) {
     private fun getSpellLevels(
         gameInfo: GameInfo,
         fighterInfo: GameFightFighterInformations,
-        fighterId: Double
+        fighterId: Double,
     ): List<DofusSpellLevel> {
         return when {
             fighterInfo is GameFightMonsterInformations -> {
@@ -87,8 +87,9 @@ class FightBoard(private val gameInfo: GameInfo) {
                 getSpellLevels(spells, fighterInfo.creatureLevel)
             }
             fighterInfo is GameFightCharacterInformations && fighterId == gameInfo.playerId -> {
-                val characterSpells = CharacterSpellManager.getSpells(gameInfo.character)
-                val spellIds = characterSpells.mapNotNull { it.spellId }
+                val set = CharacterSetsManager.getSelectedSet(gameInfo.character.name)
+                val characterSpells = set.spells
+                val spellIds = characterSpells.mapNotNull { it.elementId }
                 val spells = spellIds.mapNotNull { SpellManager.getSpell(it) }
                 getSpellLevels(spells, fighterInfo.level)
             }
@@ -118,37 +119,29 @@ class FightBoard(private val gameInfo: GameInfo) {
         }
     }
 
-    fun getPlayerFighter(): Fighter? {
-        return lock.executeSyncOperation {
-            fightersById[gameInfo.playerId]
-        }
+    fun getPlayerFighter(): Fighter? = lock.executeSyncOperation {
+        fightersById[gameInfo.playerId]
     }
 
-    fun getEnemyFighters(): List<Fighter> {
-        return lock.executeSyncOperation {
-            getFighters(true)
-        }
+    fun getEnemyFighters(): List<Fighter> = lock.executeSyncOperation {
+        getFighters(true)
     }
 
-    fun getClosestEnemy(): Fighter? {
+    fun getClosestEnemy(): Fighter? = lock.executeSyncOperation {
         val playerFighter = getPlayerFighter() ?: return null
-        return getEnemyFighters().minByOrNull { dofusBoard.getDist(playerFighter.cell, it.cell) }
+        getEnemyFighters().minByOrNull { dofusBoard.getDist(playerFighter.cell, it.cell) }
     }
 
-    fun getAlliedFighters(): List<Fighter> {
-        return lock.executeSyncOperation {
-            getFighters(false)
-        }
+    fun getAlliedFighters(): List<Fighter> = lock.executeSyncOperation {
+        getFighters(false)
     }
 
-    fun getAllFighters(withSummons: Boolean = true): List<Fighter> {
-        return lock.executeSyncOperation {
-            fightersById.values.toList().filter { withSummons || !it.isSummon() }
-        }
+    fun getAllFighters(withSummons: Boolean = true): List<Fighter> = lock.executeSyncOperation {
+        fightersById.values.toList().filter { withSummons || !it.isSummon() }
     }
 
-    private fun getFighters(enemy: Boolean): List<Fighter> {
-        return fightersById.values.filter { isFighterEnemy(it) == enemy }
+    private fun getFighters(enemy: Boolean): List<Fighter> = lock.executeSyncOperation {
+        fightersById.values.filter { isFighterEnemy(it) == enemy }
     }
 
     fun isFighterEnemy(fighter: Fighter): Boolean {
@@ -182,7 +175,9 @@ class FightBoard(private val gameInfo: GameInfo) {
     }
 
     fun lineOfSight(fromCell: Int, toCell: Int): Boolean {
-        return lineOfSight(dofusBoard.getCell(fromCell), dofusBoard.getCell(toCell))
+        return lock.executeSyncOperation {
+            lineOfSight(dofusBoard.getCell(fromCell), dofusBoard.getCell(toCell))
+        }
     }
 
     fun lineOfSight(fromCell: DofusCell, toCell: DofusCell): Boolean {

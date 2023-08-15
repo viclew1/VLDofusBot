@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.handlers.fight
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.gui.main.scripts.characters.edit.global.CharacterGlobalInformationUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.edit.global.CharacterGlobalInformationUIUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightEndMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.fight.FightResultFighterListEntry
@@ -14,6 +14,7 @@ import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object GameFightEndEventHandler : IEventHandler<GameFightEndMessage> {
+
     override fun onEventReceived(socketResult: GameFightEndMessage, connection: DofusConnection) {
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         if (MetamobMonstersHelper.isMetamobConfigured() && MetamobConfigManager.readConfig().captureAutoUpdate) {

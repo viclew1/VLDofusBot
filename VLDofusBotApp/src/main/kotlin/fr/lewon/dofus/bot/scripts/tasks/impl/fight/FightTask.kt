@@ -6,17 +6,18 @@ import fr.lewon.dofus.bot.core.model.spell.DofusSpellLevel
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.game.DofusCell
+import fr.lewon.dofus.bot.game.fight.DofusCharacteristics
 import fr.lewon.dofus.bot.game.fight.FightBoard
 import fr.lewon.dofus.bot.game.fight.ai.FightAI
 import fr.lewon.dofus.bot.game.fight.ai.SpellSimulator
 import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.complements.DefaultAIComplement
 import fr.lewon.dofus.bot.game.fight.ai.impl.DefaultFightAI
-import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
-import fr.lewon.dofus.bot.model.characters.spells.CharacterSpell
+import fr.lewon.dofus.bot.model.characters.sets.CharacterSetElement
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.sniffer.model.messages.NetworkMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.GameActionAcknowledgementMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.fight.GameActionFightCastOnTargetRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.fight.GameActionFightCastRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.sequence.SequenceEndMessage
@@ -30,7 +31,7 @@ import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightTur
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.challenge.ChallengeModSelectMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.initialization.SetCharacterRestrictionsMessage
-import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSpellManager
+import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterSetsManager
 import fr.lewon.dofus.bot.util.game.DofusColors
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
 import fr.lewon.dofus.bot.util.game.RetryUtil
@@ -124,15 +125,19 @@ open class FightTask(
         val dofusBoard = gameInfo.dofusBoard
         initFight(gameInfo)
 
-        val characterSpells = CharacterSpellManager.getSpells(gameInfo.character)
-        val characterSpellBySpellLevelId = HashMap<Int, CharacterSpell>()
+        val characterSpells = CharacterSetsManager.getSelectedSet(gameInfo.character.name).spells
+        val characterSpellBySpellLevelId = HashMap<Int, CharacterSetElement>()
         for (characterSpell in characterSpells) {
-            val spell = characterSpell.spellId?.let { SpellManager.getSpell(it) }
+            val spell = characterSpell.elementId?.let(SpellManager::getSpell)
             if (spell != null) {
                 for (spellLevel in spell.levels) {
                     characterSpellBySpellLevelId[spellLevel.id] = characterSpell
                 }
             }
+        }
+
+        if (fightBoard.getPlayerFighter()?.spells?.isNotEmpty() != true) {
+            error("No spell found for player fighter")
         }
 
         val ai = getFightAI(dofusBoard, aiComplement)
@@ -148,12 +153,14 @@ open class FightTask(
             MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 400)
 
             ai.onNewTurn(fightBoard)
-            var nextOperation: FightOperation = ai.getNextOperation(fightBoard, null)
+            var nextOperation = ai.getNextOperation(fightBoard, null)
             while (!isFightEnded(gameInfo) && nextOperation.type != FightOperationType.PASS_TURN) {
+                val actionSpellItem = gameInfo.logger.addSubLog("Next Operation", logItem)
+                logCharacteristics(gameInfo, actionSpellItem, fightBoard)
                 val targetCellId = nextOperation.targetCellId ?: error("Target cell id can't be null")
                 val target = gameInfo.dofusBoard.getCell(targetCellId)
                 if (nextOperation.type == FightOperationType.MOVE) {
-                    gameInfo.logger.addSubLog("Moving to cell : $targetCellId", logItem)
+                    gameInfo.logger.addSubLog("Moving to cell : $targetCellId", actionSpellItem)
                     processMove(gameInfo, target)
                 } else if (nextOperation.type == FightOperationType.SPELL) {
                     val spellLevel = nextOperation.spell ?: error("Spell can't be null")
@@ -161,7 +168,7 @@ open class FightTask(
                         ?: error("No character spell found for spell level : ${spellLevel.id}")
                     val spellLogItem = gameInfo.logger.addSubLog(
                         message = "Casting spell ${spellLevel.spellId} on cell : $targetCellId",
-                        parent = logItem,
+                        parent = actionSpellItem,
                         subItemCapacity = 30
                     )
                     val expectedDamagesByFighter =
@@ -174,7 +181,9 @@ open class FightTask(
                     }
                     castSpell(gameInfo, characterSpell, target)
                 }
-                WaitUtil.sleep(500)
+                if (!waitForMessage(gameInfo, GameActionAcknowledgementMessage::class.java)) {
+                    error("Action didn't get acknowledged by client")
+                }
                 if (fightBoard.getEnemyFighters().isEmpty()) {
                     break
                 }
@@ -203,6 +212,13 @@ open class FightTask(
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
         return true
+    }
+
+    private fun logCharacteristics(gameInfo: GameInfo, logItem: LogItem, fightBoard: FightBoard) {
+        val playerFighter = fightBoard.getPlayerFighter()
+            ?: return
+        gameInfo.logger.addSubLog("AP : ${DofusCharacteristics.ACTION_POINTS.getValue(playerFighter)}", logItem)
+        gameInfo.logger.addSubLog("MP : ${DofusCharacteristics.MOVEMENT_POINTS.getValue(playerFighter)}", logItem)
     }
 
     private fun getExpectedDamagesByFighter(
@@ -255,7 +271,7 @@ open class FightTask(
         gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
     }
 
-    private fun castSpell(gameInfo: GameInfo, characterSpell: CharacterSpell, target: DofusCell) {
+    private fun castSpell(gameInfo: GameInfo, characterSpell: CharacterSetElement, target: DofusCell) {
         gameInfo.eventStore.clear()
         RetryUtil.tryUntilSuccess(
             {
@@ -309,7 +325,7 @@ open class FightTask(
             error("Fight option values not received")
         }
 
-        WaitUtil.waitUntil(5000) {
+        WaitUtil.waitUntil(15000) {
             gameInfo.fightBoard.getPlayerFighter() != null && gameInfo.fightBoard.getEnemyFighters().isNotEmpty()
         }
         gameInfo.updatePlayerFighter()

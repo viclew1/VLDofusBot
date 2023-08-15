@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -31,9 +30,7 @@ fun SelectedSubAreasContent() {
     Column(Modifier.width(250.dp).fillMaxHeight().padding(5.dp).padding(bottom = 5.dp).grayBoxStyle()) {
         val subAreas = selectedSubAreaIds.map { SubAreaManager.getSubArea(it) }
         HeaderContent(subAreas)
-        if (subAreas.isEmpty()) {
-            CommonText("No area selected", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-        } else {
+        if (subAreas.isNotEmpty()) {
             val subAreaIndex = mapUiStateValue.selectedSubAreaIndex
             val subArea = subAreas.getOrNull(subAreaIndex)
             Column(Modifier.grayBoxStyle()) {
@@ -88,20 +85,13 @@ fun SelectedSubAreasContent() {
 
 @Composable
 fun HeaderContent(subAreas: List<DofusSubArea>) {
-    Column {
-        Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle()) {
-            CommonText(
-                "Selected Area(s) : (${subAreas.size} / ${ExplorationUIUtil.MinAreasToExplore})",
-                modifier = Modifier.padding(horizontal = 10.dp).align(Alignment.CenterVertically),
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+    CustomStyledColumn("Selected Area(s) : (${subAreas.size} / ${ExplorationUIUtil.MinAreasToExplore})") {
         Column(Modifier.padding(5.dp)) {
-            Row {
-                Column {
-                    for (subArea in subAreas) {
-                        CommonText(" - ${subArea.name}", overflow = TextOverflow.Ellipsis, maxLines = 1)
-                    }
+            if (subAreas.isEmpty()) {
+                CommonText("No area selected", modifier = Modifier.fillMaxHeight().padding(start = 10.dp))
+            } else {
+                for (subArea in subAreas) {
+                    CommonText(" - ${subArea.name}", overflow = TextOverflow.Ellipsis, maxLines = 1)
                 }
             }
         }

@@ -36,7 +36,13 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
 
     private val continueOnFailureParameter = BooleanParameter(
         "Continue on failure",
-        "If true, the bot gives up a hunt when it fails to find a hint and fetches a new one",
+        "If activated, the bot gives up a hunt when it fails to find a hint and fetches a new one",
+        true,
+    )
+
+    private val openChestAfterHuntParameter = BooleanParameter(
+        "Open chest after hunt",
+        "If activated, the bot will open received chests if they are configured in the item bar",
         true,
     )
 
@@ -82,6 +88,7 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
         var successCount = 0
         val huntLevel = parameterValues.getParamValue(huntLevelParameter)
         val continueOnFailure = parameterValues.getParamValue(continueOnFailureParameter)
+        val openChestAfterHunt = parameterValues.getParamValue(openChestAfterHuntParameter)
         val huntFetchDurations = ArrayList<Long>()
         val huntDurations = ArrayList<Long>()
 
@@ -110,6 +117,9 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
                 successCount++
                 huntDurations.add(huntDuration)
                 statValues[averageHuntDurationStat] = FormatUtil.durationToStr(huntDurations.average().toLong())
+                if (openChestAfterHunt) {
+                    //UseItemInItemBarTask()
+                }
             }
             statValues[successRateStat] = "$successCount / ${i + 1}"
             if (!success) {

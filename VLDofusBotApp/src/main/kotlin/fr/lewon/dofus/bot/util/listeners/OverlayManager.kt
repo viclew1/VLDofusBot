@@ -1,7 +1,7 @@
 package fr.lewon.dofus.bot.util.listeners
 
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
@@ -25,13 +25,17 @@ object OverlayManager {
             toToggleOverlay.overlay.isVisible = false
             displayedOverlay = null
         } else if (GlobalConfigManager.readConfig().run { displayOverlays && shouldDisplayOverlay(toToggleOverlay) }) {
-            val characterUIState = CharactersUIUtil.getSelectedCharacterUIState() ?: return
-            val character = CharacterManager.getCharacter(characterUIState.value.name) ?: return
-            val connection = GameSnifferUtil.getFirstConnection(character) ?: return
-            toToggleOverlay.overlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
-            displayedOverlay?.overlay?.isVisible = false
-            toToggleOverlay.overlay.isVisible = true
-            displayedOverlay = toToggleOverlay
+            val characterUIStates = CharactersUIUtil.getSelectedCharactersUIStates()
+            if (characterUIStates.size != 1) {
+                println("Select exactly one character to display an overlay")
+            } else {
+                val character = CharacterManager.getCharacter(characterUIStates.first().name) ?: return
+                val connection = GameSnifferUtil.getFirstConnection(character) ?: return
+                toToggleOverlay.overlay.updateOverlay(GameSnifferUtil.getGameInfoByConnection(connection))
+                displayedOverlay?.overlay?.isVisible = false
+                toToggleOverlay.overlay.isVisible = true
+                displayedOverlay = toToggleOverlay
+            }
         }
     }
 }

@@ -20,12 +20,28 @@ class RectangleAbsolute(val x: Int, val y: Int, val width: Int, val height: Int)
         return PointAbsolute(x + width / 2, y + height / 2)
     }
 
+    override fun getCenterLeft(): PointAbsolute {
+        return PointAbsolute(x, y + height / 2)
+    }
+
+    override fun getCenterRight(): PointAbsolute {
+        return PointAbsolute(x + width, y + height / 2)
+    }
+
+    override fun getTopCenter(): PointAbsolute {
+        return PointAbsolute(x + width / 2, y)
+    }
+
     override fun getTopLeft(): PointAbsolute {
         return PointAbsolute(x, y)
     }
 
     override fun getTopRight(): PointAbsolute {
         return PointAbsolute(x + width, y)
+    }
+
+    override fun getBottomCenter(): PointAbsolute {
+        return PointAbsolute(x + width / 2, y + height)
     }
 
     override fun getBottomLeft(): PointAbsolute {

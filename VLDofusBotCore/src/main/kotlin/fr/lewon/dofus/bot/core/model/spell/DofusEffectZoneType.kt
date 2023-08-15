@@ -4,6 +4,7 @@ enum class DofusEffectZoneType(val zoneTypeKey: Char) {
 
     POINT('P'),
     CIRCLE('C'),
+    SQUARE('G'),
     CROSS('X'),
     CROSS_FROM_TARGET('Q'),
     DIAGONAL_CROSS('+'),
@@ -12,6 +13,7 @@ enum class DofusEffectZoneType(val zoneTypeKey: Char) {
     CONE('V');
 
     companion object {
+
         fun fromKey(zoneTypeKey: Char): DofusEffectZoneType? {
             return values().firstOrNull { it.zoneTypeKey == zoneTypeKey }
         }

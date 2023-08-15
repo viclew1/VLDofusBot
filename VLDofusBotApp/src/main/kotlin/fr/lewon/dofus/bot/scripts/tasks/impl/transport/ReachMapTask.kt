@@ -11,7 +11,8 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 open class ReachMapTask(
     private val destMaps: List<DofusMap>,
-    private val availableZaaps: List<DofusMap> = TravelUtil.getAllZaapMaps()
+    private val availableZaaps: List<DofusMap> = TravelUtil.getAllZaapMaps(),
+    private val harvestEnabled: Boolean = true,
 ) :
     BooleanDofusBotTask() {
 
@@ -30,7 +31,7 @@ open class ReachMapTask(
         val destMap = path.lastOrNull()?.edge?.to?.mapId?.let { MapManager.getDofusMap(it) }
             ?: error("No transition in path")
         val subLogItem = gameInfo.logger.addSubLog("Moving to map : ${destMap.coordinates} ...", logItem)
-        return MoveTask(path).run(subLogItem, gameInfo).also {
+        return MoveTask(transitions = path, harvestEnabled = harvestEnabled).run(subLogItem, gameInfo).also {
             gameInfo.logger.closeLog(if (it) "OK" else "KO", subLogItem, true)
         }
     }

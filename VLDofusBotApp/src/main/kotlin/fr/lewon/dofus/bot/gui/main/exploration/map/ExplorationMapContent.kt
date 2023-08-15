@@ -26,11 +26,11 @@ import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui.custom.onMouseMove
+import fr.lewon.dofus.bot.gui.main.characters.CharacterActivityState
+import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.MapDrawCell
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.WorldMapHelperOverlay
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharacterActivityState
-import fr.lewon.dofus.bot.gui.main.scripts.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
@@ -213,7 +213,7 @@ private fun SelectedSubAreaOverlay() {
 private fun CharactersContent() {
     Box(Modifier.fillMaxSize()) {
         val worldMapHelper = ExplorationUIUtil.worldMapHelper.value
-        val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
+        val connectedCharactersUIStates = CharactersUIUtil.getAllCharacterUIStates()
             .filter { it.activityState != CharacterActivityState.DISCONNECTED && it.activityState != CharacterActivityState.TO_INITIALIZE }
         for (characterUiState in connectedCharactersUIStates) {
             val map = characterUiState.currentMap
@@ -277,7 +277,7 @@ private fun PositionTooltip() {
                 .background(AppColors.VERY_DARK_BG_COLOR)
                 .padding(5.dp)
         ) {
-            val characterNamesOnMap = CharactersUIUtil.getAllCharacterUIStates().map { it.value }
+            val characterNamesOnMap = CharactersUIUtil.getAllCharacterUIStates()
                 .filter { it.currentMap?.id == mapDrawCell.mapId }.map { it.name }
             val charactersSuffix = if (characterNamesOnMap.isNotEmpty()) {
                 " - ${characterNamesOnMap.joinToString(", ")}"

@@ -12,7 +12,7 @@ class EffectZoneCalculator(private val dofusBoard: DofusBoard) {
     fun getAffectedCells(
         fromCellId: Int,
         targetCellId: Int,
-        effectZones: List<DofusEffectZone>
+        effectZones: List<DofusEffectZone>,
     ): List<Int> {
         return effectZones.flatMap { getAffectedCells(fromCellId, targetCellId, it) }
     }
@@ -20,7 +20,7 @@ class EffectZoneCalculator(private val dofusBoard: DofusBoard) {
     fun getAffectedCells(
         fromCellId: Int,
         targetCellId: Int,
-        effectZone: DofusEffectZone
+        effectZone: DofusEffectZone,
     ): List<Int> {
         val areaSize = effectZone.size
         val fromCell = dofusBoard.getCell(fromCellId)
@@ -36,6 +36,13 @@ class EffectZoneCalculator(private val dofusBoard: DofusBoard) {
                         if (abs(c - col) + abs(r - row) <= areaSize) {
                             dofusBoard.getCell(c, r)?.let { cells.add(it) }
                         }
+                    }
+                }
+            }
+            DofusEffectZoneType.SQUARE -> {
+                for (c in col - areaSize..col + areaSize) {
+                    for (r in row - areaSize..row + areaSize) {
+                        dofusBoard.getCell(c, r)?.let { cells.add(it) }
                     }
                 }
             }

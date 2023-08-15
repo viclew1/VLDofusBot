@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.gui.custom.*
 import fr.lewon.dofus.bot.gui.util.AppColors
@@ -26,8 +25,7 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 fun HarvestableSetsList() {
     val harvestableIdsBySetName = JobsUiUtil.harvestableIdsBySetName.value
     val selectedSetName = JobsUiUtil.selectedSetName.value
-    Column(Modifier.padding(5.dp).grayBoxStyle()) {
-        HeaderLine()
+    CustomStyledColumn("Harvestable Sets", Modifier.padding(5.dp)) {
         SetCreationLine()
         Box {
             val state = rememberScrollState()
@@ -63,20 +61,9 @@ fun HarvestableSetsList() {
 }
 
 @Composable
-private fun HeaderLine() {
-    Row(Modifier.fillMaxWidth().height(30.dp).darkGrayBoxStyle()) {
-        CommonText(
-            "Harvestable Sets",
-            modifier = Modifier.padding(start = 10.dp).align(Alignment.CenterVertically),
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-@Composable
 private fun SetCreationLine() {
-    val newSetName = remember { mutableStateOf("") }
-    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+    val newSetName = remember(JobsUiUtil.harvestableIdsBySetName.value.size) { mutableStateOf("") }
+    Row(Modifier.fillMaxWidth().padding(bottom = 2.dp).padding(end = 5.dp)) {
         Column(Modifier.fillMaxWidth().weight(1f)) {
             SimpleTextField(
                 newSetName.value,
@@ -86,14 +73,13 @@ private fun SetCreationLine() {
             )
         }
         val enabled = newSetName.value.isNotBlank()
-        Row(Modifier.height(30.dp).align(Alignment.Bottom)) {
+        Row(Modifier.height(30.dp).align(Alignment.CenterVertically)) {
             ButtonWithTooltip(
                 onClick = {
                     val setName = newSetName.value.trim()
                     HarvestableSetsManager.addSet(setName)
                     JobsUiUtil.harvestableIdsBySetName.value = HarvestableSetsManager.getHarvestableIdsBySetName()
                     JobsUiUtil.selectedSetName.value = setName
-                    newSetName.value = ""
                 },
                 title = "Add Set",
                 imageVector = Icons.Default.Add,

@@ -244,7 +244,7 @@ object InteractiveUtil {
         skillIndex: Int,
     ) {
         if (skills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }.size > 1) {
-            if (!RetryUtil.tryUntilSuccess({ clickOption(gameInfo, elementClickLocation, skillIndex) }, 10)) {
+            if (!clickButtonWithOptions(gameInfo, elementClickLocation, skillIndex)) {
                 error("Couldn't use interactive")
             }
         } else {
@@ -252,20 +252,29 @@ object InteractiveUtil {
         }
     }
 
-    private fun clickOption(
+    fun clickButtonWithOptions(
         gameInfo: GameInfo,
-        interactiveLocation: PointRelative,
-        skillIndex: Int,
+        buttonLocation: PointRelative,
+        optionIndex: Int,
+    ): Boolean = RetryUtil.tryUntilSuccess(
+        { doClickButtonWithOptions(gameInfo, buttonLocation, optionIndex) },
+        10
+    )
+
+    private fun doClickButtonWithOptions(
+        gameInfo: GameInfo,
+        buttonLocation: PointRelative,
+        optionIndex: Int,
     ): Boolean {
         val optionHeaderRect = REF_HEADER_RECT.getTranslation(REF_INTERACTIVE_LOCATION.opposite())
-            .getTranslation(interactiveLocation)
-        MouseUtil.leftClick(gameInfo, interactiveLocation)
-        if (!WaitUtil.waitUntil(3000) { isOptionFound(gameInfo, interactiveLocation, optionHeaderRect) }) {
+            .getTranslation(buttonLocation)
+        MouseUtil.leftClick(gameInfo, buttonLocation)
+        if (!WaitUtil.waitUntil(3000) { isOptionFound(gameInfo, buttonLocation, optionHeaderRect) }) {
             return false
         }
         val firstOptionLoc = REF_FIRST_OPTION_LOCATION.getDifference(REF_INTERACTIVE_LOCATION)
-            .getSum(interactiveLocation)
-        MouseUtil.leftClick(gameInfo, firstOptionLoc.getSum(PointRelative(y = skillIndex.toFloat() * DELTA_OPTION)))
+            .getSum(buttonLocation)
+        MouseUtil.leftClick(gameInfo, firstOptionLoc.getSum(PointRelative(y = optionIndex.toFloat() * DELTA_OPTION)))
         return true
     }
 

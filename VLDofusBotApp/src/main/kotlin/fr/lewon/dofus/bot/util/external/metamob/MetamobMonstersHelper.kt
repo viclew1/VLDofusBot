@@ -38,7 +38,7 @@ object MetamobMonstersHelper {
 
     fun addMonsters(playerResult: FightResultPlayerListEntry, monsters: List<DofusMonster>) {
         return lock.executeSyncOperation {
-            if (playerResult.rewards.objects.any { ItemIds.SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
+            if (playerResult.rewards.objects.any { ItemIds.FULL_SOUL_STONE_ITEM_IDS.contains(it.objectId) }) {
                 val allMetamobMonsters = getAllMonsters()
                 val amountToAddByMonster = HashMap<MetamobMonster, Int>()
                 for (monster in monsters) {
@@ -145,7 +145,7 @@ object MetamobMonstersHelper {
     private fun buildMonsterUpdate(
         monster: MetamobMonster,
         amount: Int,
-        updateOperation: UpdateOperation
+        updateOperation: UpdateOperation,
     ): MetamobMonsterUpdate {
         val config = MetamobConfigManager.readConfig()
         val simultaneousOchers = config.getSafeSimultaneousOchers()

@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.util.AppColors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -57,9 +55,11 @@ fun SimpleTextField(
         )
     }
     LaunchedEffect(text) {
-        textFieldValueState.value = textFieldValueState.value.copy(text = text)
+        if (textFieldValueState.value.text != text) {
+            textFieldValueState.value = textFieldValueState.value.copy(text = text)
+        }
     }
-    val previousText = mutableStateOf(textFieldValueState.value.text)
+    val previousText = remember { mutableStateOf(textFieldValueState.value.text) }
     val textSelectionColors = TextSelectionColors(
         handleColor = Color.White,
         backgroundColor = Color.Gray,
@@ -80,8 +80,10 @@ fun SimpleTextField(
             maxLines = 1,
             modifier = modifier.onFocusChanged {
                 val hasFocus = it.isFocused || it.hasFocus
-                coroutineScope.launch {
+                if (!hasFocus) {
                     onValueChange(textFieldValueState.value.text)
+                }
+                coroutineScope.launch {
                     textFieldValueState.value = textFieldValueState.value.copy(
                         selection = if (hasFocus) {
                             TextRange(0, textFieldValueState.value.text.length)
@@ -159,35 +161,4 @@ private fun getPlaceHolderColor(backgroundColor: Color): Color {
         green = getColorComponent(backgroundColor.green),
         blue = getColorComponent(backgroundColor.blue)
     )
-}
-
-@Composable
-private fun Modifier.onFocusLeaveReset(
-    textFieldValueState: MutableState<TextFieldValue>,
-    scope: CoroutineScope = rememberCoroutineScope(),
-): Modifier = onFocusChanged {
-    if (!it.isFocused && !it.hasFocus) {
-        scope.launch {
-            textFieldValueState.value = textFieldValueState.value.copy(
-                selection = TextRange(0, 0),
-                composition = TextRange(0, 0)
-            )
-        }
-    }
-}
-
-@Composable
-private fun Modifier.onFocusSelectAll(
-    textFieldValueState: MutableState<TextFieldValue>,
-    scope: CoroutineScope = rememberCoroutineScope(),
-): Modifier = onFocusChanged {
-    if (it.isFocused || it.hasFocus) {
-        scope.launch {
-            delay(20)
-            val text = textFieldValueState.value.text
-            textFieldValueState.value = textFieldValueState.value.copy(
-                selection = TextRange(0, text.length),
-            )
-        }
-    }
 }

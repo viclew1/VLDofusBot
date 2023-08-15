@@ -35,7 +35,6 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
     val totalHeight = (maxPosY - minPosY + 1) * CellSize
 
     val ExplorerParameters = listOf(
-        ExploreAreaScriptBuilder.harvestParameter,
         ExploreAreaScriptBuilder.stopWhenArchMonsterFoundParameter,
         ExploreAreaScriptBuilder.stopWhenQuestMonsterFoundParameter,
         ExploreAreaScriptBuilder.searchedMonsterParameter,
