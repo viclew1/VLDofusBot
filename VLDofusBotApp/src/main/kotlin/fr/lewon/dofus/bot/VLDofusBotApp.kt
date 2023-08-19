@@ -34,7 +34,7 @@ import kotlin.system.exitProcess
 
 class VLDofusBotApp
 
-private lateinit var composeWindow: ComposeWindow
+lateinit var composeWindow: ComposeWindow
 lateinit var windowState: WindowState
 private var currentPage = mutableStateOf(AppPage.INITIALIZER)
 fun main() = application {
@@ -105,8 +105,9 @@ enum class AppPage(
     val defaultSize: DpSize,
     val minSize: DpSize = DpSize(100.dp, 100.dp),
     val pageContent: @Composable () -> Unit,
-    val bottomBarContent: @Composable () -> Unit
+    val bottomBarContent: @Composable () -> Unit,
 ) {
+
     INITIALIZER(
         { "${AppInfo.APP_NAME} Initializer" },
         Typography(FontFamily.Monospace),

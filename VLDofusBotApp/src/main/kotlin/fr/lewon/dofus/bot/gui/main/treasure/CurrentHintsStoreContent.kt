@@ -29,22 +29,35 @@ fun CurrentHintsStoreContent() {
     val uiState = TreasureHuntUiUtil.getUiStateValue()
     Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
         HeaderContent(uiState)
-        Column {
-            Box(modifier = Modifier.fillMaxSize().padding(5.dp)) {
-                val state = rememberScrollState()
-                Column(Modifier.fillMaxSize().verticalScroll(state)) {
-                    uiState.hintsGfxByName.entries.filter {
-                        StringUtil.removeAccents(it.key).contains(StringUtil.removeAccents(uiState.hintFilter))
-                    }.sortedBy { it.key }.forEach { (hintName, gfxIds) ->
-                        HintsList(uiState, hintName, gfxIds)
-                    }
-                }
-                VerticalScrollbar(
-                    modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
-                    adapter = rememberScrollbarAdapter(state),
-                )
-            }
+        HintsScrollableBox(uiState.hintsGfxByName, uiState.hintFilter) { hintName, gfxId ->
+            DeleteHintOverlayContent(hintName, gfxId, uiState)
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun DeleteHintOverlayContent(hintName: String, gfxId: Int, uiState: TreasureHuntUiState) {
+    val isHovered = remember { mutableStateOf(false) }
+    if (uiState.deleteMode) {
+        val borderColor = if (isHovered.value) AppColors.RED else Color.Transparent
+        val backgroundColorAlpha = if (isHovered.value) 0.4f else 0.2f
+        val iconColorAlpha = if (isHovered.value) 0.5f else 0.3f
+        Image(
+            Icons.Sharp.Close,
+            "",
+            modifier = Modifier.fillMaxSize()
+                .background(Color.Red.copy(alpha = backgroundColorAlpha))
+                .defaultHoverManager(isHovered)
+                .border(BorderStroke(2.dp, borderColor))
+                .handPointerIcon().onClick {
+                    Thread {
+                        TreasureHintManager.removeHintGfxMatch(hintName, gfxId)
+                        TreasureHuntUiUtil.refreshRegisteredHints()
+                    }.start()
+                },
+            colorFilter = ColorFilter.tint(Color.White.copy(alpha = iconColorAlpha))
+        )
     }
 }
 
@@ -92,9 +105,34 @@ private fun HeaderContent(uiState: TreasureHuntUiState) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun HintsList(uiState: TreasureHuntUiState, hintName: String, gfxIds: List<Int>) {
+fun HintsScrollableBox(
+    gfxIdsByPoiLabel: Map<String, List<Int>>,
+    labelFilter: String,
+    gfxCardOverlayContent: @Composable BoxScope.(hintName: String, gfxId: Int) -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize().padding(5.dp)) {
+        val state = rememberScrollState()
+        Column(Modifier.fillMaxSize().verticalScroll(state).padding(end = 10.dp)) {
+            gfxIdsByPoiLabel.entries.filter {
+                StringUtil.removeAccents(it.key).contains(StringUtil.removeAccents(labelFilter))
+            }.sortedBy { it.key }.forEach { (hintName, gfxIds) ->
+                HintsList(hintName, gfxIds, gfxCardOverlayContent)
+            }
+        }
+        VerticalScrollbar(
+            modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
+            adapter = rememberScrollbarAdapter(state),
+        )
+    }
+}
+
+@Composable
+private fun HintsList(
+    hintName: String,
+    gfxIds: List<Int>,
+    gfxCardOverlayContent: @Composable BoxScope.(hintName: String, gfxId: Int) -> Unit
+) {
     HorizontalSeparator(hintName, modifier = Modifier.padding(vertical = 8.dp))
     VerticalGrid(4, gfxIds) { gfxId ->
         val isHovered = remember { mutableStateOf(false) }
@@ -104,23 +142,7 @@ private fun HintsList(uiState: TreasureHuntUiState, hintName: String, gfxIds: Li
                 .defaultHoverManager(isHovered)
         ) {
             HintGfxCardContent(gfxId, TreasureHuntUiUtil.registeredHintsImageCache)
-            if (uiState.deleteMode) {
-                val borderColor = if (isHovered.value) AppColors.RED else Color.Transparent
-                val backgroundColorAlpha = if (isHovered.value) 0.4f else 0.2f
-                val iconColorAlpha = if (isHovered.value) 0.5f else 0.3f
-                Image(
-                    Icons.Sharp.Close,
-                    "",
-                    modifier = Modifier.fillMaxSize()
-                        .background(Color.Red.copy(alpha = backgroundColorAlpha))
-                        .border(BorderStroke(2.dp, borderColor))
-                        .handPointerIcon().onClick {
-                            TreasureHintManager.removeHintGfxMatch(hintName, gfxId)
-                            TreasureHuntUiUtil.refreshRegisteredHints()
-                        },
-                    colorFilter = ColorFilter.tint(Color.White.copy(alpha = iconColorAlpha))
-                )
-            }
+            gfxCardOverlayContent(hintName, gfxId)
         }
     }
 }

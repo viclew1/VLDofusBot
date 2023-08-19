@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
@@ -65,26 +66,29 @@ private fun HeaderContent(uiState: TreasureHuntUiState) {
             Row(Modifier.align(Alignment.CenterVertically)) {
                 if (selectedCharacter != null) {
                     ComboBox(
-                        modifier = Modifier.width(150.dp),
+                        modifier = Modifier.width(150.dp).align(Alignment.CenterVertically),
                         selectedItem = selectedCharacter,
                         items = initializedCharacters,
                         onItemSelect = { TreasureHuntUiUtil.setSelectedCharacterName(it) },
                         getItemText = { it },
+                        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.backgroundColor)
                     )
                     Spacer(Modifier.width(10.dp))
-                    ButtonWithTooltip(
-                        onClick = {
-                            CharacterManager.getCharacter(selectedCharacter)?.let { character ->
-                                GameSnifferUtil.getFirstConnection(character)?.let { connection ->
-                                    val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
-                                    TreasureHuntUiUtil.loadMapHints(gameInfo)
+                    Row(Modifier.align(Alignment.CenterVertically)) {
+                        ButtonWithTooltip(
+                            onClick = {
+                                CharacterManager.getCharacter(selectedCharacter)?.let { character ->
+                                    GameSnifferUtil.getFirstConnection(character)?.let { connection ->
+                                        val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
+                                        TreasureHuntUiUtil.loadMapHints(gameInfo)
+                                    }
                                 }
-                            }
-                        },
-                        title = "Load GFXs",
-                        imageVector = Icons.Default.Search,
-                        shape = RectangleShape
-                    )
+                            },
+                            title = "Load GFXs",
+                            imageVector = Icons.Default.Search,
+                            shape = RectangleShape,
+                        )
+                    }
                 } else {
                     CommonText(
                         "No initialized character",

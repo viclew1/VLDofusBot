@@ -24,12 +24,14 @@ object TreasureHintManager : ToInitManager {
     private lateinit var gfxIdsByPoiLabelFile: File
 
     override fun initManager() {
+        val objectMapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         gfxIdsByPoiLabelFile = File("${VldbFilesUtil.getVldbConfigDirectory()}/hint_gfx_ids_by_label")
         if (gfxIdsByPoiLabelFile.exists()) {
-            gfxIdsByPoiLabel = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .readValue(gfxIdsByPoiLabelFile)
+            gfxIdsByPoiLabel = objectMapper.readValue(gfxIdsByPoiLabelFile)
         } else {
-            gfxIdsByPoiLabel = GfxIdsByPoiLabel()
+            val inputStream = javaClass.getResourceAsStream("/default_files/default_hint_gfx_ids_by_label")
+                ?: error("Couldn't load default hints file")
+            gfxIdsByPoiLabel = objectMapper.readValue(inputStream)
             saveHintStoreContent()
         }
     }
@@ -82,6 +84,15 @@ object TreasureHintManager : ToInitManager {
     fun addHintGfxMatch(pointOfInterestLabel: String, gfxId: Int) {
         gfxIdsByPoiLabel.computeIfAbsent(pointOfInterestLabel) { HashSet() }
             .add(gfxId)
+        saveHintStoreContent()
+    }
+
+    fun addStore(gfxIdsByLabel: Map<String, HashSet<Int>>) {
+        gfxIdsByLabel.entries.forEach {
+            val gfxIds = gfxIdsByPoiLabel[it.key] ?: HashSet()
+            gfxIds.addAll(it.value)
+            gfxIdsByPoiLabel[it.key] = gfxIds
+        }
         saveHintStoreContent()
     }
 
