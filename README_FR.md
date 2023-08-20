@@ -18,19 +18,19 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
 * [Onglets](#onglets)
     - [Chargement](#chargement)
     - [Scripts](#scripts)
-        - [Personnages](#personnages)
-        - [Script Global](#script-global)
-        - [Script Individuel](#script-individuel)
-    - [Paramètres](#paramètres)
-    - [Metamob helper](#metamob-helper)
-        - [Fonctionnement](#fonctionnement)
-        - [Affichage des monstres](#affichage-des-monstres)
-        - [Assistant d'échange](#assistant-déchange)
-    - [Exploration](#exploration)
-    - [Métiers](#métiers)
-    - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
-    - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
-    - [Outils de Dev](#outils-de-dev)
+        - [Personnages connectés](#personnages-connectés)
+        - [Comment utiliser des scripts](#comment-utiliser-des-scripts)
+    - [Personnages](#personnages)
+        - [Paramètres](#paramètres)
+        - [Metamob helper](#metamob-helper)
+            - [Fonctionnement](#fonctionnement)
+            - [Affichage des monstres](#affichage-des-monstres)
+            - [Assistant d'échange](#assistant-déchange)
+        - [Exploration](#exploration)
+        - [Métiers](#métiers)
+        - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
+        - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
+        - [Outils de Dev](#outils-de-dev)
 
 ## Fonctionnalités
 
@@ -109,10 +109,10 @@ Une fois que toutes les étapes du chargement ont été réalisées, félicitati
 premier onglet sur lequel vous arriverez est celui des scripts.
 Vous pouvez accéder aux autres onglets avec les boutons sur la gauche.
 
-#### Personnages
+#### Personnages connectés
 
-Sur la gauche de l'onglet de script, vous trouverez une liste de personnages. Les nouveaux personnages sont
-automatiquement ajoutés à cette liste lorsque vous les connectez au jeu.
+Sur la gauche de l'onglet de script, vous trouverez une liste de personnages. Les personnages connectés y sont
+automatiquement ajoutés lorsqu'ils sont en ligne.
 Les personnages peuvent avoir quatre états d'activité différents que vous pouvez voir grâce à la barre colorée à gauche
 de la carte du personnage.
 
@@ -129,23 +129,34 @@ de la carte du personnage.
 
   ![img_4.png](demo/status_busy.png)
 
-#### Script Global
+#### Comment utiliser des scripts
 
-Par défaut, l'onglet des scripts est ouvert sur le mode **Global**. Cette section vous permet de lancer un script sur
-plusieurs personnages en même temps. Sur le screen ci-dessous, par exemple, j'ai sélectionné deux personnages pour
-lesquels le script choisi sera exécuté.
+Sur cette page, vous pouvez sélectionner un ou plusieurs personnages sur lesquels lancer un script. Sur le screen
+ci-dessous, par exemple, le script se lancera sur les deux personnages sélectionnés.
 
-![Scripts global](demo/scripts_screen_global.png)
+Sur cet onglet, il est également possible de changer les différents sets que vos personnages utilisent dans la
+section "Selected characters" en haut à droite de la page. Vous pouvez créer et gérer les sets dans
+l'onglet [Personnages](#personnages) et les harvestable sets dans l'onglet [Métiers](#métiers).
 
-#### Script Individuel
+![Scripts](demo/scripts_screen.png)
 
-Si vous sélectionnez un personnage (en cliquant dessus), vous entrerez dans le mode **Individual**. Ce mode vous
-permet de lancer un script sur ce personnage uniquement. Sur la droite, vous pourrez également modifier les sorts
-utilisés par l'IA de combat de votre personnage.
+### Personnages
 
-![Scripts individual](demo/scripts_screen_individual.png)
+Dans cet onglet, vous pouvez gérer vos personnages. Sur la droite de la page, vous pouvez voir une liste de tous les
+personnages que vous avez déjà connectés au jeu en ayant le bot ouvert.
+Si vous sélectionnez un personnage, vous pouvez gérer ses paramètres et ses sets.
 
-Pour retourner dans le mode global, cliquez sur l'onglet **Global scripts** en haut de la section des scripts.
+D'abord, vous pouvez créer de nouveaux sets dans la section "Character Sets". Pour ce faire, vous devez donner un nom au
+set, et utiliser le bouton "ajouter". Vous pouvez également modifier un set en le sélectionnant et en effectuant les
+modifications voulues. Pour chaque set, vous pouvez choisir différents sorts que vous voulez que l'IA utilise en combat.
+Vous pourrez également sélectionner différents objets que vous voudriez que votre personnage utilise (développement en
+cours, ne fonctionne pas encore). Évidemment, les barres de sorts et d'objets du bot doivent correspondre à celles de
+votre personnage en jeu.
+
+Ensuite, dans cet onglet, vous pouvez également gérer les paramètres généraux de votre personnage dans la section
+"general parameters" en bas de l'onglet. Ces paramètres ne font pas partie des sets.
+
+![Personnages](demo/characters_tab.png)
 
 ### Paramètres
 

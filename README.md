@@ -18,9 +18,9 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 * [Tabs](#tabs)
     - [Loading](#loading)
     - [Scripts](#scripts)
-        - [Characters](#characters)
-        - [Global Scripts](#global-scripts)
-        - [Individual Scripts](#individual-scripts)
+        - [Connected characters](#connected-characters)
+        - [How to use scripts](#how-to-use-scripts)
+    - [Characters](#characters)
     - [Settings](#settings)
     - [Metamob Helper](#metamob-helper)
         - [How to use](#how-to-use)
@@ -104,14 +104,13 @@ Most likely cases are :
 
 ### Scripts
 
-Once every loading operation has succeeded, well done, the bot should be usable ! You'll arrive to the scripts tab.
+Once every loading operation has succeeded, well done, the bot should be usable! You'll arrive to the scripts tab.
 You can reach the other tabs with the buttons on the left.
 
-#### Characters
+#### Connected characters
 
-On the left, there's a characters list. New characters are automatically added to it when you log them into the game.
-They can have four different activity states, you can notice them using the colored bar on the left on the character's
-card :
+On the left, there's a characters list. Connected characters are automatically added to it when you log them into the
+game. There are four different activity states, indicated by the colored bar on the left of the character's card:
 
 - Disconnected
 
@@ -126,21 +125,31 @@ card :
 
   ![img_4.png](demo/status_busy.png)
 
-#### Global scripts
+#### How to use scripts
 
-The page is, by default, in **Global** mode. Meaning you can run a script for multiple characters at once. Here I have
-two characters selected on which the selected script will run.
+On this page, you can select one or multiple characters on which you can run a script. Here I have two characters
+selected on which the selected script will run. You can also change the set and harvestable set your characters use on
+the top right side of the tab. You can create and manage sets in the [Characters](#characters) tab and harvestable sets
+in the [Jobs](#jobs) tab.
 
-![Scripts global](demo/scripts_screen_global.png)
+![Scripts](demo/scripts_screen.png)
 
-#### Individual scripts
+### Characters
 
-If you select a character (by clicking on its card), you'll enter **Individual** mode. In this mode, you can run scripts
-on one character only, and you can edit the spells your character's AI can use on the right.
+This tab is used to manage your characters. On the left section of the page, you can see a list of all the characters
+you have already logged in to the game with the bot open.
+If you select one character, you can manage this character's parameters and sets.
 
-![Scripts individual](demo/scripts_screen_individual.png)
+First, you can create new sets in the section "Character Sets". To do this, you need to set a name and use the "add"
+button. You can also edit your sets by selecting it in the list and editing it. For each set, you can choose different
+spells you want the AI to use in fights. You will also be able to select different items you want your character to
+use (work in progress, does not work yet). Of course, the spell bar and item bar in the bot have to match the ones of
+your character in the game.
 
-If you want to return in Global mode, click on the **Global scripts** tab.
+Next, you can also manage the general parameters of your characters at the bottom of the screen. Those parameters are
+not part of the sets.
+
+![Characters](demo/characters_tab.png)
 
 ### Settings
 
