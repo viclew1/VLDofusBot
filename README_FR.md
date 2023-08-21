@@ -30,8 +30,8 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
         - [Métiers](#métiers)
         - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
         - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
-        - [Outils de Dev](#outils-de-dev)
-
+            - [Comment importer de nouveaux indices](#comment-importer-de-nouveaux-indices)
+    
 ## Fonctionnalités
 
 - [x] Déplacer plusieurs personnages à la fois en utilisant les zaaps si nécessaire (voyez le comme un autopilote
@@ -156,7 +156,7 @@ votre personnage en jeu.
 Ensuite, dans cet onglet, vous pouvez également gérer les paramètres généraux de votre personnage dans la section
 "general parameters" en bas de l'onglet. Ces paramètres ne font pas partie des sets.
 
-![Personnages](demo/characters_tab.png)
+![Personnages](demo/characters_screen.png)
 
 ### Paramètres
 
@@ -247,7 +247,7 @@ Vous pouvez également ajouter des caractéristiques additionnelles dans la sect
 characteristics). Par défaut, seules les trois caractéristiques de base sont affichées (à condition qu'elles ne figurent
 pas déjà dans les Native characteristics), mais vous pouvez en ajouter d'autres en utilisant le bouton "add filter".
 
-![AuctionScreen](demo/auctionhouse_screen.png)
+![AuctionScreen](demo/auction_house_screen.png)
 
 ### Indices de chasses au trésor
 
@@ -262,8 +262,20 @@ recherchez et l'ajouter en utilisant le bouton "Add GFX to hint" en bas de la pa
 Si vous vous êtes trompés et souhaitez supprimer un indice, vous pouvez rechercher l'indice érroné et utiliser le
 bouton de suppression en haut à droite de la section "Registered hints".
 
-![TreasureHuntHintsScreen](demo/treasurehunthints_screen.png)
+![TreasureHuntHintsScreen](demo/treasure_hunt_hints_screen.png)
 
-### Outils de Dev
+#### Comment importer de nouveaux indices
 
-TODO
+Comme vous pouvez le voir sur le screen ci-dessus, il y a un bouton en haut à droite de la page d'indices de chasses au
+trésor qui vous permet d'importer de nouveaux indices.
+
+Quand vous cliquez sur le bouton d'import, une nouvelle section apparait, comme vous pouvez le voir sur le screen
+ci-dessous. Dans cette section, vous pouvez déposer un fichier d'indices (vous pouvez trouver votre fichier d'indices
+hint_gfx_ids_by_label dans C:\Users\your_user\.VLDofusBot et vous pouvez le partager dans le salon discord dédié aux
+indices), et le bot identifiera quels indices vous n'avez pas encore enregistrés. Vous pourrez les retrouver
+dans la section "added hints". Vous pouvez rejeter les indices qui sont faux en utilisant le bouton "reject" qui
+se trouve en bas à droite de chaque indice, et ensuite ajouter tous les autres grâce au bouton "accept all" en haut à
+droite de la section.
+
+![HowToImportHints](demo/how_to_import_hints.png)
+

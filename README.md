@@ -30,7 +30,7 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
     - [Jobs](#jobs)
     - [Auction House Item Finder](#auction-house-item-finder)
     - [Treasure Hunt Hints](#treasure-hunt-hints)
-    - [Dev Tools](#dev-tools)
+        - [How to import new hints](#how-to-import-new-hints)
 
 ## Features
 
@@ -149,7 +149,7 @@ your character in the game.
 Next, you can also manage the general parameters of your characters at the bottom of the screen. Those parameters are
 not part of the sets.
 
-![Characters](demo/characters_tab.png)
+![Characters](demo/characters_screen.png)
 
 ### Settings
 
@@ -235,7 +235,7 @@ You can also add additional characteristics on the bottom left. By default, only
 not already in the native characteristics) are displayed, but you can add other additional characteristics by using
 the "Add filter" button.
 
-![AuctionScreen](demo/auctionhouse_screen.png)
+![AuctionScreen](demo/auction_house_screen.png)
 
 ### Treasure Hunt Hints
 
@@ -245,11 +245,22 @@ To add a new hint, you need to load the map GFXs of the character by using the s
 You will then see all the GFXs (the ones already added, as well as those you didn't add yet) of the map your character
 is on. You then need to select the hint and add it using the "Add GFX to hint" at the bottom of the screen.
 
-If you've made a mistake and you need to delete a hint, you can look for the hint and use the delete button at the top
-right of the registered hints section.
+If you've made a mistake and need to delete a hint, you can look for the hint and use the delete button at the top
+right of the registered hints panel.
 
-![TreasureHuntHintsScreen](demo/treasurehunthints_screen.png)
+![TreasureHuntHintsScreen](demo/treasure_hunt_hints_screen.png)
 
-### Dev Tools
+#### How to import new hints
 
-TODO
+As you can see on the screen above, there is a button on the top right of your screen that you can click on to import
+hints.
+
+Once you click on the import button, a new panel will expand, as you can see on the screen below. There, you can drop a
+hint file (you can find your own hints file hint_gfx_ids_by_label in C:\Users\your_user\.VLDofusBot and you can share it
+in the dedicated discord channel), and the bot will identify which ones you don't have yet in the section named "added
+hints". You can reject the hints you think are wrong with the "reject" button at the bottom of each hint, and you can
+add all by clicking the "Accept All" button at the top right of the tab.
+
+![HowToImportHints](demo/how_to_import_hints.png)
+
+
