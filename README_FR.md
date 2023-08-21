@@ -21,17 +21,17 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
         - [Personnages connectés](#personnages-connectés)
         - [Comment utiliser des scripts](#comment-utiliser-des-scripts)
     - [Personnages](#personnages)
-        - [Paramètres](#paramètres)
-        - [Metamob helper](#metamob-helper)
-            - [Fonctionnement](#fonctionnement)
-            - [Affichage des monstres](#affichage-des-monstres)
-            - [Assistant d'échange](#assistant-déchange)
-        - [Exploration](#exploration)
-        - [Métiers](#métiers)
-        - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
-        - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
-            - [Comment importer de nouveaux indices](#comment-importer-de-nouveaux-indices)
-    
+    - [Paramètres](#paramètres)
+    - [Metamob helper](#metamob-helper)
+        - [Fonctionnement](#fonctionnement)
+        - [Affichage des monstres](#affichage-des-monstres)
+        - [Assistant d'échange](#assistant-déchange)
+    - [Exploration](#exploration)
+    - [Métiers](#métiers)
+    - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
+    - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
+        - [Comment importer de nouveaux indices](#comment-importer-de-nouveaux-indices)
+
 ## Fonctionnalités
 
 - [x] Déplacer plusieurs personnages à la fois en utilisant les zaaps si nécessaire (voyez le comme un autopilote
