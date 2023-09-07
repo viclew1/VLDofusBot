@@ -30,6 +30,7 @@ class ExploreSubAreaTask(
     private val stopWhenArchMonsterFound: Boolean,
     private val stopWhenWantedMonsterFound: Boolean,
     private val explorationThresholdMinutes: Int,
+    private val useZaaps: Boolean,
 ) : DofusBotTask<ExplorationStatus>() {
 
     companion object {
@@ -69,7 +70,8 @@ class ExploreSubAreaTask(
         }
         TravelUtil.getPath(gameInfo, toExploreMaps, gameInfo.buildCharacterBasicInfo())
             ?: return ExplorationStatus.Finished
-        if (!ReachMapTask(toExploreMaps).run(logItem, gameInfo)) {
+        val availableZaaps = if (useZaaps) TravelUtil.getAllZaapMaps() else emptyList()
+        if (!ReachMapTask(toExploreMaps, availableZaaps).run(logItem, gameInfo)) {
             return ExplorationStatus.NotFinished
         }
         if (toExploreMaps.remove(gameInfo.currentMap)) {

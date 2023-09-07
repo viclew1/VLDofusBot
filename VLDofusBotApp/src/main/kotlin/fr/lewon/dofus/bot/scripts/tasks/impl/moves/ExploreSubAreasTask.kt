@@ -16,6 +16,7 @@ class ExploreSubAreasTask(
     private val stopWhenWantedMonsterFound: Boolean,
     private val runForever: Boolean,
     private val explorationThresholdMinutes: Int,
+    private val useZaaps: Boolean,
 ) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
@@ -44,6 +45,7 @@ class ExploreSubAreasTask(
         stopWhenArchMonsterFound = stopWhenArchMonsterFound,
         stopWhenWantedMonsterFound = stopWhenWantedMonsterFound,
         explorationThresholdMinutes = explorationThresholdMinutes,
+        useZaaps = useZaaps
     ).run(logItem, gameInfo)
 
     override fun onStarted(): String {
