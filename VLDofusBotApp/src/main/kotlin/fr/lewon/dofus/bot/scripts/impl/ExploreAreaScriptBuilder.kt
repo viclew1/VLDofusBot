@@ -110,6 +110,13 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         displayCondition = { !it.getParamValue(runForeverParameter) }
     )
 
+    val useZaapsParameter = BooleanParameter(
+        "Use zaaps",
+        "Check if you want to allow zaaps for the travel",
+        true,
+        parametersGroup = 5
+    )
+
     override fun getParameters(): List<DofusBotParameter<*>> = listOf(
         currentAreaParameter,
         subAreasParameter,
@@ -121,6 +128,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         maxMonsterGroupLevelParameter,
         maxMonsterGroupSizeParameter,
         ignoreMapsExploredRecentlyParameter,
+        useZaapsParameter,
     )
 
     override fun getDefaultStats(): List<DofusBotScriptStat> {
@@ -154,6 +162,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
             stopWhenWantedMonsterFound = parameterValues.getParamValue(stopWhenQuestMonsterFoundParameter),
             runForever = runForever,
             explorationThresholdMinutes = explorationThresholdMinutes,
+            useZaaps = parameterValues.getParamValue(useZaapsParameter)
         ).run(logItem, gameInfo)
     }
 

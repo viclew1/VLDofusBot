@@ -42,7 +42,8 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
         ExploreAreaScriptBuilder.maxMonsterGroupLevelParameter,
         ExploreAreaScriptBuilder.maxMonsterGroupSizeParameter,
         ExploreAreaScriptBuilder.runForeverParameter,
-        ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter
+        ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter,
+        ExploreAreaScriptBuilder.useZaapsParameter,
     )
 
     val mapUIState = mutableStateOf(ExplorationMapUIState())
