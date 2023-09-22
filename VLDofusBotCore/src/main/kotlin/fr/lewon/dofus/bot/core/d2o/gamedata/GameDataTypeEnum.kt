@@ -13,7 +13,7 @@ enum class GameDataTypeEnum(val id: Int) {
     companion object {
 
         fun getDataType(type: Int): GameDataTypeEnum? {
-            return values().firstOrNull { it.id == type }
+            return entries.firstOrNull { it.id == type }
         }
 
     }

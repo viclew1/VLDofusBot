@@ -34,7 +34,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         "Type",
         "How to retrieve the destination map",
         ReachMapType.BY_COORDINATES,
-        getAvailableValues = { ReachMapType.values().toList() },
+        getAvailableValues = { ReachMapType.entries },
         parametersGroup = 1,
         itemValueToString = { it.label },
         stringToItemValue = { ReachMapType.fromLabel(it) }

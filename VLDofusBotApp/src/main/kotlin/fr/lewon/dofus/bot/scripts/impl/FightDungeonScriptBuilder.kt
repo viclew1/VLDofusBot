@@ -12,15 +12,15 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object FightDungeonScriptBuilder : DofusBotScriptBuilder("Fight dungeon") {
 
-    private val DUNGEON_BY_NAME = Dungeon.values().associateBy { it.name }
+    private val DUNGEON_BY_NAME = Dungeon.entries.associateBy { it.name }
 
     private val countStat = DofusBotScriptStat("Count", "0")
 
     private val dungeonParameter = ChoiceParameter(
         "Dungeon",
         "The dungeon you want to farm",
-        Dungeon.values().first(),
-        getAvailableValues = { Dungeon.values().toList() },
+        Dungeon.entries.first(),
+        getAvailableValues = { Dungeon.entries },
         itemValueToString = { it.name },
         stringToItemValue = { DUNGEON_BY_NAME[it] ?: error("Dungeon not found : $it") }
     )

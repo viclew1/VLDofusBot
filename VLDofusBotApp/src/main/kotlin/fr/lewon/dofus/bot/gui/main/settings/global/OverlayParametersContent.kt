@@ -18,7 +18,7 @@ fun OverlayParametersContent() {
         ) { checked ->
             SettingsUIUtil.updateGlobalConfig { it.displayOverlays = checked }
         }
-        for (overlayInfo in OverlayInfo.values()) {
+        for (overlayInfo in OverlayInfo.entries) {
             ConfigSwitchLine(
                 overlayInfo.title,
                 overlayInfo.description,

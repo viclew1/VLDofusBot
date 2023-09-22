@@ -52,7 +52,7 @@ object KeyboardListener : Thread(), NativeKeyListener {
     }
 
     private fun toggleOverlays() {
-        OverlayInfo.values().firstOrNull { hotKeyPressed(it.keys) }?.let {
+        OverlayInfo.entries.firstOrNull { hotKeyPressed(it.keys) }?.let {
             OverlayManager.toggleOverlay(it)
         }
     }

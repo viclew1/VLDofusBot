@@ -7,7 +7,7 @@ import fr.lewon.dofus.bot.scripts.impl.dev.TestScriptBuilder
 enum class DofusBotScriptBuilders(val builder: DofusBotScriptBuilder) {
 
     REACH_MAP(ReachMapScriptBuilder),
-    EXPLORE_AREA(ExploreAreaScriptBuilder),
+    EXPLORE_AREA(ExploreMapsScriptBuilder),
     EXPLORE_ALL_ZAAPS(ExploreAllZaapsScriptBuilder),
     UPDATE_METAMOB(UpdateMetamobScriptBuilder),
     TREASURE_HUNT_EXECUTE(ExecuteTreasureHuntScriptBuilder),

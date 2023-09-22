@@ -12,7 +12,7 @@ object JobsUiUtil : ComposeUIUtil() {
     val harvestableIdsBySetName = mutableStateOf(HarvestableSetsManager.getHarvestableIdsBySetName())
 
     override fun init() {
-        HarvestJobs.values().flatMap { it.items }.forEach { it.cachedIcon }
+        HarvestJobs.entries.flatMap { it.items }.forEach { it.cachedIcon }
     }
 
     fun deleteSet(setName: String) {

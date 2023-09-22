@@ -2,7 +2,6 @@ package fr.lewon.dofus.bot.gui.main.treasure
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,13 +33,11 @@ fun HintGfxCardContent(gfxId: Int, imageCache: TreasureHintImageCache) {
     val painter = gfxPainter.value
     Column(Modifier.fillMaxSize().padding(3.dp)) {
         Row {
-            SelectionContainer(Modifier.align(Alignment.CenterVertically)) {
-                CommonText(
-                    gfxId.toString(),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-            }
+            CommonText(
+                gfxId.toString(),
+                modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically),
+                textAlign = TextAlign.Center
+            )
         }
         Spacer(Modifier.height(5.dp))
         Box(Modifier.fillMaxSize()) {

@@ -1,19 +1,17 @@
 package fr.lewon.dofus.bot.scripts.tasks.impl.moves
 
 import fr.lewon.dofus.bot.core.d2o.managers.entity.MonsterManager
-import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.charac.DofusCharacterBasicInfo
 import fr.lewon.dofus.bot.core.model.entity.DofusMonster
 import fr.lewon.dofus.bot.core.model.maps.DofusMap
-import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
-import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUiUtil
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightAnyMonsterGroupTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.TransferItemsToBankTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.util.ExplorationParameters
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.LeaveHavenBagTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.GameRolePlayGroupMonsterInformations
@@ -21,43 +19,36 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import fr.lewon.dofus.bot.util.game.TravelUtil
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-class ExploreSubAreaTask(
-    private val subArea: DofusSubArea,
-    private val killEverything: Boolean,
-    private val maxMonsterGroupLevel: Int,
-    private val maxMonsterGroupSize: Int,
-    private val searchedMonsterName: String,
-    private val stopWhenArchMonsterFound: Boolean,
-    private val stopWhenWantedMonsterFound: Boolean,
-    private val explorationThresholdMinutes: Int,
-    private val useZaaps: Boolean,
+abstract class SingleExplorationTask<T>(
+    private val itemToExplore: T,
+    private val explorationParameters: ExplorationParameters,
 ) : DofusBotTask<ExplorationStatus>() {
 
-    companion object {
+    protected abstract fun getMapsToExplore(itemToExplore: T): List<DofusMap>
 
-        val SUB_AREA_ID_FULLY_ALLOWED = listOf(
-            99.0, 100.0, 181.0, // Astrub undergrounds
-            7.0, // Amakna crypts
-            813.0, // Shadow dimension
-        )
-    }
+    protected abstract fun onExplorationStart(gameInfo: GameInfo, itemToExplore: T, alreadyExploredMaps: List<DofusMap>)
+
+    protected abstract fun buildOnStartedMessage(itemToExplore: T): String
+
+    protected abstract fun getNextMapsToExplore(
+        toExploreMaps: List<DofusMap>,
+        alreadyExploredMaps: List<DofusMap>
+    ): List<DofusMap>
 
     override fun execute(logItem: LogItem, gameInfo: GameInfo): ExplorationStatus {
-        val toExploreMaps = MapManager.getDofusMaps(subArea)
-            .filter { it.worldMap != null || SUB_AREA_ID_FULLY_ALLOWED.contains(it.subArea.id) }
-            .toMutableList()
+        val toExploreMaps = getMapsToExplore(itemToExplore).toMutableList()
         if (toExploreMaps.isEmpty()) {
-            error("Nothing to explore in this area")
+            error("No map to explore found")
         }
         val alreadyExploredMaps = toExploreMaps.filter {
-            getMinutesSinceLastExploration(it.id) < explorationThresholdMinutes
+            getMinutesSinceLastExploration(it.id) < explorationParameters.explorationThresholdMinutes
         }
-        ExplorationUIUtil.onAreaExplorationStart(gameInfo.character, subArea)
+        onExplorationStart(gameInfo, itemToExplore, alreadyExploredMaps)
         var exploredCount = alreadyExploredMaps.size
         val toExploreTotal = toExploreMaps.size
         LastExplorationUiUtil.updateExplorationProgress(
             character = gameInfo.character,
-            subArea = subArea,
+            item = itemToExplore,
             current = exploredCount,
             total = toExploreTotal
         )
@@ -68,16 +59,17 @@ class ExploreSubAreaTask(
         if (!LeaveHavenBagTask().run(logItem, gameInfo)) {
             return ExplorationStatus.NotFinished
         }
-        TravelUtil.getPath(gameInfo, toExploreMaps, gameInfo.buildCharacterBasicInfo())
+        val initialMapsToExplore = getNextMapsToExplore(toExploreMaps, alreadyExploredMaps)
+        TravelUtil.getPath(gameInfo, initialMapsToExplore, gameInfo.buildCharacterBasicInfo())
             ?: return ExplorationStatus.Finished
-        val availableZaaps = if (useZaaps) TravelUtil.getAllZaapMaps() else emptyList()
-        if (!ReachMapTask(toExploreMaps, availableZaaps).run(logItem, gameInfo)) {
+        val availableZaaps = if (explorationParameters.useZaaps) TravelUtil.getAllZaapMaps() else emptyList()
+        if (!ReachMapTask(initialMapsToExplore, availableZaaps).run(logItem, gameInfo)) {
             return ExplorationStatus.NotFinished
         }
         if (toExploreMaps.remove(gameInfo.currentMap)) {
             LastExplorationUiUtil.updateExplorationProgress(
                 character = gameInfo.character,
-                subArea = subArea,
+                item = itemToExplore,
                 current = ++exploredCount,
                 total = toExploreTotal
             )
@@ -86,12 +78,10 @@ class ExploreSubAreaTask(
             return ExplorationStatus.FoundSomething
         }
         while (toExploreMaps.isNotEmpty()) {
-            returnToBankIfNeeded(logItem, gameInfo)
-            if (killEverything) {
-                killMonsters(logItem, gameInfo)
-            }
+            exploreMap(logItem, gameInfo)
             val characterInfo = gameInfo.buildCharacterBasicInfo(TravelUtil.getAllZaapMaps().map { it.id })
-            val nextVertex = getNextVertexToExplore(gameInfo, toExploreMaps, characterInfo)
+            val nextMapsToExplore = getNextMapsToExplore(toExploreMaps, alreadyExploredMaps)
+            val nextVertex = getNextVertexToExplore(gameInfo, nextMapsToExplore, characterInfo)
                 ?: return ExplorationStatus.Finished
             val fromVertex = TravelUtil.getCurrentVertex(gameInfo)
             val path = WorldGraphUtil.getPath(listOf(fromVertex), listOf(nextVertex), characterInfo)
@@ -107,7 +97,7 @@ class ExploreSubAreaTask(
             if (toExploreMaps.remove(gameInfo.currentMap)) {
                 LastExplorationUiUtil.updateExplorationProgress(
                     character = gameInfo.character,
-                    subArea = subArea,
+                    item = itemToExplore,
                     current = ++exploredCount,
                     total = toExploreTotal
                 )
@@ -167,16 +157,52 @@ class ExploreSubAreaTask(
         return millisSinceLastExploration / (60_000)
     }
 
-    private fun foundSearchedMonster(gameInfo: GameInfo): Boolean =
-        searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }
+    //TODO this must move to the MoveTask once the fight parameters become global parameters
+    private fun exploreMap(logItem: LogItem, gameInfo: GameInfo) {
+        returnToBankIfNeeded(logItem, gameInfo)
+        if (explorationParameters.killEverything) {
+            killMonsters(logItem, gameInfo)
+        }
+        returnToBankIfNeeded(logItem, gameInfo)
+    }
+
+    private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
+        while (gameInfo.monsterInfoByEntityId.isNotEmpty()) {
+            if (!FightAnyMonsterGroupTask(
+                    stopIfNoMonsterPresent = true,
+                    maxMonsterGroupLevel = explorationParameters.maxMonsterGroupLevel,
+                    maxMonsterGroupSize = explorationParameters.maxMonsterGroupSize
+                ).run(logItem, gameInfo)
+            ) {
+                return
+            }
+        }
+    }
+
+    private fun returnToBankIfNeeded(logItem: LogItem, gameInfo: GameInfo) {
+        if (gameInfo.shouldReturnToBank()) {
+            if (!TransferItemsToBankTask().run(logItem, gameInfo)) {
+                error("Couldn't transfer items to bank")
+            }
+        }
+    }
+
+    private fun foundSearchedMonster(gameInfo: GameInfo): Boolean {
+        val searchedMonsterName = explorationParameters.searchedMonsterName
+        val stopWhenArchMonsterFound = explorationParameters.stopWhenArchMonsterFound
+        val stopWhenWantedMonsterFound = explorationParameters.stopWhenWantedMonsterFound
+        return searchedMonsterName.isNotBlank() && gameInfo.monsterInfoByEntityId.values.any { isSearchedMonster(it) }
             || stopWhenArchMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isArchMonster(it) }
             || stopWhenWantedMonsterFound && gameInfo.monsterInfoByEntityId.values.any { isWantedMonster(it) }
+    }
 
     private fun isWantedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
         isAnyMonsterMatchingPredicate(monsterInfo) { it.isQuestMonster }
 
     private fun isSearchedMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
-        isAnyMonsterMatchingPredicate(monsterInfo) { it.name.lowercase() == searchedMonsterName.lowercase() }
+        isAnyMonsterMatchingPredicate(monsterInfo) {
+            it.name.lowercase() == explorationParameters.searchedMonsterName.lowercase()
+        }
 
     private fun isArchMonster(monsterInfo: GameRolePlayGroupMonsterInformations): Boolean =
         isAnyMonsterMatchingPredicate(monsterInfo) { it.isMiniBoss }
@@ -197,27 +223,8 @@ class ExploreSubAreaTask(
         return false
     }
 
-    private fun killMonsters(logItem: LogItem, gameInfo: GameInfo) {
-        while (gameInfo.monsterInfoByEntityId.isNotEmpty() && FightAnyMonsterGroupTask(
-                stopIfNoMonsterPresent = true,
-                maxMonsterGroupLevel = maxMonsterGroupLevel,
-                maxMonsterGroupSize = maxMonsterGroupSize
-            ).run(logItem, gameInfo)) {
-            returnToBankIfNeeded(logItem, gameInfo)
-        }
-    }
-
-    private fun returnToBankIfNeeded(logItem: LogItem, gameInfo: GameInfo) {
-        if (gameInfo.shouldReturnToBank()) {
-            if (!TransferItemsToBankTask().run(logItem, gameInfo)) {
-                error("Couldn't transfer items to bank")
-            }
-        }
-    }
-
     override fun shouldClearSubLogItems(result: ExplorationStatus): Boolean = false
 
-    override fun onStarted(): String {
-        return "Exploring sub area [${subArea.label}]"
-    }
+    override fun onStarted(): String = buildOnStartedMessage(itemToExplore)
 }
+

@@ -15,7 +15,7 @@ enum class DofusEffectZoneType(val zoneTypeKey: Char) {
     companion object {
 
         fun fromKey(zoneTypeKey: Char): DofusEffectZoneType? {
-            return values().firstOrNull { it.zoneTypeKey == zoneTypeKey }
+            return entries.firstOrNull { it.zoneTypeKey == zoneTypeKey }
         }
     }
 

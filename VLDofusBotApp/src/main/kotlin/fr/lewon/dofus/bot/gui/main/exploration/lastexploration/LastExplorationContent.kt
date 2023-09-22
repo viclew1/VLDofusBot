@@ -27,6 +27,7 @@ import fr.lewon.dofus.bot.gui.main.TooltipTarget
 import fr.lewon.dofus.bot.gui.main.characters.CharacterActivityState
 import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
+import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.impl.LastSubAreasExploration
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
@@ -47,7 +48,7 @@ fun LastExplorationsContent() {
             Row(Modifier.height(25.dp).align(Alignment.CenterVertically)) {
                 Spacer(Modifier.width(5.dp))
                 val resumeAllEnabled = uiState.lastExplorationByCharacter.values.any {
-                    it.explorationStopped && it.getSubAreasToExploreAgain().isNotEmpty()
+                    it.explorationStopped && it.getItemsToExploreAgain().isNotEmpty()
                 }
                 ButtonWithTooltip(
                     onClick = {
@@ -56,12 +57,9 @@ fun LastExplorationsContent() {
                             character != null
                                 && !ScriptRunner.isScriptRunning(character)
                                 && it.value.explorationStopped
-                                && it.value.getSubAreasToExploreAgain().isNotEmpty()
+                                && it.value.getItemsToExploreAgain().isNotEmpty()
                         }.forEach { (characterName, lastExploration) ->
-                            ExplorationUIUtil.startExploration(
-                                lastExploration.getSubAreasToExploreAgain(),
-                                characterName
-                            )
+                            ExplorationUIUtil.startExploration(lastExploration, characterName)
                         }
                     },
                     title = "Resume all explorations",
@@ -151,46 +149,7 @@ fun LastExplorationsContent() {
                                 )
                             }
                         } else {
-                            for ((subArea, explorationProgress) in lastExploration.progressBySubArea) {
-                                Row(Modifier.height(20.dp).padding(start = 6.dp)) {
-                                    Row(
-                                        Modifier.width(20.dp).height(15.dp).padding(end = 5.dp)
-                                            .align(Alignment.CenterVertically)
-                                    ) {
-                                        if (explorationProgress.started && explorationProgress.current >= explorationProgress.total) {
-                                            Image(
-                                                painter = UiResource.CHECK.imagePainter,
-                                                "",
-                                                colorFilter = ColorFilter.tint(AppColors.GREEN),
-                                                modifier = Modifier.height(15.dp).align(Alignment.CenterVertically)
-                                                    .padding(start = 2.dp)
-                                            )
-                                        } else if (lastExploration.explorationStopped && explorationProgress.current == 0) {
-                                            Image(
-                                                imageVector = Icons.Default.Close,
-                                                "",
-                                                colorFilter = ColorFilter.tint(AppColors.RED),
-                                                modifier = Modifier.height(15.dp).align(Alignment.CenterVertically)
-                                                    .padding(start = 2.dp)
-                                            )
-                                        } else if (explorationProgress.started) {
-                                            CircularProgressIndicator(
-                                                color = if (lastExploration.explorationStopped) AppColors.ORANGE else AppColors.GREEN,
-                                                progress = if (explorationProgress.total > 0) {
-                                                    explorationProgress.current.toFloat() / explorationProgress.total.toFloat()
-                                                } else 0f,
-                                                backgroundColor = AppColors.VERY_DARK_BG_COLOR,
-                                            )
-                                        }
-                                    }
-                                    CommonText(
-                                        subArea.name,
-                                        modifier = Modifier.align(Alignment.CenterVertically).padding(start = 5.dp),
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1
-                                    )
-                                }
-                            }
+                            LastExplorationItemsContent(lastExploration)
                         }
                     }
                 }
@@ -204,7 +163,51 @@ fun LastExplorationsContent() {
 }
 
 @Composable
-private fun LastExplorationHeaderContent(characterName: String, lastExploration: LastExploration?) {
+private fun <T> LastExplorationItemsContent(lastExploration: LastExploration<T>) {
+    for ((item, explorationProgress) in lastExploration.progressByItem) {
+        Row(Modifier.height(20.dp).padding(start = 6.dp)) {
+            Row(
+                Modifier.width(20.dp).height(15.dp).padding(end = 5.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                if (explorationProgress.started && explorationProgress.current >= explorationProgress.total) {
+                    Image(
+                        painter = UiResource.CHECK.imagePainter,
+                        "",
+                        colorFilter = ColorFilter.tint(AppColors.GREEN),
+                        modifier = Modifier.height(15.dp).align(Alignment.CenterVertically)
+                            .padding(start = 2.dp)
+                    )
+                } else if (lastExploration.explorationStopped && explorationProgress.current == 0) {
+                    Image(
+                        imageVector = Icons.Default.Close,
+                        "",
+                        colorFilter = ColorFilter.tint(AppColors.RED),
+                        modifier = Modifier.height(15.dp).align(Alignment.CenterVertically)
+                            .padding(start = 2.dp)
+                    )
+                } else if (explorationProgress.started) {
+                    CircularProgressIndicator(
+                        color = if (lastExploration.explorationStopped) AppColors.ORANGE else AppColors.GREEN,
+                        progress = if (explorationProgress.total > 0) {
+                            explorationProgress.current.toFloat() / explorationProgress.total.toFloat()
+                        } else 0f,
+                        backgroundColor = AppColors.VERY_DARK_BG_COLOR,
+                    )
+                }
+            }
+            CommonText(
+                lastExploration.getLabel(item),
+                modifier = Modifier.align(Alignment.CenterVertically).padding(start = 5.dp),
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun <T> LastExplorationHeaderContent(characterName: String, lastExploration: LastExploration<T>?) {
     val characterUIState = CharactersUIUtil.getCharacterUIState(characterName).value
     val breedAssets = BreedAssetManager.getAssets(characterUIState.dofusClassId)
     Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
@@ -224,11 +227,11 @@ private fun LastExplorationHeaderContent(characterName: String, lastExploration:
         Spacer(Modifier.fillMaxWidth().weight(1f))
         val buttonSize = 25.dp
         if (lastExploration != null) {
-            val toExploreAgain = lastExploration.getSubAreasToExploreAgain()
+            val toExploreAgain = lastExploration.getItemsToExploreAgain()
             if (characterUIState.activityState != CharacterActivityState.BUSY && toExploreAgain.isNotEmpty()) {
                 Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
                     ButtonWithTooltip(
-                        onClick = { ExplorationUIUtil.startExploration(toExploreAgain, characterName) },
+                        onClick = { ExplorationUIUtil.startExploration(lastExploration, characterName) },
                         title = "Resume",
                         imageVector = Icons.Default.Start,
                         shape = RoundedCornerShape(15),
@@ -246,7 +249,10 @@ private fun LastExplorationHeaderContent(characterName: String, lastExploration:
             Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
                 ButtonWithTooltip(
                     onClick = {
-                        ExplorationUIUtil.startExploration(subAreas, characterName)
+                        ExplorationUIUtil.startExploration(
+                            LastSubAreasExploration(subAreas.associateWith { ExplorationProgress(0, 0, false) }),
+                            characterName
+                        )
                         ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
                             selectedSubAreaIds = emptyList()
                         )

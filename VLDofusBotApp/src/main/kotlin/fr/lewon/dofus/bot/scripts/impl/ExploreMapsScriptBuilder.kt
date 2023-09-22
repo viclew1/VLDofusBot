@@ -8,16 +8,16 @@ import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.parameters.impl.BooleanParameter
-import fr.lewon.dofus.bot.scripts.parameters.impl.IntParameter
-import fr.lewon.dofus.bot.scripts.parameters.impl.MultiChoiceParameter
-import fr.lewon.dofus.bot.scripts.parameters.impl.StringParameter
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreaTask
-import fr.lewon.dofus.bot.scripts.tasks.impl.moves.ExploreSubAreasTask
+import fr.lewon.dofus.bot.scripts.parameters.impl.*
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.path.ExploreSubPathsTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.subarea.ExploreSubAreaTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.subarea.ExploreSubAreasTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.moves.util.ExplorationParameters
 import fr.lewon.dofus.bot.util.StringUtil
+import fr.lewon.dofus.bot.util.filemanagers.impl.MapsPathsManager
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
-object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
+object ExploreMapsScriptBuilder : DofusBotScriptBuilder("Explore maps") {
 
     private val SUB_AREAS = SubAreaManager.getAllSubAreas()
         .filter {
@@ -33,10 +33,21 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
 
     private val SUB_AREA_BY_LABEL = SUB_AREAS.associateBy { it.label }
 
+    val explorationTypeParameter = ChoiceParameter(
+        "Exploration type",
+        "The way to retrieve the maps to explore",
+        ExplorationType.SubArea,
+        parametersGroup = 1,
+        getAvailableValues = { ExplorationType.entries },
+        itemValueToString = { it.strValue },
+        stringToItemValue = { ExplorationType.entries.first { type -> type.strValue == it } }
+    )
+
     val currentAreaParameter = BooleanParameter(
         "Run in current area",
         "If checked, ignores sub area parameter and explores current area",
         false,
+        displayCondition = { it.getParamValue(explorationTypeParameter) == ExplorationType.SubArea },
         parametersGroup = 1
     )
 
@@ -44,11 +55,26 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         "Sub areas",
         "Sub areas to explore",
         listOf(SUB_AREA_BY_LABEL.values.first()),
-        getAvailableValues = { SUB_AREA_BY_LABEL.entries.sortedBy { StringUtil.removeAccents(it.key) }.map { it.value } },
-        displayCondition = { !it.getParamValue(currentAreaParameter) },
+        getAvailableValues = {
+            SUB_AREA_BY_LABEL.entries.sortedBy { StringUtil.removeAccents(it.key) }.map { it.value }
+        },
+        displayCondition = {
+            !it.getParamValue(currentAreaParameter) && it.getParamValue(explorationTypeParameter) == ExplorationType.SubArea
+        },
         itemValueToString = { it.label },
         stringToItemValue = { SUB_AREA_BY_LABEL[it] ?: error("Sub area not found : $it") },
         parametersGroup = 1
+    )
+
+    val pathParameter = ChoiceParameter(
+        "Path",
+        "The path to follow",
+        defaultValue = null,
+        displayCondition = { it.getParamValue(explorationTypeParameter) == ExplorationType.Path },
+        getAvailableValues = { MapsPathsManager.getPathByName().values.toList() },
+        itemValueToString = { it?.name ?: "" },
+        stringToItemValue = { MapsPathsManager.getPathByName()[it] },
+        parametersGroup = 1,
     )
 
     val killEverythingParameter = BooleanParameter(
@@ -118,8 +144,10 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     )
 
     override fun getParameters(): List<DofusBotParameter<*>> = listOf(
+        explorationTypeParameter,
         currentAreaParameter,
         subAreasParameter,
+        pathParameter,
         stopWhenArchMonsterFoundParameter,
         stopWhenQuestMonsterFoundParameter,
         searchedMonsterParameter,
@@ -136,7 +164,7 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
     }
 
     override fun getDescription(): String {
-        return "Explore all maps of selected sub area"
+        return "Explore all selected maps"
     }
 
     override fun doExecuteScript(
@@ -145,25 +173,65 @@ object ExploreAreaScriptBuilder : DofusBotScriptBuilder("Explore area") {
         parameterValues: ParameterValues,
         statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        val subAreas = if (parameterValues.getParamValue(currentAreaParameter)) {
-            listOf(gameInfo.currentMap.subArea)
-        } else parameterValues.getParamValue(subAreasParameter)
-        val runForever = parameterValues.getParamValue(runForeverParameter)
-        val explorationThresholdMinutes = if (!runForever) {
-            parameterValues.getParamValue(ignoreMapsExploredRecentlyParameter)
-        } else 0
-        ExploreSubAreasTask(
-            subAreas = subAreas,
+        val explorationParameters = ExplorationParameters(
             killEverything = parameterValues.getParamValue(killEverythingParameter),
             maxMonsterGroupLevel = parameterValues.getParamValue(maxMonsterGroupLevelParameter),
             maxMonsterGroupSize = parameterValues.getParamValue(maxMonsterGroupSizeParameter),
             searchedMonsterName = parameterValues.getParamValue(searchedMonsterParameter),
             stopWhenArchMonsterFound = parameterValues.getParamValue(stopWhenArchMonsterFoundParameter),
             stopWhenWantedMonsterFound = parameterValues.getParamValue(stopWhenQuestMonsterFoundParameter),
-            runForever = runForever,
-            explorationThresholdMinutes = explorationThresholdMinutes,
-            useZaaps = parameterValues.getParamValue(useZaapsParameter)
+            useZaaps = parameterValues.getParamValue(useZaapsParameter),
+            explorationThresholdMinutes = getExplorationThresholdMinutes(parameterValues),
+        )
+        val success = when (parameterValues.getParamValue(explorationTypeParameter)) {
+            ExplorationType.SubArea -> exploreSubAreas(logItem, gameInfo, parameterValues, explorationParameters)
+            ExplorationType.Path -> explorePath(logItem, gameInfo, parameterValues, explorationParameters)
+        }
+        if (!success) {
+            error("Failed exploration")
+        }
+    }
+
+    private fun explorePath(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        parameterValues: ParameterValues,
+        explorationParameters: ExplorationParameters,
+    ): Boolean {
+        val path = parameterValues.getParamValue(pathParameter)
+            ?: error("You must select a path.")
+        return ExploreSubPathsTask(
+            subPaths = path.subPaths.filter { it.enabled },
+            runForever = parameterValues.getParamValue(runForeverParameter),
+            explorationParameters = explorationParameters,
         ).run(logItem, gameInfo)
     }
 
+    private fun exploreSubAreas(
+        logItem: LogItem,
+        gameInfo: GameInfo,
+        parameterValues: ParameterValues,
+        explorationParameters: ExplorationParameters,
+    ): Boolean {
+        val subAreas = if (parameterValues.getParamValue(currentAreaParameter)) {
+            listOf(gameInfo.currentMap.subArea)
+        } else parameterValues.getParamValue(subAreasParameter)
+        return ExploreSubAreasTask(
+            subAreas = subAreas,
+            runForever = parameterValues.getParamValue(runForeverParameter),
+            explorationParameters = explorationParameters,
+        ).run(logItem, gameInfo)
+    }
+
+    private fun getExplorationThresholdMinutes(parameterValues: ParameterValues): Int {
+        val runForever = parameterValues.getParamValue(runForeverParameter)
+        return if (!runForever) {
+            parameterValues.getParamValue(ignoreMapsExploredRecentlyParameter)
+        } else 0
+    }
+
+    enum class ExplorationType(val strValue: String) {
+        SubArea("Sub area"),
+        Path("Path")
+    }
 }

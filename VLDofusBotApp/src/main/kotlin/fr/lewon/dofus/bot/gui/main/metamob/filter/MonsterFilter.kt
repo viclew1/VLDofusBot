@@ -23,7 +23,7 @@ val MonsterFilters = listOf(
             key = "Type",
             description = "Monsters type",
             defaultValue = MetamobMonsterType.ANY,
-            getAvailableValues = { MetamobMonsterType.values().toList() },
+            getAvailableValues = { MetamobMonsterType.entries },
             itemValueToString = { it.displayLabel },
             stringToItemValue = { MetamobMonsterType.fromDisplayLabel(it) }
         )
@@ -35,7 +35,7 @@ val MonsterFilters = listOf(
             key = "Search status",
             description = "Monsters search status",
             defaultValue = SearchedParameterValues.ANY,
-            getAvailableValues = { SearchedParameterValues.values().toList() },
+            getAvailableValues = { SearchedParameterValues.entries },
             itemValueToString = { it.label },
             stringToItemValue = { SearchedParameterValues.fromLabel(it) }
         )
@@ -47,7 +47,7 @@ val MonsterFilters = listOf(
             key = "Owned",
             description = "Owned monsters",
             defaultValue = OwnedParameterValues.ANY,
-            getAvailableValues = { OwnedParameterValues.values().toList() },
+            getAvailableValues = { OwnedParameterValues.entries },
             itemValueToString = { it.label },
             stringToItemValue = { OwnedParameterValues.fromLabel(it) }
         )

@@ -8,8 +8,9 @@ enum class OwnedParameterValues(val label: String, val monsterMatchesFun: (Metam
     NO("No", { it.amount <= 0 });
 
     companion object {
+
         fun fromLabel(label: String): OwnedParameterValues {
-            return values().firstOrNull { it.label == label }
+            return entries.firstOrNull { it.label == label }
                 ?: error("Invalid label : $label")
         }
     }

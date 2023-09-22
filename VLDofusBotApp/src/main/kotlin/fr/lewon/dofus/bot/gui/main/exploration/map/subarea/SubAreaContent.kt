@@ -21,7 +21,7 @@ fun ColumnScope.SubAreaContent(subArea: DofusSubArea) {
     val currentSubAreaContentTabValue = ExplorationUIUtil.currentSubAreaContentTab.value
     Column(Modifier.fillMaxSize().weight(1f)) {
         Row(Modifier.height(30.dp)) {
-            for (subAreaContentTab in SubAreaContentTabs.values()) {
+            for (subAreaContentTab in SubAreaContentTabs.entries) {
                 val backgroundColor =
                     if (subAreaContentTab == currentSubAreaContentTabValue) Color.Gray else AppColors.backgroundColor
                 Box {

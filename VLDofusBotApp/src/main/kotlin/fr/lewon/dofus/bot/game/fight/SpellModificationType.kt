@@ -6,6 +6,7 @@ enum class SpellModificationType(
     private val typeInt: Int,
     val getUpdatedSpell: (spell: DofusSpellLevel, value: Int) -> DofusSpellLevel
 ) {
+
     INVALID_MODIFICATION(0, { spell, _ ->
         spell
     }),
@@ -65,6 +66,7 @@ enum class SpellModificationType(
     });
 
     companion object {
-        fun fromTypeInt(typeInt: Int) = SpellModificationType.values().firstOrNull { it.typeInt == typeInt }
+
+        fun fromTypeInt(typeInt: Int) = SpellModificationType.entries.firstOrNull { it.typeInt == typeInt }
     }
 }

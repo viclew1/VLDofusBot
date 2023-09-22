@@ -25,7 +25,7 @@ object ExecuteTreasureHuntScriptBuilder : DofusBotScriptBuilder("Execute treasur
         "Hunt level",
         "Hunt level",
         HuntLevel.LVL200,
-        getAvailableValues = { HuntLevel.values().toList() },
+        getAvailableValues = { HuntLevel.entries },
         itemValueToString = { it.label },
         stringToItemValue = { HuntLevel.fromLabel(it) ?: error("Invalid hunt level") }
     )

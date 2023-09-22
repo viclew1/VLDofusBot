@@ -28,7 +28,7 @@ fun SubAreaResourcesContent(subArea: DofusSubArea) {
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 10.dp),
                 )
             } else {
-                HarvestJobs.values().forEach { ResourcesListContent(it, subArea) }
+                HarvestJobs.entries.forEach { ResourcesListContent(it, subArea) }
             }
         }
         VerticalScrollbar(

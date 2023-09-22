@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.handlers.movement
 
+import fr.lewon.dofus.bot.gui.main.pathbuilder.PathsUiUtil
 import fr.lewon.dofus.bot.sniffer.DofusConnection
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.MapComplementaryInformationsDataMessage
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
@@ -14,5 +15,6 @@ object MapComplementaryInformationsDataEventHandler :
         super.onEventReceived(socketResult, connection)
         val gameInfo = GameSnifferUtil.getGameInfoByConnection(connection)
         gameInfo.isInHavenBag = false
+        PathsUiUtil.addMapToRegisteredSubPath(gameInfo.character, socketResult.mapId)
     }
 }

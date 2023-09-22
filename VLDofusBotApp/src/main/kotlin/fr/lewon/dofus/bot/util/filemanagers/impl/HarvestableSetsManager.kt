@@ -11,7 +11,7 @@ object HarvestableSetsManager : ToInitManager {
 
     val defaultHarvestableIdsBySetName = mapOf(
         "Nothing" to emptySet(),
-        "Everything" to HarvestJobs.values().flatMap { it.items }.map { it.id }.toSet(),
+        "Everything" to HarvestJobs.entries.flatMap { it.items }.map { it.id }.toSet(),
     )
 
     private lateinit var fileManager: FileManager<HarvestableIdsBySetName>

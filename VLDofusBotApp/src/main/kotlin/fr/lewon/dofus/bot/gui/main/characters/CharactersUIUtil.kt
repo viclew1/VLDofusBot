@@ -93,38 +93,13 @@ object CharactersUIUtil : ComposeUIUtil(), CharacterManagerListener, ScriptRunne
     }
 
     fun selectCharacters(characterNames: List<String>) = lock.executeSyncOperation {
-        charactersUIState.value = charactersUIState.value.copy(
+        val charactersUiStateValue = charactersUIState.value
+        charactersUIState.value = charactersUiStateValue.copy(
             selectedCharacterNames = characterNames
         )
         characterNames.forEach { characterName ->
             CharacterSetsUiUtil.onSetsUpdate(characterName, CharacterSetsManager.getSets(characterName))
         }
-    }
-
-    fun unselectAllCharacters() = lock.executeSyncOperation {
-        charactersUIState.value = charactersUIState.value.copy(
-            selectedCharacterNames = emptyList()
-        )
-    }
-
-    fun selectCharacter(characterName: String) = lock.executeSyncOperation {
-        val charactersUIStateValue = charactersUIState.value
-        charactersUIState.value = charactersUIStateValue.copy(
-            selectedCharacterNames = listOf(characterName)
-        )
-        CharacterSetsUiUtil.onSetsUpdate(characterName, CharacterSetsManager.getSets(characterName))
-    }
-
-    fun toggleSelect(characterName: String) = lock.executeSyncOperation {
-        val charactersUIStateValue = charactersUIState.value
-        val newSelectedCharacterNames = charactersUIStateValue.selectedCharacterNames.toMutableList()
-        if (characterName in newSelectedCharacterNames) {
-            newSelectedCharacterNames.remove(characterName)
-        } else {
-            newSelectedCharacterNames.add(characterName)
-        }
-        charactersUIState.value = charactersUIStateValue.copy(selectedCharacterNames = newSelectedCharacterNames)
-        CharacterSetsUiUtil.onSetsUpdate(characterName, CharacterSetsManager.getSets(characterName))
     }
 
     override fun onCharacterCreate(character: DofusCharacter) {

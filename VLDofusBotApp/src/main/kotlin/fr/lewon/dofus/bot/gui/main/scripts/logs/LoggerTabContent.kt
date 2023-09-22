@@ -24,7 +24,7 @@ fun LoggerTabContent(characterUIState: CharacterUIState) {
             backgroundColor = MaterialTheme.colors.background,
             contentColor = AppColors.primaryLightColor,
         ) {
-            for (loggerType in LoggerUIType.values()) {
+            for (loggerType in LoggerUIType.entries) {
                 Tab(
                     text = { Text(loggerType.label) },
                     modifier = Modifier.handPointerIcon(),

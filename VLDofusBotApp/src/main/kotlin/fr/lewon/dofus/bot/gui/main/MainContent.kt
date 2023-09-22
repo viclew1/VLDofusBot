@@ -54,7 +54,7 @@ fun MainContent() {
 private fun MainNavigationRail() {
     Column(modifier = Modifier.fillMaxHeight().width(64.dp)) {
         NavigationRail(modifier = Modifier.fillMaxSize().weight(1f)) {
-            for (appContent in MainAppContent.values()) {
+            for (appContent in MainAppContent.entries) {
                 Divider(Modifier.fillMaxWidth(0.8f).height(2.dp).align(Alignment.CenterHorizontally))
                 val uiState = MainContentUIUtil.mainContentUIState
                 val selected = uiState.value.currentAppContent == appContent

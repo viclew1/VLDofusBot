@@ -9,7 +9,7 @@ import org.pcap4j.packet.TcpPacket
 
 class DofusMessageCharacterReceiver(connection: DofusConnection, eventStore: EventStore, logger: VldbLogger) {
 
-    private val messageParserByOrigin = PacketOrigin.values().associateWith {
+    private val messageParserByOrigin = PacketOrigin.entries.associateWith {
         it.buildMessageParser(MessageParserState(connection, eventStore, logger))
     }
 

@@ -73,13 +73,23 @@ private fun <T> ChoiceParameterInput(
     parameterValues: ParameterValues,
     onParamUpdate: (T) -> Unit,
 ) {
-    ComboBox(
-        selectedItem = parameterValues.getParamValue(parameter),
-        items = parameter.getAvailableValues(parameterValues),
-        onItemSelect = onParamUpdate,
-        getItemText = { parameter.valueToString(it) },
-        maxDropDownHeight = 300.dp,
-    )
+    val availableValues = parameter.getAvailableValues(parameterValues)
+    if (availableValues.isEmpty()) {
+        CommonText("No available element.")
+        onParamUpdate(parameter.defaultValue)
+    } else {
+        val currentValue = parameterValues.getParamValue(parameter)
+        if (currentValue == null) {
+            onParamUpdate(availableValues.first())
+        }
+        ComboBox(
+            selectedItem = currentValue,
+            items = availableValues,
+            onItemSelect = onParamUpdate,
+            getItemText = { parameter.valueToString(it) },
+            maxDropDownHeight = 300.dp,
+        )
+    }
 }
 
 @Composable

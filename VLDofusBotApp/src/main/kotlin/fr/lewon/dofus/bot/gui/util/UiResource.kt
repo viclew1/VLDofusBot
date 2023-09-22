@@ -27,6 +27,7 @@ enum class UiResource(path: String) {
     LOWER_LAYER("/icon/ui/lower_layer.png"),
     UPPER_LAYER("/icon/ui/upper_layer.png"),
     JOBS("/icon/ui/jobs.png"),
+    PATH("/icon/ui/path.png"),
     MONSTERS("/icon/ui/monsters.png"),
     ZAAP("/icon/ui/zaap.png"),
     UNKNOWN("/icon/ui/unknown.png"),

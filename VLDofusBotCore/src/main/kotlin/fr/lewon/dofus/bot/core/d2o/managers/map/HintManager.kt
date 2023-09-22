@@ -43,8 +43,9 @@ object HintManager : VldbManager {
         DUNGEON(422);
 
         companion object {
+
             fun fromGfx(gfx: Int): HintType? {
-                return values().firstOrNull { it.gfx == gfx }
+                return entries.firstOrNull { it.gfx == gfx }
             }
         }
     }

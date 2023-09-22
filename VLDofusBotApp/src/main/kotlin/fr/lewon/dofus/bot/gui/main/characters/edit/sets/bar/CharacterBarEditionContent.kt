@@ -1,6 +1,8 @@
 package fr.lewon.dofus.bot.gui.main.characters.edit.sets.bar
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -275,12 +277,11 @@ private fun <T> AvailableElements(
         if (isInBound && elementDrag?.fromKey != null) {
             updateElementId(elementDrag.fromKey.key, elementDrag.fromKey.ctrlModifier, null)
         }
-        Box(Modifier.fillMaxSize().darkGrayBoxStyle().padding(5.dp)) {
-            val state = rememberScrollState()
+        CustomVerticalScrollable(Modifier.fillMaxSize().darkGrayBoxStyle()) {
             VerticalGrid(
                 columns = 10,
-                modifier = Modifier.padding(end = 8.dp).verticalScroll(state),
-                items = filteredElements
+                items = filteredElements,
+                modifier = Modifier.padding(vertical = 5.dp).padding(start = 5.dp)
             ) { element ->
                 ElementBox(Modifier.padding(1.dp)) {
                     TooltipTarget(
@@ -295,10 +296,6 @@ private fun <T> AvailableElements(
                     }
                 }
             }
-            VerticalScrollbar(
-                modifier = Modifier.fillMaxHeight().width(8.dp).align(Alignment.CenterEnd),
-                adapter = rememberScrollbarAdapter(state),
-            )
         }
     }
 }

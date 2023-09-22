@@ -5,13 +5,14 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
+import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExploration
 import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.LastExplorationUiUtil
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.HiddenWorldMapHelper
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.MainWorldMapHelper
 import fr.lewon.dofus.bot.gui.main.exploration.map.subarea.SubAreaContentTabs
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
-import fr.lewon.dofus.bot.scripts.impl.ExploreAreaScriptBuilder
+import fr.lewon.dofus.bot.scripts.impl.ExploreMapsScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
 import fr.lewon.dofus.bot.util.script.DofusBotScriptEndType
@@ -35,15 +36,15 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
     val totalHeight = (maxPosY - minPosY + 1) * CellSize
 
     val ExplorerParameters = listOf(
-        ExploreAreaScriptBuilder.stopWhenArchMonsterFoundParameter,
-        ExploreAreaScriptBuilder.stopWhenQuestMonsterFoundParameter,
-        ExploreAreaScriptBuilder.searchedMonsterParameter,
-        ExploreAreaScriptBuilder.killEverythingParameter,
-        ExploreAreaScriptBuilder.maxMonsterGroupLevelParameter,
-        ExploreAreaScriptBuilder.maxMonsterGroupSizeParameter,
-        ExploreAreaScriptBuilder.runForeverParameter,
-        ExploreAreaScriptBuilder.ignoreMapsExploredRecentlyParameter,
-        ExploreAreaScriptBuilder.useZaapsParameter,
+        ExploreMapsScriptBuilder.stopWhenArchMonsterFoundParameter,
+        ExploreMapsScriptBuilder.stopWhenQuestMonsterFoundParameter,
+        ExploreMapsScriptBuilder.searchedMonsterParameter,
+        ExploreMapsScriptBuilder.killEverythingParameter,
+        ExploreMapsScriptBuilder.maxMonsterGroupLevelParameter,
+        ExploreMapsScriptBuilder.maxMonsterGroupSizeParameter,
+        ExploreMapsScriptBuilder.runForeverParameter,
+        ExploreMapsScriptBuilder.ignoreMapsExploredRecentlyParameter,
+        ExploreMapsScriptBuilder.useZaapsParameter,
     )
 
     val mapUIState = mutableStateOf(ExplorationMapUIState())
@@ -66,20 +67,20 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
         mapUpdated.value = true
     }
 
-    fun startExploration(subAreas: List<DofusSubArea>, characterName: String) {
-        val parameterValues = buildParameterValues(subAreas)
+    fun <T> startExploration(
+        lastExploration: LastExploration<T>,
+        characterName: String
+    ) {
+        val parameterValues = buildParameterValues()
+        lastExploration.updateParameterValues(parameterValues)
         CharacterManager.getCharacter(characterName)?.let { character ->
-            ScriptRunner.runScript(character, ExploreAreaScriptBuilder, parameterValues)
+            ScriptRunner.runScript(character, ExploreMapsScriptBuilder, parameterValues)
         }
     }
 
-    fun buildParameterValues(subAreas: List<DofusSubArea>): ParameterValues {
-        val parameterValues = explorerUIState.value.explorationParameterValues.deepCopy()
-        parameterValues.updateParamValue(ExploreAreaScriptBuilder.subAreasParameter, subAreas)
-        return parameterValues
-    }
+    fun buildParameterValues(): ParameterValues = explorerUIState.value.explorationParameterValues.deepCopy()
 
-    fun onAreaExplorationStart(character: DofusCharacter, subArea: DofusSubArea) = lock.executeSyncOperation {
+    fun onExplorationStart(character: DofusCharacter, subArea: DofusSubArea) = lock.executeSyncOperation {
         val mapUiStateValue = mapUIState.value
         mapUIState.value = mapUiStateValue.copy(
             areaExploredByCharacter = mapUiStateValue.areaExploredByCharacter.plus(character to subArea)

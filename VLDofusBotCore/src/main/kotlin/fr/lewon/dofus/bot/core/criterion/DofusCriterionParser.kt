@@ -74,7 +74,7 @@ object DofusCriterionParser {
     }
 
     private fun parseSimpleCriterion(criterionStr: String): DofusCriterion {
-        val operator = CriterionOperator.values().firstOrNull { criterionStr.contains(it.char) }
+        val operator = CriterionOperator.entries.firstOrNull { criterionStr.contains(it.char) }
             ?: return DofusFalseCriterion
         val splitCriterionStr = criterionStr.split(operator.char)
         val key = splitCriterionStr[0]
@@ -95,10 +95,12 @@ object DofusCriterionParser {
     }
 
     object DofusFalseCriterion : DofusCriterion() {
+
         override fun check(characterInfo: DofusCharacterBasicInfo): Boolean = false
     }
 
     object DofusTrueCriterion : DofusCriterion() {
+
         override fun check(characterInfo: DofusCharacterBasicInfo): Boolean = true
     }
 

@@ -39,7 +39,7 @@ object UIOverlay : AbstractOverlay() {
 
         private val toDrawRectangles = ArrayList<Pair<Container, Rectangle>>()
         private val fightContextCheckbox = JCheckBox()
-        private val uiElementComboBox = JComboBox(DofusUIElement.values())
+        private val uiElementComboBox = JComboBox(DofusUIElement.entries.toTypedArray())
         private var hoveredContainer: Container? = null
 
         init {

@@ -41,8 +41,9 @@ enum class DofusSpellEffectType(val globalType: DofusSpellEffectGlobalType, priv
     ;
 
     companion object {
+
         fun fromEffectId(id: Int): DofusSpellEffectType? {
-            return values().firstOrNull { it.id == id }
+            return entries.firstOrNull { it.id == id }
         }
     }
 }

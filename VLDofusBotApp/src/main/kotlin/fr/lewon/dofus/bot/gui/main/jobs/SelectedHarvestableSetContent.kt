@@ -23,10 +23,9 @@ import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
 @Composable
 fun SelectedHarvestableSetContent() {
     val selectedSetName = JobsUiUtil.selectedSetName.value
-        ?: error("A set should be selected")
     val toHarvestItemIds = JobsUiUtil.harvestableIdsBySetName.value[selectedSetName]
         ?: emptySet()
-    VerticalGrid(columns = HarvestJobs.values().size, items = HarvestJobs.values().toList()) { job ->
+    VerticalGrid(columns = HarvestJobs.entries.size, items = HarvestJobs.entries) { job ->
         Column(Modifier.padding(5.dp).grayBoxStyle()) {
             Row(Modifier.height(30.dp).fillMaxWidth().darkGrayBoxStyle().padding(start = 10.dp)) {
                 CommonText(
@@ -47,7 +46,7 @@ fun SelectedHarvestableSetContent() {
                         Color.Red
                     }
                     val isEditable = !HarvestableSetsManager.defaultHarvestableIdsBySetName.contains(selectedSetName)
-                    val modifier = if (isEditable) {
+                    val modifier = if (isEditable && selectedSetName != null) {
                         Modifier.handPointerIcon().onClick {
                             if (shouldHarvest) {
                                 HarvestableSetsManager.removeItemToHarvest(

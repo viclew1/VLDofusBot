@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.gui.custom.CustomStyledColumn
 import fr.lewon.dofus.bot.gui.custom.ParameterLine
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
@@ -18,10 +17,7 @@ import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
 fun ExplorationParametersContent() {
     CustomStyledColumn("Exploration parameters", Modifier.padding(5.dp).fillMaxWidth()) {
         Column(Modifier.padding(5.dp)) {
-            val selectedSubAreas = ExplorationUIUtil.mapUIState.value.selectedSubAreaIds.map {
-                SubAreaManager.getSubArea(it)
-            }
-            val parameterValues = ExplorationUIUtil.buildParameterValues(selectedSubAreas)
+            val parameterValues = ExplorationUIUtil.buildParameterValues()
             for (parameter in ExplorationUIUtil.ExplorerParameters) {
                 if (parameter.displayCondition(parameterValues)) {
                     ParameterRow(parameter, parameterValues)
@@ -40,9 +36,10 @@ private fun <T> ParameterRow(parameter: DofusBotParameter<T>, parameterValues: P
             showDescription = false,
             onParamUpdate = { newValue ->
                 ExplorationUIUtil.explorerUIState.value = ExplorationUIUtil.explorerUIState.value.copy(
-                    explorationParameterValues = ExplorationUIUtil.explorerUIState.value.explorationParameterValues.deepCopy().also {
-                        it.updateParamValue(parameter, newValue)
-                    }
+                    explorationParameterValues = ExplorationUIUtil.explorerUIState.value.explorationParameterValues.deepCopy()
+                        .also {
+                            it.updateParamValue(parameter, newValue)
+                        }
                 )
             }
         )

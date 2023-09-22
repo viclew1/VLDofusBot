@@ -8,13 +8,13 @@ import fr.lewon.dofus.bot.model.characters.sets.CharacterSet
 import fr.lewon.dofus.bot.util.filemanagers.FileManager
 import fr.lewon.dofus.bot.util.filemanagers.ToInitManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.listeners.CharacterManagerListener
+import fr.lewon.dofus.bot.util.listenable.Listenable
 import fr.lewon.dofus.bot.util.network.GameSnifferUtil
 import fr.lewon.dofus.bot.util.script.ScriptRunner
 import java.util.concurrent.locks.ReentrantLock
 
-object CharacterManager : ToInitManager {
+object CharacterManager : Listenable<CharacterManagerListener>(), ToInitManager {
 
-    private val listeners = ArrayList<CharacterManagerListener>()
     private val lock = ReentrantLock()
     private lateinit var fileManager: FileManager<CharacterStore>
 
@@ -24,18 +24,6 @@ object CharacterManager : ToInitManager {
 
     override fun getNeededManagers(): List<ToInitManager> {
         return listOf(GlobalConfigManager)
-    }
-
-    fun addListener(listener: CharacterManagerListener) {
-        lock.executeSyncOperation {
-            listeners.add(listener)
-        }
-    }
-
-    fun removeListener(listener: CharacterManagerListener) {
-        lock.executeSyncOperation {
-            listeners.remove(listener)
-        }
     }
 
     fun getCharacter(name: String): DofusCharacter? {
@@ -74,7 +62,7 @@ object CharacterManager : ToInitManager {
                 fileManager.updateStore { store ->
                     store.characters.add(character)
                 }
-                listeners.toList().forEach { listener -> listener.onCharacterCreate(character) }
+                getListeners().forEach { listener -> listener.onCharacterCreate(character) }
             }
         }
     }
@@ -90,7 +78,7 @@ object CharacterManager : ToInitManager {
         CharacterSetsManager.deleteSets(character.name)
         ScriptRunner.removeListeners(character)
         GameSnifferUtil.removeListeners(character)
-        listeners.toList().forEach { it.onCharacterDelete(character) }
+        getListeners().forEach { it.onCharacterDelete(character) }
     }
 
     fun updateCharacter(
@@ -105,7 +93,7 @@ object CharacterManager : ToInitManager {
         storedCharacter.parameters = characterParameters
             ?: storedCharacter.parameters
         fileManager.updateStore { }
-        listeners.toList().forEach { it.onCharacterUpdate(storedCharacter) }
+        getListeners().forEach { it.onCharacterUpdate(storedCharacter) }
     }
 
 }

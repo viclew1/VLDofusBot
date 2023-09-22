@@ -14,8 +14,9 @@ enum class MetamobMonsterType(val label: String, val displayLabel: String) {
     }
 
     companion object {
+
         fun fromDisplayLabel(displayLabel: String): MetamobMonsterType {
-            return MetamobMonsterType.values().firstOrNull { it.displayLabel == displayLabel }
+            return MetamobMonsterType.entries.firstOrNull { it.displayLabel == displayLabel }
                 ?: error("Invalid display label : $displayLabel")
         }
     }

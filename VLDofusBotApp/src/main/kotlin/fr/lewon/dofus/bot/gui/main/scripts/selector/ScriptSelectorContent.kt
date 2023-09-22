@@ -40,7 +40,7 @@ fun ScriptSelectorContent() {
                 ComboBox(
                     Modifier.fillMaxWidth().height(25.dp),
                     scriptBuilder,
-                    DofusBotScriptBuilders.values().map { it.builder },
+                    DofusBotScriptBuilders.entries.map { it.builder },
                     { ScriptsUiUtil.updateCurrentScriptBuilder(it) },
                     { (if (it.isDev) "DEV - " else "") + it.name },
                     colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppColors.DARK_BG_COLOR)
