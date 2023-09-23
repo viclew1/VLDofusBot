@@ -35,7 +35,7 @@ fun PathBuilderContent() {
     Row(Modifier.fillMaxSize()) {
         val uiState = PathsUiUtil.getUiState()
         val selectedPath = uiState.mapsPaths.firstOrNull { it.name == uiState.selectedPathName }
-        Column(Modifier.width(200.dp)) {
+        Column(Modifier.width(180.dp)) {
             PathsListContent(uiState)
         }
         if (selectedPath == null) {

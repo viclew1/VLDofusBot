@@ -10,8 +10,6 @@ object AppInfo {
 
     const val APP_NAME = "VL Dofus Bot"
 
-    val DEFAULT_UI_COLOR = java.awt.Color(34, 45, 60)
-
     @Composable
     fun mainTheme(typography: Typography, content: @Composable () -> Unit) {
         MaterialTheme(

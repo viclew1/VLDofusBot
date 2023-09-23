@@ -59,12 +59,26 @@ object CustomTransitionManager : ToInitManager {
             190843395.0,
             { it.type == TransitionType.SCROLL_ACTION && it.cellId == 167 },
             { it.criterion = IMPOSSIBLE_CRITERION }), // 2;-10 to 3;-10
-        TransitionUpdate(9.9614726E7, 9.9614725E7, { true }, { it.criterion = "" }), // 24;-4 to 24;-5
+        TransitionUpdate(
+            9.9614726E7,
+            9.9614725E7,
+            { true },
+            { it.criterion = "" }), // 24;-4 to 24;-5
         TransitionUpdate(
             70778880.0,
             185863682.0,
             { it.type == TransitionType.SCROLL_ACTION && it.cellId == 533 },
             { it.criterion = IMPOSSIBLE_CRITERION }), // 1;-8 to 1;-7
+        TransitionUpdate(
+            173670914.0,
+            173670915.0,
+            { it.type == TransitionType.SCROLL && it.direction == Direction.BOTTOM.directionInt },
+            { it.criterion = IMPOSSIBLE_CRITERION }), // 12;-63 to 12;-62
+        TransitionUpdate(
+            173670915.0,
+            173670914.0,
+            { it.type == TransitionType.SCROLL && it.direction == Direction.TOP.directionInt },
+            { it.criterion = IMPOSSIBLE_CRITERION }), // 12;-62 to 12;-63
     )
 
     private val TO_CREATE_TRANSITIONS = listOf(
