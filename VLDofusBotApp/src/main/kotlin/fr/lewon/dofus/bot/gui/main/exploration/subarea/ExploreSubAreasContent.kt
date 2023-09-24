@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui.main.exploration
+package fr.lewon.dofus.bot.gui.main.exploration.subarea
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -14,12 +14,12 @@ import androidx.compose.ui.unit.dp
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
 import fr.lewon.dofus.bot.gui.custom.*
-import fr.lewon.dofus.bot.gui.main.exploration.map.subarea.SubAreaContent
+import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.metamob.MetamobHelperUIUtil
 import fr.lewon.dofus.bot.gui.util.AppColors
 
 @Composable
-fun SelectedSubAreasContent() {
+fun ExploreSubAreasContent() {
     val mapUiStateValue = ExplorationUIUtil.mapUIState.value
     val selectedSubAreaIds = mapUiStateValue.selectedSubAreaIds
     LaunchedEffect(true) {
@@ -27,7 +27,7 @@ fun SelectedSubAreasContent() {
             Thread { MetamobHelperUIUtil.refreshMonsters() }.start()
         }
     }
-    Column(Modifier.width(250.dp).fillMaxHeight().padding(5.dp).padding(bottom = 5.dp).grayBoxStyle()) {
+    Column(Modifier.fillMaxSize().padding(5.dp).grayBoxStyle()) {
         val subAreas = selectedSubAreaIds.map { SubAreaManager.getSubArea(it) }
         HeaderContent(subAreas)
         if (subAreas.isNotEmpty()) {

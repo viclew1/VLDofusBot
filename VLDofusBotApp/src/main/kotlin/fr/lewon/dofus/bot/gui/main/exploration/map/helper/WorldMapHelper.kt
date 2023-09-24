@@ -16,7 +16,7 @@ abstract class WorldMapHelper(val name: String, val icon: UiResource) {
 
     val displayedSubAreas: List<DofusSubArea>
     val mapDrawCellsBySubAreaId: Map<Double, List<MapDrawCell>>
-    private val mapDrawCellByMapId: Map<Double, MapDrawCell>
+    val mapDrawCellByMapId: Map<Double, MapDrawCell>
     val priorityMapDrawCells: List<MapDrawCell>
     val mapOverlayPainter: Painter
 

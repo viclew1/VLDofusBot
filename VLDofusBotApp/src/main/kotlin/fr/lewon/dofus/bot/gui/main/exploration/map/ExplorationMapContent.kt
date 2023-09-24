@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -22,7 +23,11 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.isCtrlPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
+import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.gui.custom.CommonText
 import fr.lewon.dofus.bot.gui.custom.handPointerIcon
 import fr.lewon.dofus.bot.gui.custom.onMouseMove
@@ -32,6 +37,8 @@ import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.MapDrawCell
 import fr.lewon.dofus.bot.gui.main.exploration.map.helper.WorldMapHelperOverlay
 import fr.lewon.dofus.bot.gui.util.AppColors
+import fr.lewon.dofus.bot.model.characters.paths.SubPath
+import fr.lewon.dofus.bot.scripts.impl.ExploreMapsScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.ExplorationRecordManager
 import kotlinx.coroutines.delay
@@ -42,6 +49,8 @@ private val blendMode = BlendMode.Src
 private val colorByMapId = mutableStateOf(HashMap<Double, Color>())
 private const val characterIconSize = 3f
 private const val characterIconDelta = (characterIconSize - 1f) / 2f
+private val cellSize = Size(ExplorationUIUtil.CellSize, ExplorationUIUtil.CellSize)
+private val overColor = Color.White.copy(alpha = 0.2f)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -105,14 +114,31 @@ fun ExplorationMapContent() {
         Box(Modifier.requiredSize(ExplorationUIUtil.totalWidth.dp, ExplorationUIUtil.totalHeight.dp)) {
             Box {
                 OverlayContent(WorldMapHelperOverlay)
-                CellsContent()
-                OverlayContent(ExplorationUIUtil.worldMapHelper.value.mapOverlayPainter)
+                when (ExplorationUIUtil.explorationTypeUiState.value) {
+                    ExploreMapsScriptBuilder.ExplorationType.SubArea -> {
+                        CellsContent()
+                        OverlayContent(ExplorationUIUtil.worldMapHelper.value.mapOverlayPainter)
+                    }
+                    ExploreMapsScriptBuilder.ExplorationType.Path -> {
+
+                    }
+                }
+                if (ExplorationUIUtil.explorationTypeUiState.value == ExploreMapsScriptBuilder.ExplorationType.SubArea) {
+                    CellsContent()
+                    OverlayContent(ExplorationUIUtil.worldMapHelper.value.mapOverlayPainter)
+                }
             }
             Box {
-                SelectedSubAreaOverlay()
+                when (ExplorationUIUtil.explorationTypeUiState.value) {
+                    ExploreMapsScriptBuilder.ExplorationType.SubArea -> SubAreaOverlay()
+                    ExploreMapsScriptBuilder.ExplorationType.Path -> PathOverlay()
+                }
                 CharactersContent()
             }
             Box {
+                if (ExplorationUIUtil.explorationTypeUiState.value == ExploreMapsScriptBuilder.ExplorationType.Path) {
+                    HoveredSubPathTooltip()
+                }
                 PositionTooltip()
             }
         }
@@ -171,7 +197,7 @@ private fun CellsContent() {
         }
     }) {
         for (mapDrawCell in ExplorationUIUtil.worldMapHelper.value.priorityMapDrawCells) {
-            drawCell(mapDrawCell, Fill, getColor(mapDrawCell.mapId))
+            drawCell(mapDrawCell.topLeft, Fill, getColor(mapDrawCell.mapId))
         }
     }
 }
@@ -185,7 +211,7 @@ private fun getMapDrawCell(position: Offset): MapDrawCell? =
 private fun getColor(mapId: Double): Color = colorByMapId.value[mapId] ?: Color.Red
 
 @Composable
-private fun SelectedSubAreaOverlay() {
+private fun SubAreaOverlay() {
     Canvas(Modifier.fillMaxSize()) {
         val mapUiStateValue = ExplorationUIUtil.mapUIState.value
         val selectedSubAreaIds = mapUiStateValue.selectedSubAreaIds
@@ -204,8 +230,39 @@ private fun SelectedSubAreaOverlay() {
         }
         hoveredMapDrawCell?.let {
             drawSubArea(hoveredMapDrawCell.subAreaId, AppColors.primaryColor, 1.5f)
-            drawCell(hoveredMapDrawCell, Stroke(1f), AppColors.primaryDarkColor)
+            drawCell(hoveredMapDrawCell.topLeft, Stroke(1f), AppColors.primaryDarkColor)
         }
+    }
+}
+
+@Composable
+private fun PathOverlay() {
+    Canvas(Modifier.fillMaxSize()) {
+        val selectedPath = ExplorationUIUtil.selectedPath.value
+        if (selectedPath != null) {
+            val mapsBySubPath = selectedPath.subPaths.associateWith {
+                it.mapIds.distinct().map(MapManager::getDofusMap)
+            }
+            val hoveredSubPath = getHoveredSubPath()
+            hoveredSubPath?.let {
+                val maps = mapsBySubPath[hoveredSubPath] ?: emptyList()
+                drawSubPath(maps, Stroke(2f)) { AppColors.primaryLightColor }
+            }
+            for (subPath in selectedPath.subPaths) {
+                val maps = mapsBySubPath[subPath] ?: emptyList()
+                drawSubPath(maps, Fill) { if (subPath.enabled) getColor(it.id) else Color.DarkGray }
+            }
+        }
+    }
+}
+
+private fun getHoveredSubPath(): SubPath? {
+    val selectedPath = ExplorationUIUtil.selectedPath.value
+        ?: return null
+    val mapUiStateValue = ExplorationUIUtil.mapUIState.value
+    val hoveredMapDrawCell = mapUiStateValue.hoveredMapDrawCell
+    return hoveredMapDrawCell?.let {
+        selectedPath.subPaths.firstOrNull { hoveredMapDrawCell.mapId in it.mapIds }
     }
 }
 
@@ -237,16 +294,31 @@ private fun CharactersContent() {
 private fun DrawScope.drawSubArea(subAreaId: Double, wallColor: Color, wallWidth: Float) {
     val subAreaMaps = ExplorationUIUtil.worldMapHelper.value.mapDrawCellsBySubAreaId[subAreaId]
         ?: emptyList()
-    val size = Size(ExplorationUIUtil.CellSize, ExplorationUIUtil.CellSize)
-    val overColor = Color.White.copy(alpha = 0.2f)
     for (mapDrawCell in subAreaMaps) {
-        drawRect(getColor(mapDrawCell.mapId), mapDrawCell.topLeft, size, blendMode = blendMode)
-        drawRect(overColor, mapDrawCell.topLeft, size)
+        drawRect(getColor(mapDrawCell.mapId), mapDrawCell.topLeft, cellSize, blendMode = blendMode)
+        drawRect(overColor, mapDrawCell.topLeft, cellSize)
         drawLine(mapDrawCell.topWall, mapDrawCell.topLeft, mapDrawCell.topRight, wallColor, wallWidth)
         drawLine(mapDrawCell.leftWall, mapDrawCell.topLeft, mapDrawCell.bottomLeft, wallColor, wallWidth)
         drawLine(mapDrawCell.bottomWall, mapDrawCell.bottomLeft, mapDrawCell.bottomRight, wallColor, wallWidth)
         drawLine(mapDrawCell.rightWall, mapDrawCell.bottomRight, mapDrawCell.topRight, wallColor, wallWidth)
     }
+}
+
+private fun DrawScope.drawSubPath(subPathMaps: List<DofusMap>, style: DrawStyle, getMapColor: (DofusMap) -> Color) {
+    for (map in subPathMaps) {
+        val x = map.posX - ExplorationUIUtil.minPosX
+        val y = map.posY - ExplorationUIUtil.minPosY
+        val topLeft = Offset(x * ExplorationUIUtil.CellSize, y * ExplorationUIUtil.CellSize)
+        drawCell(topLeft, style, getMapColor(map))
+    }
+}
+
+private fun getTopLeftOffset(map: DofusMap): Offset = getTopLeftOffset(map.posX, map.posY)
+
+private fun getTopLeftOffset(posX: Int, posY: Int): Offset {
+    val x = posX - ExplorationUIUtil.minPosX
+    val y = posY - ExplorationUIUtil.minPosY
+    return Offset(x * ExplorationUIUtil.CellSize, y * ExplorationUIUtil.CellSize)
 }
 
 private fun DrawScope.drawLine(
@@ -260,9 +332,9 @@ private fun DrawScope.drawLine(
     drawLine(color, from, to, cap = cap, strokeWidth = width, blendMode = blendMode)
 }
 
-private fun DrawScope.drawCell(mapDrawCell: MapDrawCell, style: DrawStyle, color: Color) = drawRect(
+private fun DrawScope.drawCell(topLeft: Offset, style: DrawStyle, color: Color) = drawRect(
     color = color,
-    topLeft = mapDrawCell.topLeft,
+    topLeft = topLeft,
     size = Size(ExplorationUIUtil.CellSize, ExplorationUIUtil.CellSize),
     blendMode = blendMode,
     style = style
@@ -283,6 +355,31 @@ private fun PositionTooltip() {
                 " - ${characterNamesOnMap.joinToString(", ")}"
             } else ""
             CommonText("[${mapDrawCell.x},${mapDrawCell.y}]$charactersSuffix")
+        }
+    }
+}
+
+@Composable
+private fun HoveredSubPathTooltip() {
+    getHoveredSubPath()?.let { hoveredSubPath ->
+        val subPathMaps = hoveredSubPath.mapIds.map(MapManager::getDofusMap)
+        val minY = subPathMaps.minOfOrNull { it.posY }
+        val topLeftMap = subPathMaps.filter { it.posY == minY }.minByOrNull { it.posX }
+        if (topLeftMap != null) {
+            val offset = getTopLeftOffset(topLeftMap.posX - 1, topLeftMap.posY - 1)
+            val tooltipSize = remember(topLeftMap) { mutableStateOf(IntSize(0, 0)) }
+            Row(
+                Modifier.alpha(if (tooltipSize.value.width == 0) 0f else 1f)
+                    .offset((offset.x - tooltipSize.value.width).dp, (offset.y - tooltipSize.value.height).dp)
+                    .padding(start = 10.dp)
+                    .background(AppColors.VERY_DARK_BG_COLOR)
+                    .onGloballyPositioned { tooltipSize.value = it.size }
+            ) {
+                CommonText(
+                    "${hoveredSubPath.displayName} (${subPathMaps.size} maps)",
+                    modifier = Modifier.padding(5.dp)
+                )
+            }
         }
     }
 }

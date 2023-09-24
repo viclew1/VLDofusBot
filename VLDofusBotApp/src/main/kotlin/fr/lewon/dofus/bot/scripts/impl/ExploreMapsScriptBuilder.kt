@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.d2o.managers.map.MapManager
 import fr.lewon.dofus.bot.core.d2o.managers.map.SubAreaManager
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.core.model.maps.DofusSubArea
+import fr.lewon.dofus.bot.gui.util.UiResource
 import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
@@ -230,8 +231,8 @@ object ExploreMapsScriptBuilder : DofusBotScriptBuilder("Explore maps") {
         } else 0
     }
 
-    enum class ExplorationType(val strValue: String) {
-        SubArea("Sub area"),
-        Path("Path")
+    enum class ExplorationType(val strValue: String, val icon: UiResource) {
+        SubArea("Sub area", UiResource.UNIVERSE),
+        Path("Path", UiResource.PATH)
     }
 }

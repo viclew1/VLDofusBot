@@ -26,7 +26,7 @@ fun <T> CustomListContent(
     canDeleteItem: (T) -> Boolean,
     canSelectMultipleItems: Boolean,
     onSelect: (List<T>) -> Unit,
-    onDelete: (T) -> Unit,
+    onDelete: (T) -> Unit = {},
     canCreateItem: Boolean = false,
     onCreate: (String) -> Unit = {},
     createItemPlaceHolder: String = "New item name",

@@ -7,6 +7,7 @@ import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.npc.NpcSpeakTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.transport.ReachMapTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.storage.StorageObjectsUpdateMessage
+import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.io.MouseUtil
 import fr.lewon.dofus.bot.util.io.WaitUtil
@@ -33,8 +34,10 @@ class TransferItemsToBankTask : BooleanDofusBotTask() {
         MouseUtil.leftClick(gameInfo, resourcesButtonBounds.getCenterRight())
         WaitUtil.sleep(1000)
         gameInfo.eventStore.clear()
-        val transferObjectsButtonBounds = UiUtil.getContainerBounds(DofusUIElement.STORAGE, "btn_moveAllToLeft")
-        if (!InteractiveUtil.clickButtonWithOptions(gameInfo, transferObjectsButtonBounds.getCenter(), 0)) {
+        val transferButtonBounds = UiUtil.getContainerBounds(DofusUIElement.STORAGE, "btn_moveAllToLeft")
+        val transferOption = GlobalConfigManager.readConfig().transferItemsToBankBehaviour.optionIndex
+        val buttonCenter = transferButtonBounds.getCenter()
+        if (!InteractiveUtil.clickButtonWithOptions(gameInfo, buttonCenter, transferOption, false)) {
             error("Couldn't transfer all resources")
         }
         if (!WaitUtil.waitUntil { gameInfo.eventStore.getLastEvent(StorageObjectsUpdateMessage::class.java) != null }) {
@@ -45,6 +48,9 @@ class TransferItemsToBankTask : BooleanDofusBotTask() {
         MouseUtil.leftClick(gameInfo, closeButtonBounds.getCenter())
         if (!WaitUtil.waitUntil { !UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.STORAGE) }) {
             error("Couldn't close bank UI")
+        }
+        if (gameInfo.shouldReturnToBank()) {
+            error("Couldn't transfer enough items, character is still full")
         }
         if (!ReachMapTask(listOf(initialPosition)).run(logItem, gameInfo)) {
             error("Couldn't return to original position")

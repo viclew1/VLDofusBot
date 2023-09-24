@@ -1,4 +1,4 @@
-package fr.lewon.dofus.bot.gui.main.exploration.map.subarea
+package fr.lewon.dofus.bot.gui.main.exploration.subarea
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider

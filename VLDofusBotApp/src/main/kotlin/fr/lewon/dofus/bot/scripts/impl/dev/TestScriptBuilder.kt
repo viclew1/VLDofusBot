@@ -5,7 +5,7 @@ import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
+import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.TransferItemsToBankTask
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 object TestScriptBuilder : DofusBotScriptBuilder("Test", true) {
@@ -28,7 +28,8 @@ object TestScriptBuilder : DofusBotScriptBuilder("Test", true) {
         parameterValues: ParameterValues,
         statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        FightTask().run(logItem, gameInfo)
+        //FightTask().run(logItem, gameInfo)
+        TransferItemsToBankTask().run(logItem, gameInfo)
     }
 
 }

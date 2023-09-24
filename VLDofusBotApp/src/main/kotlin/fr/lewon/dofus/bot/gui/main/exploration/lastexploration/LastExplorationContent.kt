@@ -28,8 +28,10 @@ import fr.lewon.dofus.bot.gui.main.characters.CharacterActivityState
 import fr.lewon.dofus.bot.gui.main.characters.CharactersUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.ExplorationUIUtil
 import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.impl.LastSubAreasExploration
+import fr.lewon.dofus.bot.gui.main.exploration.lastexploration.impl.LastSubPathsExploration
 import fr.lewon.dofus.bot.gui.util.AppColors
 import fr.lewon.dofus.bot.gui.util.UiResource
+import fr.lewon.dofus.bot.scripts.impl.ExploreMapsScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.BreedAssetManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.HarvestableSetsManager
@@ -246,20 +248,31 @@ private fun <T> LastExplorationHeaderContent(characterName: String, lastExplorat
         }
         if (characterUIState.activityState != CharacterActivityState.BUSY) {
             val subAreas = ExplorationUIUtil.mapUIState.value.selectedSubAreaIds.map(SubAreaManager::getSubArea)
+            val path = ExplorationUIUtil.selectedPath.value
+            val startExplorationButtonEnabled = when (ExplorationUIUtil.explorationTypeUiState.value) {
+                ExploreMapsScriptBuilder.ExplorationType.SubArea -> subAreas.isNotEmpty()
+                ExploreMapsScriptBuilder.ExplorationType.Path -> path != null && path.subPaths.any { it.enabled }
+            }
             Row(Modifier.size(buttonSize).align(Alignment.CenterVertically)) {
                 ButtonWithTooltip(
                     onClick = {
-                        ExplorationUIUtil.startExploration(
-                            LastSubAreasExploration(subAreas.associateWith { ExplorationProgress(0, 0, false) }),
-                            characterName
-                        )
+                        val explorationProgress = ExplorationProgress(0, 0, false)
+                        val exploration = when (ExplorationUIUtil.explorationTypeUiState.value) {
+                            ExploreMapsScriptBuilder.ExplorationType.SubArea ->
+                                LastSubAreasExploration(subAreas.associateWith { explorationProgress })
+                            ExploreMapsScriptBuilder.ExplorationType.Path -> {
+                                val subPaths = path?.subPaths ?: emptyList()
+                                LastSubPathsExploration(subPaths.associateWith { explorationProgress })
+                            }
+                        }
+                        ExplorationUIUtil.startExploration(exploration, characterName)
                         ExplorationUIUtil.mapUIState.value = ExplorationUIUtil.mapUIState.value.copy(
                             selectedSubAreaIds = emptyList()
                         )
                     },
                     title = "Start exploration",
                     shape = RoundedCornerShape(15),
-                    enabled = subAreas.isNotEmpty(),
+                    enabled = startExplorationButtonEnabled,
                     hoverBackgroundColor = Color.Gray,
                     defaultBackgroundColor = AppColors.VERY_DARK_BG_COLOR,
                     delayMillis = 0
@@ -269,7 +282,7 @@ private fun <T> LastExplorationHeaderContent(characterName: String, lastExplorat
                             Icons.Default.PlayArrow,
                             "",
                             modifier = Modifier.fillMaxSize(),
-                            colorFilter = ColorFilter.tint(if (subAreas.isNotEmpty()) AppColors.GREEN else Color.Gray)
+                            colorFilter = ColorFilter.tint(if (startExplorationButtonEnabled) AppColors.GREEN else Color.Gray)
                         )
                     }
                 }

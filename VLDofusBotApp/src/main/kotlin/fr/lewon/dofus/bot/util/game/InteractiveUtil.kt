@@ -256,8 +256,15 @@ object InteractiveUtil {
         gameInfo: GameInfo,
         buttonLocation: PointRelative,
         optionIndex: Int,
+        optionListHasHeader: Boolean = true
     ): Boolean = RetryUtil.tryUntilSuccess(
-        { doClickButtonWithOptions(gameInfo, buttonLocation, optionIndex) },
+        {
+            doClickButtonWithOptions(
+                gameInfo,
+                buttonLocation,
+                if (optionListHasHeader) optionIndex else optionIndex - 1
+            )
+        },
         10
     )
 
