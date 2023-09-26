@@ -12,5 +12,5 @@ open class GuildPaddockTeleportRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		paddockId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 7426
+	override fun getNetworkMessageId(): Int = 6508
 }

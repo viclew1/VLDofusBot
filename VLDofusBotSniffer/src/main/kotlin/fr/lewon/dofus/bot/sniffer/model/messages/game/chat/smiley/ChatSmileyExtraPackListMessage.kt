@@ -16,5 +16,5 @@ open class ChatSmileyExtraPackListMessage : NetworkMessage() {
 			packIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6914
+	override fun getNetworkMessageId(): Int = 1310
 }

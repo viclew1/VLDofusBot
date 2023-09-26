@@ -10,5 +10,5 @@ open class ExchangeSellOkMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8812
+	override fun getNetworkMessageId(): Int = 4089
 }

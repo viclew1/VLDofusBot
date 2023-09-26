@@ -15,5 +15,5 @@ open class GameActionFightTeleportOnSameMapMessage : AbstractGameActionMessage()
 		targetId = stream.readDouble().toDouble()
 		cellId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6155
+	override fun getNetworkMessageId(): Int = 2880
 }

@@ -16,5 +16,5 @@ open class MapFightStartPositionsUpdateMessage : NetworkMessage() {
 		fightStartPositions = FightStartingPositions()
 		fightStartPositions.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3445
+	override fun getNetworkMessageId(): Int = 6803
 }

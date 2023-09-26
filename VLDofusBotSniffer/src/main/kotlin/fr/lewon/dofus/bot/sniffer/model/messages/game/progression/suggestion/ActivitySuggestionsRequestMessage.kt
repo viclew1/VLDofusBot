@@ -20,5 +20,5 @@ open class ActivitySuggestionsRequestMessage : NetworkMessage() {
 		activityCategoryId = stream.readVarShort().toInt()
 		nbCards = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1972
+	override fun getNetworkMessageId(): Int = 7130
 }

@@ -16,5 +16,5 @@ open class NpcGenericActionRequestMessage : NetworkMessage() {
 		npcActionId = stream.readUnsignedByte().toInt()
 		npcMapId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 4675
+	override fun getNetworkMessageId(): Int = 2709
 }

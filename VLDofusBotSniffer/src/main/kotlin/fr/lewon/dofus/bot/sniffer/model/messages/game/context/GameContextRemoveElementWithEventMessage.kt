@@ -12,5 +12,5 @@ open class GameContextRemoveElementWithEventMessage : GameContextRemoveElementMe
 		super.deserialize(stream)
 		elementEventId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1879
+	override fun getNetworkMessageId(): Int = 5650
 }

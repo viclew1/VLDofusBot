@@ -16,5 +16,5 @@ open class CharacterAlignmentWarEffortProgressionMessage : NetworkMessage() {
 		alignmentWarEffortDailyDonation = stream.readVarLong().toDouble()
 		alignmentWarEffortPersonalDonation = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1920
+	override fun getNetworkMessageId(): Int = 7746
 }

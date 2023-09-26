@@ -12,5 +12,5 @@ open class WarnOnPermaDeathStateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		enable = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2751
+	override fun getNetworkMessageId(): Int = 2109
 }

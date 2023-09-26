@@ -11,5 +11,5 @@ open class ExchangeMountsStableBornAddMessage : ExchangeMountsStableAddMessage()
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2979
+	override fun getNetworkMessageId(): Int = 2906
 }

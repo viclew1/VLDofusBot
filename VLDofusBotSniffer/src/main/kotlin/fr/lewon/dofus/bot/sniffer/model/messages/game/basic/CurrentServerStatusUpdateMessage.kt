@@ -12,5 +12,5 @@ open class CurrentServerStatusUpdateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		status = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1871
+	override fun getNetworkMessageId(): Int = 8289
 }

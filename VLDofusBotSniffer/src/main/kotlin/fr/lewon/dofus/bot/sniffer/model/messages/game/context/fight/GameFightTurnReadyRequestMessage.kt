@@ -12,5 +12,5 @@ open class GameFightTurnReadyRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		id = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2866
+	override fun getNetworkMessageId(): Int = 3587
 }

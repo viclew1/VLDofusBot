@@ -18,5 +18,5 @@ open class ChatAbstractServerMessage : NetworkMessage() {
 		timestamp = stream.readInt().toInt()
 		fingerprint = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 2850
+	override fun getNetworkMessageId(): Int = 5870
 }

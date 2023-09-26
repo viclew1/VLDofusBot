@@ -14,5 +14,5 @@ open class StatsUpgradeResultMessage : NetworkMessage() {
 		result = stream.readUnsignedByte().toInt()
 		nbCharacBoost = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7979
+	override fun getNetworkMessageId(): Int = 5392
 }

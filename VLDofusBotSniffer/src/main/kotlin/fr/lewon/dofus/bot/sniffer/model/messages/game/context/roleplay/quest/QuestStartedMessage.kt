@@ -12,5 +12,5 @@ open class QuestStartedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		questId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1764
+	override fun getNetworkMessageId(): Int = 7772
 }

@@ -13,5 +13,5 @@ open class GameActionFightDeathMessage : AbstractGameActionMessage() {
 		super.deserialize(stream)
 		targetId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2437
+	override fun getNetworkMessageId(): Int = 6768
 }

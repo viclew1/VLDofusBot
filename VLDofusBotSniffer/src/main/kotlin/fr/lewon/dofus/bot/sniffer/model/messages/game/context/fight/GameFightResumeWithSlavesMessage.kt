@@ -22,5 +22,5 @@ open class GameFightResumeWithSlavesMessage : GameFightResumeMessage() {
 			slavesInfo.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7814
+	override fun getNetworkMessageId(): Int = 4285
 }

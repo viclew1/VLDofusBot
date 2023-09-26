@@ -19,5 +19,5 @@ open class GameActionFightTriggerGlyphTrapMessage : AbstractGameActionMessage() 
 		triggeringCharacterId = stream.readDouble().toDouble()
 		triggeredSpellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6805
+	override fun getNetworkMessageId(): Int = 5767
 }

@@ -14,5 +14,5 @@ open class RemoveGuildRankRequestMessage : NetworkMessage() {
 		rankId = stream.readVarInt().toInt()
 		newRankId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6527
+	override fun getNetworkMessageId(): Int = 7322
 }

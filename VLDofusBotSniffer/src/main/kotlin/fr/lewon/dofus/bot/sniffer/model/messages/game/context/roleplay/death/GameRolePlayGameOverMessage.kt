@@ -10,5 +10,5 @@ open class GameRolePlayGameOverMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6207
+	override fun getNetworkMessageId(): Int = 1042
 }

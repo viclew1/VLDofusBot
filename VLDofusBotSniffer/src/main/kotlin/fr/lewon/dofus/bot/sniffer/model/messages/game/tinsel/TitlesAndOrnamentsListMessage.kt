@@ -26,5 +26,5 @@ open class TitlesAndOrnamentsListMessage : NetworkMessage() {
 		activeTitle = stream.readVarShort().toInt()
 		activeOrnament = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7011
+	override fun getNetworkMessageId(): Int = 4737
 }

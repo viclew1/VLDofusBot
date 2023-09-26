@@ -12,5 +12,5 @@ open class ExchangeStartOkNpcTradeMessage : NetworkMessage() {
 		super.deserialize(stream)
 		npcId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1537
+	override fun getNetworkMessageId(): Int = 114
 }

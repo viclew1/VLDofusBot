@@ -14,5 +14,5 @@ open class UpdateLifePointsMessage : NetworkMessage() {
 		lifePoints = stream.readVarInt().toInt()
 		maxLifePoints = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 939
+	override fun getNetworkMessageId(): Int = 6486
 }

@@ -12,5 +12,5 @@ open class GuildSpellUpgradeRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		spellId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4409
+	override fun getNetworkMessageId(): Int = 3049
 }

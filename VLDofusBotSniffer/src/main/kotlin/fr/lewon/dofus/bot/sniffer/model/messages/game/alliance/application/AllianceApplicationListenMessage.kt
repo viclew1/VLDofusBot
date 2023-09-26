@@ -12,5 +12,5 @@ open class AllianceApplicationListenMessage : NetworkMessage() {
 		super.deserialize(stream)
 		listen = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 121
+	override fun getNetworkMessageId(): Int = 1552
 }

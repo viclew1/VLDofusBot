@@ -18,5 +18,5 @@ open class PartyLocateMembersMessage : AbstractPartyMessage() {
 			geopositions.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 263
+	override fun getNetworkMessageId(): Int = 3224
 }

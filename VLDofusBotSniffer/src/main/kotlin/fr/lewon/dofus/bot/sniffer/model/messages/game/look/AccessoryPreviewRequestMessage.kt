@@ -16,5 +16,5 @@ open class AccessoryPreviewRequestMessage : NetworkMessage() {
 			genericId.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1079
+	override fun getNetworkMessageId(): Int = 3632
 }

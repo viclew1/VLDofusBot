@@ -17,5 +17,5 @@ open class AllianceModificationStartedMessage : NetworkMessage() {
 		canChangeTag = BooleanByteWrapper.getFlag(_box0, 1)
 		canChangeEmblem = BooleanByteWrapper.getFlag(_box0, 2)
 	}
-	override fun getNetworkMessageId(): Int = 447
+	override fun getNetworkMessageId(): Int = 7194
 }

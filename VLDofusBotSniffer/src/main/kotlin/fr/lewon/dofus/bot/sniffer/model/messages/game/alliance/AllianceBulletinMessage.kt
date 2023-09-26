@@ -11,5 +11,5 @@ open class AllianceBulletinMessage : BulletinMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8980
+	override fun getNetworkMessageId(): Int = 9331
 }

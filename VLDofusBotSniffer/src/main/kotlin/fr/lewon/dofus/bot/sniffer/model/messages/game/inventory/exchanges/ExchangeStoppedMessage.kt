@@ -12,5 +12,5 @@ open class ExchangeStoppedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		id = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6256
+	override fun getNetworkMessageId(): Int = 9130
 }

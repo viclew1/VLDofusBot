@@ -16,5 +16,5 @@ open class ObjectQuantityMessage : NetworkMessage() {
 		quantity = stream.readVarInt().toInt()
 		origin = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2962
+	override fun getNetworkMessageId(): Int = 5076
 }

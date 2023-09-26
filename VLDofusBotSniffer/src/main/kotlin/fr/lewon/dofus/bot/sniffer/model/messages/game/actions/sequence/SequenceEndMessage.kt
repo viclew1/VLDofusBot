@@ -16,5 +16,5 @@ open class SequenceEndMessage : NetworkMessage() {
 		authorId = stream.readDouble().toDouble()
 		sequenceType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6647
+	override fun getNetworkMessageId(): Int = 5597
 }

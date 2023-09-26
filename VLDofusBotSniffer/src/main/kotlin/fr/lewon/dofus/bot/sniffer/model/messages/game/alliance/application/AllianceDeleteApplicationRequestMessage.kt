@@ -10,5 +10,5 @@ open class AllianceDeleteApplicationRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4504
+	override fun getNetworkMessageId(): Int = 1224
 }

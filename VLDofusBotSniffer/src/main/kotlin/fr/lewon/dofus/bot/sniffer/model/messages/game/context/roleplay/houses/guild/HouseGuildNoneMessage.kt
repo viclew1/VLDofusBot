@@ -16,5 +16,5 @@ open class HouseGuildNoneMessage : NetworkMessage() {
 		instanceId = stream.readInt().toInt()
 		secondHand = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 223
+	override fun getNetworkMessageId(): Int = 1896
 }

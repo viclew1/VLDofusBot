@@ -12,5 +12,5 @@ open class MapFightCountMessage : NetworkMessage() {
 		super.deserialize(stream)
 		fightCount = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 14
+	override fun getNetworkMessageId(): Int = 1874
 }

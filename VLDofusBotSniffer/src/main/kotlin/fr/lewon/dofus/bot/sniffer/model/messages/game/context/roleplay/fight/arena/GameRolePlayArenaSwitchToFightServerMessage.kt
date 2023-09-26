@@ -20,5 +20,5 @@ open class GameRolePlayArenaSwitchToFightServerMessage : NetworkMessage() {
 		}
 		token = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 1936
+	override fun getNetworkMessageId(): Int = 2464
 }

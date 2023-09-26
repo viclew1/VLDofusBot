@@ -14,5 +14,5 @@ open class HaapiBuyValidationMessage : HaapiValidationMessage() {
 		amount = stream.readVarLong().toDouble()
 		email = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 4967
+	override fun getNetworkMessageId(): Int = 9053
 }

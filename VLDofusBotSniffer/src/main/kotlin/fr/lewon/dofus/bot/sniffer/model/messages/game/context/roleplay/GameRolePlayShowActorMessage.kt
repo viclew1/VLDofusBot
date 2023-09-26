@@ -14,5 +14,5 @@ open class GameRolePlayShowActorMessage : NetworkMessage() {
 		informations = ProtocolTypeManager.getInstance<GameRolePlayActorInformations>(stream.readUnsignedShort())
 		informations.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3456
+	override fun getNetworkMessageId(): Int = 6727
 }

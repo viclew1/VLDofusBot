@@ -12,5 +12,5 @@ open class HaapiShopApiKeyMessage : NetworkMessage() {
 		super.deserialize(stream)
 		token = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 7531
+	override fun getNetworkMessageId(): Int = 996
 }

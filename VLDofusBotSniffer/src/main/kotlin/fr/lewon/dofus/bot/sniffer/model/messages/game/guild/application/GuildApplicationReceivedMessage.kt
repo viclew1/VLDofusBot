@@ -14,5 +14,5 @@ open class GuildApplicationReceivedMessage : NetworkMessage() {
 		playerName = stream.readUTF()
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8112
+	override fun getNetworkMessageId(): Int = 1062
 }

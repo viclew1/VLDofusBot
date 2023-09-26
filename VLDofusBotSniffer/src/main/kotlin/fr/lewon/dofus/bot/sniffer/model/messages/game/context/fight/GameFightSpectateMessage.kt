@@ -38,5 +38,5 @@ open class GameFightSpectateMessage : NetworkMessage() {
 			fxTriggerCounts.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3448
+	override fun getNetworkMessageId(): Int = 4198
 }

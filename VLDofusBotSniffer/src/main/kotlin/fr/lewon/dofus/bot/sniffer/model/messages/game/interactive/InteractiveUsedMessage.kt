@@ -20,5 +20,5 @@ open class InteractiveUsedMessage : NetworkMessage() {
 		duration = stream.readVarShort().toInt()
 		canMove = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 8940
+	override fun getNetworkMessageId(): Int = 8434
 }

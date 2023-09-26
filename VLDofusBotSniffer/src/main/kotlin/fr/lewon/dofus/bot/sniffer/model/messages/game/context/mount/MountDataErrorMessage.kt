@@ -12,5 +12,5 @@ open class MountDataErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7915
+	override fun getNetworkMessageId(): Int = 4561
 }

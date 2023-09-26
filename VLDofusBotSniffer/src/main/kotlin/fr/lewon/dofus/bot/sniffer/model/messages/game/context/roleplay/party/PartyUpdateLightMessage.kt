@@ -20,5 +20,5 @@ open class PartyUpdateLightMessage : AbstractPartyEventMessage() {
 		prospecting = stream.readVarInt().toInt()
 		regenRate = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4567
+	override fun getNetworkMessageId(): Int = 9153
 }

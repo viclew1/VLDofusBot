@@ -10,5 +10,5 @@ open class HaapiConsumeBufferRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4843
+	override fun getNetworkMessageId(): Int = 5636
 }

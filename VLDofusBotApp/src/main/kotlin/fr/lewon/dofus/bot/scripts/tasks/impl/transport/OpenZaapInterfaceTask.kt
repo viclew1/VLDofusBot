@@ -6,7 +6,6 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.game.DofusBoard
 import fr.lewon.dofus.bot.scripts.tasks.DofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.zaap.ZaapDestinationsMessage
 import fr.lewon.dofus.bot.util.game.RetryUtil
 import fr.lewon.dofus.bot.util.geometry.PointRelative
@@ -48,7 +47,7 @@ class OpenZaapInterfaceTask : DofusBotTask<List<DofusMap>>() {
         gameInfo.eventStore.getLastEvent(ZaapDestinationsMessage::class.java)
 
     private fun waitForZaapFrameOpened(gameInfo: GameInfo): Boolean {
-        WaitUtil.waitForEvents(gameInfo, ZaapDestinationsMessage::class.java, BasicNoOperationMessage::class.java)
+        WaitUtil.waitForEvent(gameInfo, ZaapDestinationsMessage::class.java)
         return WaitUtil.waitUntil { UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.ZAAP_SELECTION) }
     }
 

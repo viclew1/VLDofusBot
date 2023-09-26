@@ -16,5 +16,5 @@ open class AccountLoggingKickedMessage : NetworkMessage() {
 		hours = stream.readUnsignedByte().toInt()
 		minutes = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3538
+	override fun getNetworkMessageId(): Int = 1530
 }

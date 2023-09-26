@@ -14,5 +14,5 @@ open class UnfollowQuestObjectiveRequestMessage : NetworkMessage() {
 		questId = stream.readVarShort().toInt()
 		objectiveId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1306
+	override fun getNetworkMessageId(): Int = 7870
 }

@@ -12,5 +12,5 @@ open class ChallengeModSelectedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		challengeMod = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2631
+	override fun getNetworkMessageId(): Int = 1467
 }

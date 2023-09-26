@@ -16,5 +16,5 @@ open class ExchangeOkMultiCraftMessage : NetworkMessage() {
 		otherId = stream.readVarLong().toDouble()
 		role = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6648
+	override fun getNetworkMessageId(): Int = 3063
 }

@@ -12,5 +12,5 @@ open class ChallengeValidateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		challengeId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 248
+	override fun getNetworkMessageId(): Int = 200
 }

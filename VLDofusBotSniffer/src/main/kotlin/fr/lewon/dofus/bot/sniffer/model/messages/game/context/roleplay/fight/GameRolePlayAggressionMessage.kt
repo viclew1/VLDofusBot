@@ -14,5 +14,5 @@ open class GameRolePlayAggressionMessage : NetworkMessage() {
 		attackerId = stream.readVarLong().toDouble()
 		defenderId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 4453
+	override fun getNetworkMessageId(): Int = 1812
 }

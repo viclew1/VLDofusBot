@@ -19,5 +19,5 @@ open class AllianceListApplicationAnswerMessage : PaginationAnswerAbstractMessag
 			applies.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9160
+	override fun getNetworkMessageId(): Int = 4761
 }

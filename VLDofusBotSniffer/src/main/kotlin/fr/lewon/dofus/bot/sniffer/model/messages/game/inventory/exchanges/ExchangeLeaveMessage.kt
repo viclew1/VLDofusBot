@@ -13,5 +13,5 @@ open class ExchangeLeaveMessage : LeaveDialogMessage() {
 		super.deserialize(stream)
 		success = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9150
+	override fun getNetworkMessageId(): Int = 4632
 }

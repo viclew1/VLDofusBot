@@ -16,5 +16,5 @@ open class ItemForPresetUpdateMessage : NetworkMessage() {
 		presetItem = ItemForPreset()
 		presetItem.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6865
+	override fun getNetworkMessageId(): Int = 4582
 }

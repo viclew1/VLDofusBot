@@ -20,5 +20,5 @@ open class InventoryContentMessage : NetworkMessage() {
 		}
 		kamas = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2012
+	override fun getNetworkMessageId(): Int = 6852
 }

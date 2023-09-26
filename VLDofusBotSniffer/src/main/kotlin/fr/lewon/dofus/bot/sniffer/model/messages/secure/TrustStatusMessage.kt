@@ -12,5 +12,5 @@ open class TrustStatusMessage : NetworkMessage() {
 		super.deserialize(stream)
 		certified = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9399
+	override fun getNetworkMessageId(): Int = 2545
 }

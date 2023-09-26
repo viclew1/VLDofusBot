@@ -10,5 +10,5 @@ open class GameActionFightTriggerEffectMessage : GameActionFightDispellEffectMes
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8781
+	override fun getNetworkMessageId(): Int = 3760
 }

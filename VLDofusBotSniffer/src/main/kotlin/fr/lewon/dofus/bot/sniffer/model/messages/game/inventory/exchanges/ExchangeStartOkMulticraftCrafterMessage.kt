@@ -12,5 +12,5 @@ open class ExchangeStartOkMulticraftCrafterMessage : NetworkMessage() {
 		super.deserialize(stream)
 		skillId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5320
+	override fun getNetworkMessageId(): Int = 9285
 }

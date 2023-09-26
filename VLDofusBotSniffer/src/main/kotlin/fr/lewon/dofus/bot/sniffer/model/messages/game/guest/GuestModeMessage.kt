@@ -12,5 +12,5 @@ open class GuestModeMessage : NetworkMessage() {
 		super.deserialize(stream)
 		active = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9281
+	override fun getNetworkMessageId(): Int = 1505
 }

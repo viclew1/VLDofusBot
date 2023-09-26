@@ -24,5 +24,5 @@ open class GameRolePlayArenaPlayerBehavioursMessage : NetworkMessage() {
 		}
 		banDuration = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7468
+	override fun getNetworkMessageId(): Int = 9801
 }

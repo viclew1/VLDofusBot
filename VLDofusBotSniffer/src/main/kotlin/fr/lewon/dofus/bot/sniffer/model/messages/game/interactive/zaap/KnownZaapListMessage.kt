@@ -16,5 +16,5 @@ open class KnownZaapListMessage : NetworkMessage() {
 			destinations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7664
+	override fun getNetworkMessageId(): Int = 974
 }

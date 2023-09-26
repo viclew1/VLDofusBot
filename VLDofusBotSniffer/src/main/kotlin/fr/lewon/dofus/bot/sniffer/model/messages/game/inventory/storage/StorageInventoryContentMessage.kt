@@ -12,5 +12,5 @@ open class StorageInventoryContentMessage : InventoryContentMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 899
+	override fun getNetworkMessageId(): Int = 714
 }

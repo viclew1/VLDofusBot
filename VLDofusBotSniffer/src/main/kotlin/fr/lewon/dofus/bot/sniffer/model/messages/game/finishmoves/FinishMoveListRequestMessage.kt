@@ -10,5 +10,5 @@ open class FinishMoveListRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 935
+	override fun getNetworkMessageId(): Int = 3924
 }

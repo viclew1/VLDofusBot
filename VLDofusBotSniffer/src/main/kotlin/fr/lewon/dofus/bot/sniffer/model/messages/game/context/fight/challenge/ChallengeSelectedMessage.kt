@@ -14,5 +14,5 @@ open class ChallengeSelectedMessage : NetworkMessage() {
 		challengeInformation = ChallengeInformation()
 		challengeInformation.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7816
+	override fun getNetworkMessageId(): Int = 152
 }

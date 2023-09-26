@@ -10,5 +10,5 @@ open class BreachRoomLockedMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3579
+	override fun getNetworkMessageId(): Int = 6303
 }

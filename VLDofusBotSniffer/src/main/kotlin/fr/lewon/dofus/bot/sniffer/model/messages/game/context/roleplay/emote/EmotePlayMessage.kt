@@ -14,5 +14,5 @@ open class EmotePlayMessage : EmotePlayAbstractMessage() {
 		actorId = stream.readDouble().toDouble()
 		accountId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3603
+	override fun getNetworkMessageId(): Int = 452
 }

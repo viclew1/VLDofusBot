@@ -20,5 +20,5 @@ open class AllianceFightFighterAddedMessage : NetworkMessage() {
 		fighter.deserialize(stream)
 		team = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5166
+	override fun getNetworkMessageId(): Int = 394
 }

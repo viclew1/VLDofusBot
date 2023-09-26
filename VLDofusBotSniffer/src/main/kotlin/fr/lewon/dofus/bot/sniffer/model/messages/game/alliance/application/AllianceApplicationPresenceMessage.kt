@@ -12,5 +12,5 @@ open class AllianceApplicationPresenceMessage : NetworkMessage() {
 		super.deserialize(stream)
 		isApplication = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6378
+	override fun getNetworkMessageId(): Int = 9984
 }

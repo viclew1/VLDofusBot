@@ -12,5 +12,5 @@ open class PartyMemberEjectedMessage : PartyMemberRemoveMessage() {
 		super.deserialize(stream)
 		kickerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6052
+	override fun getNetworkMessageId(): Int = 4249
 }

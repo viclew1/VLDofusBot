@@ -18,5 +18,5 @@ open class GuildListMessage : NetworkMessage() {
 			guilds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5122
+	override fun getNetworkMessageId(): Int = 9928
 }

@@ -25,5 +25,5 @@ open class GuildLogbookInformationMessage : NetworkMessage() {
 			chestActivities.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9456
+	override fun getNetworkMessageId(): Int = 3547
 }

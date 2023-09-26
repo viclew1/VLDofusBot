@@ -15,5 +15,5 @@ open class GuildModificationStartedMessage : NetworkMessage() {
 		canChangeName = BooleanByteWrapper.getFlag(_box0, 0)
 		canChangeEmblem = BooleanByteWrapper.getFlag(_box0, 1)
 	}
-	override fun getNetworkMessageId(): Int = 2410
+	override fun getNetworkMessageId(): Int = 4998
 }

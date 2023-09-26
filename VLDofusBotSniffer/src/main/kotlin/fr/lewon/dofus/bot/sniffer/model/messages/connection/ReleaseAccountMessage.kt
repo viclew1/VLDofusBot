@@ -10,5 +10,5 @@ open class ReleaseAccountMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9736
+	override fun getNetworkMessageId(): Int = 2800
 }

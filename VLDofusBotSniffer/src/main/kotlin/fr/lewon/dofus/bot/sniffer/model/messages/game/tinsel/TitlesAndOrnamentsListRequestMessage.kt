@@ -10,5 +10,5 @@ open class TitlesAndOrnamentsListRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7199
+	override fun getNetworkMessageId(): Int = 9416
 }

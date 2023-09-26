@@ -12,5 +12,5 @@ open class BasicWhoAmIRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		verbose = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9342
+	override fun getNetworkMessageId(): Int = 4461
 }

@@ -14,5 +14,5 @@ open class MountInformationRequestMessage : NetworkMessage() {
 		id = stream.readDouble().toDouble()
 		time = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1017
+	override fun getNetworkMessageId(): Int = 1814
 }

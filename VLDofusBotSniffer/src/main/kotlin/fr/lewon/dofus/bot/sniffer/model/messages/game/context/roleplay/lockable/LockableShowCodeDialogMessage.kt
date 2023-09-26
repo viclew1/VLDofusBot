@@ -14,5 +14,5 @@ open class LockableShowCodeDialogMessage : NetworkMessage() {
 		changeOrUse = stream.readBoolean()
 		codeSize = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8686
+	override fun getNetworkMessageId(): Int = 828
 }

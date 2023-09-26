@@ -12,5 +12,5 @@ open class HouseKickRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		id = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6944
+	override fun getNetworkMessageId(): Int = 5856
 }

@@ -18,5 +18,5 @@ open class AcquaintancesListMessage : NetworkMessage() {
 			acquaintanceList.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6451
+	override fun getNetworkMessageId(): Int = 1493
 }

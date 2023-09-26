@@ -12,5 +12,5 @@ open class ExchangeObjectMovePricedMessage : ExchangeObjectMoveMessage() {
 		super.deserialize(stream)
 		price = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1233
+	override fun getNetworkMessageId(): Int = 7774
 }

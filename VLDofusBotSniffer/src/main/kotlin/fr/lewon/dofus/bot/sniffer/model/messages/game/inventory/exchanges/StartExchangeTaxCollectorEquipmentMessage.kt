@@ -12,5 +12,5 @@ open class StartExchangeTaxCollectorEquipmentMessage : NetworkMessage() {
 		super.deserialize(stream)
 		uid = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 3719
+	override fun getNetworkMessageId(): Int = 1705
 }

@@ -10,5 +10,5 @@ open class EditHavenBagRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 474
+	override fun getNetworkMessageId(): Int = 3324
 }

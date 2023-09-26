@@ -15,5 +15,5 @@ open class AchievementFinishedInformationMessage : AchievementFinishedMessage() 
 		name = stream.readUTF()
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2610
+	override fun getNetworkMessageId(): Int = 7605
 }

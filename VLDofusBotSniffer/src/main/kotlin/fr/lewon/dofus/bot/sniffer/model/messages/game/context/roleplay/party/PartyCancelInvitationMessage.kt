@@ -12,5 +12,5 @@ open class PartyCancelInvitationMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		guestId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5476
+	override fun getNetworkMessageId(): Int = 2731
 }

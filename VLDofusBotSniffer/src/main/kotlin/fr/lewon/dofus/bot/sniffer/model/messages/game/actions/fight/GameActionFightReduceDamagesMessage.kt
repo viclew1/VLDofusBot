@@ -15,5 +15,5 @@ open class GameActionFightReduceDamagesMessage : AbstractGameActionMessage() {
 		targetId = stream.readDouble().toDouble()
 		amount = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6000
+	override fun getNetworkMessageId(): Int = 2417
 }

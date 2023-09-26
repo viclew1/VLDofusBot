@@ -10,5 +10,5 @@ open class GuildGetChestTabContributionsRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9107
+	override fun getNetworkMessageId(): Int = 924
 }

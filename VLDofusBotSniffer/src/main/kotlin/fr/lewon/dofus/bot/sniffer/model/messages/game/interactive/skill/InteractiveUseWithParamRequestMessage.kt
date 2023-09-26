@@ -13,5 +13,5 @@ open class InteractiveUseWithParamRequestMessage : InteractiveUseRequestMessage(
 		super.deserialize(stream)
 		id = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7125
+	override fun getNetworkMessageId(): Int = 3751
 }

@@ -12,5 +12,5 @@ open class BasicPingMessage : NetworkMessage() {
 		super.deserialize(stream)
 		quiet = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 4681
+	override fun getNetworkMessageId(): Int = 6075
 }

@@ -16,5 +16,5 @@ open class BreachInvitationOfferMessage : NetworkMessage() {
 		host.deserialize(stream)
 		timeLeftBeforeCancel = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9853
+	override fun getNetworkMessageId(): Int = 5823
 }

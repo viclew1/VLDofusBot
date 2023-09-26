@@ -12,5 +12,5 @@ open class TitleSelectRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		titleId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6172
+	override fun getNetworkMessageId(): Int = 9079
 }

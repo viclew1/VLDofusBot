@@ -16,5 +16,5 @@ open class CharacterSelectedSuccessMessage : NetworkMessage() {
 		infos.deserialize(stream)
 		isCollectingStats = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2543
+	override fun getNetworkMessageId(): Int = 9868
 }

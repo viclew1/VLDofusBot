@@ -17,5 +17,5 @@ open class GameActionItemConsumedMessage : NetworkMessage() {
 		automaticAction = BooleanByteWrapper.getFlag(_box0, 1)
 		actionId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1257
+	override fun getNetworkMessageId(): Int = 665
 }

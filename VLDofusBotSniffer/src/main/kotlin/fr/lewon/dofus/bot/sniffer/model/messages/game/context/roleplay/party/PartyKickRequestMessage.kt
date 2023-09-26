@@ -12,5 +12,5 @@ open class PartyKickRequestMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6111
+	override fun getNetworkMessageId(): Int = 1353
 }

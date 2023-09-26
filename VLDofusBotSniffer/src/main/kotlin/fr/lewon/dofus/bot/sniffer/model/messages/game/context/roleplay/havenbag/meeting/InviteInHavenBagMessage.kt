@@ -16,5 +16,5 @@ open class InviteInHavenBagMessage : NetworkMessage() {
 		guestInformations.deserialize(stream)
 		accept = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 1881
+	override fun getNetworkMessageId(): Int = 5865
 }

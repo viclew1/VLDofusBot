@@ -20,5 +20,5 @@ open class TaxCollectorAttackedResultMessage : NetworkMessage() {
 		alliance = BasicAllianceInformations()
 		alliance.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7440
+	override fun getNetworkMessageId(): Int = 5228
 }

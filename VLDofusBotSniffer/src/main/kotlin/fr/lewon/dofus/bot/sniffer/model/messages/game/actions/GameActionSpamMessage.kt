@@ -16,5 +16,5 @@ open class GameActionSpamMessage : NetworkMessage() {
 			cells.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5126
+	override fun getNetworkMessageId(): Int = 981
 }

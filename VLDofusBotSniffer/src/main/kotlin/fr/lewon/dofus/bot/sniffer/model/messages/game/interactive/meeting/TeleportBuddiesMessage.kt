@@ -12,5 +12,5 @@ open class TeleportBuddiesMessage : NetworkMessage() {
 		super.deserialize(stream)
 		dungeonId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5207
+	override fun getNetworkMessageId(): Int = 6786
 }

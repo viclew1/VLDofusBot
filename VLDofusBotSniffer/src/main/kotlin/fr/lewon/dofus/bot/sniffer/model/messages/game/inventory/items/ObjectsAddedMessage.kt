@@ -18,5 +18,5 @@ open class ObjectsAddedMessage : NetworkMessage() {
 			obj.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 365
+	override fun getNetworkMessageId(): Int = 8140
 }

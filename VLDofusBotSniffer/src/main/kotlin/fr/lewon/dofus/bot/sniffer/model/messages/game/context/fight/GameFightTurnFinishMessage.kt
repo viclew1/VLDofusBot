@@ -12,5 +12,5 @@ open class GameFightTurnFinishMessage : NetworkMessage() {
 		super.deserialize(stream)
 		isAfk = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7870
+	override fun getNetworkMessageId(): Int = 5552
 }

@@ -18,5 +18,5 @@ open class CharacterExperienceGainMessage : NetworkMessage() {
 		experienceGuild = stream.readVarLong().toDouble()
 		experienceIncarnation = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 3140
+	override fun getNetworkMessageId(): Int = 9486
 }

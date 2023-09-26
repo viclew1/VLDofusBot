@@ -22,5 +22,5 @@ open class AbstractPartyMemberInFightMessage : AbstractPartyMessage() {
 		fightId = stream.readVarShort().toInt()
 		timeBeforeFightStart = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9489
+	override fun getNetworkMessageId(): Int = 6717
 }

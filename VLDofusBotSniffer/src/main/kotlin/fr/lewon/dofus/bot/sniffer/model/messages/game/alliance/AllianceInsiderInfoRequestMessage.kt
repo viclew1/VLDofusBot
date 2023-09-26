@@ -10,5 +10,5 @@ open class AllianceInsiderInfoRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3738
+	override fun getNetworkMessageId(): Int = 242
 }

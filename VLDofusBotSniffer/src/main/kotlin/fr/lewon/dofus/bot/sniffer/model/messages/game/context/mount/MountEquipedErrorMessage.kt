@@ -12,5 +12,5 @@ open class MountEquipedErrorMessage : NetworkMessage() {
 		super.deserialize(stream)
 		errorType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3799
+	override fun getNetworkMessageId(): Int = 1703
 }

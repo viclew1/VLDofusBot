@@ -12,5 +12,5 @@ open class HaapiTokenMessage : NetworkMessage() {
 		super.deserialize(stream)
 		token = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 4755
+	override fun getNetworkMessageId(): Int = 438
 }

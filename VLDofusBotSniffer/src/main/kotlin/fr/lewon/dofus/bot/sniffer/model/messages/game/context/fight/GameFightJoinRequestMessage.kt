@@ -14,5 +14,5 @@ open class GameFightJoinRequestMessage : NetworkMessage() {
 		fighterId = stream.readDouble().toDouble()
 		fightId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2009
+	override fun getNetworkMessageId(): Int = 8355
 }

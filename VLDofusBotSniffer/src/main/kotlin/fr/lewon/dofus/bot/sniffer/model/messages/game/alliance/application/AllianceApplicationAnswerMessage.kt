@@ -14,5 +14,5 @@ open class AllianceApplicationAnswerMessage : NetworkMessage() {
 		accepted = stream.readBoolean()
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8759
+	override fun getNetworkMessageId(): Int = 6760
 }

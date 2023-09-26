@@ -10,5 +10,5 @@ open class GuildGetPlayerApplicationMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6087
+	override fun getNetworkMessageId(): Int = 2495
 }

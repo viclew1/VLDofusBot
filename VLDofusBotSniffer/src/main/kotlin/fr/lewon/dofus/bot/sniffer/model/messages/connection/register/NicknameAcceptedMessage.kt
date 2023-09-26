@@ -10,5 +10,5 @@ open class NicknameAcceptedMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8621
+	override fun getNetworkMessageId(): Int = 1279
 }

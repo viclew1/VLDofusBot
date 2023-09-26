@@ -16,5 +16,5 @@ open class ConsoleEndMessage : NetworkMessage() {
 		consoleUuid.deserialize(stream)
 		isSuccess = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7083
+	override fun getNetworkMessageId(): Int = 2726
 }

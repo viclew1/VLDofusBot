@@ -14,5 +14,5 @@ open class ContactLookRequestMessage : NetworkMessage() {
 		requestId = stream.readUnsignedByte().toInt()
 		contactType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8699
+	override fun getNetworkMessageId(): Int = 8471
 }

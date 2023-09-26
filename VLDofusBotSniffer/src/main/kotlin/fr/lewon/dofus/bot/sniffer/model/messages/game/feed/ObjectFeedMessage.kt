@@ -20,5 +20,5 @@ open class ObjectFeedMessage : NetworkMessage() {
 			meal.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5075
+	override fun getNetworkMessageId(): Int = 2738
 }

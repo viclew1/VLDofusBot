@@ -10,5 +10,5 @@ open class ArenaFighterIdleMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9203
+	override fun getNetworkMessageId(): Int = 2834
 }

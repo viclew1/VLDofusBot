@@ -15,5 +15,5 @@ open class ExchangeObjectPutInBagMessage : ExchangeObjectMessage() {
 		obj = ObjectItem()
 		obj.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2491
+	override fun getNetworkMessageId(): Int = 9199
 }

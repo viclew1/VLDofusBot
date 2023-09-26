@@ -10,5 +10,5 @@ open class CloseHavenBagFurnitureSequenceRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9998
+	override fun getNetworkMessageId(): Int = 4959
 }

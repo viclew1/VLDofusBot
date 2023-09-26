@@ -14,5 +14,5 @@ open class HouseTeleportRequestMessage : NetworkMessage() {
 		houseId = stream.readVarInt().toInt()
 		houseInstanceId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8613
+	override fun getNetworkMessageId(): Int = 8801
 }

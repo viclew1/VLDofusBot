@@ -10,5 +10,5 @@ open class StartListenGuildChestStructureMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3185
+	override fun getNetworkMessageId(): Int = 5029
 }

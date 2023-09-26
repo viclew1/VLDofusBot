@@ -14,5 +14,5 @@ open class JobCrafterDirectoryDefineSettingsMessage : NetworkMessage() {
 		settings = JobCrafterDirectorySettings()
 		settings.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8024
+	override fun getNetworkMessageId(): Int = 3149
 }

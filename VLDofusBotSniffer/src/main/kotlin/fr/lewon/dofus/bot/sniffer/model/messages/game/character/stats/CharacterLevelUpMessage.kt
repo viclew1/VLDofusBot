@@ -12,5 +12,5 @@ open class CharacterLevelUpMessage : NetworkMessage() {
 		super.deserialize(stream)
 		newLevel = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2370
+	override fun getNetworkMessageId(): Int = 246
 }

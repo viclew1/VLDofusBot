@@ -12,5 +12,5 @@ open class FriendGuildSetWarnOnAchievementCompleteMessage : NetworkMessage() {
 		super.deserialize(stream)
 		enable = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 8910
+	override fun getNetworkMessageId(): Int = 9829
 }

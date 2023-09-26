@@ -12,5 +12,5 @@ open class ForgettableSpellEquipmentSlotsMessage : NetworkMessage() {
 		super.deserialize(stream)
 		quantity = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9647
+	override fun getNetworkMessageId(): Int = 2801
 }

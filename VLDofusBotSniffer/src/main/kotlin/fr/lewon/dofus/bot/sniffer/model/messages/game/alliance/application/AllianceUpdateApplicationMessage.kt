@@ -14,5 +14,5 @@ open class AllianceUpdateApplicationMessage : NetworkMessage() {
 		applyText = stream.readUTF()
 		allianceId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6742
+	override fun getNetworkMessageId(): Int = 8147
 }

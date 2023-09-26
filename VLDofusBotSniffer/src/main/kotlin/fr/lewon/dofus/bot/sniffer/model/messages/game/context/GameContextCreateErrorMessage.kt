@@ -10,5 +10,5 @@ open class GameContextCreateErrorMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5580
+	override fun getNetworkMessageId(): Int = 1618
 }

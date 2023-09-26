@@ -10,5 +10,5 @@ open class GuildCreationStartedMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3789
+	override fun getNetworkMessageId(): Int = 1527
 }

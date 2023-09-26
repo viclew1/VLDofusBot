@@ -16,5 +16,5 @@ open class RefreshFollowedQuestsOrderRequestMessage : NetworkMessage() {
 			quests.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2132
+	override fun getNetworkMessageId(): Int = 7020
 }

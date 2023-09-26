@@ -14,5 +14,5 @@ open class QueueStatusMessage : NetworkMessage() {
 		position = stream.readUnsignedShort().toInt()
 		total = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5491
+	override fun getNetworkMessageId(): Int = 3069
 }

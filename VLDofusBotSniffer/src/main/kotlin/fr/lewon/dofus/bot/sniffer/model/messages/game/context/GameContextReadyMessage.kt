@@ -12,5 +12,5 @@ open class GameContextReadyMessage : NetworkMessage() {
 		super.deserialize(stream)
 		mapId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 4992
+	override fun getNetworkMessageId(): Int = 2396
 }

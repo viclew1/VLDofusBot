@@ -18,5 +18,5 @@ open class ExchangeMountsTakenFromPaddockMessage : NetworkMessage() {
 		worldY = stream.readUnsignedShort().toInt()
 		ownername = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 4122
+	override fun getNetworkMessageId(): Int = 5118
 }

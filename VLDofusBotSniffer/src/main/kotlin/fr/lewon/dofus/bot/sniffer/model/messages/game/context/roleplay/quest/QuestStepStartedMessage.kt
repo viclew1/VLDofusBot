@@ -14,5 +14,5 @@ open class QuestStepStartedMessage : NetworkMessage() {
 		questId = stream.readVarShort().toInt()
 		stepId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9861
+	override fun getNetworkMessageId(): Int = 7806
 }

@@ -12,5 +12,5 @@ open class PartyModifiableStatusMessage : AbstractPartyMessage() {
 		super.deserialize(stream)
 		enabled = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9490
+	override fun getNetworkMessageId(): Int = 315
 }

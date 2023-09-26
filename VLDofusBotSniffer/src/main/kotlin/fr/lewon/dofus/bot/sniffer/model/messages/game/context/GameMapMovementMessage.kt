@@ -20,5 +20,5 @@ open class GameMapMovementMessage : NetworkMessage() {
 		forcedDirection = stream.readUnsignedShort().toInt()
 		actorId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6174
+	override fun getNetworkMessageId(): Int = 5371
 }

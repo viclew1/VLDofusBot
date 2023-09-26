@@ -27,5 +27,5 @@ open class MapComplementaryInformationsDataInHavenBagMessage : MapComplementaryI
 		roomId = stream.readUnsignedByte().toInt()
 		maxRoomId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5660
+	override fun getNetworkMessageId(): Int = 6334
 }

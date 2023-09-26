@@ -18,5 +18,5 @@ open class AlignmentWarEffortProgressionMessage : NetworkMessage() {
 			effortProgressions.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8197
+	override fun getNetworkMessageId(): Int = 9673
 }

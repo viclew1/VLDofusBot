@@ -15,5 +15,5 @@ open class GameActionFightMarkCellsMessage : AbstractGameActionMessage() {
 		mark = GameActionMark()
 		mark.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7789
+	override fun getNetworkMessageId(): Int = 9871
 }

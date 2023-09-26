@@ -11,5 +11,5 @@ open class AdminQuietCommandMessage : AdminCommandMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3781
+	override fun getNetworkMessageId(): Int = 7816
 }

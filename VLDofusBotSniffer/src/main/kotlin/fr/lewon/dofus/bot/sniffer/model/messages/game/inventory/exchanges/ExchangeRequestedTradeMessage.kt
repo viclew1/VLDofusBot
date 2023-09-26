@@ -14,5 +14,5 @@ open class ExchangeRequestedTradeMessage : ExchangeRequestedMessage() {
 		source = stream.readVarLong().toDouble()
 		target = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 88
+	override fun getNetworkMessageId(): Int = 9042
 }

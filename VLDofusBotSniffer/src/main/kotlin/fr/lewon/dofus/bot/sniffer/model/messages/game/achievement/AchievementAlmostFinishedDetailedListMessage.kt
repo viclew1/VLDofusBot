@@ -18,5 +18,5 @@ open class AchievementAlmostFinishedDetailedListMessage : NetworkMessage() {
 			almostFinishedAchievements.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8401
+	override fun getNetworkMessageId(): Int = 211
 }

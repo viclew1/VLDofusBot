@@ -16,5 +16,5 @@ open class BasicDateMessage : NetworkMessage() {
 		month = stream.readUnsignedByte().toInt()
 		year = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7835
+	override fun getNetworkMessageId(): Int = 9400
 }

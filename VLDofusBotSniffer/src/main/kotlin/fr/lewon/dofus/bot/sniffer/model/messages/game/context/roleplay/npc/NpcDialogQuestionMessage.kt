@@ -24,5 +24,5 @@ open class NpcDialogQuestionMessage : NetworkMessage() {
 			visibleReplies.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 524
+	override fun getNetworkMessageId(): Int = 941
 }

@@ -14,5 +14,5 @@ open class MountRenamedMessage : NetworkMessage() {
 		mountId = stream.readVarInt().toInt()
 		name = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 2577
+	override fun getNetworkMessageId(): Int = 2193
 }

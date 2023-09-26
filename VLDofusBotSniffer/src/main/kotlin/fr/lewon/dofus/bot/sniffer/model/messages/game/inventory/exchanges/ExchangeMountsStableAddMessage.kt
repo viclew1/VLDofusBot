@@ -18,5 +18,5 @@ open class ExchangeMountsStableAddMessage : NetworkMessage() {
 			mountDescription.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5703
+	override fun getNetworkMessageId(): Int = 5301
 }

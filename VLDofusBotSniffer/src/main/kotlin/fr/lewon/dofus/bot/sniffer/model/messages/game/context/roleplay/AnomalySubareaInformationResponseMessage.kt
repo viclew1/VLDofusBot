@@ -18,5 +18,5 @@ open class AnomalySubareaInformationResponseMessage : NetworkMessage() {
 			subareas.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9094
+	override fun getNetworkMessageId(): Int = 4331
 }

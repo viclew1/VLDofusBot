@@ -10,5 +10,5 @@ open class MountToggleRidingRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5154
+	override fun getNetworkMessageId(): Int = 6482
 }

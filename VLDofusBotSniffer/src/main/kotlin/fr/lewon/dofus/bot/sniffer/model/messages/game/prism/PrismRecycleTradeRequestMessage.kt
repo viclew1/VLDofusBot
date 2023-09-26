@@ -10,5 +10,5 @@ open class PrismRecycleTradeRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8103
+	override fun getNetworkMessageId(): Int = 1461
 }

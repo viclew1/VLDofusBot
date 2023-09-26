@@ -16,5 +16,5 @@ open class InviteInHavenBagOfferMessage : NetworkMessage() {
 		hostInformations.deserialize(stream)
 		timeLeftBeforeCancel = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4145
+	override fun getNetworkMessageId(): Int = 6664
 }

@@ -18,5 +18,5 @@ open class CharactersListMessage : NetworkMessage() {
 			characters.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3720
+	override fun getNetworkMessageId(): Int = 1165
 }

@@ -12,5 +12,5 @@ open class ChangeHavenBagRoomRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		roomId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2766
+	override fun getNetworkMessageId(): Int = 7835
 }

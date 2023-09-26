@@ -22,5 +22,5 @@ open class ExchangeObjectTransfertListWithQuantityToInvMessage : NetworkMessage(
 			qtys.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7368
+	override fun getNetworkMessageId(): Int = 2127
 }

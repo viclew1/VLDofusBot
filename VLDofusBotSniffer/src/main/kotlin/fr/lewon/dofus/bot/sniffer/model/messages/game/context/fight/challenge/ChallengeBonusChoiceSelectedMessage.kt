@@ -12,5 +12,5 @@ open class ChallengeBonusChoiceSelectedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		challengeBonus = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3796
+	override fun getNetworkMessageId(): Int = 593
 }

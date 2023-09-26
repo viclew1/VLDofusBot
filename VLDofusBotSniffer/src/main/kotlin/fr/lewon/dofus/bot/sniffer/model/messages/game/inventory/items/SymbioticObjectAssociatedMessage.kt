@@ -12,5 +12,5 @@ open class SymbioticObjectAssociatedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		hostUID = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8896
+	override fun getNetworkMessageId(): Int = 7359
 }

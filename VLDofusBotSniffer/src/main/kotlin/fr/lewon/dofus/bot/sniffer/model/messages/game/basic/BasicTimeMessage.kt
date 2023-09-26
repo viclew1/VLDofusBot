@@ -14,5 +14,5 @@ open class BasicTimeMessage : NetworkMessage() {
 		timestamp = stream.readDouble().toDouble()
 		timezoneOffset = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 489
+	override fun getNetworkMessageId(): Int = 6808
 }

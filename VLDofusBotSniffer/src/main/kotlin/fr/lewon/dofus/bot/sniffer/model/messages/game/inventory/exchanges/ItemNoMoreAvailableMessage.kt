@@ -10,5 +10,5 @@ open class ItemNoMoreAvailableMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2274
+	override fun getNetworkMessageId(): Int = 6190
 }

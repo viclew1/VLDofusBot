@@ -18,5 +18,5 @@ open class GuildHousesInformationMessage : NetworkMessage() {
 			housesInformations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1134
+	override fun getNetworkMessageId(): Int = 8768
 }

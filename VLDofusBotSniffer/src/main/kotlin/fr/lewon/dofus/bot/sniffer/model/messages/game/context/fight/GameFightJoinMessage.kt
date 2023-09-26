@@ -23,5 +23,5 @@ open class GameFightJoinMessage : NetworkMessage() {
 		timeMaxBeforeFightStart = stream.readUnsignedShort().toInt()
 		fightType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1680
+	override fun getNetworkMessageId(): Int = 4031
 }

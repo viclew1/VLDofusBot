@@ -16,5 +16,5 @@ open class PresetUseResultWithMissingIdsMessage : PresetUseResultMessage() {
 			missingIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4950
+	override fun getNetworkMessageId(): Int = 6499
 }

@@ -12,5 +12,5 @@ open class PauseDialogMessage : NetworkMessage() {
 		super.deserialize(stream)
 		dialogType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1886
+	override fun getNetworkMessageId(): Int = 6393
 }

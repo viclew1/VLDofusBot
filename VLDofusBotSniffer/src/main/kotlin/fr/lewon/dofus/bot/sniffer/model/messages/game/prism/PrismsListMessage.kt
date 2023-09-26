@@ -18,5 +18,5 @@ open class PrismsListMessage : NetworkMessage() {
 			prisms.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3610
+	override fun getNetworkMessageId(): Int = 1417
 }

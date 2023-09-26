@@ -14,5 +14,5 @@ open class NumericWhoIsMessage : NetworkMessage() {
 		playerId = stream.readVarLong().toDouble()
 		accountId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9630
+	override fun getNetworkMessageId(): Int = 1271
 }

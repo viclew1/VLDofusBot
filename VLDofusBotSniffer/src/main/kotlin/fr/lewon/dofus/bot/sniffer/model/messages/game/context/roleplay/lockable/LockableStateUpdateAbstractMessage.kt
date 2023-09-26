@@ -12,5 +12,5 @@ open class LockableStateUpdateAbstractMessage : NetworkMessage() {
 		super.deserialize(stream)
 		locked = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6940
+	override fun getNetworkMessageId(): Int = 4415
 }

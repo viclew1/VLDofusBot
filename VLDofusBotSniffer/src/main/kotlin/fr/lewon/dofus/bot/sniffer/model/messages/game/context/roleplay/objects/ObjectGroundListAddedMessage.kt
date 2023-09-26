@@ -22,5 +22,5 @@ open class ObjectGroundListAddedMessage : NetworkMessage() {
 			referenceIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2845
+	override fun getNetworkMessageId(): Int = 8803
 }

@@ -12,5 +12,5 @@ open class GameActionFightCloseCombatMessage : AbstractGameActionFightTargetedAb
 		super.deserialize(stream)
 		weaponGenericId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1826
+	override fun getNetworkMessageId(): Int = 7028
 }

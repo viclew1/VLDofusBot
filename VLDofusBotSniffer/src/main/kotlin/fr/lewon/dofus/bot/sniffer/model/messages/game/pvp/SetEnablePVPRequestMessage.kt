@@ -12,5 +12,5 @@ open class SetEnablePVPRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		enable = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 9540
+	override fun getNetworkMessageId(): Int = 6169
 }

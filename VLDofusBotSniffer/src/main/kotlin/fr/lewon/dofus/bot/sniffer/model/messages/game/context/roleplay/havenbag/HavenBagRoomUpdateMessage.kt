@@ -20,5 +20,5 @@ open class HavenBagRoomUpdateMessage : NetworkMessage() {
 			roomsPreview.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9458
+	override fun getNetworkMessageId(): Int = 2501
 }

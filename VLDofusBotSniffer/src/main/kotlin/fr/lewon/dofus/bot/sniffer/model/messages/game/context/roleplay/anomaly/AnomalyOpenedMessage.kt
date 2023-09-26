@@ -12,5 +12,5 @@ open class AnomalyOpenedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		subAreaId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3377
+	override fun getNetworkMessageId(): Int = 9809
 }

@@ -10,5 +10,5 @@ open class ObjectAveragePricesGetMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8285
+	override fun getNetworkMessageId(): Int = 9304
 }

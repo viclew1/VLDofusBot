@@ -12,5 +12,5 @@ open class LockableCodeResultMessage : NetworkMessage() {
 		super.deserialize(stream)
 		result = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 756
+	override fun getNetworkMessageId(): Int = 5928
 }

@@ -14,5 +14,5 @@ open class TeleportToBuddyCloseMessage : NetworkMessage() {
 		dungeonId = stream.readVarShort().toInt()
 		buddyId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5873
+	override fun getNetworkMessageId(): Int = 2748
 }

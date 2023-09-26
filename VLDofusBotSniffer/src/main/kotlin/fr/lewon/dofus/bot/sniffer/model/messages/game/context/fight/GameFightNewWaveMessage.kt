@@ -16,5 +16,5 @@ open class GameFightNewWaveMessage : NetworkMessage() {
 		teamId = stream.readUnsignedByte().toInt()
 		nbTurnBeforeNextWave = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2439
+	override fun getNetworkMessageId(): Int = 2674
 }

@@ -14,5 +14,5 @@ open class ServerStatusUpdateMessage : NetworkMessage() {
 		server = GameServerInformations()
 		server.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2374
+	override fun getNetworkMessageId(): Int = 3516
 }

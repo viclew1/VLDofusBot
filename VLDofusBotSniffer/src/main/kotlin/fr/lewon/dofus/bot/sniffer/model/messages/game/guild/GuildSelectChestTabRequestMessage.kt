@@ -12,5 +12,5 @@ open class GuildSelectChestTabRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		tabNumber = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6176
+	override fun getNetworkMessageId(): Int = 7799
 }

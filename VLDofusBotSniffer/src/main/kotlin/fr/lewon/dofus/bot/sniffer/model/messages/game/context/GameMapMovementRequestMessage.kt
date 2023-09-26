@@ -18,5 +18,5 @@ open class GameMapMovementRequestMessage : NetworkMessage() {
 		}
 		mapId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 6639
+	override fun getNetworkMessageId(): Int = 1119
 }

@@ -12,5 +12,5 @@ open class AccountSubscriptionElapsedDurationMessage : NetworkMessage() {
 		super.deserialize(stream)
 		subscriptionElapsedDuration = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 667
+	override fun getNetworkMessageId(): Int = 2671
 }

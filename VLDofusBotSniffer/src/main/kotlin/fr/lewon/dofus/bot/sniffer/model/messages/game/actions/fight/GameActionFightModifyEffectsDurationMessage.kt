@@ -15,5 +15,5 @@ open class GameActionFightModifyEffectsDurationMessage : AbstractGameActionMessa
 		targetId = stream.readDouble().toDouble()
 		delta = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3924
+	override fun getNetworkMessageId(): Int = 3507
 }

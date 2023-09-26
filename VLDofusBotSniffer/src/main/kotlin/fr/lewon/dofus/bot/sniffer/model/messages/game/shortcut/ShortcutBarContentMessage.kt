@@ -20,5 +20,5 @@ open class ShortcutBarContentMessage : NetworkMessage() {
 			shortcuts.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1608
+	override fun getNetworkMessageId(): Int = 4852
 }

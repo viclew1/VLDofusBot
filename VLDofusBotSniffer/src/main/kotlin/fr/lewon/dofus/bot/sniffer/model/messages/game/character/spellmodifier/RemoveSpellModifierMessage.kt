@@ -18,5 +18,5 @@ open class RemoveSpellModifierMessage : NetworkMessage() {
 		modifierType = stream.readUnsignedByte().toInt()
 		spellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4699
+	override fun getNetworkMessageId(): Int = 8534
 }

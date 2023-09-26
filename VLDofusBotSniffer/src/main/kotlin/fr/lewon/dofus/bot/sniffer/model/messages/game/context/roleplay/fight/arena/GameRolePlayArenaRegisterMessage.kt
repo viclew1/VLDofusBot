@@ -12,5 +12,5 @@ open class GameRolePlayArenaRegisterMessage : NetworkMessage() {
 		super.deserialize(stream)
 		battleMode = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 888
+	override fun getNetworkMessageId(): Int = 8721
 }

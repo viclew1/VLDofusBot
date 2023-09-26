@@ -18,5 +18,5 @@ open class MoveTaxCollectorPresetSpellMessage : NetworkMessage() {
 		movedFrom = stream.readUnsignedByte().toInt()
 		movedTo = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1282
+	override fun getNetworkMessageId(): Int = 3944
 }

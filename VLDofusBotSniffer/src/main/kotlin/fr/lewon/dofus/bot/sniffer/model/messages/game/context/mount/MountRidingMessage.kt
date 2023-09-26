@@ -15,5 +15,5 @@ open class MountRidingMessage : NetworkMessage() {
 		isRiding = BooleanByteWrapper.getFlag(_box0, 0)
 		isAutopilot = BooleanByteWrapper.getFlag(_box0, 1)
 	}
-	override fun getNetworkMessageId(): Int = 328
+	override fun getNetworkMessageId(): Int = 6377
 }

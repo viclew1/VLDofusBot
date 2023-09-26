@@ -18,5 +18,5 @@ open class AlterationsUpdatedMessage : NetworkMessage() {
 			alterations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2645
+	override fun getNetworkMessageId(): Int = 1928
 }

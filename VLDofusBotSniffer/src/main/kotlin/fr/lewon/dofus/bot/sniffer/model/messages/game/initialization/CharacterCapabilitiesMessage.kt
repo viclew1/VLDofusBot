@@ -12,5 +12,5 @@ open class CharacterCapabilitiesMessage : NetworkMessage() {
 		super.deserialize(stream)
 		guildEmblemSymbolCategories = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1333
+	override fun getNetworkMessageId(): Int = 7400
 }

@@ -16,5 +16,5 @@ open class ExchangeObjectMoveToTabMessage : NetworkMessage() {
 		quantity = stream.readVarInt().toInt()
 		tabNumber = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5263
+	override fun getNetworkMessageId(): Int = 6784
 }

@@ -17,5 +17,5 @@ open class GameActionFightExchangePositionsMessage : AbstractGameActionMessage()
 		casterCellId = stream.readUnsignedShort().toInt()
 		targetCellId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2330
+	override fun getNetworkMessageId(): Int = 7480
 }

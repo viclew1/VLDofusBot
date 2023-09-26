@@ -12,5 +12,5 @@ open class MoodSmileyRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		smileyId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5865
+	override fun getNetworkMessageId(): Int = 8283
 }

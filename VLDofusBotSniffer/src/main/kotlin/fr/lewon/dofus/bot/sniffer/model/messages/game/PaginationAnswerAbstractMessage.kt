@@ -16,5 +16,5 @@ open class PaginationAnswerAbstractMessage : NetworkMessage() {
 		count = stream.readInt().toInt()
 		total = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2081
+	override fun getNetworkMessageId(): Int = 684
 }

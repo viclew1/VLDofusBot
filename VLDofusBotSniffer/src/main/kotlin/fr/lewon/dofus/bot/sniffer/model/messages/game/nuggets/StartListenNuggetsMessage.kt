@@ -10,5 +10,5 @@ open class StartListenNuggetsMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2836
+	override fun getNetworkMessageId(): Int = 7544
 }

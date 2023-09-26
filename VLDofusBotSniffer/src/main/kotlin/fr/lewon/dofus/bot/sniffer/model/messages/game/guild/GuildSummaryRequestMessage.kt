@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.core.io.stream.BooleanByteWrapper
 
 open class GuildSummaryRequestMessage : PaginationRequestAbstractMessage() {
 	var hideFullFilter: Boolean = false
+	var followingGuildCriteria: Boolean = false
 	var sortDescending: Boolean = false
 	var nameFilter: String = ""
 	var criterionFilter: ArrayList<Int> = ArrayList()
@@ -25,7 +26,8 @@ open class GuildSummaryRequestMessage : PaginationRequestAbstractMessage() {
 		super.deserialize(stream)
 		val _box0 = stream.readByte()
 		hideFullFilter = BooleanByteWrapper.getFlag(_box0, 0)
-		sortDescending = BooleanByteWrapper.getFlag(_box0, 1)
+		followingGuildCriteria = BooleanByteWrapper.getFlag(_box0, 1)
+		sortDescending = BooleanByteWrapper.getFlag(_box0, 2)
 		nameFilter = stream.readUTF()
 		criterionFilter = ArrayList()
 		for (i in 0 until stream.readUnsignedShort().toInt()) {
@@ -50,5 +52,5 @@ open class GuildSummaryRequestMessage : PaginationRequestAbstractMessage() {
 		maxSuccessFilter = stream.readVarInt().toInt()
 		sortType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8581
+	override fun getNetworkMessageId(): Int = 3550
 }

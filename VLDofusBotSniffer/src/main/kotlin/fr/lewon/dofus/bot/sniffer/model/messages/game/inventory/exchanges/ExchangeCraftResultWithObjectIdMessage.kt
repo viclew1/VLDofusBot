@@ -12,5 +12,5 @@ open class ExchangeCraftResultWithObjectIdMessage : ExchangeCraftResultMessage()
 		super.deserialize(stream)
 		objectGenericId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 280
+	override fun getNetworkMessageId(): Int = 7330
 }

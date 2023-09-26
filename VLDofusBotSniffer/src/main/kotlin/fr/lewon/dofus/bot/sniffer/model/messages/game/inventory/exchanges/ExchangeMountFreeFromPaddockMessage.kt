@@ -18,5 +18,5 @@ open class ExchangeMountFreeFromPaddockMessage : NetworkMessage() {
 		worldY = stream.readUnsignedShort().toInt()
 		liberator = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 5574
+	override fun getNetworkMessageId(): Int = 4133
 }

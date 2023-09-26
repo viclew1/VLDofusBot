@@ -14,5 +14,5 @@ open class MountDataMessage : NetworkMessage() {
 		mountData = MountClientData()
 		mountData.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7683
+	override fun getNetworkMessageId(): Int = 2845
 }

@@ -25,5 +25,5 @@ open class ServerSettingsMessage : NetworkMessage() {
 		arenaLeaveBanTime = stream.readVarShort().toInt()
 		itemMaxLevel = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8787
+	override fun getNetworkMessageId(): Int = 666
 }

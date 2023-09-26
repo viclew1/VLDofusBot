@@ -38,5 +38,5 @@ open class TreasureHuntMessage : NetworkMessage() {
 			flags.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2986
+	override fun getNetworkMessageId(): Int = 8631
 }

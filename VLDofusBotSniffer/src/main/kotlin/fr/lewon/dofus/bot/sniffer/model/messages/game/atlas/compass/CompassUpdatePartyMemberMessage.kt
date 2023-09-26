@@ -15,5 +15,5 @@ open class CompassUpdatePartyMemberMessage : CompassUpdateMessage() {
 		memberId = stream.readVarLong().toDouble()
 		active = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 2901
+	override fun getNetworkMessageId(): Int = 7789
 }

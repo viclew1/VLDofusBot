@@ -12,5 +12,5 @@ open class ExchangeCraftCountModifiedMessage : NetworkMessage() {
 		super.deserialize(stream)
 		count = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6783
+	override fun getNetworkMessageId(): Int = 5488
 }

@@ -14,5 +14,5 @@ open class MimicryObjectEraseRequestMessage : NetworkMessage() {
 		hostUID = stream.readVarInt().toInt()
 		hostPos = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2104
+	override fun getNetworkMessageId(): Int = 2378
 }

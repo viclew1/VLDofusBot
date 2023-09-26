@@ -14,5 +14,5 @@ open class ExchangeSellMessage : NetworkMessage() {
 		objectToSellId = stream.readVarInt().toInt()
 		quantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9007
+	override fun getNetworkMessageId(): Int = 3053
 }

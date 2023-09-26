@@ -12,5 +12,5 @@ open class CharacterSelectedForceMessage : NetworkMessage() {
 		super.deserialize(stream)
 		id = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9995
+	override fun getNetworkMessageId(): Int = 1675
 }

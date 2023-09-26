@@ -28,5 +28,5 @@ open class ConsoleCommandsListMessage : NetworkMessage() {
 			descriptions.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5709
+	override fun getNetworkMessageId(): Int = 467
 }

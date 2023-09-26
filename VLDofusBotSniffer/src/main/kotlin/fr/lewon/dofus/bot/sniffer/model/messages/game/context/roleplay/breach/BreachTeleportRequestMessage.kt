@@ -10,5 +10,5 @@ open class BreachTeleportRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7242
+	override fun getNetworkMessageId(): Int = 7665
 }

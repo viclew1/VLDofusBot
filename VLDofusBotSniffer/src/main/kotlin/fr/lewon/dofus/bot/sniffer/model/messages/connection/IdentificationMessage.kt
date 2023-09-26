@@ -39,5 +39,5 @@ open class IdentificationMessage : NetworkMessage() {
 			failedAttempts.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7755
+	override fun getNetworkMessageId(): Int = 4805
 }

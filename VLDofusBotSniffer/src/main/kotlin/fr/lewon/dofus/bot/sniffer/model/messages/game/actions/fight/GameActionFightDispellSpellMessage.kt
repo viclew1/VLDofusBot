@@ -12,5 +12,5 @@ open class GameActionFightDispellSpellMessage : GameActionFightDispellMessage() 
 		super.deserialize(stream)
 		spellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1974
+	override fun getNetworkMessageId(): Int = 1891
 }

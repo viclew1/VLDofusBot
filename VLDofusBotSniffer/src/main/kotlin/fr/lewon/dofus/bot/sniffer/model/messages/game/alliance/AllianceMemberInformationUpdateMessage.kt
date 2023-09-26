@@ -14,5 +14,5 @@ open class AllianceMemberInformationUpdateMessage : NetworkMessage() {
 		member = AllianceMemberInfo()
 		member.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2538
+	override fun getNetworkMessageId(): Int = 267
 }

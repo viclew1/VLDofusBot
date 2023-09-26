@@ -12,5 +12,5 @@ open class OrnamentSelectRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		ornamentId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3742
+	override fun getNetworkMessageId(): Int = 445
 }

@@ -19,5 +19,5 @@ open class AccountCapabilitiesMessage : NetworkMessage() {
 		accountId = stream.readInt().toInt()
 		status = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1358
+	override fun getNetworkMessageId(): Int = 7413
 }

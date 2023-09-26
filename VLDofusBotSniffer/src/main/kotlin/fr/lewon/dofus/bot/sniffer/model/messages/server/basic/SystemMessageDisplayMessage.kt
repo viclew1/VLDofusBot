@@ -20,5 +20,5 @@ open class SystemMessageDisplayMessage : NetworkMessage() {
 			parameters.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 3970
+	override fun getNetworkMessageId(): Int = 6724
 }

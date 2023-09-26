@@ -12,5 +12,5 @@ open class ExchangeStartedWithStorageMessage : ExchangeStartedMessage() {
 		super.deserialize(stream)
 		storageMaxSlot = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8705
+	override fun getNetworkMessageId(): Int = 5381
 }

@@ -14,5 +14,5 @@ open class ObjectModifiedMessage : NetworkMessage() {
 		obj = ObjectItem()
 		obj.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2227
+	override fun getNetworkMessageId(): Int = 8809
 }

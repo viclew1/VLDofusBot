@@ -16,5 +16,5 @@ open class GameContextRemoveMultipleElementsMessage : NetworkMessage() {
 			elementsIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 5186
+	override fun getNetworkMessageId(): Int = 9694
 }

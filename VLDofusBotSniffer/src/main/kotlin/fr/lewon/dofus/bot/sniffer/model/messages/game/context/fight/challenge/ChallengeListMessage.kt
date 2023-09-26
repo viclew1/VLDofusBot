@@ -18,5 +18,5 @@ open class ChallengeListMessage : NetworkMessage() {
 			challengesInformation.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6466
+	override fun getNetworkMessageId(): Int = 8911
 }

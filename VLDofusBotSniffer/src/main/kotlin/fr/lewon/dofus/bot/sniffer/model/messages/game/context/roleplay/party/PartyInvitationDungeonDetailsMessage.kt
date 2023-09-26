@@ -20,5 +20,5 @@ open class PartyInvitationDungeonDetailsMessage : PartyInvitationDetailsMessage(
 			playersDungeonReady.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8279
+	override fun getNetworkMessageId(): Int = 8298
 }

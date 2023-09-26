@@ -11,5 +11,5 @@ open class AllianceBulletinSetErrorMessage : SocialNoticeSetErrorMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 6084
+	override fun getNetworkMessageId(): Int = 4619
 }

@@ -16,5 +16,5 @@ open class ExchangeBidHouseInListRemovedMessage : NetworkMessage() {
 		objectGID = stream.readVarInt().toInt()
 		objectType = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3590
+	override fun getNetworkMessageId(): Int = 2116
 }

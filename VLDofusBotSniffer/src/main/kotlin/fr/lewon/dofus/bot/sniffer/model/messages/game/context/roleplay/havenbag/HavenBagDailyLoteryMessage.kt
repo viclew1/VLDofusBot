@@ -14,5 +14,5 @@ open class HavenBagDailyLoteryMessage : NetworkMessage() {
 		returnType = stream.readUnsignedByte().toInt()
 		gameActionId = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 4338
+	override fun getNetworkMessageId(): Int = 3125
 }

@@ -14,5 +14,5 @@ open class BreachInvitationCloseMessage : NetworkMessage() {
 		host = CharacterMinimalInformations()
 		host.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5347
+	override fun getNetworkMessageId(): Int = 7276
 }

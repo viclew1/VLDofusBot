@@ -12,5 +12,5 @@ open class CurrentMapInstanceMessage : CurrentMapMessage() {
 		super.deserialize(stream)
 		instantiatedMapId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2503
+	override fun getNetworkMessageId(): Int = 5946
 }

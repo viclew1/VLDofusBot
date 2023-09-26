@@ -18,5 +18,5 @@ open class GuildListApplicationModifiedMessage : NetworkMessage() {
 		state = stream.readUnsignedByte().toInt()
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2316
+	override fun getNetworkMessageId(): Int = 9601
 }

@@ -22,5 +22,5 @@ open class HouseToSellListMessage : NetworkMessage() {
 			houseList.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9263
+	override fun getNetworkMessageId(): Int = 5156
 }

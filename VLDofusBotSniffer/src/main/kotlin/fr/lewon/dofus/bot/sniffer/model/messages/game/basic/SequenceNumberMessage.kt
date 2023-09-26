@@ -12,5 +12,5 @@ open class SequenceNumberMessage : NetworkMessage() {
 		super.deserialize(stream)
 		number = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2099
+	override fun getNetworkMessageId(): Int = 278
 }

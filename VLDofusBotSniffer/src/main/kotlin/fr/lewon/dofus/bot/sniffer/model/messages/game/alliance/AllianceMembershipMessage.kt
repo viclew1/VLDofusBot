@@ -11,5 +11,5 @@ open class AllianceMembershipMessage : AllianceJoinedMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 549
+	override fun getNetworkMessageId(): Int = 9929
 }

@@ -14,5 +14,5 @@ open class ExchangeObjectMoveMessage : NetworkMessage() {
 		objectUID = stream.readVarInt().toInt()
 		quantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1343
+	override fun getNetworkMessageId(): Int = 1070
 }

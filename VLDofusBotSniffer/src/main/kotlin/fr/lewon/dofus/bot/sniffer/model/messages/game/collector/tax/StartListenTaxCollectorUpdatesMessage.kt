@@ -12,5 +12,5 @@ open class StartListenTaxCollectorUpdatesMessage : NetworkMessage() {
 		super.deserialize(stream)
 		taxCollectorId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8165
+	override fun getNetworkMessageId(): Int = 1895
 }

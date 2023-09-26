@@ -12,5 +12,5 @@ open class ChatSmileyRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		smileyId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7880
+	override fun getNetworkMessageId(): Int = 2356
 }

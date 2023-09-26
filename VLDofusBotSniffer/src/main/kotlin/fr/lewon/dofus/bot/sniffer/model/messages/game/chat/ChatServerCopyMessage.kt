@@ -14,5 +14,5 @@ open class ChatServerCopyMessage : ChatAbstractServerMessage() {
 		receiverId = stream.readVarLong().toDouble()
 		receiverName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 7495
+	override fun getNetworkMessageId(): Int = 5601
 }

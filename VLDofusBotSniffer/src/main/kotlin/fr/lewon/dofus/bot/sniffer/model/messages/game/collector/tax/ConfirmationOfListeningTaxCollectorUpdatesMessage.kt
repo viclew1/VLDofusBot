@@ -14,5 +14,5 @@ open class ConfirmationOfListeningTaxCollectorUpdatesMessage : NetworkMessage() 
 		information = TaxCollectorInformations()
 		information.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7568
+	override fun getNetworkMessageId(): Int = 747
 }

@@ -12,5 +12,5 @@ open class HouseToSellListRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		pageIndex = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5271
+	override fun getNetworkMessageId(): Int = 406
 }

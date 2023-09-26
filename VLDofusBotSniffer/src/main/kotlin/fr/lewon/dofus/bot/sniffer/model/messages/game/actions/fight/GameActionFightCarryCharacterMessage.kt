@@ -15,5 +15,5 @@ open class GameActionFightCarryCharacterMessage : AbstractGameActionMessage() {
 		targetId = stream.readDouble().toDouble()
 		cellId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9711
+	override fun getNetworkMessageId(): Int = 6968
 }

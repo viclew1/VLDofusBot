@@ -20,5 +20,5 @@ open class TeleportDestinationsMessage : NetworkMessage() {
 			destinations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1074
+	override fun getNetworkMessageId(): Int = 9458
 }

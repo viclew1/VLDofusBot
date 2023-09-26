@@ -18,5 +18,5 @@ open class GameMapChangeOrientationsMessage : NetworkMessage() {
 			orientations.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6158
+	override fun getNetworkMessageId(): Int = 443
 }

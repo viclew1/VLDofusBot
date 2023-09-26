@@ -12,5 +12,5 @@ open class GameMapChangeOrientationRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		direction = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7489
+	override fun getNetworkMessageId(): Int = 2487
 }

@@ -36,5 +36,5 @@ open class SlaveSwitchContextMessage : NetworkMessage() {
 			shortcuts.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 6145
+	override fun getNetworkMessageId(): Int = 7542
 }

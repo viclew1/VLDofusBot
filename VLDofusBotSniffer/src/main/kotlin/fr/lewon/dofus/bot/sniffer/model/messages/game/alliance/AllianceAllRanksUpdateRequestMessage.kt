@@ -18,5 +18,5 @@ open class AllianceAllRanksUpdateRequestMessage : NetworkMessage() {
 			ranks.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1136
+	override fun getNetworkMessageId(): Int = 5868
 }

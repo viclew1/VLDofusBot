@@ -12,5 +12,5 @@ open class ExchangeSetCraftRecipeMessage : NetworkMessage() {
 		super.deserialize(stream)
 		objectGID = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6900
+	override fun getNetworkMessageId(): Int = 6059
 }

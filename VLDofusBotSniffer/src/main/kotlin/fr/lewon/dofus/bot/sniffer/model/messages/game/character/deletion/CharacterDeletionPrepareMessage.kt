@@ -18,5 +18,5 @@ open class CharacterDeletionPrepareMessage : NetworkMessage() {
 		secretQuestion = stream.readUTF()
 		needSecretAnswer = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6242
+	override fun getNetworkMessageId(): Int = 4740
 }

@@ -10,5 +10,5 @@ open class StartListenAllianceFightMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4134
+	override fun getNetworkMessageId(): Int = 9644
 }

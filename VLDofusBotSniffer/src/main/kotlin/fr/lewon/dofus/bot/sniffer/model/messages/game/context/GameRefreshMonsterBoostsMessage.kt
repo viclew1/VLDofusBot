@@ -25,5 +25,5 @@ open class GameRefreshMonsterBoostsMessage : NetworkMessage() {
 			familyBoosts.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 385
+	override fun getNetworkMessageId(): Int = 9112
 }

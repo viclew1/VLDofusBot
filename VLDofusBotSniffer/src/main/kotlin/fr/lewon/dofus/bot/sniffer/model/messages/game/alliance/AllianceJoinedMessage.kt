@@ -16,5 +16,5 @@ open class AllianceJoinedMessage : NetworkMessage() {
 		allianceInfo.deserialize(stream)
 		rankId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6952
+	override fun getNetworkMessageId(): Int = 1961
 }

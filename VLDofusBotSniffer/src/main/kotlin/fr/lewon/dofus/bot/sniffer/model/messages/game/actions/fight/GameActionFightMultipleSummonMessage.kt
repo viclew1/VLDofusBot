@@ -19,5 +19,5 @@ open class GameActionFightMultipleSummonMessage : AbstractGameActionMessage() {
 			summons.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1078
+	override fun getNetworkMessageId(): Int = 7441
 }

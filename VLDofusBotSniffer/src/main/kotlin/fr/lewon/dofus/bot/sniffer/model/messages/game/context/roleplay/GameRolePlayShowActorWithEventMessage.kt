@@ -13,5 +13,5 @@ open class GameRolePlayShowActorWithEventMessage : GameRolePlayShowActorMessage(
 		super.deserialize(stream)
 		actorEventId = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3225
+	override fun getNetworkMessageId(): Int = 5437
 }

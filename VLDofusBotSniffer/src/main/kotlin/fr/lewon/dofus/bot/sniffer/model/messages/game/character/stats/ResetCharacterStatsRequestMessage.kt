@@ -10,5 +10,5 @@ open class ResetCharacterStatsRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4287
+	override fun getNetworkMessageId(): Int = 5814
 }

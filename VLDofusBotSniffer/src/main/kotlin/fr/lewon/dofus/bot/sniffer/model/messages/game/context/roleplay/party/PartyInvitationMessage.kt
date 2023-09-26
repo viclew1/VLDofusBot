@@ -22,5 +22,5 @@ open class PartyInvitationMessage : AbstractPartyMessage() {
 		fromName = stream.readUTF()
 		toId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5425
+	override fun getNetworkMessageId(): Int = 7179
 }

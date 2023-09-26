@@ -16,5 +16,5 @@ open class CompassUpdateMessage : NetworkMessage() {
 		coords = ProtocolTypeManager.getInstance<MapCoordinates>(stream.readUnsignedShort())
 		coords.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 110
+	override fun getNetworkMessageId(): Int = 7152
 }

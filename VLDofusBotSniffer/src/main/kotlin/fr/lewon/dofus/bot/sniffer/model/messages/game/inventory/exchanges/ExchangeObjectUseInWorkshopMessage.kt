@@ -14,5 +14,5 @@ open class ExchangeObjectUseInWorkshopMessage : NetworkMessage() {
 		objectUID = stream.readVarInt().toInt()
 		quantity = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1523
+	override fun getNetworkMessageId(): Int = 4864
 }

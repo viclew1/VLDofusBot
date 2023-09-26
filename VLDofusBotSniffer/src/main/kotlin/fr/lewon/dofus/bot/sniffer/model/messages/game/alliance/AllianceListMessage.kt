@@ -18,5 +18,5 @@ open class AllianceListMessage : NetworkMessage() {
 			alliances.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1245
+	override fun getNetworkMessageId(): Int = 8023
 }

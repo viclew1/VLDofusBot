@@ -12,5 +12,5 @@ open class MapInformationsRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		mapId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 9293
+	override fun getNetworkMessageId(): Int = 231
 }

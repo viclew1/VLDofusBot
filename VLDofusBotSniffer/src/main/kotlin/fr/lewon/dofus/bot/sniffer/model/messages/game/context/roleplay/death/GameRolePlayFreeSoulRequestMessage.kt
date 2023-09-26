@@ -10,5 +10,5 @@ open class GameRolePlayFreeSoulRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8141
+	override fun getNetworkMessageId(): Int = 3018
 }

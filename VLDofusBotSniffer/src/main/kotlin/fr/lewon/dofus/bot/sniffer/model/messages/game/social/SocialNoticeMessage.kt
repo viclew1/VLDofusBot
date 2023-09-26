@@ -18,5 +18,5 @@ open class SocialNoticeMessage : NetworkMessage() {
 		memberId = stream.readVarLong().toDouble()
 		memberName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 3103
+	override fun getNetworkMessageId(): Int = 1872
 }

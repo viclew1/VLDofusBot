@@ -10,5 +10,5 @@ open class GuidedModeQuitRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7391
+	override fun getNetworkMessageId(): Int = 4540
 }

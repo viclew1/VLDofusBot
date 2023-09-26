@@ -10,5 +10,5 @@ open class AllianceRecruitmentInvalidateMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3670
+	override fun getNetworkMessageId(): Int = 9451
 }

@@ -14,5 +14,5 @@ open class GameRolePlayPlayerFightFriendlyAnswerMessage : NetworkMessage() {
 		fightId = stream.readVarShort().toInt()
 		accept = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 5426
+	override fun getNetworkMessageId(): Int = 5848
 }

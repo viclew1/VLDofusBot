@@ -18,5 +18,5 @@ open class InteractiveMapUpdateMessage : NetworkMessage() {
 			interactiveElements.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2157
+	override fun getNetworkMessageId(): Int = 9777
 }

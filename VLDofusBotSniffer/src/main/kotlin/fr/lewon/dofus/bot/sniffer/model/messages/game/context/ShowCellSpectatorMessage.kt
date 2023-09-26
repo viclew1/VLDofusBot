@@ -12,5 +12,5 @@ open class ShowCellSpectatorMessage : ShowCellMessage() {
 		super.deserialize(stream)
 		playerName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 7844
+	override fun getNetworkMessageId(): Int = 6981
 }

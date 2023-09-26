@@ -10,5 +10,5 @@ open class BasicNoOperationMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2629
+	override fun getNetworkMessageId(): Int = 7318
 }

@@ -12,5 +12,5 @@ open class ExchangeObjectMessage : NetworkMessage() {
 		super.deserialize(stream)
 		remote = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 8438
+	override fun getNetworkMessageId(): Int = 3929
 }

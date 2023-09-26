@@ -19,5 +19,5 @@ open class CharactersListWithRemodelingMessage : CharactersListMessage() {
 			charactersToRemodel.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 2612
+	override fun getNetworkMessageId(): Int = 6834
 }

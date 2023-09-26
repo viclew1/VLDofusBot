@@ -36,5 +36,5 @@ open class PartyJoinMessage : AbstractPartyMessage() {
 		restricted = stream.readBoolean()
 		partyName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 8785
+	override fun getNetworkMessageId(): Int = 608
 }

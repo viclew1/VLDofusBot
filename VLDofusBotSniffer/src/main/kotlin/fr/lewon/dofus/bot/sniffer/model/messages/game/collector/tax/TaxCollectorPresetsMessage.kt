@@ -18,5 +18,5 @@ open class TaxCollectorPresetsMessage : NetworkMessage() {
 			presets.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8015
+	override fun getNetworkMessageId(): Int = 2255
 }

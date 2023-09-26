@@ -12,5 +12,5 @@ open class WatchQuestStepInfoRequestMessage : QuestStepInfoRequestMessage() {
 		super.deserialize(stream)
 		playerId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2567
+	override fun getNetworkMessageId(): Int = 2140
 }

@@ -20,5 +20,5 @@ open class ChallengeProposalMessage : NetworkMessage() {
 		}
 		timer = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 1008
+	override fun getNetworkMessageId(): Int = 833
 }

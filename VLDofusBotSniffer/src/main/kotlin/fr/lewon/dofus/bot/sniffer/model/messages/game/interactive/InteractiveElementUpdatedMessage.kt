@@ -14,5 +14,5 @@ open class InteractiveElementUpdatedMessage : NetworkMessage() {
 		interactiveElement = InteractiveElement()
 		interactiveElement.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8718
+	override fun getNetworkMessageId(): Int = 6876
 }

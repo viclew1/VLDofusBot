@@ -14,5 +14,5 @@ open class CharacterStatsListMessage : NetworkMessage() {
 		stats = CharacterCharacteristicsInformations()
 		stats.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4427
+	override fun getNetworkMessageId(): Int = 5364
 }

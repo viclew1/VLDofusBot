@@ -12,5 +12,5 @@ open class ChatKolizeumServerMessage : ChatServerMessage() {
 		super.deserialize(stream)
 		originServerId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4372
+	override fun getNetworkMessageId(): Int = 9633
 }

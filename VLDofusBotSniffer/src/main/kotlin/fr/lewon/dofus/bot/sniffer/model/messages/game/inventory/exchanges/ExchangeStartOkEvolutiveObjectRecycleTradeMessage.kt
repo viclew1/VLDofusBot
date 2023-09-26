@@ -10,5 +10,5 @@ open class ExchangeStartOkEvolutiveObjectRecycleTradeMessage : NetworkMessage() 
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5801
+	override fun getNetworkMessageId(): Int = 441
 }

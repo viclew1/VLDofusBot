@@ -16,5 +16,5 @@ open class AllianceFightFighterRemovedMessage : NetworkMessage() {
 		allianceFightInfo.deserialize(stream)
 		fighterId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 5651
+	override fun getNetworkMessageId(): Int = 2878
 }

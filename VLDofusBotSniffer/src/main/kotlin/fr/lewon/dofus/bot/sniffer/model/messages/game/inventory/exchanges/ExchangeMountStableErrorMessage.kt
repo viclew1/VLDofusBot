@@ -10,5 +10,5 @@ open class ExchangeMountStableErrorMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4915
+	override fun getNetworkMessageId(): Int = 3622
 }

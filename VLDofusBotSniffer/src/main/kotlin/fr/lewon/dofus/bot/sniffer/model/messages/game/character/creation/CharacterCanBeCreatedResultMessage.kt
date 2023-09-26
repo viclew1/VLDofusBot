@@ -12,5 +12,5 @@ open class CharacterCanBeCreatedResultMessage : NetworkMessage() {
 		super.deserialize(stream)
 		yesYouCan = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6725
+	override fun getNetworkMessageId(): Int = 3594
 }

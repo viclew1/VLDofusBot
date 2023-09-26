@@ -12,5 +12,5 @@ open class NotificationUpdateFlagMessage : NetworkMessage() {
 		super.deserialize(stream)
 		index = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6869
+	override fun getNetworkMessageId(): Int = 3057
 }

@@ -10,5 +10,5 @@ open class ExchangeBidSearchOkMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5585
+	override fun getNetworkMessageId(): Int = 6551
 }

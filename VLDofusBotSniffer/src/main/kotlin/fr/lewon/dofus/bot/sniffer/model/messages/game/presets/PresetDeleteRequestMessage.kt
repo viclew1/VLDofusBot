@@ -12,5 +12,5 @@ open class PresetDeleteRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		presetId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5847
+	override fun getNetworkMessageId(): Int = 1460
 }

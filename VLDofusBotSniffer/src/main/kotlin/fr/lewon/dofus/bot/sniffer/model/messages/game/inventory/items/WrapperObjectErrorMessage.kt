@@ -10,5 +10,5 @@ open class WrapperObjectErrorMessage : SymbioticObjectErrorMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 148
+	override fun getNetworkMessageId(): Int = 6247
 }

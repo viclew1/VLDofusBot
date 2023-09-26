@@ -12,5 +12,5 @@ open class ExchangeBidHouseItemRemoveOkMessage : NetworkMessage() {
 		super.deserialize(stream)
 		sellerId = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7081
+	override fun getNetworkMessageId(): Int = 7624
 }

@@ -14,5 +14,5 @@ open class AchievementDetailsMessage : NetworkMessage() {
 		achievement = Achievement()
 		achievement.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 8366
+	override fun getNetworkMessageId(): Int = 2146
 }

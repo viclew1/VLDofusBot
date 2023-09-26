@@ -14,5 +14,5 @@ open class ConsumeGameActionItemMessage : NetworkMessage() {
 		actionId = stream.readInt().toInt()
 		characterId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2860
+	override fun getNetworkMessageId(): Int = 6341
 }

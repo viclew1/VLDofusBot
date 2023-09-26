@@ -15,5 +15,5 @@ open class CompassUpdatePvpSeekMessage : CompassUpdateMessage() {
 		memberId = stream.readVarLong().toDouble()
 		memberName = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 210
+	override fun getNetworkMessageId(): Int = 4641
 }

@@ -12,5 +12,5 @@ open class FriendSetWarnOnConnectionMessage : NetworkMessage() {
 		super.deserialize(stream)
 		enable = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 1511
+	override fun getNetworkMessageId(): Int = 4895
 }

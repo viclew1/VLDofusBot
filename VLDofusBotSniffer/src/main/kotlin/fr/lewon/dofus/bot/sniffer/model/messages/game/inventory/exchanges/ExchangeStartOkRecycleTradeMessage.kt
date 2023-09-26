@@ -26,5 +26,5 @@ open class ExchangeStartOkRecycleTradeMessage : NetworkMessage() {
 			adjacentSubareaUnpossessed.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 8048
+	override fun getNetworkMessageId(): Int = 9697
 }

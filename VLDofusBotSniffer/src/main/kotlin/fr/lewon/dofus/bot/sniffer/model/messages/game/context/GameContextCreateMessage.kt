@@ -12,5 +12,5 @@ open class GameContextCreateMessage : NetworkMessage() {
 		super.deserialize(stream)
 		context = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 6478
+	override fun getNetworkMessageId(): Int = 1030
 }

@@ -15,5 +15,5 @@ open class GameActionFightInvisibilityMessage : AbstractGameActionMessage() {
 		targetId = stream.readDouble().toDouble()
 		state = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4958
+	override fun getNetworkMessageId(): Int = 4532
 }

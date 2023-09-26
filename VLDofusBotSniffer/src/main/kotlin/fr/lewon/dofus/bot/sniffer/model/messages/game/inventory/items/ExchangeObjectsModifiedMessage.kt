@@ -19,5 +19,5 @@ open class ExchangeObjectsModifiedMessage : ExchangeObjectMessage() {
 			obj.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4538
+	override fun getNetworkMessageId(): Int = 1269
 }

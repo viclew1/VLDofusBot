@@ -12,5 +12,5 @@ open class GuildKickRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		kickedId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 4360
+	override fun getNetworkMessageId(): Int = 3981
 }

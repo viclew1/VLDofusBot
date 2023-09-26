@@ -22,5 +22,5 @@ open class KohUpdateMessage : NetworkMessage() {
 		startingAvaTimestamp = stream.readInt().toInt()
 		nextTickTime = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8374
+	override fun getNetworkMessageId(): Int = 2616
 }

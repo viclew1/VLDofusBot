@@ -22,5 +22,5 @@ open class PaddockToSellListMessage : NetworkMessage() {
 			paddockList.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 9204
+	override fun getNetworkMessageId(): Int = 150
 }

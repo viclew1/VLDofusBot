@@ -20,5 +20,5 @@ open class ExchangeStartedTaxCollectorShopMessage : NetworkMessage() {
 		}
 		kamas = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 9349
+	override fun getNetworkMessageId(): Int = 8727
 }

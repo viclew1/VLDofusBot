@@ -10,5 +10,5 @@ open class DungeonPartyFinderAvailableDungeonsRequestMessage : NetworkMessage() 
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4464
+	override fun getNetworkMessageId(): Int = 1480
 }

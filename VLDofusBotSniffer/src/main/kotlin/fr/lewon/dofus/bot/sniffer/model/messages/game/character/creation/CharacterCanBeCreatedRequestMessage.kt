@@ -10,5 +10,5 @@ open class CharacterCanBeCreatedRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7257
+	override fun getNetworkMessageId(): Int = 2372
 }

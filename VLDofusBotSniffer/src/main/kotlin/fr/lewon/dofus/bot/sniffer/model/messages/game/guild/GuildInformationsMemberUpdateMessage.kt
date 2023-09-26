@@ -14,5 +14,5 @@ open class GuildInformationsMemberUpdateMessage : NetworkMessage() {
 		member = GuildMemberInfo()
 		member.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2937
+	override fun getNetworkMessageId(): Int = 3949
 }

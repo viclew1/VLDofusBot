@@ -10,5 +10,5 @@ open class ObjectAveragePricesErrorMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3885
+	override fun getNetworkMessageId(): Int = 7217
 }

@@ -16,5 +16,5 @@ open class BreachKickResponseMessage : NetworkMessage() {
 		target.deserialize(stream)
 		kicked = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 8683
+	override fun getNetworkMessageId(): Int = 8936
 }

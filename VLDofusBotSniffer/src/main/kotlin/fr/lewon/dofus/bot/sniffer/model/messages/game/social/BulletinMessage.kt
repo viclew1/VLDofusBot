@@ -10,5 +10,5 @@ open class BulletinMessage : SocialNoticeMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 881
+	override fun getNetworkMessageId(): Int = 2161
 }

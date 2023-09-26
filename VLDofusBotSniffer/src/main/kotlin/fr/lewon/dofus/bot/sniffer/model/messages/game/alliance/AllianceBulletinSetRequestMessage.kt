@@ -13,5 +13,5 @@ open class AllianceBulletinSetRequestMessage : SocialNoticeSetRequestMessage() {
 		super.deserialize(stream)
 		content = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 7394
+	override fun getNetworkMessageId(): Int = 2051
 }

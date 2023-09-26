@@ -14,5 +14,5 @@ open class GuildHouseUpdateInformationMessage : NetworkMessage() {
 		housesInformations = HouseInformationsForGuild()
 		housesInformations.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 3816
+	override fun getNetworkMessageId(): Int = 5756
 }

@@ -12,5 +12,5 @@ open class GuildInvitationMessage : NetworkMessage() {
 		super.deserialize(stream)
 		targetId = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 8131
+	override fun getNetworkMessageId(): Int = 9941
 }

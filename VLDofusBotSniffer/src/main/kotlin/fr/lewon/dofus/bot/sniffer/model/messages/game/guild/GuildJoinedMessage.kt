@@ -16,5 +16,5 @@ open class GuildJoinedMessage : NetworkMessage() {
 		guildInfo.deserialize(stream)
 		rankId = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 984
+	override fun getNetworkMessageId(): Int = 3312
 }

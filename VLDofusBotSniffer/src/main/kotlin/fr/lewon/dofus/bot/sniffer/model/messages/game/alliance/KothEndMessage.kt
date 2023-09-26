@@ -14,5 +14,5 @@ open class KothEndMessage : NetworkMessage() {
 		winner = KothWinner()
 		winner.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4175
+	override fun getNetworkMessageId(): Int = 279
 }

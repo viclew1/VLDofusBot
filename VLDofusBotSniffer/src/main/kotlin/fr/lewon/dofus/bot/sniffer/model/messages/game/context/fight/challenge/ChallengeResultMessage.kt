@@ -14,5 +14,5 @@ open class ChallengeResultMessage : NetworkMessage() {
 		challengeId = stream.readVarInt().toInt()
 		success = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 6302
+	override fun getNetworkMessageId(): Int = 1032
 }

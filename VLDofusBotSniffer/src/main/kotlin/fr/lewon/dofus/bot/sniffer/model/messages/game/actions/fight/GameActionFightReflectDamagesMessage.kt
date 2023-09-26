@@ -13,5 +13,5 @@ open class GameActionFightReflectDamagesMessage : AbstractGameActionMessage() {
 		super.deserialize(stream)
 		targetId = stream.readDouble().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2532
+	override fun getNetworkMessageId(): Int = 3385
 }

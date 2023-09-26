@@ -14,5 +14,5 @@ open class InteractiveUseEndedMessage : NetworkMessage() {
 		elemId = stream.readVarInt().toInt()
 		skillId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5459
+	override fun getNetworkMessageId(): Int = 5647
 }

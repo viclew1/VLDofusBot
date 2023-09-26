@@ -18,5 +18,5 @@ open class HavenBagFurnituresMessage : NetworkMessage() {
 			furnituresInfos.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4362
+	override fun getNetworkMessageId(): Int = 8105
 }

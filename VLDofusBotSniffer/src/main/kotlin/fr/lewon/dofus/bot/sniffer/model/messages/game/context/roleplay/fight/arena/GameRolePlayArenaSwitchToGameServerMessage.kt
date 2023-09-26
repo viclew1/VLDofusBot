@@ -16,5 +16,5 @@ open class GameRolePlayArenaSwitchToGameServerMessage : NetworkMessage() {
 		token = stream.readUTF()
 		homeServerId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 9037
+	override fun getNetworkMessageId(): Int = 7067
 }

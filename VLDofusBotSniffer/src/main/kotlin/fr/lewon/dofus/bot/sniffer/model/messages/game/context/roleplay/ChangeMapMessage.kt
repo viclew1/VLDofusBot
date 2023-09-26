@@ -14,5 +14,5 @@ open class ChangeMapMessage : NetworkMessage() {
 		mapId = stream.readDouble().toDouble()
 		autopilot = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 7054
+	override fun getNetworkMessageId(): Int = 9045
 }

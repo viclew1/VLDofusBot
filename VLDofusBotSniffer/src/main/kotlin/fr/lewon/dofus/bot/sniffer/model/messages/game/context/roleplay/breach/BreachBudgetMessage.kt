@@ -12,5 +12,5 @@ open class BreachBudgetMessage : NetworkMessage() {
 		super.deserialize(stream)
 		bugdet = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 7779
+	override fun getNetworkMessageId(): Int = 5730
 }

@@ -2,7 +2,6 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.npc
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
-import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.npc.NpcDialogCreationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.npc.NpcDialogQuestionMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.dialog.LeaveDialogMessage
@@ -17,6 +16,7 @@ import kotlin.math.min
 class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : BooleanDofusBotTask() {
 
     companion object {
+
         private val TOP_OPTION_LOCATION = PointRelative(0.36847493f, 0.6508951f)
         private val BOTTOM_OPTION_LOCATION = PointRelative(0.36847493f, 0.7442455f)
         private val DELTA_OPTION = (BOTTOM_OPTION_LOCATION.y - TOP_OPTION_LOCATION.y) / 4f
@@ -30,7 +30,7 @@ class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : B
         MouseUtil.leftClick(gameInfo, npcLocation, 0)
         WaitUtil.waitForEvent(gameInfo, NpcDialogCreationMessage::class.java)
         for (optionId in optionIds) {
-            WaitUtil.waitForEvents(gameInfo, NpcDialogQuestionMessage::class.java, BasicNoOperationMessage::class.java)
+            WaitUtil.waitForEvents(gameInfo, NpcDialogQuestionMessage::class.java)
             WaitUtil.sleep(300)
             val dialogQuestionMessage = gameInfo.eventStore.getLastEvent(NpcDialogQuestionMessage::class.java)
                 ?: error("Missing dialog question message")
@@ -51,7 +51,7 @@ class NpcSpeakTask(private val npcId: Int, private val optionIds: List<Int>) : B
             gameInfo.eventStore.clear()
             MouseUtil.leftClick(gameInfo, optionLocation, 0)
         }
-        WaitUtil.waitForEvents(gameInfo, LeaveDialogMessage::class.java, BasicNoOperationMessage::class.java)
+        WaitUtil.waitForEvents(gameInfo, LeaveDialogMessage::class.java)
         return true
     }
 

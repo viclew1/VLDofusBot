@@ -12,5 +12,5 @@ open class BreachEnterMessage : NetworkMessage() {
 		super.deserialize(stream)
 		owner = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2338
+	override fun getNetworkMessageId(): Int = 9638
 }

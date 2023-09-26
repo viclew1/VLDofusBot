@@ -16,5 +16,5 @@ open class ExchangeMountsStableRemoveMessage : NetworkMessage() {
 			mountsId.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1534
+	override fun getNetworkMessageId(): Int = 4811
 }

@@ -15,5 +15,5 @@ open class GameActionFightSpellImmunityMessage : AbstractGameActionMessage() {
 		targetId = stream.readDouble().toDouble()
 		spellId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 4010
+	override fun getNetworkMessageId(): Int = 1777
 }

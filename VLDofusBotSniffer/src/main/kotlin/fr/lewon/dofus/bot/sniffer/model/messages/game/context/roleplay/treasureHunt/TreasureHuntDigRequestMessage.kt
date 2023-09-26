@@ -12,5 +12,5 @@ open class TreasureHuntDigRequestMessage : NetworkMessage() {
 		super.deserialize(stream)
 		questType = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1139
+	override fun getNetworkMessageId(): Int = 7818
 }

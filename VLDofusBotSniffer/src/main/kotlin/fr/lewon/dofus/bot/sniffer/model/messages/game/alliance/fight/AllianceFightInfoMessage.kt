@@ -18,5 +18,5 @@ open class AllianceFightInfoMessage : NetworkMessage() {
 			allianceFights.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1055
+	override fun getNetworkMessageId(): Int = 345
 }

@@ -16,5 +16,5 @@ open class JobLevelUpMessage : NetworkMessage() {
 		jobsDescription = JobDescription()
 		jobsDescription.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2811
+	override fun getNetworkMessageId(): Int = 2061
 }

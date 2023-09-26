@@ -18,5 +18,5 @@ open class ExchangeTypesExchangerDescriptionForUserMessage : NetworkMessage() {
 			typeDescription.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 706
+	override fun getNetworkMessageId(): Int = 4903
 }

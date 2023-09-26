@@ -20,5 +20,5 @@ open class GameRolePlaySpellAnimMessage : NetworkMessage() {
 		spellLevel = stream.readUnsignedShort().toInt()
 		direction = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8624
+	override fun getNetworkMessageId(): Int = 8399
 }

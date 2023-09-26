@@ -15,5 +15,5 @@ open class GameActionFightInvisibleDetectedMessage : AbstractGameActionMessage()
 		targetId = stream.readDouble().toDouble()
 		cellId = stream.readUnsignedShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 3642
+	override fun getNetworkMessageId(): Int = 9477
 }

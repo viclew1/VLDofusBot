@@ -18,5 +18,5 @@ open class GameEntitiesDispositionMessage : NetworkMessage() {
 			dispositions.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 1704
+	override fun getNetworkMessageId(): Int = 5409
 }

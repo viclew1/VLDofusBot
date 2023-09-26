@@ -10,5 +10,5 @@ open class ChatAdminServerMessage : ChatServerMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4140
+	override fun getNetworkMessageId(): Int = 5567
 }

@@ -10,5 +10,5 @@ open class IgnoredGetListMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 9176
+	override fun getNetworkMessageId(): Int = 8701
 }

@@ -10,5 +10,5 @@ open class GameEntityDispositionErrorMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 4091
+	override fun getNetworkMessageId(): Int = 9550
 }

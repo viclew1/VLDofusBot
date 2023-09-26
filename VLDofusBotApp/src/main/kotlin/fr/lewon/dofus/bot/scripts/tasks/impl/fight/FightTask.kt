@@ -21,7 +21,6 @@ import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.GameActionAcknowle
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.fight.GameActionFightCastOnTargetRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.fight.GameActionFightCastRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.actions.sequence.SequenceEndMessage
-import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameEntitiesDispositionMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.fight.GameFightEndMessage
@@ -196,7 +195,6 @@ open class FightTask(
 
         WaitUtil.waitForEvents(gameInfo, SetCharacterRestrictionsMessage::class.java)
         gameInfo.eventStore.clearUntilFirst(SetCharacterRestrictionsMessage::class.java)
-        WaitUtil.waitForEvent(gameInfo, BasicNoOperationMessage::class.java)
 
         gameInfo.fightBoard.resetFighters()
 
@@ -297,8 +295,6 @@ open class FightTask(
         return gameInfo.eventStore.isAllEventsPresent(
             SequenceEndMessage::class.java,
             SequenceEndMessage::class.java,
-            BasicNoOperationMessage::class.java,
-            BasicNoOperationMessage::class.java
         )
     }
 

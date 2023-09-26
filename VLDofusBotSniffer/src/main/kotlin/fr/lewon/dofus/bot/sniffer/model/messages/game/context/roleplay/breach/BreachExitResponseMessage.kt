@@ -12,5 +12,5 @@ open class BreachExitResponseMessage : NetworkMessage() {
 		super.deserialize(stream)
 		exited = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 8365
+	override fun getNetworkMessageId(): Int = 3791
 }

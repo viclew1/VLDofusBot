@@ -18,5 +18,5 @@ open class GameActionUpdateEffectTriggerCountMessage : NetworkMessage() {
 			targetIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 7800
+	override fun getNetworkMessageId(): Int = 8307
 }

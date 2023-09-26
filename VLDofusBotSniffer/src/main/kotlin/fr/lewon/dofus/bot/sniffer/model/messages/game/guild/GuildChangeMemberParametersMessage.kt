@@ -16,5 +16,5 @@ open class GuildChangeMemberParametersMessage : NetworkMessage() {
 		rankId = stream.readVarInt().toInt()
 		experienceGivenPercent = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 1999
+	override fun getNetworkMessageId(): Int = 4067
 }

@@ -13,5 +13,5 @@ open class ExchangeObjectRemovedFromBagMessage : ExchangeObjectMessage() {
 		super.deserialize(stream)
 		objectUID = stream.readVarInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 5167
+	override fun getNetworkMessageId(): Int = 5737
 }

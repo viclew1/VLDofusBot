@@ -12,5 +12,5 @@ open class ContactAddFailureMessage : NetworkMessage() {
 		super.deserialize(stream)
 		reason = stream.readUnsignedByte().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 792
+	override fun getNetworkMessageId(): Int = 3114
 }

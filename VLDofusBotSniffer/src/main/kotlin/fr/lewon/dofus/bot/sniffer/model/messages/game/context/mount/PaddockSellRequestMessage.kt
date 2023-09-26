@@ -14,5 +14,5 @@ open class PaddockSellRequestMessage : NetworkMessage() {
 		price = stream.readVarLong().toDouble()
 		forSale = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 1043
+	override fun getNetworkMessageId(): Int = 8844
 }

@@ -10,5 +10,5 @@ open class MapRunningFightListRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 2782
+	override fun getNetworkMessageId(): Int = 9782
 }

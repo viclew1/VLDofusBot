@@ -14,5 +14,5 @@ open class AllianceModificationNameAndTagValidMessage : NetworkMessage() {
 		allianceName = stream.readUTF()
 		allianceTag = stream.readUTF()
 	}
-	override fun getNetworkMessageId(): Int = 637
+	override fun getNetworkMessageId(): Int = 7525
 }

@@ -10,5 +10,5 @@ open class AnomalySubareaInformationRequestMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 5036
+	override fun getNetworkMessageId(): Int = 4375
 }

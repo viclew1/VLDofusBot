@@ -10,5 +10,5 @@ open class StopListenTaxCollectorPresetsUpdatesMessage : NetworkMessage() {
 	override fun deserialize(stream: ByteArrayReader) {
 		super.deserialize(stream)
 	}
-	override fun getNetworkMessageId(): Int = 7995
+	override fun getNetworkMessageId(): Int = 3429
 }

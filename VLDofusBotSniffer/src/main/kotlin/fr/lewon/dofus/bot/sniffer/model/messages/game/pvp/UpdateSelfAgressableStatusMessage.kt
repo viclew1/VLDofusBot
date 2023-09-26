@@ -18,5 +18,5 @@ open class UpdateSelfAgressableStatusMessage : NetworkMessage() {
 		roleAvAId = stream.readInt().toInt()
 		pictoScore = stream.readInt().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 8145
+	override fun getNetworkMessageId(): Int = 8060
 }

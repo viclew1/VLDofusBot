@@ -14,5 +14,5 @@ open class DungeonKeyRingUpdateMessage : NetworkMessage() {
 		dungeonId = stream.readVarShort().toInt()
 		available = stream.readBoolean()
 	}
-	override fun getNetworkMessageId(): Int = 3419
+	override fun getNetworkMessageId(): Int = 6442
 }

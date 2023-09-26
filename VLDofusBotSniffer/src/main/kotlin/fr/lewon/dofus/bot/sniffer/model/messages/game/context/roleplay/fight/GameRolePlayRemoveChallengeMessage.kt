@@ -12,5 +12,5 @@ open class GameRolePlayRemoveChallengeMessage : NetworkMessage() {
 		super.deserialize(stream)
 		fightId = stream.readVarShort().toInt()
 	}
-	override fun getNetworkMessageId(): Int = 2463
+	override fun getNetworkMessageId(): Int = 2068
 }

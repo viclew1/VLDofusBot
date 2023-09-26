@@ -9,7 +9,6 @@ import fr.lewon.dofus.bot.core.world.TransitionType
 import fr.lewon.dofus.bot.core.world.Vertex
 import fr.lewon.dofus.bot.core.world.WorldGraphUtil
 import fr.lewon.dofus.bot.game.DofusCell
-import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameCautiousMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.ChangeMapMessage
@@ -163,9 +162,6 @@ object MoveUtil {
         gameInfo.eventStore.clearUntilLast(CurrentMapMessage::class.java)
         WaitUtil.waitForEvents(gameInfo, SetCharacterRestrictionsMessage::class.java)
         gameInfo.eventStore.clearUntilFirst(SetCharacterRestrictionsMessage::class.java)
-        WaitUtil.waitUntil(3000) {
-            gameInfo.eventStore.getLastEvent(BasicNoOperationMessage::class.java) != null
-        }
     }
 
 }

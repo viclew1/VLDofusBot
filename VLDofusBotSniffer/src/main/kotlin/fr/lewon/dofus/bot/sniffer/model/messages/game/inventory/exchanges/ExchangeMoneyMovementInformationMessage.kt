@@ -12,5 +12,5 @@ open class ExchangeMoneyMovementInformationMessage : NetworkMessage() {
 		super.deserialize(stream)
 		limit = stream.readVarLong().toDouble()
 	}
-	override fun getNetworkMessageId(): Int = 2513
+	override fun getNetworkMessageId(): Int = 2922
 }

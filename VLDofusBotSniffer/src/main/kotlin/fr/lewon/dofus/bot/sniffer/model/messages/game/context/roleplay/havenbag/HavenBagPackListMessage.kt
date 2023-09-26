@@ -16,5 +16,5 @@ open class HavenBagPackListMessage : NetworkMessage() {
 			packIds.add(item)
 		}
 	}
-	override fun getNetworkMessageId(): Int = 4278
+	override fun getNetworkMessageId(): Int = 5094
 }

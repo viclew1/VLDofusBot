@@ -8,7 +8,6 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.fight.FightChestTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteFightHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecuteNpcHuntStepTask
 import fr.lewon.dofus.bot.scripts.tasks.impl.hunt.step.ExecutePoiHuntStepTask
-import fr.lewon.dofus.bot.sniffer.model.messages.game.basic.BasicNoOperationMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntFinishedMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.treasureHunt.TreasureHuntMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.context.roleplay.treasureHunt.TreasureHuntStep
@@ -155,7 +154,7 @@ object TreasureHuntUtil {
     }
 
     fun waitForTreasureHuntUpdate(gameInfo: GameInfo) {
-        WaitUtil.waitForEvents(gameInfo, TreasureHuntMessage::class.java, BasicNoOperationMessage::class.java)
+        WaitUtil.waitForEvents(gameInfo, TreasureHuntMessage::class.java)
         if (!WaitUtil.waitUntil { isHuntPresent(gameInfo) }) {
             error("Can't find treasure hunt frame. Hunt most likely failed.")
         }
