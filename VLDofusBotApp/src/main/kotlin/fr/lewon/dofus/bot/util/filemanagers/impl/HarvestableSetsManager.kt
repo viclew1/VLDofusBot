@@ -50,7 +50,7 @@ object HarvestableSetsManager : ToInitManager {
     }
 
     fun getHarvestableIdsBySetName() = lock.executeSyncOperation {
-        defaultHarvestableIdsBySetName.plus(HarvestableIdsBySetName(fileManager.getStore()))
+        defaultHarvestableIdsBySetName.plus(HarvestableIdsBySetName(fileManager.getStore())).toSortedMap()
     }
 
     fun deleteSet(setName: String) = lock.executeSyncOperation {

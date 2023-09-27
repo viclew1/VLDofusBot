@@ -38,8 +38,9 @@ class Layer {
         LAYER_ADDITIONAL_DECOR(3);
 
         companion object {
+
             fun fromId(id: Int): LayerType? {
-                return values().firstOrNull { it.id == id }
+                return entries.firstOrNull { it.id == id }
             }
         }
     }

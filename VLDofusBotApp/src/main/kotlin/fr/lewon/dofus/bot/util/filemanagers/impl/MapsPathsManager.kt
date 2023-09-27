@@ -48,7 +48,7 @@ object MapsPathsManager : Listenable<MapsPathsManagerListener>(), ToInitManager 
     }
 
     fun getPathByName() = lock.executeSyncOperation {
-        fileManager.getStore()
+        MapsPathByName(fileManager.getStore()).toSortedMap()
     }
 
     fun deletePath(pathName: String) = lock.executeSyncOperation {
@@ -59,7 +59,7 @@ object MapsPathsManager : Listenable<MapsPathsManagerListener>(), ToInitManager 
     }
 
     private fun onPathsUpdate() {
-        val pathsByName = MapsPathByName(getPathByName())
+        val pathsByName = getPathByName()
         getListeners().forEach { it.onPathsUpdate(pathsByName) }
     }
 

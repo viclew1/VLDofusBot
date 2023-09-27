@@ -1,12 +1,13 @@
 package fr.lewon.dofus.bot.scripts.impl.dev
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.scripts.DofusBotScriptBuilder
 import fr.lewon.dofus.bot.scripts.DofusBotScriptStat
 import fr.lewon.dofus.bot.scripts.parameters.DofusBotParameter
-import fr.lewon.dofus.bot.scripts.tasks.impl.harvest.TransferItemsToBankTask
 import fr.lewon.dofus.bot.util.network.info.GameInfo
+import fr.lewon.dofus.bot.util.ui.UiUtil
 
 object TestScriptBuilder : DofusBotScriptBuilder("Test", true) {
 
@@ -28,8 +29,7 @@ object TestScriptBuilder : DofusBotScriptBuilder("Test", true) {
         parameterValues: ParameterValues,
         statValues: HashMap<DofusBotScriptStat, String>,
     ) {
-        //FightTask().run(logItem, gameInfo)
-        TransferItemsToBankTask().run(logItem, gameInfo)
+        println(UiUtil.isUiElementWindowOpened(gameInfo, DofusUIElement.TIPS, false))
     }
 
 }

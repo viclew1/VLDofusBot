@@ -127,8 +127,9 @@ enum class DofusCharacteristics(val id: Int) {
     }
 
     companion object {
+
         fun fromId(id: Int): DofusCharacteristics? {
-            return values().firstOrNull { it.dofusCharacteristic.id == id }
+            return entries.firstOrNull { it.dofusCharacteristic.id == id }
         }
     }
 

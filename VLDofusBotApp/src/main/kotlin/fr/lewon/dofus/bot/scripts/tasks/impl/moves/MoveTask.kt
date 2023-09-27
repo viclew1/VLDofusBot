@@ -104,11 +104,11 @@ class MoveTask(
     }
 
     private fun processDefaultMove(gameInfo: GameInfo, direction: Direction, linkedZoneCellId: Int): Boolean {
-        val moveCellId = getMoveCellId(gameInfo, direction, linkedZoneCellId)
-            ?: return false
-
-        val clickLoc = getStandardClickLoc(gameInfo, direction, moveCellId)
-        if (!MoveUtil.processMove(gameInfo, clickLoc)) {
+        if (!MoveUtil.processMove(gameInfo) {
+                val moveCellId = getMoveCellId(gameInfo, direction, linkedZoneCellId)
+                    ?: error("No cell found to move in the [${direction.name}] direction.")
+                getStandardClickLoc(gameInfo, direction, moveCellId)
+            }) {
             error("Failed to move toward [$direction]")
         }
         return true

@@ -111,7 +111,7 @@ object MoveUtil {
     }
 
     fun processCellMove(gameInfo: GameInfo, cellId: Int): Boolean =
-        processMove(gameInfo, InteractiveUtil.getCellClickPosition(gameInfo, cellId))
+        processMove(gameInfo) { InteractiveUtil.getCellClickPosition(gameInfo, cellId) }
 
     fun processInteractiveMove(gameInfo: GameInfo, elementId: Int, skillId: Int): Boolean {
         gameInfo.eventStore.clear()
@@ -120,16 +120,16 @@ object MoveUtil {
         return true
     }
 
-    fun processMove(gameInfo: GameInfo, clickLocation: PointRelative): Boolean {
+    fun processMove(gameInfo: GameInfo, getClickLocation: () -> PointRelative): Boolean {
         gameInfo.eventStore.clear()
-        clickUntilMapChangeRequested(gameInfo, clickLocation)
+        clickUntilMapChangeRequested(gameInfo, getClickLocation)
         waitForMapChangeFinished(gameInfo)
         return true
     }
 
-    private fun clickUntilMapChangeRequested(gameInfo: GameInfo, clickLocation: PointRelative) {
+    private fun clickUntilMapChangeRequested(gameInfo: GameInfo, getClickLocation: () -> PointRelative) {
         RetryUtil.tryUntilSuccess(
-            { MouseUtil.leftClick(gameInfo, clickLocation) },
+            { MouseUtil.leftClick(gameInfo, getClickLocation()) },
             { waitUntilMapChangeRequested(gameInfo) },
             4,
         ) ?: error("No map change requested")
@@ -161,7 +161,6 @@ object MoveUtil {
         )
         gameInfo.eventStore.clearUntilLast(CurrentMapMessage::class.java)
         WaitUtil.waitForEvents(gameInfo, SetCharacterRestrictionsMessage::class.java)
-        gameInfo.eventStore.clearUntilFirst(SetCharacterRestrictionsMessage::class.java)
     }
 
 }

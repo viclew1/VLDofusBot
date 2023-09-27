@@ -9,6 +9,7 @@ import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.d2p.maps.element.GraphicalElement
 import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.core.ui.UIRectangle
+import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameCautiousMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
@@ -215,26 +216,28 @@ object InteractiveUtil {
     }
 
     fun useInteractive(gameInfo: GameInfo, elementId: Int, skillId: Int) {
-        val element = gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }
-            ?: error("Element not found on current map : $elementId")
-        val skills = element.enabledSkills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }
-        val elementClickLocation = getElementClickPosition(gameInfo, elementId)
-        val skillIndex = skills.map { it.skillId }.indexOf(skillId)
-        if (skillIndex < 0) {
-            error("No skill available on interactive : $skillId on element : $elementId")
-        }
-
         gameInfo.eventStore.clear()
         RetryUtil.tryUntilSuccess(
-            { doUseInteractive(gameInfo, elementClickLocation.toPointRelative(gameInfo), skills, skillIndex) },
+            {
+                val element = gameInfo.interactiveElements.firstOrNull { it.elementId == elementId }
+                    ?: error("Element not found on current map : $elementId")
+                val skills = element.enabledSkills.filter { !INVALID_SKILL_IDS.contains(it.skillId) }
+                val elementClickLocation = getElementClickPosition(gameInfo, elementId)
+                val skillIndex = skills.map { it.skillId }.indexOf(skillId)
+                if (skillIndex < 0) {
+                    error("No skill available on interactive : $skillId on element : $elementId")
+                }
+                doUseInteractive(gameInfo, elementClickLocation.toPointRelative(gameInfo), skills, skillIndex)
+            },
             { waitUntilInteractiveUseRequestSent(gameInfo) },
             4
         ) ?: error("No interactive used")
     }
 
-    private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1500) {
+    private fun waitUntilInteractiveUseRequestSent(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(500) {
         gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java) != null
             || gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
+            || gameInfo.eventStore.getLastEvent(GameCautiousMapMovementRequestMessage::class.java) != null
     }
 
     private fun doUseInteractive(
@@ -340,7 +343,7 @@ object InteractiveUtil {
         companion object {
 
             fun getPoints(boundsCropDelta: UIRectangleDelta): List<GfxPointToCheck> {
-                val points = values().toMutableList()
+                val points = entries.toMutableList()
                 if (boundsCropDelta.leftDelta > 0) {
                     points.removeIf { it.xPoint == UIXPoint.Right }
                 }

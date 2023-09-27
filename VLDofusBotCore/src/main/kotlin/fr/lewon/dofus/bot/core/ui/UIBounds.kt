@@ -4,6 +4,7 @@ import fr.lewon.dofus.bot.core.ui.xml.containers.Container
 
 object UIBounds {
 
+    const val MARGIN_WIDTH = 327f
     const val TOTAL_WIDTH = 1280f
     const val TOTAL_HEIGHT = 1024f
     val CENTER = UIPoint(TOTAL_WIDTH / 2f, TOTAL_HEIGHT / 2f)

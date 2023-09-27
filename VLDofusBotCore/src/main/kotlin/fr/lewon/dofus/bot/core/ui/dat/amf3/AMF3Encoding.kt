@@ -6,8 +6,9 @@ enum class AMF3Encoding(private val id: Int) {
     DYNAMIC(0x02);
 
     companion object {
+
         fun fromInt(id: Int): AMF3Encoding {
-            return values().firstOrNull { it.id == id }
+            return entries.firstOrNull { it.id == id }
                 ?: error("No AMF3Encoding for id : $id")
         }
     }

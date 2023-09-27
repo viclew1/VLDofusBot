@@ -11,8 +11,9 @@ enum class TransitionType(val typeInt: Int) {
     NPC_ACTION(64);
 
     companion object {
+
         fun fromInt(type: Int): TransitionType {
-            return values().firstOrNull { type == it.typeInt }
+            return entries.firstOrNull { type == it.typeInt }
                 ?: error("Type not found : $type")
         }
     }

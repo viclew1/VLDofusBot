@@ -7,8 +7,9 @@ enum class ImageType {
     SWF;
 
     companion object {
+
         fun fromStr(str: String): ImageType {
-            return values().firstOrNull { it.name.lowercase() == str.lowercase() }
+            return entries.firstOrNull { it.name.lowercase() == str.lowercase() }
                 ?: error("Invalid Image type : $str")
         }
     }

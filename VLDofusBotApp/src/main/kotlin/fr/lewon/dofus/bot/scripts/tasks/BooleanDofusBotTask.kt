@@ -1,6 +1,7 @@
 package fr.lewon.dofus.bot.scripts.tasks
 
 import fr.lewon.dofus.bot.core.logs.LogItem
+import fr.lewon.dofus.bot.scripts.tasks.exceptions.DofusBotTaskFatalException
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 
 abstract class BooleanDofusBotTask : DofusBotTask<Boolean>() {
@@ -15,14 +16,18 @@ abstract class BooleanDofusBotTask : DofusBotTask<Boolean>() {
         error = null
         return try {
             doExecute(logItem, gameInfo)
-        } catch (e: InterruptedException) {
-            throw e
-        } catch (e: IllegalMonitorStateException) {
-            throw e
         } catch (e: Throwable) {
-            e.printStackTrace()
-            error = e
-            false
+            when (e) {
+                is DofusBotTaskFatalException,
+                is InterruptedException,
+                is IllegalMonitorStateException ->
+                    throw e
+                else -> {
+                    e.printStackTrace()
+                    error = e
+                    false
+                }
+            }
         }
     }
 

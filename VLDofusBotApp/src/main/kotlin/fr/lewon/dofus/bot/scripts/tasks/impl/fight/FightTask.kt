@@ -204,8 +204,11 @@ open class FightTask(
         }
         val lvlUpCloseButtonBounds = getLvlUpCloseButtonBounds(gameInfo)
         if (lvlUpCloseButtonBounds != null) {
-            MouseUtil.leftClick(gameInfo, lvlUpCloseButtonBounds.getCenter())
-            WaitUtil.waitUntil { getLvlUpCloseButtonBounds(gameInfo) == null }
+            RetryUtil.tryUntilSuccess(
+                toTry = { MouseUtil.leftClick(gameInfo, lvlUpCloseButtonBounds.getCenter()) },
+                successChecker = { WaitUtil.waitUntil(3000) { getLvlUpCloseButtonBounds(gameInfo) == null } },
+                tryCount = 3
+            )
         }
         MouseUtil.leftClick(gameInfo, MousePositionsUtil.getRestPosition(gameInfo), 500)
         KeyboardUtil.sendKey(gameInfo, KeyEvent.VK_ESCAPE)
@@ -265,7 +268,7 @@ open class FightTask(
         waitForSequenceCompleteEnd(gameInfo)
     }
 
-    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(4000) {
+    private fun waitUntilMoveRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1000) {
         gameInfo.eventStore.getLastEvent(GameMapMovementRequestMessage::class.java) != null
     }
 
@@ -279,15 +282,20 @@ open class FightTask(
             },
             { waitUntilSpellCastRequested(gameInfo) },
             4
-        ) ?: error("Couldn't cast spell")
+        ) ?: error(buildSpellErrorMessage(characterSpell, target))
     }
 
-    private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(2000) {
+    private fun buildSpellErrorMessage(characterSpell: CharacterSetElement, target: DofusCell): String {
+        val spellName = characterSpell.elementId?.let(SpellManager::getSpell)?.name
+        return "Couldn't cast spell [$spellName] on cell [${target.cellId}]"
+    }
+
+    private fun waitUntilSpellCastRequested(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(1000) {
         gameInfo.eventStore.getLastEvent(GameActionFightCastOnTargetRequestMessage::class.java) != null
             || gameInfo.eventStore.getLastEvent(GameActionFightCastRequestMessage::class.java) != null
     }
 
-    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(5000) {
+    private fun waitForSequenceCompleteEnd(gameInfo: GameInfo): Boolean = WaitUtil.waitUntil(10000) {
         isFightEnded(gameInfo) || isSequenceComplete(gameInfo)
     }
 
@@ -295,6 +303,7 @@ open class FightTask(
         return gameInfo.eventStore.isAllEventsPresent(
             SequenceEndMessage::class.java,
             SequenceEndMessage::class.java,
+            GameActionAcknowledgementMessage::class.java
         )
     }
 

@@ -2,6 +2,7 @@ package fr.lewon.dofus.bot.scripts.tasks.impl.fight
 
 import fr.lewon.dofus.bot.core.logs.LogItem
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.exceptions.DofusBotTaskFatalException
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameEntitiesDispositionMessage
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.game.MousePositionsUtil
@@ -23,13 +24,13 @@ class FightAnyMonsterGroupTask(
         val validMonsterEntityIds = gameInfo.monsterInfoByEntityId.filter { entry ->
             val mainMonster = gameInfo.mainMonstersByGroupOnMap[entry.value]
             val groupLevel = entry.value.staticInfos.underlings.sumOf { monster -> monster.level } +
-                    entry.value.staticInfos.mainCreatureLightInfos.level
+                entry.value.staticInfos.mainCreatureLightInfos.level
             val groupSize = entry.value.staticInfos.underlings.size + 1
             mainMonster != null
-                    && (!mainMonster.isMiniBoss || fightArchmonsters)
-                    && (!mainMonster.isQuestMonster || fightQuestMonsters)
-                    && (maxMonsterGroupLevel <= 0 || groupLevel <= maxMonsterGroupLevel)
-                    && (maxMonsterGroupSize <= 0 || groupSize <= maxMonsterGroupSize)
+                && (!mainMonster.isMiniBoss || fightArchmonsters)
+                && (!mainMonster.isQuestMonster || fightQuestMonsters)
+                && (maxMonsterGroupLevel <= 0 || groupLevel <= maxMonsterGroupLevel)
+                && (maxMonsterGroupSize <= 0 || groupSize <= maxMonsterGroupSize)
         }.keys.toList()
         if (validMonsterEntityIds.isEmpty()) {
             return false
@@ -43,7 +44,10 @@ class FightAnyMonsterGroupTask(
         if (!couldStartFight) {
             error("Couldn't start a fight")
         }
-        return FightTask().run(logItem, gameInfo)
+        if (!FightTask().run(logItem, gameInfo)) {
+            throw DofusBotTaskFatalException("Failed to fight")
+        }
+        return true
     }
 
     private fun tryToStartFight(gameInfo: GameInfo, monsterEntityIds: List<Double>): Boolean {
@@ -62,7 +66,7 @@ class FightAnyMonsterGroupTask(
         MouseUtil.leftClick(gameInfo, clickPosition)
         WaitUtil.waitUntil(8000) {
             gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null
-                    || gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId
+                || gameInfo.entityPositionsOnMapByEntityId[monsterEntityId] != monsterCellId
         }
         return WaitUtil.waitUntil(1200) {
             gameInfo.eventStore.getLastEvent(GameEntitiesDispositionMessage::class.java) != null

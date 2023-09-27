@@ -13,7 +13,6 @@ import fr.lewon.dofus.bot.gui.main.exploration.subarea.SubAreaContentTabs
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.parameters.ParameterValues
 import fr.lewon.dofus.bot.model.characters.paths.MapsPath
-import fr.lewon.dofus.bot.model.characters.paths.MapsPathByName
 import fr.lewon.dofus.bot.scripts.impl.ExploreMapsScriptBuilder
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.MapsPathsManager
@@ -121,7 +120,7 @@ object ExplorationUIUtil : ComposeUIUtil(), ScriptRunnerListener, CharacterManag
         // Nothing
     }
 
-    override fun onPathsUpdate(mapPathsByName: MapsPathByName) {
+    override fun onPathsUpdate(mapPathsByName: Map<String, MapsPath>) {
         val currentSelectedPath = selectedPath.value
         if (currentSelectedPath != null) {
             val updatedSelectedPath = mapPathsByName[currentSelectedPath.name]

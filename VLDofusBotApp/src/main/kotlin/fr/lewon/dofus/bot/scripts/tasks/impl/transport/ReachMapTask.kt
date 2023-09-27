@@ -32,7 +32,7 @@ open class ReachMapTask(
             ?: error("No transition in path")
         val subLogItem = gameInfo.logger.addSubLog("Moving to map : ${destMap.coordinates} ...", logItem)
         return MoveTask(transitions = path, harvestEnabled = harvestEnabled).run(subLogItem, gameInfo).also {
-            gameInfo.logger.closeLog(if (it) "OK" else "KO", subLogItem, true)
+            gameInfo.logger.closeLog(if (it) "OK" else "KO", subLogItem, it)
         }
     }
 

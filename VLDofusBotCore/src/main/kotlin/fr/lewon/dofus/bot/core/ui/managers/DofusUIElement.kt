@@ -1,5 +1,6 @@
 package fr.lewon.dofus.bot.core.ui.managers
 
+import fr.lewon.dofus.bot.core.ui.UIBounds
 import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.core.ui.dat.DatUtil
 import fr.lewon.dofus.bot.core.ui.xml.containers.Container
@@ -22,7 +23,8 @@ enum class DofusUIElement(
     LVL_UP_WITH_SPELL("LevelUpWithSpell.xml"),
     LVL_UP_OMEGA("LevelUpOmega.xml"),
     QUEST_BASE("questBase.xml", OverrideType.REPLACE, key = "questBase", ctr = "mainCtr"),
-    CHALLENGE_DISPLAY("challengeDisplay.xml", OverrideType.REPLACE, key = "challengeDisplay", ctr = "mainCtr")
+    CHALLENGE_DISPLAY("challengeDisplay.xml", OverrideType.REPLACE, key = "challengeDisplay", ctr = "mainCtr"),
+    TIPS("tipsUi.xml", OverrideType.REPLACE, key = "tips", ctr = "ctr_main")
     ;
 
     companion object {
@@ -37,7 +39,7 @@ enum class DofusUIElement(
         }
 
         fun shouldInitializeXml(xmlFileName: String): Boolean {
-            return values().any { it.xmlFileName == xmlFileName }
+            return entries.any { it.xmlFileName == xmlFileName }
         }
 
         private class DofusUIPointByKey : HashMap<String, UIPoint?>()
@@ -58,9 +60,14 @@ enum class DofusUIElement(
         container.defaultSize = getUIPoint(buildSizeKey(fightContext))
         XmlContainerInitializer.initAll(container)
         val overriddenPosition = getUIPoint(buildPosKey(fightContext))
-            ?: return container
-        val positionDelta = positionOverrideType.getResultPosition(container.bounds.position, overriddenPosition)
-            .transpose(container.bounds.position.invert())
+        val positionDelta = if (overriddenPosition != null) {
+            positionOverrideType.getResultPosition(container.bounds.position, overriddenPosition)
+                .transpose(container.bounds.position.invert())
+        } else if (uiDefinition.fullscreen) {
+            UIPoint(UIBounds.MARGIN_WIDTH).invert()
+        } else {
+            UIPoint(0f, 0f)
+        }
         updatePosition(container, positionDelta)
         return container
     }

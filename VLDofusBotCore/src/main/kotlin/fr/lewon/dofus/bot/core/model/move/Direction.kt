@@ -8,8 +8,9 @@ enum class Direction(val directionInt: Int) {
     TOP(6);
 
     companion object {
+
         fun fromInt(directionInt: Int): Direction {
-            return values().firstOrNull { it.directionInt == directionInt }
+            return entries.firstOrNull { it.directionInt == directionInt }
                 ?: error("Direction [$directionInt] not found")
         }
     }

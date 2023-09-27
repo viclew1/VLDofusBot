@@ -189,7 +189,7 @@ object ReachMapScriptBuilder : DofusBotScriptBuilder("Reach map") {
         companion object {
 
             fun fromLabel(label: String): ReachMapType {
-                return values().firstOrNull { it.label == label }
+                return entries.firstOrNull { it.label == label }
                     ?: error("Reach map type does not exist : $label")
             }
         }

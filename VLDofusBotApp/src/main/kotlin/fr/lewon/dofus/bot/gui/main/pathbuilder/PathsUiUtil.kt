@@ -5,7 +5,6 @@ import fr.lewon.dofus.bot.core.utils.LockUtils.executeSyncOperation
 import fr.lewon.dofus.bot.gui.ComposeUIUtil
 import fr.lewon.dofus.bot.model.characters.DofusCharacter
 import fr.lewon.dofus.bot.model.characters.paths.MapsPath
-import fr.lewon.dofus.bot.model.characters.paths.MapsPathByName
 import fr.lewon.dofus.bot.model.characters.paths.SubPath
 import fr.lewon.dofus.bot.util.filemanagers.impl.CharacterManager
 import fr.lewon.dofus.bot.util.filemanagers.impl.MapsPathsManager
@@ -24,7 +23,7 @@ object PathsUiUtil : ComposeUIUtil(), MapsPathsManagerListener {
 
     fun getUiState() = lock.executeSyncOperation { uiState.value }
 
-    override fun onPathsUpdate(mapPathsByName: MapsPathByName) {
+    override fun onPathsUpdate(mapPathsByName: Map<String, MapsPath>) {
         uiState.value = uiState.value.copy(mapsPaths = mapPathsByName.values.toList())
     }
 

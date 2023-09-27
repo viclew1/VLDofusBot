@@ -10,6 +10,9 @@ import javax.xml.bind.annotation.*
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "Definition")
 data class UIDefinition(
+    @field:XmlAttribute
+    var fullscreen: Boolean = false,
+
     @field:XmlElement(name = "Import")
     var imports: ArrayList<Import> = ArrayList(),
 
@@ -31,6 +34,7 @@ data class UIDefinition(
 
     fun deepCopy(): UIDefinition {
         return UIDefinition(
+            fullscreen,
             ArrayList(imports.map { it.deepCopy() }),
             ArrayList(constants.map { it.deepCopy() }),
             ArrayList(vars.map { it.deepCopy() }),

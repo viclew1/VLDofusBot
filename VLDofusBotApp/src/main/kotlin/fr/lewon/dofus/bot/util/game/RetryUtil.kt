@@ -20,13 +20,13 @@ object RetryUtil {
     }
 
     fun tryUntilSuccess(
-        function: () -> Boolean,
-        tryCount: Int,
+        function: (tryCount: Int) -> Boolean,
+        totalTries: Int,
         toCallAfterFail: () -> Unit = {}
     ): Boolean {
         var currentTryCount = 0
-        while (currentTryCount++ < tryCount) {
-            if (function()) {
+        while (currentTryCount++ < totalTries) {
+            if (function(currentTryCount)) {
                 return true
             }
             toCallAfterFail()

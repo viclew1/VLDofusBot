@@ -13,8 +13,9 @@ enum class MetamobMonsterUpdateState(private val label: String) {
     }
 
     companion object {
+
         fun fromLabel(label: String): MetamobMonsterUpdateState {
-            return values().firstOrNull { it.label == label }
+            return entries.firstOrNull { it.label == label }
                 ?: error("Invalid label : $label")
         }
     }

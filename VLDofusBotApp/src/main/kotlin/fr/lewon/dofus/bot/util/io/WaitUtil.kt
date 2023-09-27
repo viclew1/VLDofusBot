@@ -46,6 +46,16 @@ object WaitUtil {
         }
     }
 
+    fun waitForAnyEvent(
+        gameInfo: GameInfo,
+        vararg messageClasses: Class<out NetworkMessage>,
+        timeout: Int = DEFAULT_TIMEOUT_MILLIS,
+    ) {
+        if (!waitUntil(timeout) { messageClasses.any { gameInfo.eventStore.getLastEvent(it) != null } }) {
+            error(getErrorMessage(*messageClasses))
+        }
+    }
+
     fun waitUntilMessageArrives(
         gameInfo: GameInfo,
         messageClass: Class<out NetworkMessage>,

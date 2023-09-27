@@ -13,8 +13,9 @@ enum class HuntLevel(val skillId: Int, val label: String) {
     LVL20(248, "20");
 
     companion object {
+
         fun fromLabel(label: String): HuntLevel? {
-            return values().firstOrNull { it.label == label }
+            return entries.firstOrNull { it.label == label }
         }
     }
 }

@@ -9,8 +9,9 @@ enum class GraphicalElementTypes(val typeInt: Int) {
     BLENDED(5);
 
     companion object {
+
         fun fromInt(typeInt: Int): GraphicalElementTypes? {
-            return values().firstOrNull { it.typeInt == typeInt }
+            return entries.firstOrNull { it.typeInt == typeInt }
         }
     }
 }

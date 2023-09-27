@@ -9,7 +9,6 @@ import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-
 object ScreenUtil {
 
     fun getPixelColor(point: PointAbsolute, fullScreenshot: BufferedImage): Color {
@@ -30,8 +29,8 @@ object ScreenUtil {
 
     fun isBetween(color: Color, min: Color, max: Color): Boolean {
         return color.red in min.red..max.red &&
-                color.green in min.green..max.green &&
-                color.blue in min.blue..max.blue
+            color.green in min.green..max.green &&
+            color.blue in min.blue..max.blue
     }
 
     fun colorCount(
