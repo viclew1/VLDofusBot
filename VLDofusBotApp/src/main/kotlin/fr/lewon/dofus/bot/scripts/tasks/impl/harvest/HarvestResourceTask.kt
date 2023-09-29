@@ -8,6 +8,7 @@ import fr.lewon.dofus.bot.scripts.tasks.impl.fight.FightTask
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameContextDestroyMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameMapMovementConfirmMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.roleplay.job.JobLevelUpMessage
+import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveElementUpdatedMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseErrorMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.InteractiveUseRequestMessage
 import fr.lewon.dofus.bot.sniffer.model.messages.game.inventory.items.ObjectAddedMessage
@@ -55,14 +56,12 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
             return false
         }
         gameInfo.logger.closeLog("OK", useHarvestableLogItem)
+        val interactiveUseRequestMessage = gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java)
+            ?: error("Couldn't find last interactive usage request message")
+        val skillInstanceUid = interactiveUseRequestMessage.skillInstanceUid
 
         val waitingForHarvestResultLogItem = gameInfo.logger.addSubLog("Waiting until harvest is done ...", logItem)
-        if (!WaitUtil.waitUntil {
-                gameInfo.eventStore.getLastEvent(ObjectQuantityMessage::class.java) != null ||
-                    gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null ||
-                    gameInfo.eventStore.getLastEvent(GameContextDestroyMessage::class.java) != null ||
-                    gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null
-            }) {
+        if (!WaitUtil.waitUntil { isInteractiveUsageFinished(gameInfo, skillInstanceUid) }) {
             gameInfo.logger.closeLog("KO", waitingForHarvestResultLogItem)
             throw DofusBotTaskFatalException("Unexpected error, harvest has started but never finished.")
         }
@@ -87,6 +86,18 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
         }
         return gameInfo.eventStore.getLastEvent(ObjectQuantityMessage::class.java) != null ||
             gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null
+    }
+
+    private fun isInteractiveUsageFinished(gameInfo: GameInfo, skillInstanceUid: Int): Boolean {
+        if (gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null) {
+            return true
+        }
+        val usageEndedMessages = gameInfo.eventStore.getAllEvents(InteractiveElementUpdatedMessage::class.java)
+        return usageEndedMessages.filter { message ->
+            message.interactiveElement.disabledSkills.any { disabledSkill ->
+                disabledSkill.skillInstanceUid == skillInstanceUid
+            }
+        }.size == 2
     }
 
     private fun closeInteractiveUseFailurePopup(gameInfo: GameInfo) {

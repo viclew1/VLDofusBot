@@ -13,8 +13,7 @@ open class ReachMapTask(
     private val destMaps: List<DofusMap>,
     private val availableZaaps: List<DofusMap> = TravelUtil.getAllZaapMaps(),
     private val harvestEnabled: Boolean = true,
-) :
-    BooleanDofusBotTask() {
+) : BooleanDofusBotTask() {
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         if (destMaps.contains(gameInfo.currentMap)) {
