@@ -11,6 +11,7 @@ import fr.lewon.dofus.bot.game.fight.ai.complements.AIComplement
 import fr.lewon.dofus.bot.game.fight.ai.impl.DefaultFightAI
 import fr.lewon.dofus.bot.game.fight.operations.FightOperation
 import fr.lewon.dofus.bot.game.fight.operations.FightOperationType
+import fr.lewon.dofus.bot.util.io.WaitUtil
 
 class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : DefaultFightAI(dofusBoard, aiComplement) {
 
@@ -19,17 +20,15 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
         private const val TO_HIT_CHEST_BONES_ID = 2672
     }
 
-    override fun selectStartCell(fightBoard: FightBoard): DofusCell? {
-        return dofusBoard.startCells.firstOrNull {
-            it.neighbors.size == 4 && it.neighbors.all { cell -> cell.isAccessible() && fightBoard.getFighter(cell) == null }
-        }
+    override fun selectStartCell(fightBoard: FightBoard): DofusCell? = dofusBoard.startCells.firstOrNull {
+        it.neighbors.size == 4 && it.neighbors.all { cell -> cell.isAccessible() && fightBoard.getFighter(cell) == null }
     }
 
     override fun doGetNextOperation(fightBoard: FightBoard, initialState: FightState): FightOperation {
         val playerFighter = fightBoard.getPlayerFighter()
             ?: error("Player fighter not found")
-        val toHitMonster = fightBoard.getEnemyFighters().firstOrNull { it.bonesId == TO_HIT_CHEST_BONES_ID }
-            ?.takeIf { fightBoard.getFighterById(it.getSummonerId()) != null }
+        WaitUtil.waitUntil(5000) { getMonsterToHit(fightBoard) != null }
+        val toHitMonster = getMonsterToHit(fightBoard)
             ?: error("Couldn't find the monster to hit. Enemies IDs : ${fightBoard.getEnemyFighters().map { it.id }}")
         val hitOperations = initialState.getPossibleOperations().filter {
             it.targetCellId == toHitMonster.cell.cellId
@@ -48,11 +47,14 @@ class FightChestAI(dofusBoard: DofusBoard, aiComplement: AIComplement) : Default
             ?: FightOperation(FightOperationType.PASS_TURN)
     }
 
-    private fun isSingleAttackSpell(spell: DofusSpellLevel, playerFighter: Fighter, toHitMonster: Fighter): Boolean {
-        return spell.effects.count {
+    private fun getMonsterToHit(fightBoard: FightBoard): Fighter? =
+        fightBoard.getEnemyFighters().firstOrNull { it.bonesId == TO_HIT_CHEST_BONES_ID }
+            ?.takeIf { fightBoard.getFighterById(it.getSummonerId()) != null }
+
+    private fun isSingleAttackSpell(spell: DofusSpellLevel, playerFighter: Fighter, toHitMonster: Fighter): Boolean =
+        spell.effects.count {
             it.effectType.globalType == DofusSpellEffectGlobalType.ATTACK
                 && it.targets.any { target -> target.canHitTarget(playerFighter, toHitMonster) }
         } == 1
-    }
 
 }

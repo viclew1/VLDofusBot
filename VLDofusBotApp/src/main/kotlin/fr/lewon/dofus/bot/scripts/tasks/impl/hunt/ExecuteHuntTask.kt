@@ -41,7 +41,7 @@ class ExecuteHuntTask : BooleanDofusBotTask() {
             WaitUtil.sleep(600)
             TreasureHuntUtil.clickSearch(gameInfo)
             if (gameInfo.treasureHunt?.checkPointCurrent == hunt.checkPointCurrent) {
-                error("Step failed")
+                error("Hunt step failed")
             }
         }
     }

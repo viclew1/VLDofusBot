@@ -48,7 +48,7 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
         gameInfo.logger.closeLog("OK", reachHarvestableLogItem)
 
         val useHarvestableLogItem = gameInfo.logger.addSubLog("Interacting with harvestable ...", logItem)
-        if (!WaitUtil.waitUntil(2000) {
+        if (!WaitUtil.waitUntil(1000) {
                 gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java) != null
             }) {
             gameInfo.logger.closeLog("KO", useHarvestableLogItem)
@@ -67,6 +67,11 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
             throw DofusBotTaskFatalException("Unexpected error, harvest has started but never finished.")
         }
         gameInfo.logger.closeLog("OK", waitingForHarvestResultLogItem)
+
+        if (gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null) {
+            WaitUtil.sleep(500)
+            return false
+        }
 
         WaitUtil.sleep(100)
         val fightStarted = gameInfo.eventStore.getLastEvent(GameContextDestroyMessage::class.java) != null

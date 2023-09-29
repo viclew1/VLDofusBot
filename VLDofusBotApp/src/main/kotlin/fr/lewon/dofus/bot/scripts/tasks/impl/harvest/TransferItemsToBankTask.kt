@@ -20,6 +20,7 @@ class TransferItemsToBankTask : BooleanDofusBotTask() {
     private val bankerNpcId = 100
 
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
+        WaitUtil.sleep(500)
         val initialPosition = gameInfo.currentMap
         if (!ReachMapTask(destMaps = listOf(bankMap), harvestEnabled = false).run(logItem, gameInfo)) {
             error("Failed to reach bank")

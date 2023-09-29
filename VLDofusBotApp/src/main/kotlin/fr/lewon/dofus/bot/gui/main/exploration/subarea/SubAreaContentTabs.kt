@@ -10,14 +10,7 @@ enum class SubAreaContentTabs(
     val content: @Composable (DofusSubArea) -> Unit
 ) {
 
-    MONSTERS("Monsters", UiResource.MONSTERS, {
-        fr.lewon.dofus.bot.gui.main.exploration.subarea.SubAreaMonstersContent(
-            it
-        )
-    }),
-    RESOURCES(
-        "Resources",
-        UiResource.JOBS,
-        { fr.lewon.dofus.bot.gui.main.exploration.subarea.SubAreaResourcesContent(it) }),
+    MONSTERS("Monsters", UiResource.MONSTERS, { SubAreaMonstersContent(it) }),
+    RESOURCES("Resources", UiResource.JOBS, { SubAreaResourcesContent(it) }),
     ;
 }

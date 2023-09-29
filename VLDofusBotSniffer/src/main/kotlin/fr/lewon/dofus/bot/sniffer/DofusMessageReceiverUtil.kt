@@ -30,7 +30,7 @@ object DofusMessageReceiverUtil {
             .groupBy { MessageIdByName.getId(it.simpleName) ?: it.getConstructor().newInstance().getNetworkMessageId() }
             .mapValues {
                 it.value.takeIf { msgs -> msgs.size == 1 }?.get(0)
-                    ?: error("Multiple messages for id ${it.key} : ${it.value.joinToString(", ") { msg -> msg.simpleName }}")
+                    ?: error("Multiple messages for id ${it.key} : ${it.value.joinToString(", ") { msg -> msg.simpleName }} => You're probably missing at least one update of the bot.")
             }
     }
 
