@@ -118,8 +118,8 @@ object InteractiveUtil {
                 val boneSprite = D2PBonesSpriteAdapter.getBoneSprite(boneId.toDouble())
                 if (boneSprite != null) {
                     val rect = boneSprite.getBounds()
-                    size = UIPoint(rect.width.toFloat(), rect.height.toFloat())
-                    dToOrigin = UIPoint(-rect.x.toFloat(), -rect.y.toFloat())
+                    size = rect.size
+                    dToOrigin = rect.position.invert()
                 } else {
                     println("Bone (#$boneId) sprite not found, defaulting to cell bounds")
                     val topLeft = cell.bounds.getTopLeft().toUIPoint()

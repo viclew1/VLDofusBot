@@ -7,18 +7,17 @@ import com.jpexs.decompiler.flash.tags.DefineSpriteTag
 import com.jpexs.decompiler.flash.tags.base.RenderContext
 import com.jpexs.decompiler.flash.timeline.Timeline
 import com.jpexs.helpers.SerializableImage
-import java.awt.Rectangle
+import fr.lewon.dofus.bot.core.ui.UIPoint
+import fr.lewon.dofus.bot.core.ui.UIRectangle
 import java.awt.image.BufferedImage
 
 class DefineSprite(val tag: DefineSpriteTag) {
 
-    fun getBounds(): Rectangle {
+    fun getBounds(): UIRectangle {
         val r = tag.timeline.displayRect
-        return Rectangle(
-            (r.Xmin / SWF.unitDivisor).toInt(),
-            (r.Ymin / SWF.unitDivisor).toInt(),
-            (r.width / SWF.unitDivisor).toInt(),
-            (r.height / SWF.unitDivisor).toInt()
+        return UIRectangle(
+            UIPoint((r.Xmin / SWF.unitDivisor).toFloat(), (r.Ymin / SWF.unitDivisor).toFloat()),
+            UIPoint((r.width / SWF.unitDivisor).toFloat(), (r.height / SWF.unitDivisor).toFloat())
         )
     }
 
