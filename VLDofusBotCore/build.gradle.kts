@@ -12,6 +12,7 @@ description = "$group:${project.name}"
 java.sourceCompatibility = rootProject.java.sourceCompatibility
 
 dependencies {
+    api(project(":DofusProtocolUpdater"))
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.2")
     api("javax.xml.bind:jaxb-api:2.3.1")

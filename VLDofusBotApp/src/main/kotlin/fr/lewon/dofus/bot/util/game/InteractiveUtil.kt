@@ -7,6 +7,7 @@ import fr.lewon.dofus.bot.core.d2p.elem.graphical.impl.NormalGraphicalElementDat
 import fr.lewon.dofus.bot.core.d2p.gfx.D2PWorldGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.maps.cell.CompleteCellData
 import fr.lewon.dofus.bot.core.d2p.maps.element.GraphicalElement
+import fr.lewon.dofus.bot.core.d2p.sprite.D2PBonesSpriteAdapter
 import fr.lewon.dofus.bot.core.ui.UIPoint
 import fr.lewon.dofus.bot.core.ui.UIRectangle
 import fr.lewon.dofus.bot.sniffer.model.messages.game.context.GameCautiousMapMovementRequestMessage
@@ -111,11 +112,21 @@ object InteractiveUtil {
                 size = elementData.size
             }
             elementData is EntityGraphicalElementData -> {
-                //TODO fetch bones to have real size
-                val topLeft = cell.bounds.getTopLeft().toUIPoint()
-                val bottomRight = cell.bounds.getBottomRight().toUIPoint()
-                size = UIPoint(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y)
-                dToOrigin = UIPoint(size.x / 2f, size.y / 2f)
+                val boneId = elementData.entityLook.substring(1, elementData.entityLook.length - 1).toInt()
+                /* TODO: implement EntityLookParser / TiphonEntityLook?
+                 *       Maybe not useful, we only encounter the simple `{boneId}` format */
+                val boneSprite = D2PBonesSpriteAdapter.getBoneSprite(boneId.toDouble())
+                if (boneSprite != null) {
+                    val rect = boneSprite.getBounds()
+                    size = UIPoint(rect.width.toFloat(), rect.height.toFloat())
+                    dToOrigin = UIPoint(-rect.x.toFloat(), -rect.y.toFloat())
+                } else {
+                    println("Bone (#$boneId) sprite not found, defaulting to cell bounds")
+                    val topLeft = cell.bounds.getTopLeft().toUIPoint()
+                    val bottomRight = cell.bounds.getBottomRight().toUIPoint()
+                    size = UIPoint(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y)
+                    dToOrigin = UIPoint(size.x / 2f, size.y / 2f)
+                }
             }
             else -> {
                 val topLeft = cell.bounds.getTopLeft().toUIPoint()
@@ -153,10 +164,18 @@ object InteractiveUtil {
         getCustomClickLocations(elementId, realBounds.toRectangleAbsolute(gameInfo))?.let {
             return it
         }
-        val gfx = if (elementData is NormalGraphicalElementData) {
-            val gfxByteArray = D2PWorldGfxAdapter.getWorldGfxImageData(elementData.gfxId.toDouble())
-            ImageIO.read(ByteArrayInputStream(gfxByteArray))
-        } else null
+        val gfx = when (elementData) {
+            is NormalGraphicalElementData -> {
+                val gfxByteArray = D2PWorldGfxAdapter.getWorldGfxImageData(elementData.gfxId.toDouble())
+                ImageIO.read(ByteArrayInputStream(gfxByteArray))
+            }
+            is EntityGraphicalElementData -> {
+                val boneId = elementData.entityLook.substring(1, elementData.entityLook.length - 1).toInt()
+                val boneSprite = D2PBonesSpriteAdapter.getBoneSprite(boneId.toDouble())
+                boneSprite?.getImage()
+            }
+            else -> null
+        }
         val horizontalSymmetry = if (elementData is NormalGraphicalElementData) {
             elementData.horizontalSymmetry
         } else false

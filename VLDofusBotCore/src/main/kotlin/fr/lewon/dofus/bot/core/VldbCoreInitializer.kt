@@ -7,6 +7,7 @@ import fr.lewon.dofus.bot.core.d2p.gfx.D2PItemsGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.gfx.D2PMonstersGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.gfx.D2PWorldGfxAdapter
 import fr.lewon.dofus.bot.core.d2p.maps.D2PMapsAdapter
+import fr.lewon.dofus.bot.core.d2p.sprite.D2PBonesSpriteAdapter
 import fr.lewon.dofus.bot.core.i18n.I18NUtil
 import fr.lewon.dofus.bot.core.io.gamefiles.VldbFilesUtil
 import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
@@ -47,11 +48,19 @@ object VldbCoreInitializer {
         loadD2P(D2PWorldGfxAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/world")
         loadD2P(D2PItemsGfxAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/items")
         loadD2P(D2PMonstersGfxAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/monsters")
+        loadD2P(D2PBonesSpriteAdapter, "${VldbFilesUtil.getDofusDirectory()}/content/gfx/sprites", Regex("bones.*\\.d2p"))
     }
 
     private fun loadD2P(d2pLoaderAdapter: AbstractD2PUrlLoaderAdapter, path: String) {
         File(path).listFiles()
             ?.filter { it.absolutePath.endsWith(".d2p") }
+            ?.forEach { d2pLoaderAdapter.initStream(it.absolutePath) }
+            ?: error("D2P directory not found : $path}")
+    }
+
+    private fun loadD2P(d2pLoaderAdapter: AbstractD2PUrlLoaderAdapter, path: String, regex: Regex) {
+        File(path).listFiles()
+            ?.filter { it.name.contains(regex) }
             ?.forEach { d2pLoaderAdapter.initStream(it.absolutePath) }
             ?: error("D2P directory not found : $path}")
     }
