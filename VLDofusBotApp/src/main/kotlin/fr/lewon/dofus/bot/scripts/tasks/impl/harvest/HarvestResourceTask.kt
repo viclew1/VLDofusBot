@@ -58,12 +58,12 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
         gameInfo.logger.closeLog("OK", useHarvestableLogItem)
         val interactiveUseRequestMessage = gameInfo.eventStore.getLastEvent(InteractiveUseRequestMessage::class.java)
             ?: error("Couldn't find last interactive usage request message")
-        val skillInstanceUid = interactiveUseRequestMessage.skillInstanceUid
+        val elementId = interactiveUseRequestMessage.elemId
 
         val waitingForHarvestResultLogItem = gameInfo.logger.addSubLog("Waiting until harvest is done ...", logItem)
-        if (!WaitUtil.waitUntil { isInteractiveUsageFinished(gameInfo, skillInstanceUid) }) {
+        if (!WaitUtil.waitUntil { isInteractiveUsageFinished(gameInfo, elementId) }) {
             gameInfo.logger.closeLog("KO", waitingForHarvestResultLogItem)
-            throw DofusBotTaskFatalException("Unexpected error, harvest has started but never finished.")
+            throw DofusBotTaskFatalException("Unexpected error, harvest has started but never finished (element ID : $elementId.")
         }
         gameInfo.logger.closeLog("OK", waitingForHarvestResultLogItem)
 
@@ -88,16 +88,12 @@ class HarvestResourceTask(private val interactiveElement: InteractiveElement) : 
             gameInfo.eventStore.getLastEvent(ObjectAddedMessage::class.java) != null
     }
 
-    private fun isInteractiveUsageFinished(gameInfo: GameInfo, skillInstanceUid: Int): Boolean {
+    private fun isInteractiveUsageFinished(gameInfo: GameInfo, elementId: Int): Boolean {
         if (gameInfo.eventStore.getLastEvent(InteractiveUseErrorMessage::class.java) != null) {
             return true
         }
         val usageEndedMessages = gameInfo.eventStore.getAllEvents(InteractiveElementUpdatedMessage::class.java)
-        return usageEndedMessages.filter { message ->
-            message.interactiveElement.disabledSkills.any { disabledSkill ->
-                disabledSkill.skillInstanceUid == skillInstanceUid
-            }
-        }.size == 2
+        return usageEndedMessages.count { it.interactiveElement.elementId == elementId } >= 2
     }
 
     private fun closeInteractiveUseFailurePopup(gameInfo: GameInfo) {
