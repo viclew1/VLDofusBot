@@ -5,6 +5,7 @@ import fr.lewon.dofus.bot.core.model.maps.DofusMap
 import fr.lewon.dofus.bot.core.ui.managers.DofusUIElement
 import fr.lewon.dofus.bot.core.ui.managers.TransportSortingUtil
 import fr.lewon.dofus.bot.scripts.tasks.BooleanDofusBotTask
+import fr.lewon.dofus.bot.scripts.tasks.exceptions.DofusBotTaskFatalException
 import fr.lewon.dofus.bot.sniffer.model.messages.game.interactive.zaap.TeleportRequestMessage
 import fr.lewon.dofus.bot.util.StringUtil
 import fr.lewon.dofus.bot.util.game.MoveUtil
@@ -20,7 +21,7 @@ class ZaapTowardTask(private val zaap: DofusMap) : BooleanDofusBotTask() {
     override fun doExecute(logItem: LogItem, gameInfo: GameInfo): Boolean {
         val zaapDestinations = OpenZaapInterfaceTask().run(logItem, gameInfo)
         if (!zaapDestinations.contains(zaap)) {
-            error("Could not find zaap destination [${zaap.coordinates.x};${zaap.coordinates.y}]. Did you explore it with this character ?")
+            throw DofusBotTaskFatalException("Could not find zaap destination [${zaap.coordinates.x};${zaap.coordinates.y}]. Did you explore it with this character ?")
         }
         val filteredDestinations = getFilteredZaapDestinations(gameInfo, zaapDestinations)
         zaapToDestination(gameInfo, filteredDestinations)
