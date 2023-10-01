@@ -26,5 +26,13 @@ fun OverlayParametersContent() {
                 globalConfig.shouldDisplayOverlay(overlayInfo)
             ) { checked -> SettingsUIUtil.updateGlobalConfig { it.shouldDisplayOverlay[overlayInfo] = checked } }
         }
+        ConfigSwitchLine(
+            "Interactive graphics",
+            "Displays Gfx of interactive entity elements (DEV)",
+            true,
+            globalConfig.displayInteractiveGfx
+        ) { checked ->
+            SettingsUIUtil.updateGlobalConfig { it.displayInteractiveGfx = checked }
+        }
     }
 }

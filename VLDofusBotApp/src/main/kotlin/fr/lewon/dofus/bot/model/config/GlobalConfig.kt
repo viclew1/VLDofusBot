@@ -8,6 +8,7 @@ import java.util.*
 data class GlobalConfig(
     @field:JsonProperty var displayOverlays: Boolean = true,
     @field:JsonProperty var shouldDisplayOverlay: EnumMap<OverlayInfo, Boolean> = EnumMap(OverlayInfo::class.java),
+    @field:JsonProperty var displayInteractiveGfx: Boolean = false,
     @field:JsonProperty var networkInterfaceName: String = "",
     @field:JsonProperty var enableSounds: Boolean = true,
     @field:JsonProperty var playArchMonsterSound: Boolean = true,
@@ -20,6 +21,7 @@ data class GlobalConfig(
         return GlobalConfig(
             displayOverlays,
             EnumMap(shouldDisplayOverlay),
+            displayInteractiveGfx,
             networkInterfaceName,
             enableSounds,
             playArchMonsterSound,

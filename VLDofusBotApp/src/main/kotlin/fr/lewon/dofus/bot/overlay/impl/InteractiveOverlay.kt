@@ -3,6 +3,7 @@ package fr.lewon.dofus.bot.overlay.impl
 import fr.lewon.dofus.bot.overlay.AbstractOverlay
 import fr.lewon.dofus.bot.overlay.AbstractOverlayPanel
 import fr.lewon.dofus.bot.sniffer.model.types.game.interactive.InteractiveElement
+import fr.lewon.dofus.bot.util.filemanagers.impl.GlobalConfigManager
 import fr.lewon.dofus.bot.util.game.InteractiveUtil
 import fr.lewon.dofus.bot.util.geometry.PointAbsolute
 import fr.lewon.dofus.bot.util.geometry.RectangleAbsolute
@@ -47,7 +48,8 @@ object InteractiveOverlay : AbstractOverlay() {
         fun updateInteractives(gameInfo: GameInfo) {
             interactiveDataList = gameInfo.interactiveElements.filter { it.onCurrentMap }.map { interactiveElement ->
                 val bounds = InteractiveUtil.getInteractiveBounds(gameInfo, interactiveElement.elementId)
-                val gfx = InteractiveUtil.getInteractiveGfx(gameInfo, interactiveElement.elementId)
+                val gfx = if (GlobalConfigManager.readConfig().displayInteractiveGfx)
+                    InteractiveUtil.getInteractiveGfx(gameInfo, interactiveElement.elementId) else null
                 val potentialClickLocations =
                     InteractiveUtil.getInteractivePotentialClickLocations(gameInfo, interactiveElement.elementId)
                 InteractiveData(interactiveElement, bounds, gfx, potentialClickLocations)
