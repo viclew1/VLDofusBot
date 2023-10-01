@@ -4,11 +4,11 @@ import com.jpexs.decompiler.flash.SWF
 import com.jpexs.decompiler.flash.tags.DefineSpriteTag
 import fr.lewon.dofus.bot.core.d2p.AbstractLinkedD2PUrlLoaderAdapter
 import fr.lewon.dofus.bot.core.d2p.D2PIndex
-import fr.lewon.dofus.bot.core.io.stream.ByteArrayReader
 import fr.lewon.dofus.bot.core.swl.SWL
-import java.io.File
 
-object D2PBonesSpriteAdapter : AbstractLinkedD2PUrlLoaderAdapter(false, -1) {
+object D2PBonesSpriteAdapter : AbstractLinkedD2PUrlLoaderAdapter(true, -1) {
+
+    private val cache = HashMap<Double, DefineSprite?>()
 
     override fun getId(filePath: String): Double {
         return Regex("^(\\d+)\\.swl").find(filePath)?.destructured?.component1()?.toDouble()
@@ -17,12 +17,11 @@ object D2PBonesSpriteAdapter : AbstractLinkedD2PUrlLoaderAdapter(false, -1) {
 
     @Synchronized
     fun getBoneSprite(boneId: Double): DefineSprite? {
-        // TODO: cache results here?
-        return deserialize(loadStream(boneId))
+        return cache.getOrPut(boneId) { deserialize(loadStream(boneId)) }
     }
 
     override fun doLoadStream(index: D2PIndex): ByteArray {
-        val fileStream = ByteArrayReader(File(index.filePath).readBytes())
+        val fileStream = index.stream ?: error("Stream should be cached")
         fileStream.setPosition(index.offset)
         return fileStream.readNBytes(index.length)
     }

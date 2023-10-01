@@ -22,6 +22,7 @@ import fr.lewon.dofus.bot.util.geometry.RectangleRelative
 import fr.lewon.dofus.bot.util.io.*
 import fr.lewon.dofus.bot.util.network.info.GameInfo
 import java.awt.Color
+import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 import kotlin.math.abs
@@ -64,6 +65,23 @@ object InteractiveUtil {
         val bounds = getRawInteractiveBounds(gameInfo, destCellCompleteData, elementData, graphicalElement)
         val boundsCropDelta = getBoundsCropDelta(bounds)
         return cropBounds(bounds, boundsCropDelta).toRectangleAbsolute(gameInfo)
+    }
+
+    fun getInteractiveGfx(gameInfo: GameInfo, elementId: Int): BufferedImage? {
+        val interactiveElement = getInteractiveElement(gameInfo, elementId)
+        val destCellCompleteData = getElementCellData(gameInfo, interactiveElement)
+        val graphicalElement = destCellCompleteData.graphicalElements
+            .firstOrNull { it.identifier == interactiveElement.elementId }
+            ?: error("No graphical element found for element : ${interactiveElement.elementId}")
+
+        val elementData = D2PElementsAdapter.getElement(graphicalElement.elementId)
+        return when (elementData) {
+            is EntityGraphicalElementData -> {
+                val boneId = elementData.entityLook.substring(1, elementData.entityLook.length - 1).toInt()
+                D2PBonesSpriteAdapter.getBoneSprite(boneId.toDouble())?.getImage(elementData.horizontalSymmetry)
+            }
+            else -> null
+        }
     }
 
     private fun cropBounds(bounds: UIRectangle, boundsCropDelta: UIRectangleDelta): UIRectangle {

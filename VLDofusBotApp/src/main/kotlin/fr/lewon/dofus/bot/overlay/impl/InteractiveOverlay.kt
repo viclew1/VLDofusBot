@@ -11,6 +11,7 @@ import java.awt.Color
 import java.awt.Graphics
 import java.awt.Point
 import java.awt.Rectangle
+import java.awt.image.BufferedImage
 import javax.swing.JPanel
 
 object InteractiveOverlay : AbstractOverlay() {
@@ -37,6 +38,7 @@ object InteractiveOverlay : AbstractOverlay() {
         private data class InteractiveData(
             val interactiveElement: InteractiveElement,
             val bounds: RectangleAbsolute,
+            val gfx: BufferedImage?,
             val clickLocations: List<PointAbsolute>
         )
 
@@ -45,9 +47,10 @@ object InteractiveOverlay : AbstractOverlay() {
         fun updateInteractives(gameInfo: GameInfo) {
             interactiveDataList = gameInfo.interactiveElements.filter { it.onCurrentMap }.map { interactiveElement ->
                 val bounds = InteractiveUtil.getInteractiveBounds(gameInfo, interactiveElement.elementId)
+                val gfx = InteractiveUtil.getInteractiveGfx(gameInfo, interactiveElement.elementId)
                 val potentialClickLocations =
                     InteractiveUtil.getInteractivePotentialClickLocations(gameInfo, interactiveElement.elementId)
-                InteractiveData(interactiveElement, bounds, potentialClickLocations)
+                InteractiveData(interactiveElement, bounds, gfx, potentialClickLocations)
             }
         }
 
@@ -67,6 +70,7 @@ object InteractiveOverlay : AbstractOverlay() {
                 g.color = Color.BLACK
                 g.drawString(interactive.interactiveElement.elementId.toString(), rect.x, rect.y)
                 g.drawRect(rect.x, rect.y, rect.width, rect.height)
+                g.drawImage(interactive.gfx, rect.x, rect.y, rect.width, rect.height, null)
                 interactive.clickLocations.forEach { point ->
                     g.drawLine(point.x - 5, point.y, point.x + 5, point.y)
                     g.drawLine(point.x, point.y - 5, point.x, point.y + 5)
