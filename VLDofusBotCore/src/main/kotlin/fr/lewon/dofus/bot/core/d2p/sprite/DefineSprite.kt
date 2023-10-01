@@ -13,10 +13,17 @@ import java.awt.image.BufferedImage
 
 class DefineSprite(val tag: DefineSpriteTag) {
 
-    fun getBounds(): UIRectangle {
+    fun getBounds(horizontalSymmetry: Boolean): UIRectangle {
         val r = tag.timeline.displayRect
         return UIRectangle(
-            UIPoint((r.Xmin / SWF.unitDivisor).toFloat(), (r.Ymin / SWF.unitDivisor).toFloat()),
+            UIPoint(
+                if (horizontalSymmetry) {
+                    ((-r.Xmin - r.width) / SWF.unitDivisor).toFloat()
+                } else {
+                    (r.Xmin / SWF.unitDivisor).toFloat()
+                },
+                (r.Ymin / SWF.unitDivisor).toFloat()
+            ),
             UIPoint((r.width / SWF.unitDivisor).toFloat(), (r.height / SWF.unitDivisor).toFloat())
         )
     }
@@ -24,22 +31,25 @@ class DefineSprite(val tag: DefineSpriteTag) {
     /*
      * Based on https://github.com/jindrapetrik/jpexs-decompiler/blob/master/libsrc/ffdec_lib/src/com/jpexs/decompiler/flash/SWF.java#L3461
      */
-    fun getImage(): BufferedImage {
+    fun getImage(horizontalSymmetry: Boolean): BufferedImage {
         val tim = tag.timeline
-        val rect = tim.displayRect
+        val r = tim.displayRect
 
         val zoom = 1.0
-        val w = (rect.width * zoom / SWF.unitDivisor).toInt()
-        val h = (rect.height * zoom / SWF.unitDivisor).toInt()
+        val w = (r.width * zoom / SWF.unitDivisor).toInt()
+        val h = (r.height * zoom / SWF.unitDivisor).toInt()
 
         val image = SerializableImage(w, h, SerializableImage.TYPE_INT_ARGB_PRE)
         image.fillTransparent() // Is that necessary?
 
         val m = Matrix()
-        m.translate(-rect.Xmin * zoom, -rect.Ymin * zoom)
-        m.scale(zoom)
+        m.translate(
+            (if (horizontalSymmetry) r.Xmin + r.width else -r.Xmin) * zoom,
+            -r.Ymin * zoom
+        )
+        m.scale(zoom * if (horizontalSymmetry) -1 else 1, zoom)
 
-        tim.toImage(0, 0, RenderContext(), image, image, false, m, Matrix(), m, null, zoom, false, ExportRectangle(rect), m, true, Timeline.DRAW_MODE_ALL)
+        tim.toImage(0, 0, RenderContext(), image, image, false, m, Matrix(), m, null, zoom, false, ExportRectangle(r), m, true, Timeline.DRAW_MODE_ALL)
 
         return image.bufferedImage
     }

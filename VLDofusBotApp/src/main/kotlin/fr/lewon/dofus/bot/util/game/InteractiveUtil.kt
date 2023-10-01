@@ -117,7 +117,7 @@ object InteractiveUtil {
                  *       Maybe not useful, we only encounter the simple `{boneId}` format */
                 val boneSprite = D2PBonesSpriteAdapter.getBoneSprite(boneId.toDouble())
                 if (boneSprite != null) {
-                    val rect = boneSprite.getBounds()
+                    val rect = boneSprite.getBounds(elementData.horizontalSymmetry)
                     size = rect.size
                     dToOrigin = rect.position.invert()
                 } else {
@@ -172,7 +172,7 @@ object InteractiveUtil {
             is EntityGraphicalElementData -> {
                 val boneId = elementData.entityLook.substring(1, elementData.entityLook.length - 1).toInt()
                 val boneSprite = D2PBonesSpriteAdapter.getBoneSprite(boneId.toDouble())
-                boneSprite?.getImage()
+                boneSprite?.getImage(elementData.horizontalSymmetry)
             }
             else -> null
         }
