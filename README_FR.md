@@ -1,5 +1,7 @@
 # VLDofusBot
 
+**Le code du bot est désormais privé, si vous voulez le télécharger, dirigez-vous vers les releases et prenez la dernière !**
+
 [![en](https://img.shields.io/badge/README-English-red.svg)](README.md)
 
 Bienvenue sur VLDofusBot. Le but de ce bot est de vous aider à automatiser des tâches fastidieuses du jeu. Il ne s'agit
@@ -45,9 +47,9 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
 - [x] Filtrer les items disponibles dans l'HDV équipements.
 - [x] Récolter des ressources de métiers
 - [x] Combattre les dopeuls
+- [x] Retourner à la banque quand l'inventaire est plein
 - [ ] Élever des montures
 - [ ] Combattre en kolizeum
-- [ ] Retourner à la banque quand l'inventaire est plein
 - [ ] Donjons et challenges
 
 ## Installation
@@ -57,19 +59,11 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
 La première étape est d'installer le bot. Pour cela, il vous faudra :
 
 - Java <span style="color:red">**(version 11 minimum, version 20 maximum. [Java 17](https://www.oracle.com/fr/java/technologies/downloads/#java17) fera très bien l'affaire.)**</span>
-- Git : [Télécharger](https://git-scm.com/downloads)
 - Npcap pour utiliser le sniffer : [Télécharger](https://npcap.com/#download)
 
 ### Installer le bot
 
-Pour installer ou travailler sur ce projet, vous devez le cloner et le build. Pour cela, ouvrez un cmd dans le dossier
-où vous voulez installer le bot et tapez ces commandes :
-
-- ```git clone https://github.com/viclew1/VLDofusBot```
-- ```cd VLDofusBot```
-- ```gradlew build```
-
-Ensuite, vous pouvez lancer le jar qui se trouve dans VLDofusBot\VLDofusBotApp\build\libs\VLDofusBotApp-xxx.jar
+Pour installer, téléchargez la dernière release, décompressez le zip, lancez le exe, et c'est prêt !
 
 ### Configuration de l'interface
 

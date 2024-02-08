@@ -1,12 +1,14 @@
+
 # VLDofusBot
+
+**The code of the bot is now private, if you want to download it, head to the releases and get the latest one!**
+
 
 [![fr](https://img.shields.io/badge/README-Français-red.svg)](README_FR.md)
 
 Welcome to VLDofusBot, its goal is to help you automatize tedious tasks in the game. This is not a socket bot, it
 will sniff the network to read the game's packets and will simulate clicks on the game window. No message will be sent
 to the game server directly by the bot.
-
-You can suggest new features or find help on discord : https://discord.gg/v45AA3dtYz
 
 ## Table of contents
 
@@ -44,9 +46,9 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 - [x] Filter items available in equipments auction house
 - [x] Harvest jobs resources
 - [x] Fight Dopples
+- [x] Return to bank when inventory full
 - [ ] Raise mounts
 - [ ] Fight in arena
-- [ ] Return to bank when inventory full
 - [ ] Dungeons + challenges
 
 ## Getting started
@@ -56,19 +58,11 @@ You can suggest new features or find help on discord : https://discord.gg/v45AA3
 To get started, you'll first need to install the bot. For this, you'll need :
 
 - Java <span style="color:red">**(at least version 11, at most 20. [Java 17](https://www.oracle.com/fr/java/technologies/downloads/#java17) will do just fine.)**</span>
-- Git : [Download](https://git-scm.com/downloads)
 - Npcap to use the sniffer : [Download](https://npcap.com/#download)
 
 ### Install the bot
 
-To install or work on this project, you'll need to clone and build this project. Open a cmd where you want to
-install the bot and type these commands :
-
-- ```git clone https://github.com/viclew1/VLDofusBot```
-- ```cd VLDofusBot```
-- ```gradlew build```
-
-Then, you can launch the built jar located in VLDofusBot\VLDofusBotApp\build\libs\VLDofusBotApp-xxx.jar
+To install or work on this project, just download the latest release, unzip it, and run the exe. You're good to go!
 
 ### Set up your game UI
 
