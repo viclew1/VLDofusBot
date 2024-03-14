@@ -10,6 +10,8 @@ Welcome to VLDofusBot, its goal is to help you automatize tedious tasks in the g
 will sniff the network to read the game's packets and will simulate clicks on the game window. No message will be sent
 to the game server directly by the bot.
 
+You can suggest new features, report bugs or find help on Discord : https://discord.gg/v45AA3dtYz
+
 ## Table of contents
 
 * [Features](#features)
