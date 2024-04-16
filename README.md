@@ -14,7 +14,6 @@ You can suggest new features, report bugs or find help on Discord : https://disc
 
 ## Table of contents
 
-* [Features](#features)
 * [Getting started](#getting-started)
     - [Requirements](#requirements)
     - [Install the bot](#install-the-bot)
@@ -35,23 +34,6 @@ You can suggest new features, report bugs or find help on Discord : https://disc
     - [Auction House Item Finder](#auction-house-item-finder)
     - [Treasure Hunt Hints](#treasure-hunt-hints)
         - [How to import new hints](#how-to-import-new-hints)
-
-## Features
-
-- [x] Move multiple characters at once using zaaps if needed, see it as an improved autopilot.
-- [x] Explore all zaaps you're missing.
-- [x] Explore areas to look for archmonsters, quest monsters, or just to kill present monsters.
-- [x] Automatically update Metamob and display quest advancement.
-- [x] Treasure hunts (this one should be half checked as it works but is not finished. You can
-  check [this issue](https://github.com/viclew1/VLDofusBot/issues/8) to learn how to use it).
-- [x] Smith magic (only 1 recipe for now, but everything's ready to implement more)
-- [x] Filter items available in equipments auction house
-- [x] Harvest jobs resources
-- [x] Fight Dopples
-- [x] Return to bank when inventory full
-- [ ] Raise mounts
-- [ ] Fight in arena
-- [ ] Dungeons + challenges
 
 ## Getting started
 
