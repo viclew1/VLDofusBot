@@ -12,7 +12,6 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
 
 ## Table des matières
 
-* [Fonctionnalités](#fonctionnalités)
 * [Installation](#installation)
     - [Prérequis](#prérequis)
     - [Installer le bot](#installer-le-bot)
@@ -33,24 +32,6 @@ Vous pouvez suggérer de nouvelles fonctionnalités ou trouver de l'aide sur le 
     - [Recherche d'items en HDV](#recherche-ditems-en-hdv)
     - [Indices de chasses au trésor](#indices-de-chasses-au-trésor)
         - [Comment importer de nouveaux indices](#comment-importer-de-nouveaux-indices)
-
-## Fonctionnalités
-
-- [x] Déplacer plusieurs personnages à la fois en utilisant les zaaps si nécessaire (voyez le comme un autopilote
-  amélioré).
-- [x] Explorer tous les zaaps qui vous manquent.
-- [x] Explorer des zones à la recherche d'archi-monstres, de monstres de quête, ou simplement pour tuer des monstres.
-- [x] Mettre à jour automatiquement Metamob et afficher votre avancée dans la quête.
-- [x] Les chasses au trésor (cette fonctionnalité devrait être à moitié cochée car elle fonctionne mais n'est pas
-  finie. Voir [cette issue](https://github.com/viclew1/VLDofusBot/issues/8) pour apprendre à l'utiliser).
-- [x] La forgemagie (une seule recette pour l'instant, mais tout est prêt pour en implémenter d'autres).
-- [x] Filtrer les items disponibles dans l'HDV équipements.
-- [x] Récolter des ressources de métiers
-- [x] Combattre les dopeuls
-- [x] Retourner à la banque quand l'inventaire est plein
-- [ ] Élever des montures
-- [ ] Combattre en kolizeum
-- [ ] Donjons et challenges
 
 ## Installation
 
