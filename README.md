@@ -1,7 +1,7 @@
 
 ![global_logo.png](demo/global_logo.png)
 
-# VLDBot
+# VLDBot - DISCONTINUED
 
 Welcome to [VLDBot](https://vldbot.com)!
 
